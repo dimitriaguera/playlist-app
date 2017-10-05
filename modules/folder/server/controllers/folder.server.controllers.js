@@ -34,11 +34,29 @@ exports.open = function (req, res) {
                 let result = {};
 
                 if( !err ) {
-                    result = {
-                        authorized: true,
-                        isFile: stats.isFile(),
-                        name: item,
-                    };
+
+                    if ( stats.isFile() ) {
+
+                        if ( !config.fileSystem.fileAudioTypes.test(item) ) {
+                            result = null;
+                        }
+
+                        else {
+                            result = {
+                                authorized: true,
+                                isFile: true,
+                                name: item,
+                            };
+                        }
+                    }
+
+                    else {
+                        result = {
+                            authorized: true,
+                            isFile: false,
+                            name: item,
+                        };
+                    }
                 }
 
                 return callback( err, result );

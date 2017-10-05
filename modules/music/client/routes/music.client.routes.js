@@ -8,7 +8,7 @@ export const routes = [
     {
         private: false,
         route: {
-            path: '/allPlaylist',
+            path: '/',
             exact: true,
             component: AllPlaylist,
         },

@@ -23,7 +23,7 @@ class Audio extends Component {
         const { playingList, nextTracks } = this.props;
 
         // Test if playlist context.
-        if ( playingList ) {
+        if ( playingList && playingList.pl !== null ) {
 
             const { onPlayIndex, pl } = playingList;
 
@@ -68,7 +68,7 @@ class Audio extends Component {
         return (
             !!onPlay.src &&
             <div style={{width:'100%', position: 'fixed', bottom: '0', lineHeight: '0'}}>
-                <MenuPlay playlist={playingList.pl} color='black' attached='top'/>
+                { !!playingList.pl && <MenuPlay playlist={playingList.pl} color='black' attached='top'/> }
                 <ReactAudioPlayer
                     style={{width:'100%', height:'40px'}}
                     preload="auto"

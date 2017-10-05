@@ -8,6 +8,6 @@ import { Menu } from 'semantic-ui-react'
 
 export const menuItems = [
     {
-        component: () => <Menu.Item as={Link} to='/allPlaylist'>Playlist's</Menu.Item>,
+        component: () => <Menu.Item as={Link} to='/'>Playlists</Menu.Item>,
     },
 ];

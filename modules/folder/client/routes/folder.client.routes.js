@@ -7,7 +7,7 @@ export const routes = [
     {
         private: false,
         route: {
-            path: '/folder',
+            path: '/music',
             exact: true,
             component: Folder,
         },

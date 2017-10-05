@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { del } from 'core/client/services/core.api.services'
+import { activatePlaylist, addPlaylistToPlay } from 'music/client/redux/actions'
 import { Menu, Icon } from 'semantic-ui-react'
 
 class MenuEditPlaylist extends Component {
@@ -17,14 +18,26 @@ class MenuEditPlaylist extends Component {
     deleteHandler(e) {
 
         const _self = this;
-        const {  target, onDelete, history } = _self.props;
+        const {
+            target, onDelete, history, playingList,
+            activePlaylist, clearPlayingList, clearActiveList
+        } = _self.props;
 
         onDelete(target.title)
             .then( (data) => {
                 if ( !data.success ) {
                     return _self.setState({error: true, message: 'Suppression failed'});
                 }
-                return history.push('/allPlaylist');
+
+                if ( playingList.pl && playingList.pl.title === target.title ) {
+                    clearPlayingList();
+                }
+
+                if ( activePlaylist.title === target.title ) {
+                    clearActiveList();
+                }
+
+                return history.push('/');
             });
     }
 
@@ -34,7 +47,7 @@ class MenuEditPlaylist extends Component {
 
         return (
             <Menu>
-                <Menu.Item onClick={(e) => history.push(`/folder?pl=${target.title}`)}>
+                <Menu.Item onClick={(e) => history.push(`/music?pl=${target.title}`)}>
                     <Icon name='plus' color='teal'/>Add Tracks
                 </Menu.Item>
                 <Menu.Menu position='right'>
@@ -46,17 +59,29 @@ class MenuEditPlaylist extends Component {
         );
     }
 }
+const mapStateToProps = state => {
+    return {
+        playingList: state.playlistStore.playingList,
+        activePlaylist: state.playlistStore.activePlaylist,
+    }
+};
 
 const mapDispatchToProps = dispatch => {
     return {
         onDelete: ( title ) => dispatch(
             del( `playlist/${title}` )
         ),
+        clearPlayingList: () => dispatch(
+            addPlaylistToPlay({ pl: null, onPayIndex: 0 })
+        ),
+        clearActiveList: () => dispatch(
+            activatePlaylist(null)
+        ),
     }
 };
 
 const MenuEditPlaylistContainer = connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps
 )(MenuEditPlaylist);
 

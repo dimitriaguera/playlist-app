@@ -4,21 +4,17 @@ import { Link } from 'react-router-dom'
 import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from './menuPlay.client.components'
-import { Divider, Form, Message, Card, Segment, Responsive, Image } from 'semantic-ui-react'
+import AddPlaylist from './addPlaylist.client.components'
+import { Divider, Card, Segment, Responsive, Image } from 'semantic-ui-react'
 
 class AllPlaylist extends Component {
 
     constructor( props ) {
         super( props );
         this.socket = socketServices.getPublicSocket();
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.submitForm = this.submitForm.bind(this);
         this.state = {
             nbCards: 3,
             allPlaylist: [],
-            error: false,
-            message: '',
-            title:'',
         }
     }
 
@@ -44,48 +40,22 @@ class AllPlaylist extends Component {
         console.log("Disconnecting Socket as component will unmount");
     }
 
-    handleInputChange(e) {
-
-        const target = e.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-
-        this.setState({
-            [name]: value
-        });
-    }
-
-    submitForm(e) {
-        const _self = this;
-        const { title } = this.state;
-        this.props.createPlaylist({ title: title })
-            .then( (data) => {
-                if (!data.success) {
-                    _self.setState({message: data.msg, error: true });
-                } else {
-                    _self.setState({error: false, title: ''});
-                }
-            });
-    }
-
-    handleOnResponsiveUpdate() {
-
-    }
-
     render(){
 
-        const { allPlaylist, error, message, title, nbCards } = this.state;
+        const { allPlaylist, nbCards } = this.state;
+        const { history } = this.props;
 
         const playLists = allPlaylist.map( (item, i) => {
             return (
                 <Card key={i}>
-                    <Image src='/static/images/test.jpg' />
+                    {/*<Image src='/static/images/test.jpg' />*/}
                     <Card.Content>
                         <Card.Header as={Link} to={`/playlist/${item.title}`}>
                             {item.title}
                         </Card.Header>
                         <Card.Meta>{item.tracks.length} Tracks</Card.Meta>
                     </Card.Content>
+                    <Card.Content><Link as='a' to={`/music?pl=${item.title}`}>Add tracks</Link></Card.Content>
                     <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
                 </Card>
             );
@@ -97,21 +67,11 @@ class AllPlaylist extends Component {
                 <Divider/>
 
                 <Segment basic>
-                    <Form error={error} onSubmit={this.submitForm}>
-                        <Message error content={message}/>
-                        <Form.Input
-                            action={{ color: 'teal', labelPosition: 'left', icon: 'list layout', content: 'Add' }}
-                            actionPosition='left'
-                            placeholder='Playlist Title...'
-                            name='title'
-                            value={title}
-                            onChange={this.handleInputChange}
-                        />
-                    </Form>
+                    <AddPlaylist />
                 </Segment>
 
                 <Segment basic>
-                    <Responsive as={Card.Group} onUpdate={this.handleOnResponsiveUpdate} itemsPerRow={nbCards}>
+                    <Responsive as={Card.Group} itemsPerRow={nbCards}>
                         {playLists}
                     </Responsive>
                 </Segment>
@@ -119,11 +79,6 @@ class AllPlaylist extends Component {
         );
     }
 }
-
-const mapStateToProps = state => {
-    return {
-    }
-};
 
 const mapDispatchToProps = dispatch => {
     return {

@@ -5,6 +5,7 @@ import { List, Divider, Button, Icon, Breadcrumb, Segment, Label } from 'semanti
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, activatePlaylist } from 'music/client/redux/actions'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
+import AddPlaylist from 'music/client/components/addPlaylist.client.components'
 
 class Folder extends Component {
 
@@ -128,6 +129,8 @@ class Folder extends Component {
 
         const folderList = folder.map( ( item, i )=> {
 
+            if ( item === null ) return null;
+
             let nextPath = path.slice(0);
             nextPath.push(item.name);
             const stringPath = buildPath(nextPath);
@@ -140,6 +143,7 @@ class Folder extends Component {
                 <FolderItemList key={i}
                                 item={item}
                                 path={stringPath}
+                                activePl={!!activePlaylist}
                                 onClick={handlerClick}
                                 addItem={this.handlerAddItem(item, stringPath)}
                 />
@@ -148,16 +152,26 @@ class Folder extends Component {
 
         return (
             <div>
-                <h1>Folder</h1>
+                <h1>Browse Music</h1>
                 <Divider/>
+
+                {!activePlaylist && (
+                <Segment>
+                    <AddPlaylist />
+                </Segment>
+                )}
+
                 <Segment>
                     <SelectPlaylist defaultValue={ params? params.get('pl') : null } />
                     {activePlaylist && <Label as={Link} to={`/playlist/${activePlaylist.title}`} color='teal' tag>{`${activePlaylist.tracks.length} tracks`}</Label>}
                 </Segment>
-                <Button circular size="small" color="grey" basic disabled={!path.length} onClick={this.handlerPrevFolder} icon>
-                    <Icon name='arrow left' />
-                </Button>
-                <Bread/>
+
+                <Segment basic>
+                    <Button circular size="small" color="grey" basic disabled={!path.length} onClick={this.handlerPrevFolder} icon>
+                        <Icon name='arrow left' />
+                    </Button>
+                    <Bread/>
+                </Segment>
 
                 <List divided relaxed>
                     {!error ? folderList : `Can't read root folder`}
@@ -203,18 +217,19 @@ const FolderContainer = connect(
 
 
 
-const FolderItemList = ({ onClick, item, addItem }) => {
+const FolderItemList = ({ onClick, item, addItem, activePl }) => {
 
     return (
         <List.Item>
-            {item.isFile && (
+            {(item.isFile) && (
             <List.Content floated='right'>
-                <Button onClick={addItem} icon basic size="mini" color="teal">
-                    <Icon name='plus' />
-                </Button>
+                {activePl && <Button onClick={addItem} icon basic size="mini" color="teal">
+                                <Icon name='plus' />
+                            </Button>}
+                {!activePl && <Link to='/'>Create playlist</Link>}
             </List.Content>
             )}
-            <List.Icon name={item.isFile?'file outline':'folder'} verticalAlign='middle' />
+            <List.Icon name={item.isFile?'music':'folder'} verticalAlign='middle' />
             <List.Content onClick={onClick}>
                 <List.Header as='a'>{item.name}</List.Header>
             </List.Content>

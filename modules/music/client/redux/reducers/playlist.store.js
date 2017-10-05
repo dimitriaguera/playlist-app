@@ -4,7 +4,6 @@
 import { ACTIVATE_PLAYLIST, ADD_PLAYLIST_TO_PLAY, ADD_PLAYLIST, PLAY_ITEM, PLAY_STATE, PAUSE_STATE } from '../actions'
 
 let initialState = {
-    list: [],
     onPlay: {
         name: null,
         src: null,
