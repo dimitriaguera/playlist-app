@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { get, put } from 'core/client/services/core.api.services'
 import { playOnPlaylist } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
-import PlaylistItem from 'music/client/components/playlistitem.client.components'
+import PlaylistItem from 'music/client/components/playlistItem.client.components'
 import MenuEditPlaylist from 'music/client/components/menuEditPlaylist.client.components'
 import { List, Divider, Header, Segment } from 'semantic-ui-react'
 
