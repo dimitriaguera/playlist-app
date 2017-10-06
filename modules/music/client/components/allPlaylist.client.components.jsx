@@ -54,7 +54,7 @@ class AllPlaylist extends Component {
                             {item.title}
                         </Card.Header>
                         <Card.Meta>Created by {item.author.username}</Card.Meta>
-                        <Link as='a' to={`/music?pl=${item.title}`}>Add tracks</Link>
+                        <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
                     </Card.Content>
                     <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
                     <Card.Content>
