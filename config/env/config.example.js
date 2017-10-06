@@ -6,25 +6,30 @@
 module.exports = {
 
     app: {
-        name: 'react-app-starter',
-        title: 'Un super titre',
-        description: 'Une super description',
-        keywords: 'de, super, mots, clés',
+        name: 'Webapp playlist',
+        title: 'Webapp Playlist',
+        description: 'Make your oun playlist',
+        keywords: 'music, playlist, react, node',
         logo: '/static/assets/img/logo.png',
         favicon: '/static/assets/img/ico.png',
     },
 
     port: process.env.PORT || '3000',
     host: process.env.HOST || 'localhost',
-    protocol: process.env.PROTOCOL || 'http',
     domain: process.env.DOMAIN,
+    protocol: process.env.PROTOCOL || 'http',
 
     api_base_url: '/api/',
-    folder_base_url: '',
+    folder_base_url: 'D:/web',
+
+    fileSystem: {
+        fileAudioTypes: /\.(wav|mp3|flac)$/i,
+        fileImageTypes: /\.(jpe?g|png|gif|bmp)$/i,
+    },
 
     db: {
         client: 'mongodb',
-        database: process.env.DB_NAME || 'web-app-folder',
+        database: process.env.DB_NAME || 'playlist-webapp',
         host: process.env.DB_HOST || '127.0.0.1',
         port: process.env.DB_PORT || '27017',
         user: process.env.DB_USER || 'DB_USER_NAME',
@@ -58,5 +63,3 @@ module.exports = {
         }]
     },
 };
-
-
