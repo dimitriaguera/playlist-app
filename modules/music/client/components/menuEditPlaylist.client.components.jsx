@@ -33,7 +33,7 @@ class MenuEditPlaylist extends Component {
                     clearPlayingList();
                 }
 
-                if ( activePlaylist.title === target.title ) {
+                if ( activePlaylist && activePlaylist.title === target.title ) {
                     clearActiveList();
                 }
 

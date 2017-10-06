@@ -5,7 +5,7 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from './menuPlay.client.components'
 import AddPlaylist from './addPlaylist.client.components'
-import { Divider, Card, Segment, Responsive, Image } from 'semantic-ui-react'
+import { Divider, Card, Segment, Responsive, Icon, Image } from 'semantic-ui-react'
 
 class AllPlaylist extends Component {
 
@@ -53,10 +53,15 @@ class AllPlaylist extends Component {
                         <Card.Header as={Link} to={`/playlist/${item.title}`}>
                             {item.title}
                         </Card.Header>
-                        <Card.Meta>{item.tracks.length} Tracks</Card.Meta>
+                        <Card.Meta>Created by {item.author.username}</Card.Meta>
+                        <Link as='a' to={`/music?pl=${item.title}`}>Add tracks</Link>
                     </Card.Content>
-                    <Card.Content><Link as='a' to={`/music?pl=${item.title}`}>Add tracks</Link></Card.Content>
                     <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
+                    <Card.Content>
+                        <Card.Meta>
+                            <Icon name='music'/> {item.tracks.length} tracks
+                        </Card.Meta>
+                    </Card.Content>
                 </Card>
             );
         });
@@ -67,7 +72,7 @@ class AllPlaylist extends Component {
                 <Divider/>
 
                 <Segment basic>
-                    <AddPlaylist />
+                    <AddPlaylist history={history} />
                 </Segment>
 
                 <Segment basic>

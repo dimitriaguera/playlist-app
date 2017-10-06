@@ -28,14 +28,32 @@ class AddPlaylist extends Component {
     }
 
     submitForm(e) {
+
         const _self = this;
+        const { user, createPlaylist, history } = this.props;
         const { title } = this.state;
-        this.props.createPlaylist({ title: title })
+
+        // User need to be authenticated.
+        if ( !user ) {
+            if ( !history ) {
+                return _self.setState({
+                    error: true,
+                    message: 'You must login to create playlist.',
+                });
+            }
+            else {
+                return history.push('/login');
+            }
+        }
+
+
+        // User authenticated on any role can create playlist.
+        createPlaylist({ title: title, user: user })
             .then( (data) => {
                 if (!data.success) {
                     _self.setState({message: data.msg, error: true });
                 } else {
-                    _self.setState({error: false, title: ''});
+                    _self.setState({error: false, message: '', title: ''});
                 }
             });
     }
@@ -61,6 +79,12 @@ class AddPlaylist extends Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        user: state.authenticationStore._user
+    }
+};
+
 const mapDispatchToProps = dispatch => {
     return {
         createPlaylist: ( item ) => dispatch(
@@ -70,7 +94,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 const AddPlaylistContainer = connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps
 )(AddPlaylist);
 

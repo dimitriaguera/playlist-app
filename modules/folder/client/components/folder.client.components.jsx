@@ -120,7 +120,7 @@ class Folder extends Component {
     render(){
 
         const { folder, path, error, params } = this.state;
-        const { activePlaylist } = this.props;
+        const { activePlaylist, history } = this.props;
         const bread = buildBread(path, this.handlerOpenFolder);
 
         const Bread = () => (
@@ -157,7 +157,7 @@ class Folder extends Component {
 
                 {!activePlaylist && (
                 <Segment>
-                    <AddPlaylist />
+                    <AddPlaylist history={history} />
                 </Segment>
                 )}
 

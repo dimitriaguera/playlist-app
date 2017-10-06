@@ -68,9 +68,11 @@ exports.read = function (req, res) {
 
 exports.create = function (req, res) {
 
-    const { title } = req.body;
+    const { title, user } = req.body;
+
     const newPl = new Playlist({
         title: title,
+        author: user._id,
     });
 
     newPl.save((err) => {
@@ -103,7 +105,9 @@ exports.playlist = function (req, res) {
 
 exports.allPlaylist = function (req, res) {
 
-    Playlist.find({}).exec(function(err, pls){
+    Playlist.find({})
+        .populate('author', 'username')
+        .exec(function(err, pls){
         if (err) {
             return res.status(422).json({
                 success: false, msg: err.name
@@ -175,7 +179,9 @@ exports.delete = function (req, res) {
 
 exports.playlistByTitle = function(req, res, next, title) {
 
-    Playlist.findOne({title: title}).exec(function (err, playlist) {
+    Playlist.findOne({title: title})
+        .populate('author', 'username')
+        .exec(function (err, playlist) {
         if (err) {
             return next(err);
         }
