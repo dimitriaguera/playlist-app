@@ -33,6 +33,8 @@ exports.open = function (req, res) {
 
                 let result = {};
 
+                console.log(`${path}/${item}`);
+
                 if( !err ) {
 
                     if ( stats.isFile() ) {
