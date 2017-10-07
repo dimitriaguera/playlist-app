@@ -17,6 +17,8 @@ exports.read = function (req, res) {
     const filePath = `${drive}/${query}`;
 
     console.log(filePath);
+    filePath.replace(/ /g, '\\ ');
+    console.log(filePath);
 
     // Get stat file.
     fs.stat(filePath, (err, stat) => {
