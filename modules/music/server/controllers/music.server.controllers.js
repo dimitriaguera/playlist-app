@@ -21,7 +21,7 @@ exports.read = function (req, res) {
     console.log(filePath);
 
     // Get stat file.
-    fs.stat(filePath, (err, stat) => {
+    fs.lstat(filePath, (err, stat) => {
 
         if ( err ) {
             console.log(err);
