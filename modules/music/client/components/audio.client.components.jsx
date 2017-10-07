@@ -5,6 +5,8 @@ import { playItem, playOnPlaylist, playState, pauseState } from 'music/client/re
 import MenuPlay from './menuPlay.client.components'
 import ReactAudioPlayer from 'react-audio-player'
 
+//import './audio.scss';
+
 class Audio extends Component {
 
     constructor( props ) {
@@ -72,7 +74,7 @@ class Audio extends Component {
                 <ReactAudioPlayer
                     style={{width:'100%', height:'40px'}}
                     preload="auto"
-                    controls
+                    controls="controls"
                     autoPlay
                     onEnded={this.onEndedHandler}
                     onPause={this.handlerPause}

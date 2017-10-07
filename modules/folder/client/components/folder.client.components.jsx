@@ -173,7 +173,7 @@ class Folder extends Component {
                     <Bread/>
                 </Segment>
 
-                <List divided relaxed>
+                <List divided relaxed size='large'>
                     {!error ? folderList : `Can't read root folder`}
                 </List>
             </div>

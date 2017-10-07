@@ -5,7 +5,7 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from './menuPlay.client.components'
 import AddPlaylist from './addPlaylist.client.components'
-import { Divider, Card, Segment, Responsive, Icon, Image } from 'semantic-ui-react'
+import { Divider, Card, Segment, Responsive, Icon, Image, Grid } from 'semantic-ui-react'
 
 class AllPlaylist extends Component {
 
@@ -47,22 +47,24 @@ class AllPlaylist extends Component {
 
         const playLists = allPlaylist.map( (item, i) => {
             return (
-                <Card key={i}>
-                    {/*<Image src='/static/images/test.jpg' />*/}
-                    <Card.Content>
-                        <Card.Header as={Link} to={`/playlist/${item.title}`}>
-                            {item.title}
-                        </Card.Header>
-                        <Card.Meta>Created by {item.author.username}</Card.Meta>
-                        <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
-                    </Card.Content>
-                    <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
-                    <Card.Content>
-                        <Card.Meta>
-                            <Icon name='music'/> {item.tracks.length} tracks
-                        </Card.Meta>
-                    </Card.Content>
-                </Card>
+                <Grid.Column>
+                    <Card key={i}>
+                        {/*<Image src='/static/images/test.jpg' />*/}
+                        <Card.Content>
+                            <Card.Header as={Link} to={`/playlist/${item.title}`}>
+                                {item.title}
+                            </Card.Header>
+                            <Card.Meta>Created by {item.author.username}</Card.Meta>
+                            <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
+                        </Card.Content>
+                        <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
+                        <Card.Content>
+                            <Card.Meta>
+                                <Icon name='music'/> {item.tracks.length} tracks
+                            </Card.Meta>
+                        </Card.Content>
+                    </Card>
+                </Grid.Column>
             );
         });
 
@@ -76,9 +78,9 @@ class AllPlaylist extends Component {
                 </Segment>
 
                 <Segment basic>
-                    <Responsive as={Card.Group} itemsPerRow={nbCards}>
+                    <Grid columns='3' doubling stackable>
                         {playLists}
-                    </Responsive>
+                    </Grid>
                 </Segment>
             </div>
         );
