@@ -20,6 +20,7 @@ exports.read = function (req, res) {
     fs.stat(filePath, (err, stat) => {
 
         if ( err ) {
+            console.log(err);
             return res.status(404).json({
                 success: false,
                 msg: `Can't find file.`,
