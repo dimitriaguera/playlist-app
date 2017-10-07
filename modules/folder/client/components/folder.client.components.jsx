@@ -243,7 +243,7 @@ const FolderItemList = ({ onClick, item, addItem, activePl }) => {
 function buildPath( array ){
     let path = '';
     for( let i=0; i<array.length; i++ ) {
-        path += `${array[i]}/`;
+        path += `/${array[i]}`;
     }
     return path;
 }
