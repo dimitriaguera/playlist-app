@@ -7,9 +7,9 @@
   "author": "Dimitri Aguera <dimitri.aguera@gmail.com>",
   "scripts": {
     "test": "mocha",
-    "start": "set NODE_ENV=development && node server",
+    "start": "NODE_ENV=development && node server",
     "watch": "webpack -w --config webpack.dev.js",
-    "start-prod": "set NODE_ENV=production && node server",
+    "start-prod": "NODE_ENV=production && node server",
     "build-prod": "webpack --config webpack.prod.js"
   },
   "babel": {
