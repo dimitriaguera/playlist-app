@@ -4,21 +4,8 @@ import { Link } from 'react-router-dom'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnPlaylist, playItem, pauseState, playState } from 'music/client/redux/actions'
 import { Menu, Icon } from 'semantic-ui-react'
-import noUiSlider from 'nouislider'
-
-import style from './nouislider.min.css'
 
 class MenuPlay extends Component {
-
-    constructor(props) {
-
-        super(props);
-
-        this.state = {
-            currentTime: null,
-            duration: null,
-        };
-    }
 
     onPlay() {
 
@@ -177,29 +164,16 @@ class MenuPlay extends Component {
             return null;
         };
 
-        const processSlideRange = () => {
-            return (
-                <Menu.Menu>
-                    <Menu.Item>
-                        <Slider />
-                    </Menu.Item>
-                </Menu.Menu>
-            );
-        };
-
         return (
-            <div>
-                <Menu color={color} secondary={isMini} inverted={isActive} attached={attached} size="small">
-                    {leftBtn()}
-                    {playPauseBtn()}
-                    {rightBtn()}
-                    {processSlideRange()}
-                    {metaNumTracks()}
-                    {metaNameTracks()}
-                    {metaStatusTracks()}
-                    {metaInfoPlaylist()}
-                </Menu>
-            </div>
+            <Menu color={color} secondary={isMini} inverted={isActive} attached={attached} size="small">
+                {leftBtn()}
+                {playPauseBtn()}
+                {rightBtn()}
+                {metaNumTracks()}
+                {metaNameTracks()}
+                {metaStatusTracks()}
+                {metaInfoPlaylist()}
+            </Menu>
         );
     }
 }
@@ -226,37 +200,5 @@ const MenuPlayContainer = connect(
     mapStateToProps,
     mapDispatchToProps
 )(MenuPlay);
-
-
-class Slider extends Component {
-
-    constructor(props) {
-        super(props);
-    }
-
-    componentDidMount() {
-
-        const elmt = this.elmt;
-
-        noUiSlider.create(elmt, {
-            start: [ 4000 ],
-            behaviour: 'tap',
-            range: {
-                'min': [  2000 ],
-                'max': [ 10000 ]
-            }
-        });
-    }
-
-    render ()
-    {
-        return (
-            <div
-                ref={(elmt) => { this.elmt = elmt; }}
-                style={{ width: '100px' }}
-            ></div>
-        );
-    }
-}
 
 export default MenuPlayContainer

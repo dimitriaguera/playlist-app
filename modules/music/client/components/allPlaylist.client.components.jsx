@@ -47,8 +47,8 @@ class AllPlaylist extends Component {
 
         const playLists = allPlaylist.map( (item, i) => {
             return (
-                <Grid.Column>
-                    <Card key={i}>
+                <Grid.Column key={i}>
+                    <Card>
                         {/*<Image src='/static/images/test.jpg' />*/}
                         <Card.Content>
                             <Card.Header as={Link} to={`/playlist/${item.title}`}>
