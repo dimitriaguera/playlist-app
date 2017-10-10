@@ -1,0 +1,21 @@
+
+.playerRange {
+  width: 400px;
+  border: none;
+
+  &.noUi-horizontal {
+    .noUi-connect {
+      background-color: #00f8f0;
+    }
+
+    .noUi-handle {
+      display: none;
+      border-radius: 50%;
+
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
+  }
+}

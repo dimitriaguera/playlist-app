@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { List, Divider, Button, Icon, Breadcrumb, Segment, Label } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
-import { playItem, activatePlaylist } from 'music/client/redux/actions'
+import { playItem, updateActivePlaylist } from 'music/client/redux/actions'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import AddPlaylist from 'music/client/components/addPlaylist.client.components'
 
@@ -184,6 +184,7 @@ class Folder extends Component {
 const mapStateToProps = state => {
     return {
         activePlaylist: state.playlistStore.activePlaylist,
+        playingList: state.playlistStore.playingList,
     }
 };
 
@@ -198,7 +199,7 @@ const mapDispatchToProps = dispatch => {
                 types: {
                     HOOK_TYPE: ( data ) => {
                         return dispatch => {
-                            dispatch(activatePlaylist(data.msg))
+                            dispatch(updateActivePlaylist(data.msg))
                         }
                     },
                 }

@@ -13,7 +13,6 @@ class AllPlaylist extends Component {
         super( props );
         this.socket = socketServices.getPublicSocket();
         this.state = {
-            nbCards: 3,
             allPlaylist: [],
         }
     }
@@ -28,8 +27,7 @@ class AllPlaylist extends Component {
             });
 
         this.socket.on('save:playlist', (data) => {
-            const apl = _self.state.allPlaylist.slice(0);
-            apl.push(data);
+            const apl = updateAllPlaylist( _self.state.allPlaylist, data );
             _self.setState({ allPlaylist: apl })
         });
     }
@@ -42,7 +40,7 @@ class AllPlaylist extends Component {
 
     render(){
 
-        const { allPlaylist, nbCards } = this.state;
+        const { allPlaylist } = this.state;
         const { history } = this.props;
 
         const playLists = allPlaylist.map( (item, i) => {
@@ -57,7 +55,9 @@ class AllPlaylist extends Component {
                             <Card.Meta>Created by {item.author.username}</Card.Meta>
                             <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
                         </Card.Content>
-                        <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
+                        <Card.Content extra>
+                            <MenuPlay playlist={item} />
+                        </Card.Content>
                         <Card.Content>
                             <Card.Meta>
                                 <Icon name='music'/> {item.tracks.length} tracks
@@ -102,5 +102,22 @@ const AllPlaylistContainer = connect(
     null,
     mapDispatchToProps
 )(AllPlaylist);
+
+
+// HELPER
+function updateAllPlaylist( arr, item ) {
+
+    const array = arr.slice(0);
+
+    for( let i = 0; i < array.length; i++ ) {
+
+        if ( item.title === array[i].title ) {
+            array[i] = item;
+            return array;
+        }
+    }
+    array.push(item);
+    return array;
+}
 
 export default AllPlaylistContainer

@@ -3,17 +3,22 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { get, post } from 'core/client/services/core.api.services'
 import ReactAudioPlayer from 'react-audio-player'
-import { playOnPlaylist, playItem, pauseState, playState } from 'music/client/redux/actions'
-import { Menu, Icon } from 'semantic-ui-react'
+import socketServices from 'core/client/services/core.socket.services'
+import { playOnPlaylist, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
+import PlayList from './playlist.client.components'
+import { Menu, Icon, Popup, Button } from 'semantic-ui-react'
 import noUiSlider from 'nouislider'
 
-import style from './nouislider.min.css'
+import style from './style/nouislider.min.css'
+import style2 from './style/audio.scss'
 
-class Audio extends Component {
+class AudioBar extends Component {
 
     constructor( props ) {
 
         super( props );
+
+        this.socket = socketServices.getPublicSocket();
 
         this.onEndedHandler = this.onEndedHandler.bind(this);
         this.onPauseHandler = this.onPauseHandler.bind(this);
@@ -23,7 +28,6 @@ class Audio extends Component {
         this.onNextHandler = this.onNextHandler.bind(this);
         this.onPrevHandler = this.onPrevHandler.bind(this);
         this.onChangeHandler = this.onChangeHandler.bind(this);
-        // this.onSlideHandler = this.onSlideHandler.bind(this);
         this.onStartSlideHandler = this.onStartSlideHandler.bind(this);
         this.onEndSlideHandler = this.onEndSlideHandler.bind(this);
 
@@ -32,6 +36,22 @@ class Audio extends Component {
             currentTime: null,
             duration: null,
         };
+    }
+
+    componentWillMount() {
+        const _self = this;
+
+        this.socket.on('save:playlist', (data) => {
+
+            const { playingList, updatePlayingList } = _self.props;
+
+            if ( playingList.pl && playingList.pl.title === data.title ) {
+                updatePlayingList({
+                    pl: data,
+                    onPlayIndex: playingList.onPlayIndex
+                });
+            }
+        });
     }
 
     /**
@@ -56,19 +76,12 @@ class Audio extends Component {
         }
     }
 
-
-    // MENU HERITAGE
-
     onPlayHandler(e) {
-        this.rap.audioEl.play();
         this.props.play();
-
     };
 
     onPauseHandler(e) {
-        this.rap.audioEl.pause();
         this.props.pause();
-
     }
 
     onCanPlayHandler(e) {
@@ -79,9 +92,6 @@ class Audio extends Component {
     }
 
     onListen(e) {
-        console.log(this.rap.audioEl.currentTime);
-        console.log(this.rap.audioEl.duration);
-
         this.setState({
             currentTime: this.rap.audioEl.currentTime
         });
@@ -108,13 +118,8 @@ class Audio extends Component {
     }
 
     onChangeHandler( value ) {
-
-        console.log('time update value: ' + value);
-
         const { duration } = this.state;
         const time = ( duration * value )/100 ;
-
-        console.log('time update value after process: ' + time);
 
         this.rap.audioEl.currentTime = time;
 
@@ -122,16 +127,6 @@ class Audio extends Component {
             currentTime: time,
         });
     }
-
-    // onSlideHandler( value ) {
-    //
-    //     const { duration } = this.state;
-    //     const time = ( duration * value )/100 ;
-    //
-    //     this.setState({
-    //         currentSlideTime: time
-    //     });
-    // }
 
     onStartSlideHandler() {
         if ( !this.rap ) return;
@@ -149,57 +144,40 @@ class Audio extends Component {
         const { onPlay, isPaused, playingList } = this.props;
         const { onPlayIndex, pl } = playingList;
 
-        const status = isPaused ? 'Pause' : 'Play';
-
-        console.log('RENDER MENUPLAY');
+        if ( this.rap ) {
+            isPaused ? this.rap.audioEl.pause() : this.rap.audioEl.play();
+        }
 
         return (
             !!onPlay.src &&
-            <div style={{width:'100%', position: 'fixed', bottom: '0', lineHeight: '0'}}>
-
-                <ReactAudioPlayer
-                    preload="auto"
-                    autoPlay
-                    listenInterval={1000}
-                    onEnded={this.onEndedHandler}
-                    onCanPlay={this.onCanPlayHandler}
-                    onListen={this.onListen}
-                    ref={(element) => { this.rap = element; }}
-                    src={`/api/music/read?path=${onPlay.src}`}
-                />
-
-                <Menu color='black' secondary={false} inverted={true} attached='top' size="small">
-
-                    <PlayingControls
-                        onPauseHandler={this.onPauseHandler}
-                        onPlayHandler={this.onPlayHandler}
-                        onPrevHandler={this.onPrevHandler}
-                        onNextHandler={this.onNextHandler}
-                        onPlayIndex={onPlayIndex}
-                        isPaused={isPaused}
-                        pl={pl}
+                <div style={{width:'100%', position: 'fixed', bottom: '0', lineHeight: '0'}}>
+                    <ReactAudioPlayer preload="auto" autoPlay listenInterval={1000}
+                                      onEnded={this.onEndedHandler}
+                                      onCanPlay={this.onCanPlayHandler}
+                                      onListen={this.onListen}
+                                      ref={(element) => { this.rap = element; }}
+                                      src={ `/api/music/read?path=${onPlay.src}` }
                     />
-
-
-                    <Menu.Menu>
-                        <Menu.Item>
-                            <RangeSlider
-                                duration={duration}
-                                currentTime={currentTime}
-                                onChange={this.onChangeHandler}
-                                // onSlide={this.onSlideHandler}
-                                onStartSlide={this.onStartSlideHandler}
-                                onEndSlide={this.onEndSlideHandler}
-                            />
-                        </Menu.Item>
-                    </Menu.Menu>
-
-                    <MetaTimeTracks duration={duration} currentSlideTime={currentTime}/>
-                    <MetaNumTracks pl={pl} onPlayIndex={onPlayIndex} />
-                    <MetaNameTracks onPlay={onPlay} />
-                    <MetaStatusTracks status={status} />
-                    <MetaInfoPlaylist pl={pl} />
-                </Menu>
+                    <Menu color='black' secondary={false} inverted={true} attached='top' size="small">
+                        <PlayingControls onPauseHandler={this.onPauseHandler}
+                                         onPlayHandler={this.onPlayHandler}
+                                         onPrevHandler={this.onPrevHandler}
+                                         onNextHandler={this.onNextHandler}
+                                         onPlayIndex={onPlayIndex}
+                                         isPaused={isPaused}
+                                         onPlay={onPlay}
+                                         pl={pl}
+                        />
+                        <MetaTimeTracks duration={duration} currentSlideTime={currentTime}/>
+                        <RangeSlider duration={duration}
+                                     currentTime={currentTime}
+                                     onChange={this.onChangeHandler}
+                                     onStartSlide={this.onStartSlideHandler}
+                                     onEndSlide={this.onEndSlideHandler}
+                        />
+                        <MetaNameTracks onPlay={onPlay} />
+                        <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} />
+                    </Menu>
             </div>
         );
     }
@@ -225,13 +203,16 @@ const mapDispatchToProps = dispatch => {
         nextTracks: ( item ) => dispatch(
             playOnPlaylist( item )
         ),
+        updatePlayingList: ( item ) => dispatch(
+            updatePlaylistToPlay( item )
+        ),
     }
 };
 
-const AudioContainer = connect(
+const AudioBarContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Audio);
+)(AudioBar);
 
 
 
@@ -244,20 +225,17 @@ class RangeSlider extends Component {
         const { onChange, onSlide, onStartSlide, onEndSlide } = this.props;
 
         noUiSlider.create(elmt, {
-            start: [ 0 ],
+            start: 0,
+            connect: [true, false],
             range: {
                 'min': [ 0 ],
-                'max': [ 100 ]
+                'max': [ 100 ],
             }
         });
 
         elmt.noUiSlider.on('change', (value, handle) => {
             onChange(value);
         });
-
-        // elmt.noUiSlider.on('slide', (value, handle) => {
-        //     onSlide(value);
-        // });
 
         elmt.noUiSlider.on('start', () => {
             onStartSlide();
@@ -288,12 +266,13 @@ class RangeSlider extends Component {
         const { duration } = this.props;
 
         return (
-            <div>
-                <div
-                    ref={(elmt) => { this.elmt = elmt; }}
-                    style={{ width: '100px' }}
-                ></div>
-            </div>
+            <Menu.Menu>
+                <Menu.Item>
+                    <div className='playerRange'
+                        ref={(elmt) => { this.elmt = elmt; }}
+                    ></div>
+                </Menu.Item>
+            </Menu.Menu>
         );
     }
 }
@@ -301,8 +280,8 @@ class RangeSlider extends Component {
 class PlayingControls extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { isPaused } = nextProps;
-        return ( isPaused !== this.props.isPaused );
+        const { isPaused, pl, onPlay } = nextProps;
+        return ( isPaused !== this.props.isPaused || pl !== this.props.pl || onPlay !== this.props.onPlay );
     }
 
     render() {
@@ -352,53 +331,12 @@ class PlayingControls extends Component {
 
         return (
             <Menu.Menu>
-                {playPauseBtn()}
                 {leftBtn()}
+                {playPauseBtn()}
                 {rightBtn()}
             </Menu.Menu>
         );
     }
-}
-
-class MetaNumTracks extends Component {
-
-    shouldComponentUpdate(nextProps) {
-        const { pl, onPlayIndex } = nextProps;
-        return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
-    }
-
-    render() {
-        const { pl, onPlayIndex } = this.props;
-        if (pl) {
-            return (
-                <Menu.Menu>
-                    <Menu.Item>
-                        {`${onPlayIndex + 1}/${pl.tracks.length}`}
-                    </Menu.Item>
-                </Menu.Menu>
-            );
-        }
-        return null;
-    };
-}
-
-class MetaStatusTracks extends Component {
-
-    shouldComponentUpdate(nextProps) {
-        const { status } = nextProps;
-        return ( status !== this.props.status );
-    }
-
-    render() {
-        const { status } = this.props;
-        return (
-            <Menu.Menu position='right'>
-                <Menu.Item>
-                    {`...on${status}`}
-                </Menu.Item>
-            </Menu.Menu>
-        );
-    };
 }
 
 class MetaNameTracks extends Component {
@@ -430,21 +368,8 @@ class MetaTimeTracks extends Component {
     render() {
 
         const { currentSlideTime, duration } = this.props;
-
-        let s = parseInt(currentSlideTime % 60);
-        let m = parseInt((currentSlideTime / 60) % 60);
-
-        s = (s >= 10) ? s : "0" + s;
-        m = (m >= 10) ? m : "0" + m;
-        const cst = m + ':' + s ;
-
-        s = parseInt(duration % 60);
-        m = parseInt((duration / 60) % 60);
-
-        s = (s >= 10) ? s : "0" + s;
-        m = (m >= 10) ? m : "0" + m;
-
-        const dur = m + ':' + s ;
+        const cst = getFormatedTime(currentSlideTime);
+        const dur = getFormatedTime(duration);
 
         return (
             <Menu.Menu>
@@ -459,17 +384,27 @@ class MetaTimeTracks extends Component {
 class MetaInfoPlaylist extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { pl } = nextProps;
-        return ( pl !== this.props.pl );
+        const { pl, onPlayIndex } = nextProps;
+        return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
     }
 
     render() {
-        const { pl } = this.props;
+        const { pl, onPlayIndex } = this.props;
         if (pl) {
             return (
                 <Menu.Menu position='right'>
                     <Menu.Item as={Link} to={`/playlist/${pl.title}`}>
                         {`Playlist : ${pl.title}`}
+                        {`${onPlayIndex + 1}/${pl.tracks.length}`}
+                    </Menu.Item>
+                    <Menu.Item>
+                        <Popup
+                            trigger={<Button>List</Button>}
+                            flowing
+                            on='click'
+                        >
+                            <PlayList match={{params:{title:pl.title}}} />
+                        </Popup>
                     </Menu.Item>
                 </Menu.Menu>
             );
@@ -478,4 +413,17 @@ class MetaInfoPlaylist extends Component {
     };
 }
 
-export default AudioContainer
+
+// HELPER
+function getFormatedTime( time ) {
+
+    let s = parseInt(time % 60);
+    let m = parseInt((time / 60) % 60);
+
+    s = (s >= 10) ? s : "0" + s;
+    m = (m >= 10) ? m : "0" + m;
+
+    return m + ':' + s ;
+}
+
+export default AudioBarContainer
