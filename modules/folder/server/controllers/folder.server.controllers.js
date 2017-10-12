@@ -81,6 +81,74 @@ exports.open = function (req, res) {
     });
 };
 
-function getStats() {
+exports.searchSyncFiles = function(req, res) {
 
-}
+    const drive = config.folder_base_url;
+    const query = req.query.path;
+    const path = `${drive}/${query}`;
+
+    // Call recursive search.
+    walk( path, function(err, results) {
+
+        if ( err ) {
+            console.log(err.message);
+            return res.status(401).json({
+                success: false,
+                msg: 'Folder not found',
+            });
+        }
+
+        return res.json({
+            success: true,
+            msg: results,
+        });
+    }, query);
+};
+
+
+/**
+ * Recursive search of all files inside a root folder.
+ * Dir is the root folder path.
+ * Done is the callback called with all results.
+ * P is the initial root folder name.
+ *
+ * @param dir
+ * @param done
+ * @param p
+ */
+const walk = function(dir, done, p) {
+
+    let results = [];
+
+    fs.readdir(dir, function(err, list) {
+
+        if (err) return done(err);
+
+        let i = 0;
+
+        (function next() {
+
+            let name = list[i++];
+
+            if (!name) return done(null, results);
+
+            let relPath = p + '/' + name;
+            let file = dir + '/' + name;
+
+            fs.stat(file, function(err, stat) {
+                if (stat && stat.isDirectory()) {
+                    walk(file, function(err, res) {
+                        results = results.concat(res);
+                        next();
+                    }, relPath);
+                } else {
+                    if ( config.fileSystem.fileAudioTypes.test(file) ){
+                        results.push({src: relPath, name: name});
+                    }
+                    next();
+                }
+            });
+        })();
+    });
+};
+

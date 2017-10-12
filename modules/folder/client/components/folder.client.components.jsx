@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { List, Divider, Button, Icon, Breadcrumb, Segment, Label } from 'semantic-ui-react'
+import { List, Divider, Button, Icon, Breadcrumb, Segment, Label, Confirm } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, updateActivePlaylist } from 'music/client/redux/actions'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
@@ -13,10 +13,25 @@ class Folder extends Component {
         super();
         this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
         this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
+
+        this.handleOpen = this.handleOpen.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
+        this.handleConfirm = this.handleConfirm.bind(this);
+
+        this.handlerGetDeepFiles = this.handlerGetDeepFiles.bind(this);
+        this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
+        this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
+        this.handlerReadFile = this.handlerReadFile.bind(this);
+        this.handlerAddItem = this.handlerAddItem.bind(this);
+
         this.state = {
             path: [],
             folder: [],
             error: false,
+            modal: {
+                open: false,
+                addTracks: [],
+            },
         };
     }
 
@@ -40,16 +55,54 @@ class Folder extends Component {
         });
     }
 
+    // Handle func when open Confirm Box.
+    handleOpen( tracks ){
+        this.setState({modal:{
+            open:true,
+            addTracks: tracks,
+        }});
+    }
+
+    // Handle for cancel Confirm Box.
+    handleCancel() {
+        this.setState({modal:{
+            open:false,
+            addTracks: [],
+        }});
+    }
+
+    // Handle for confirm Confirm Box.
+    handleConfirm() {
+        this.handlerAddItem(null, this.state.modal.addTracks);
+        this.setState({modal:{
+            open:false,
+            addTracks: [],
+        }});
+    }
+
+    handlerGetDeepFiles( e, path ) {
+        const _self = this;
+        const {fetchFiles} = this.props;
+
+        fetchFiles( buildPath(path) ).then((data) => {
+            if ( !data.success ) {
+                _self.setState({ error: true });
+            }
+            else {
+                this.handleOpen(data.msg);
+            }
+        });
+        e.preventDefault();
+    }
+
     handlerOpenFolder( path ) {
+        const _self = this;
+        const {fetchFolder} = this.props;
 
         return (e) => {
-
-            const _self = this;
-            const {fetchFolder} = this.props;
-
-            fetchFolder( buildPath(path) ).then((data) => {
-                if ( !data.success ) {
-                    _self.setState({ error: true });
+            fetchFolder(buildPath(path)).then((data) => {
+                if (!data.success) {
+                    _self.setState({error: true});
                 }
                 else {
                     _self.setState({
@@ -59,13 +112,11 @@ class Folder extends Component {
                     });
                 }
             });
-
             e.preventDefault();
         }
     }
 
-    handlerPrevFolder(e) {
-
+    handlerPrevFolder( e ) {
         const _self = this;
         const { fetchFolder } = this.props;
         const path = this.state.path.slice(0, -1);
@@ -86,45 +137,43 @@ class Folder extends Component {
         e.preventDefault();
     }
 
-    handlerReadFile( item, path ) {
+    handlerReadFile( e, item, path ) {
 
         const play = {
             name: item.name,
             src: path,
         };
 
-        return (e) => {
-            this.props.readFile( play );
-            e.preventDefault();
-        }
+        this.props.readFile( play );
+        e.preventDefault();
     }
 
-    handlerAddItem( item, path ) {
+    handlerAddItem( e, item, path ) {
 
-        const { user, history } = this.props;
+        const { user, history, activePlaylist, addPlaylistItems } = this.props;
 
-        const track = {
-            name: item.name,
-            src: path,
+        if ( !user ) return history.push('/login');
+
+        let tracks = item;
+
+        if ( !Array.isArray( tracks ) ) {
+            tracks = [{
+                name: item.name,
+                src: path,
+            }];
+        }
+
+        const data = {
+            tracks: tracks
         };
 
-        return (e) => {
-
-            if ( !user ) return history.push('/login');
-
-            const pl = this.props.activePlaylist;
-            const tracks = {
-                tracks: [track]
-            };
-
-            this.props.addPlaylistItems( pl.title, tracks );
-            e.preventDefault();
-        }
+        addPlaylistItems( activePlaylist.title, data );
+        if( e ) e.preventDefault();
     }
 
     render(){
 
-        const { folder, path, error, params } = this.state;
+        const { folder, path, error, params, modal } = this.state;
         const { activePlaylist, history, user } = this.props;
         const bread = buildBread(path, this.handlerOpenFolder);
 
@@ -138,11 +187,13 @@ class Folder extends Component {
 
             let nextPath = path.slice(0);
             nextPath.push(item.name);
+
             const stringPath = buildPath(nextPath);
 
-            const handlerClick = item.isFile ?
-                this.handlerReadFile( item, stringPath ) :
-                this.handlerOpenFolder( nextPath );
+            let handlerClick = () => {
+                if ( item.isFile ) return (e) => this.handlerReadFile(e, item, stringPath);
+                else return this.handlerOpenFolder(nextPath);
+            };
 
             return (
                 <FolderItemList key={i}
@@ -150,8 +201,9 @@ class Folder extends Component {
                                 user={user}
                                 path={stringPath}
                                 activePl={!!activePlaylist}
-                                onClick={handlerClick}
-                                addItem={this.handlerAddItem(item, stringPath)}
+                                onClick={handlerClick(nextPath)}
+                                onGetFiles={(e) => this.handlerGetDeepFiles(e, nextPath)}
+                                addItem={(e) => this.handlerAddItem(e, item, stringPath)}
                 />
             );
         });
@@ -182,6 +234,12 @@ class Folder extends Component {
                 <List divided relaxed size='large'>
                     {!error ? folderList : `Can't read root folder`}
                 </List>
+                <Confirm
+                    open={ modal.open }
+                    onCancel={ this.handleCancel }
+                    onConfirm={ this.handleConfirm }
+                    content={`Add ${modal.addTracks.length} tracks on playlist ?`}
+                />
             </div>
         );
     }
@@ -199,6 +257,9 @@ const mapDispatchToProps = dispatch => {
     return {
         fetchFolder: ( query ) => dispatch(
             get( `folder?path=${query || ''}` )
+        ),
+        fetchFiles: ( query ) => dispatch(
+            get( `files?path=${query || ''}` )
         ),
         addPlaylistItems: ( title, items ) => dispatch(
             put( `addtracks/${title}`, {
@@ -225,7 +286,7 @@ const FolderContainer = connect(
 
 
 
-const FolderItemList = ({ onClick, item, user, addItem, activePl }) => {
+const FolderItemList = ({ onClick, onGetFiles, item, user, addItem, activePl }) => {
 
     return (
         <List.Item>
@@ -235,6 +296,13 @@ const FolderItemList = ({ onClick, item, user, addItem, activePl }) => {
                                 <Icon name='plus' />
                             </Button>}
                 {!activePl && <Link to='/'>Create playlist</Link>}
+            </List.Content>
+            )}
+            {(!item.isFile) && (
+            <List.Content floated='right'>
+                <Button onClick={onGetFiles} disabled={!user} icon basic size="mini" color="teal">
+                    <Icon name='plus' />
+                </Button>
             </List.Content>
             )}
             <List.Icon name={item.isFile?'music':'folder'} verticalAlign='middle' />

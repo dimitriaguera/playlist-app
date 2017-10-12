@@ -174,7 +174,7 @@ class AudioBar extends Component {
                                       ref={(element) => { this.rap = element; }}
                                       src={ `/api/music/read?path=${onPlay.src}` }
                     />
-                    <Menu color='black' secondary={false} inverted={true} attached='top' size="small">
+                    <Menu className='audioBarMenu' color='black' secondary={false} inverted={true} attached='top' size="small">
                         <PlayingControls onPauseHandler={this.onPauseHandler}
                                          onPlayHandler={this.onPlayHandler}
                                          onPrevHandler={this.onPrevHandler}
