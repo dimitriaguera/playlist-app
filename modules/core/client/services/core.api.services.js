@@ -1,7 +1,7 @@
 /**
  * Created by Dimitri Aguera on 12/09/2017.
  */
-import config from 'env/config'
+import config from 'env/config.client'
 import { CALL_API } from 'core/client/redux/middlewares/api'
 import { failureAPI } from 'core/client/redux/actions/api.actions'
 import { getLocalToken } from 'users/client/services/users.storage.services'

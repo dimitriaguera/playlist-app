@@ -61,7 +61,8 @@ typings/
 /public/dist/
 
 # secret files
-/config/env/config.js
+/config/conf/config.private.js
 
 # IDE
 /.idea/
+/config/conf/config.public.js

@@ -6,7 +6,7 @@
 const chalk = require('chalk');
 const dateFormat = require('dateformat');
 const path = require('path');
-const config = require('./env/config');
+const config = require('./env/config.server');
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -182,8 +182,9 @@ module.exports.startApp = function() {
 
     seedDB.populate();
 
-    console.log(chalk.yellow(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
+    console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
     console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
+    console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
     console.log(chalk.blue(`SOCKET listening`));
 
     return serve;

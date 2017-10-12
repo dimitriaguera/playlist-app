@@ -4,7 +4,7 @@
 const fs = require('fs');
 const async = require('async');
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
 
 exports.open = function (req, res) {
 

@@ -6,7 +6,7 @@ const path = require('path');
 const async = require('async');
 const chalk = require('chalk');
 const mongoose = require('mongoose');
-const config = require('../env/config');
+const config = require('../env/config.server');
 const User = require(path.resolve('./modules/users/server/models/users.server.models.js'));
 
 const models = {

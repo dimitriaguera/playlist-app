@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
 const _ = require('lodash');
 
 exports.login = function (req, res) {

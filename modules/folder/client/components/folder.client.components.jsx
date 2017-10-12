@@ -101,12 +101,17 @@ class Folder extends Component {
 
     handlerAddItem( item, path ) {
 
+        const { user, history } = this.props;
+
         const track = {
             name: item.name,
             src: path,
         };
 
         return (e) => {
+
+            if ( !user ) return history.push('/login');
+
             const pl = this.props.activePlaylist;
             const tracks = {
                 tracks: [track]
@@ -120,7 +125,7 @@ class Folder extends Component {
     render(){
 
         const { folder, path, error, params } = this.state;
-        const { activePlaylist, history } = this.props;
+        const { activePlaylist, history, user } = this.props;
         const bread = buildBread(path, this.handlerOpenFolder);
 
         const Bread = () => (
@@ -142,6 +147,7 @@ class Folder extends Component {
             return (
                 <FolderItemList key={i}
                                 item={item}
+                                user={user}
                                 path={stringPath}
                                 activePl={!!activePlaylist}
                                 onClick={handlerClick}
@@ -185,6 +191,7 @@ const mapStateToProps = state => {
     return {
         activePlaylist: state.playlistStore.activePlaylist,
         playingList: state.playlistStore.playingList,
+        user: state.authenticationStore._user,
     }
 };
 
@@ -218,13 +225,13 @@ const FolderContainer = connect(
 
 
 
-const FolderItemList = ({ onClick, item, addItem, activePl }) => {
+const FolderItemList = ({ onClick, item, user, addItem, activePl }) => {
 
     return (
         <List.Item>
             {(item.isFile) && (
             <List.Content floated='right'>
-                {activePl && <Button onClick={addItem} icon basic size="mini" color="teal">
+                {activePl && <Button onClick={addItem} disabled={!user} icon basic size="mini" color="teal">
                                 <Icon name='plus' />
                             </Button>}
                 {!activePl && <Link to='/'>Create playlist</Link>}

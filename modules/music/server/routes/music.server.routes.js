@@ -12,7 +12,8 @@ const { USER_ROLE } = require(path.resolve('./modules/users/commons/roles'));
 module.exports = function(app){
 
     // Return streamed audio file.
-    app.route('/api/music/read').get(music.read);
+    app.route('/api/music/read')
+        .get(music.read);
 
     // Return all playlist's
     app.route('/api/allPlaylist')

@@ -5,27 +5,7 @@
 
 module.exports = {
 
-    app: {
-        name: 'Webapp playlist',
-        title: 'Webapp Playlist',
-        description: 'Make your oun playlist',
-        keywords: 'music, playlist, react, node',
-        logo: '/static/assets/img/logo.png',
-        favicon: '/static/assets/img/ico.png',
-    },
-
-    port: process.env.PORT || '3000',
-    host: process.env.HOST || 'localhost',
-    domain: process.env.DOMAIN,
-    protocol: process.env.PROTOCOL || 'http',
-
-    api_base_url: '/api/',
-    folder_base_url: 'D:/web',
-
-    fileSystem: {
-        fileAudioTypes: /\.(wav|mp3|flac)$/i,
-        fileImageTypes: /\.(jpe?g|png|gif|bmp)$/i,
-    },
+    folder_base_url: 'D:/Musique',
 
     db: {
         client: 'mongodb',

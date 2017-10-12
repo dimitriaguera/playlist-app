@@ -6,7 +6,8 @@ import ReactAudioPlayer from 'react-audio-player'
 import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import PlayList from './playlist.client.components'
-import { Menu, Icon, Popup, Button } from 'semantic-ui-react'
+import PlayHistory from './playHistory.client.components'
+import { Menu, Icon, Popup, Button, Sidebar } from 'semantic-ui-react'
 import noUiSlider from 'nouislider'
 
 import style from './style/nouislider.min.css'
@@ -31,10 +32,13 @@ class AudioBar extends Component {
         this.onStartSlideHandler = this.onStartSlideHandler.bind(this);
         this.onEndSlideHandler = this.onEndSlideHandler.bind(this);
 
+        this.toggleVisible = this.toggleVisible.bind(this);
+
         this.state = {
             currentSlideTime: null,
             currentTime: null,
             duration: null,
+            visible: false,
         };
     }
 
@@ -52,6 +56,15 @@ class AudioBar extends Component {
                 });
             }
         });
+    }
+
+    componentWillUnmount() {
+        this.socket.disconnect();
+        console.log("Disconnecting Socket as component will unmount");
+    }
+
+    toggleVisible() {
+        this.setState({ visible: !this.state.visible });
     }
 
     /**
@@ -140,7 +153,7 @@ class AudioBar extends Component {
 
     render(){
 
-        const { duration, currentTime, currentSlideTime } = this.state;
+        const { duration, currentTime, visible } = this.state;
         const { onPlay, isPaused, playingList } = this.props;
         const { onPlayIndex, pl } = playingList;
 
@@ -148,9 +161,12 @@ class AudioBar extends Component {
             isPaused ? this.rap.audioEl.pause() : this.rap.audioEl.play();
         }
 
+        const classes = ['audioBar'];
+        if ( this.state.visible ) { classes.push('show'); }
+
         return (
             !!onPlay.src &&
-                <div style={{width:'100%', position: 'fixed', bottom: '0', lineHeight: '0'}}>
+                <div style={{width:'100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
                     <ReactAudioPlayer preload="auto" autoPlay listenInterval={1000}
                                       onEnded={this.onEndedHandler}
                                       onCanPlay={this.onCanPlayHandler}
@@ -168,6 +184,11 @@ class AudioBar extends Component {
                                          onPlay={onPlay}
                                          pl={pl}
                         />
+
+                        <Menu.Item>
+                            <Button inverted onClick={this.toggleVisible}>Hist</Button>
+                        </Menu.Item>
+
                         <MetaTimeTracks duration={duration} currentSlideTime={currentTime}/>
                         <RangeSlider duration={duration}
                                      currentTime={currentTime}
@@ -178,6 +199,7 @@ class AudioBar extends Component {
                         <MetaNameTracks onPlay={onPlay} />
                         <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} />
                     </Menu>
+                    <AudioBarBottom show={visible}/>
             </div>
         );
     }
@@ -275,6 +297,21 @@ class RangeSlider extends Component {
             </Menu.Menu>
         );
     }
+}
+
+class AudioBarBottom extends Component {
+
+    render(){
+
+        const classes = ['audioBarBottom'];
+        if ( this.props.show ) { classes.push('show'); }
+
+        return (
+            <div className={classes.join(' ')}>
+                <PlayHistory/>
+            </div>
+        )
+    };
 }
 
 class PlayingControls extends Component {

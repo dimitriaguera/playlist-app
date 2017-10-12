@@ -3,7 +3,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
 const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');

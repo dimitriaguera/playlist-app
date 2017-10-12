@@ -43,7 +43,9 @@ class MenuEditPlaylist extends Component {
 
     render(){
 
-        const { history, target } = this.props;
+        const { history, target, user } = this.props;
+
+        if ( !user ) return null;
 
         return (
             <Menu>
@@ -63,6 +65,7 @@ const mapStateToProps = state => {
     return {
         playingList: state.playlistStore.playingList,
         activePlaylist: state.playlistStore.activePlaylist,
+        user: state.authenticationStore._user,
     }
 };
 

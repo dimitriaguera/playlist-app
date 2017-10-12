@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import {Route, Switch} from 'react-router-dom'
 import PrivateRoute from 'users/client/components/authorization/privateRoute.client.components.jsx';
-import { Container } from 'semantic-ui-react'
+import { Container, Sidebar } from 'semantic-ui-react'
 import { getRoutes } from 'core/client/services/core.route.services';
 import NotFound from './404.jsx'
+import AudioBar from 'music/client/components/audioBar.client.components'
 
 class Main extends Component {
 
@@ -19,12 +20,15 @@ class Main extends Component {
         const { routes } = this.state;
 
         return (
+            <div>
             <Container style={{paddingTop:'80px'}}>
                 <Switch>
                     {routes}
                     <Route component={NotFound} />
                 </Switch>
             </Container>
+            <AudioBar />
+            </div>
         )
     };
 }
