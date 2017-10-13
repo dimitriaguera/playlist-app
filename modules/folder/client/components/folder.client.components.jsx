@@ -232,7 +232,7 @@ class Folder extends Component {
                 </Segment>
 
                 <List divided relaxed size='large'>
-                    {!error ? folderList : `Can't read root folder`}
+                    {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
                 </List>
                 <Confirm
                     open={ modal.open }

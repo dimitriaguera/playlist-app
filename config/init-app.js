@@ -16,6 +16,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const moduleUser = require('../modules/users/server/config/passport.strategy');
 const seedDB = require('./seeds/seeds');
+const errorHandler = require('../modules/core/server/services/error.server.services');
 const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
@@ -121,9 +122,18 @@ module.exports.initAuth = function(app, passport) {
  */
 module.exports.initViewEngine = function(app) {
 
+    // Use pug (jade) view engine.
     app.engine('server.views.html', require('pug').__express);
     app.set('view engine', 'server.views.html');
     app.set('views', path.resolve('./'));
+
+    // Environment dependent middleware
+    if ( process.env.NODE_ENV === 'development' ) {
+        // Disable views cache
+        app.set('view cache', false);
+    } else if ( process.env.NODE_ENV === 'production' ) {
+        app.locals.cache = 'memory';
+    }
 };
 
 /**
@@ -141,6 +151,18 @@ module.exports.initRoutes = function(app) {
     require('../modules/music/server/routes/music.server.routes')(app);
     require('../modules/core/server/routes/core.server.routes')(app);
 
+};
+
+/**
+ * Init Server Error redirect.
+ *
+ * @param app
+ */
+module.exports.initErrorRoutes = function (app) {
+
+    app.use(errorHandler.logsError);
+    app.use(errorHandler.xhrErrorHandler);
+    app.use(errorHandler.defaultErrorHandler);
 };
 
 /**
@@ -175,6 +197,7 @@ module.exports.startApp = function() {
     this.initAuth(app, passport);
     this.initViewEngine(app);
     this.initRoutes(app);
+    this.initErrorRoutes(app);
 
     const serve = this.socketConnect(app);
 

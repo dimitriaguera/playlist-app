@@ -29,7 +29,8 @@ function forgeResquest( method, endpoint, data = {} ) {
         const params = {
             method,
             headers: {
-                'Content-Type': 'application/json; charset=UTF-8'
+                'Content-Type': 'application/json; charset=UTF-8',
+                'X-Requested-With' :'XMLHttpRequest',
             },
         };
 

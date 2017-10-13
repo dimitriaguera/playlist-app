@@ -7,9 +7,10 @@ const config = require(path.resolve('./config/env/config.server'));
 const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');
+const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
 
-exports.read = function (req, res) {
+exports.read = function (req, res, next) {
 
     // Build absolute path.
     const drive = config.folder_base_url;
@@ -20,11 +21,8 @@ exports.read = function (req, res) {
     fs.stat(filePath, (err, stat) => {
 
         if ( err ) {
-            console.log(err);
-            return res.status(404).json({
-                success: false,
-                msg: `Can't find file.`,
-            });
+            res.status(404);
+            return errorHandler.errorMessageHandler( err, req, res, next, `Can't find file.` );
         }
 
         // Get buffer to extract MIME from checking magic number of the buffer.
@@ -67,7 +65,7 @@ exports.read = function (req, res) {
     });
 };
 
-exports.create = function (req, res) {
+exports.create = function (req, res, next) {
 
     const { title, user } = req.body;
 
@@ -78,10 +76,7 @@ exports.create = function (req, res) {
 
     newPl.save((err) => {
         if (err) {
-            return res.json({
-                success: false,
-                msg: err.message,
-            });
+            return errorHandler.errorMessageHandler( err, req, res, next );
         }
         res.json({
             success: true,
@@ -104,15 +99,14 @@ exports.playlist = function (req, res) {
     });
 };
 
-exports.allPlaylist = function (req, res) {
+exports.allPlaylist = function (req, res, next) {
 
     Playlist.find({})
         .populate('author', 'username')
         .exec(function(err, pls){
         if (err) {
-            return res.status(422).json({
-                success: false, msg: err.name
-            });
+            res.status(422);
+            return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
         }
         res.json({
             success: true,
@@ -121,7 +115,7 @@ exports.allPlaylist = function (req, res) {
     });
 };
 
-exports.addTracks = function (req, res) {
+exports.addTracks = function (req, res, next) {
 
     const pl = req.model;
 
@@ -129,10 +123,8 @@ exports.addTracks = function (req, res) {
 
     pl.save( function(err){
         if (err) {
-            return res.status(422).json({
-                success: false,
-                msg: err
-            });
+            res.status(422);
+            return errorHandler.errorMessageHandler( err, req, res, next );
         }
         res.json({
             success: true,
@@ -141,7 +133,7 @@ exports.addTracks = function (req, res) {
     });
 };
 
-exports.update = function (req, res) {
+exports.update = function (req, res, next) {
 
     const pl = req.model;
 
@@ -150,10 +142,8 @@ exports.update = function (req, res) {
 
     pl.save( function(err){
         if (err) {
-            return res.status(422).json({
-                success: false,
-                msg: err
-            });
+            res.status(422);
+            return errorHandler.errorMessageHandler( err, req, res, next );
         }
         res.json({
             success: true,
@@ -162,14 +152,12 @@ exports.update = function (req, res) {
     });
 };
 
-exports.delete = function (req, res) {
+exports.delete = function (req, res, next) {
     const pl = req.model;
     pl.remove(function(err){
         if (err) {
-            return res.status(422).json({
-                success: false,
-                msg: err
-            });
+            res.status(422);
+            return errorHandler.errorMessageHandler( err, req, res, next );
         }
         res.json({
             success: true,

@@ -5,6 +5,7 @@ const fs = require('fs');
 const async = require('async');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
+const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
 exports.open = function (req, res) {
 
@@ -81,21 +82,19 @@ exports.open = function (req, res) {
     });
 };
 
-exports.searchSyncFiles = function(req, res) {
+exports.searchSyncFiles = function(req, res, next) {
 
     const drive = config.folder_base_url;
     const query = req.query.path;
-    const path = `${drive}/${query}`;
+    const path = `${drive}z/${query}`;
 
     // Call recursive search.
     walk( path, function(err, results) {
 
         if ( err ) {
-            console.log(err.message);
-            return res.status(401).json({
-                success: false,
-                msg: 'Folder not found',
-            });
+
+            res.status(401);
+            return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
         }
 
         return res.json({
