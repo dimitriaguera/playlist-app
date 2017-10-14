@@ -86,7 +86,7 @@ exports.searchSyncFiles = function(req, res, next) {
 
     const drive = config.folder_base_url;
     const query = req.query.path;
-    const path = `${drive}z/${query}`;
+    const path = `${drive}/${query}`;
 
     // Call recursive search.
     walk( path, function(err, results) {
