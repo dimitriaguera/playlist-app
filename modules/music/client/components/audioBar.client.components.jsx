@@ -7,7 +7,7 @@ import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import PlayList from './playlist.client.components'
 import PlayHistory from './playHistory.client.components'
-import { Menu, Icon, Popup, Button, Sidebar } from 'semantic-ui-react'
+import { Menu, Icon, Popup, Button, Grid, Segment, Table } from 'semantic-ui-react'
 import noUiSlider from 'nouislider'
 
 import style from './style/nouislider.min.css'
@@ -167,6 +167,7 @@ class AudioBar extends Component {
         return (
             !!onPlay.src &&
                 <div style={{width:'100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
+
                     <ReactAudioPlayer preload="auto" autoPlay listenInterval={1000}
                                       onEnded={this.onEndedHandler}
                                       onCanPlay={this.onCanPlayHandler}
@@ -174,31 +175,43 @@ class AudioBar extends Component {
                                       ref={(element) => { this.rap = element; }}
                                       src={ `/api/music/read?path=${onPlay.src}` }
                     />
-                    <Menu className='audioBarMenu' color='black' secondary={false} inverted={true} attached='top' size="small">
-                        <PlayingControls onPauseHandler={this.onPauseHandler}
-                                         onPlayHandler={this.onPlayHandler}
-                                         onPrevHandler={this.onPrevHandler}
-                                         onNextHandler={this.onNextHandler}
-                                         onPlayIndex={onPlayIndex}
-                                         isPaused={isPaused}
-                                         onPlay={onPlay}
-                                         pl={pl}
-                        />
 
-                        <Menu.Item>
-                            <Button inverted onClick={this.toggleVisible}>Hist</Button>
-                        </Menu.Item>
+                    <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
 
-                        <MetaTimeTracks duration={duration} currentSlideTime={currentTime}/>
-                        <RangeSlider duration={duration}
-                                     currentTime={currentTime}
-                                     onChange={this.onChangeHandler}
-                                     onStartSlide={this.onStartSlideHandler}
-                                     onEndSlide={this.onEndSlideHandler}
-                        />
-                        <MetaNameTracks onPlay={onPlay} />
-                        <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} />
-                    </Menu>
+                        <Grid.Column computer='3'>
+                            <PlayingControls onPauseHandler={this.onPauseHandler}
+                                             onPlayHandler={this.onPlayHandler}
+                                             onPrevHandler={this.onPrevHandler}
+                                             onNextHandler={this.onNextHandler}
+                                             onPlayIndex={onPlayIndex}
+                                             isPaused={isPaused}
+                                             onPlay={onPlay}
+                                             pl={pl}
+                            />
+                        </Grid.Column>
+
+                        <Grid.Column computer='1'>
+                            <a href='#' onClick={this.toggleVisible}>Recent play</a>
+                        </Grid.Column>
+
+                        <Grid.Column computer='8'>
+                            <MetaNameTracks onPlay={onPlay} />
+                            <RangeSlider duration={duration}
+                                         currentTime={currentTime}
+                                         onChange={this.onChangeHandler}
+                                         onStartSlide={this.onStartSlideHandler}
+                                         onEndSlide={this.onEndSlideHandler}
+                            />
+                            <MetaTimeTracksCurrent currentSlideTime={currentTime}/>
+                            <MetaTimeTracksEnd duration={duration}/>
+                        </Grid.Column>
+
+                        <Grid.Column computer='4'>
+                            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} />
+                            <MetaPopupPlaylist pl={pl} />
+                         </Grid.Column>
+                    </Grid>
+
                     <AudioBarBottom show={visible}/>
             </div>
         );
@@ -288,13 +301,9 @@ class RangeSlider extends Component {
         const { duration } = this.props;
 
         return (
-            <Menu.Menu>
-                <Menu.Item>
-                    <div className='playerRange'
-                        ref={(elmt) => { this.elmt = elmt; }}
-                    ></div>
-                </Menu.Item>
-            </Menu.Menu>
+            <div className='playerRange'
+                ref={(elmt) => { this.elmt = elmt; }}
+            ></div>
         );
     }
 }
@@ -330,15 +339,11 @@ class PlayingControls extends Component {
         const playPauseBtn = () => {
             // If active playlist and on play, display Pause button.
             if (!isPaused) return (
-                <Menu.Item onClick={onPauseHandler}>
-                    <Icon name='pause'/>
-                </Menu.Item>
+                <Button circular inverted size='big' icon='pause' onClick={onPauseHandler} />
             );
             // Else display Play button.
             else return (
-                <Menu.Item onClick={onPlayHandler}>
-                    <Icon name='play'/>
-                </Menu.Item>
+                <Button circular inverted size='big' icon='play' onClick={onPlayHandler} />
             );
         };
 
@@ -346,9 +351,7 @@ class PlayingControls extends Component {
             if (pl) {
                 const disabled = ( onPlayIndex === 0 );
                 return (
-                    <Menu.Item disabled={disabled} onClick={onPrevHandler}>
-                        <Icon disabled={disabled} name='left chevron'/>
-                    </Menu.Item>
+                    <Button circular inverted icon='left chevron' disabled={disabled} onClick={onPrevHandler} />
                 );
             }
             return null;
@@ -358,20 +361,18 @@ class PlayingControls extends Component {
             if (pl) {
                 const disabled = ( onPlayIndex + 1 === pl.tracks.length );
                 return (
-                    <Menu.Item disabled={disabled} onClick={onNextHandler}>
-                        <Icon disabled={disabled} name='right chevron'/>
-                    </Menu.Item>
+                    <Button circular inverted icon='right chevron' disabled={disabled} onClick={onNextHandler} />
                 );
             }
             return null;
         };
 
         return (
-            <Menu.Menu>
+            <div>
                 {leftBtn()}
                 {playPauseBtn()}
                 {rightBtn()}
-            </Menu.Menu>
+            </div>
         );
     }
 }
@@ -386,16 +387,14 @@ class MetaNameTracks extends Component {
     render() {
         const { onPlay } = this.props;
         return (
-            <Menu.Menu>
-                <Menu.Item>
-                    {`${onPlay.name}`}
-                </Menu.Item>
-            </Menu.Menu>
+            <div className='metaOnPlayInfo'>
+                {`${onPlay.name}`}
+            </div>
         );
     };
 }
 
-class MetaTimeTracks extends Component {
+class MetaTimeTracksCurrent extends Component {
 
     shouldComponentUpdate(nextProps) {
         const { currentSlideTime } = nextProps;
@@ -404,16 +403,33 @@ class MetaTimeTracks extends Component {
 
     render() {
 
-        const { currentSlideTime, duration } = this.props;
+        const { currentSlideTime } = this.props;
         const cst = getFormatedTime(currentSlideTime);
+
+        return (
+            <span>
+                {`${cst}`}
+            </span>
+        );
+    };
+}
+
+class MetaTimeTracksEnd extends Component {
+
+    shouldComponentUpdate(nextProps) {
+        const { duration } = nextProps;
+        return ( duration !== this.props.duration );
+    }
+
+    render() {
+
+        const { duration } = this.props;
         const dur = getFormatedTime(duration);
 
         return (
-            <Menu.Menu>
-                <Menu.Item>
-                    {`${cst} / ${dur}`}
-                </Menu.Item>
-            </Menu.Menu>
+            <span style={{float:'right'}}>
+                {`${dur}`}
+            </span>
         );
     };
 }
@@ -429,21 +445,34 @@ class MetaInfoPlaylist extends Component {
         const { pl, onPlayIndex } = this.props;
         if (pl) {
             return (
-                <Menu.Menu position='right'>
-                    <Menu.Item as={Link} to={`/playlist/${pl.title}`}>
-                        {`Playlist : ${pl.title}`}
-                        {`${onPlayIndex + 1}/${pl.tracks.length}`}
-                    </Menu.Item>
-                    <Menu.Item>
-                        <Popup
-                            trigger={<Button>List</Button>}
-                            flowing
-                            on='click'
-                        >
-                            <PlayList match={{params:{title:pl.title}}} />
-                        </Popup>
-                    </Menu.Item>
-                </Menu.Menu>
+                <div as={Link} to={`/playlist/${pl.title}`}>
+                    {`Playlist : ${pl.title}`}
+                    {`${onPlayIndex + 1}/${pl.tracks.length}`}
+                </div>
+            );
+        }
+        return null;
+    };
+}
+
+class MetaPopupPlaylist extends Component {
+
+    shouldComponentUpdate(nextProps) {
+        const { pl } = nextProps;
+        return ( pl !== this.props.pl );
+    }
+
+    render() {
+        const { pl } = this.props;
+        if (pl) {
+            return (
+                <Popup
+                    trigger={<Icon size='large' name='list layout'/>}
+                    flowing
+                    on='click'
+                >
+                    <PlayList match={{params:{title:pl.title}}} />
+                </Popup>
             );
         }
         return null;
