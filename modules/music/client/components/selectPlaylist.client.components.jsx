@@ -34,6 +34,33 @@ class SelectPlaylist extends Component {
             });
     }
 
+    // Update Playlists list if user connexion move.
+    componentWillReceiveProps( nextProps ) {
+
+        if( this.props.user !== nextProps.user ){
+
+            const _self = this;
+
+            // If user connected, get all with default playlist.
+            if( nextProps.user ) {
+                this.props.getAllPlaylistName()
+                    .then( (data) => {
+                            if( data.success ){
+                                _self.setState({ allPlaylist: data.msg });
+                                _self.props.activatePlaylist(_self.state.allPlaylist[0]);
+                            }
+                        });
+                    }
+
+            // No user, delete default playlist.
+            else {
+                const apl = deleteDefaultPlaylist( _self.state.allPlaylist );
+                _self.setState({ allPlaylist: apl });
+                _self.props.activatePlaylist(null);
+            }
+        }
+    }
+
     handleChange(e, data) {
 
         const value = data.value;
@@ -46,7 +73,7 @@ class SelectPlaylist extends Component {
     render(){
 
         const { allPlaylist } = this.state;
-        const { activePlaylist } = this.props;
+        const { activePlaylist, user } = this.props;
 
         const defaultValue = activePlaylist ? activePlaylist.title : null;
 
@@ -67,6 +94,7 @@ class SelectPlaylist extends Component {
 const mapStateToProps = state => {
     return {
         activePlaylist: state.playlistStore.activePlaylist,
+        user: state.authenticationStore._user,
     }
 };
 
@@ -95,6 +123,20 @@ function getValue( value, array ) {
         }
     }
     return null;
+}
+
+function deleteDefaultPlaylist( arr ) {
+
+    const array = arr.slice(0);
+
+    for( let i = 0; i < array.length; i++ ) {
+
+        if ( array[i].defaultPlaylist ) {
+            array.splice(i, 1);
+            return array;
+        }
+    }
+    return array;
 }
 
 

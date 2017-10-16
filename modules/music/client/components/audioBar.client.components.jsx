@@ -178,7 +178,7 @@ class AudioBar extends Component {
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
 
-                        <Grid.Column computer='3'>
+                        <Grid.Column computer='3' textAlign='center'>
                             <PlayingControls onPauseHandler={this.onPauseHandler}
                                              onPlayHandler={this.onPlayHandler}
                                              onPrevHandler={this.onPrevHandler}
@@ -190,7 +190,7 @@ class AudioBar extends Component {
                             />
                         </Grid.Column>
 
-                        <Grid.Column computer='1'>
+                        <Grid.Column computer='1' textAlign='center'>
                             <a href='#' onClick={this.toggleVisible}>Recent play</a>
                         </Grid.Column>
 
@@ -206,10 +206,9 @@ class AudioBar extends Component {
                             <MetaTimeTracksEnd duration={duration}/>
                         </Grid.Column>
 
-                        <Grid.Column computer='4'>
+                        <Grid.Column computer='4' textAlign='right'>
                             <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} />
-                            <MetaPopupPlaylist pl={pl} />
-                         </Grid.Column>
+                        </Grid.Column>
                     </Grid>
 
                     <AudioBarBottom show={visible}/>
@@ -445,9 +444,13 @@ class MetaInfoPlaylist extends Component {
         const { pl, onPlayIndex } = this.props;
         if (pl) {
             return (
-                <div as={Link} to={`/playlist/${pl.title}`}>
-                    {`Playlist : ${pl.title}`}
+                <div>
+                    <MetaPopupPlaylist pl={pl} />
+                    <Link as='span'  to={`/playlist/${pl.title}`}>
+                    {`Mode : Playlist`}<br/>
+                    {`${pl.title}`}<br/>
                     {`${onPlayIndex + 1}/${pl.tracks.length}`}
+                    </Link>
                 </div>
             );
         }

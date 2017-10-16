@@ -219,10 +219,13 @@ class Folder extends Component {
                 </Segment>
                 )}
 
-                <Segment>
-                    <SelectPlaylist defaultValue={ params? params.get('pl') : null } />
-                    {activePlaylist && <Label as={Link} to={`/playlist/${activePlaylist.title}`} color='teal' tag>{`${activePlaylist.tracks.length} tracks`}</Label>}
-                </Segment>
+                {user && (
+                    <Segment>
+                        <SelectPlaylist defaultValue={ params ? params.get('pl') : null }/>
+                        {activePlaylist && <Label as={Link} to={`/playlist/${activePlaylist.title}`} color='teal'
+                                                  tag>{`${activePlaylist.tracks.length} tracks`}</Label>}
+                    </Segment>
+                )}
 
                 <Segment basic>
                     <Button circular size="small" color="grey" basic disabled={!path.length} onClick={this.handlerPrevFolder} icon>

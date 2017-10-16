@@ -12,6 +12,8 @@ const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const _ = require('lodash');
 
+const Playlist = require(path.resolve('./modules/music/server/models/music.server.models'));
+
 exports.login = function (req, res, next) {
 
     const { username, password } = req.body;
@@ -62,19 +64,36 @@ exports.register = function (req, res, next) {
         });
     } else {
 
+        // Build user.
         const newUser = new User({
             username: username,
             password: password,
             roles: roles,
         });
 
+        // Save user.
         newUser.save(function(err) {
             if (err) {
                 return errorHandler.errorMessageHandler( err, req, res, next );
             }
-            res.json({
-                success: true,
-                msg: 'Successful created new user.'
+
+            // If success build default playlist.
+            const defPl = new Playlist({
+                title: `__def${username}`,
+                defaultPlaylist: true,
+            });
+
+            // Save default playlist.
+            defPl.save(function(err) {
+                if (err) {
+                    return errorHandler.errorMessageHandler( err, req, res, next );
+                }
+
+                // If success send message.
+                res.json({
+                    success: true,
+                    msg: 'Successful created new user.'
+                });
             });
         });
     }

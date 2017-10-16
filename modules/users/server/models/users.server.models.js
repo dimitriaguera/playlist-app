@@ -12,7 +12,6 @@ const config = require(path.resolve('./config/env/config.server'));
 
 const socketsEvents = require('../../../../config/sockets/sockets.conf');
 
-
 /**
  * From MEAN JS.
  * A Validation function for username

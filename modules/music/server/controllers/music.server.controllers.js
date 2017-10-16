@@ -8,7 +8,7 @@ const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-
+const usersServices = require(path.resolve('./modules/users/server/services/users.server.services'));
 
 exports.read = function (req, res, next) {
 
@@ -101,16 +101,39 @@ exports.playlist = function (req, res) {
 
 exports.allPlaylist = function (req, res, next) {
 
-    Playlist.find({})
+    Playlist.find({defaultPlaylist: false})
         .populate('author', 'username')
         .exec(function(err, pls){
         if (err) {
             res.status(422);
-            return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
+            return errorHandler.errorMessageHandler( err, req, res, next, `Can't find playlists.` );
         }
-        res.json({
-            success: true,
-            msg: pls
+
+        // If user authenticated, search and add default playlist.
+        usersServices.getUserFromToken(req, (user) => {
+
+            if ( user ) {
+                return getDefaultPlaylist( user, (err, _defPl) => {
+                    if (err) {
+                        res.status(422);
+                        return errorHandler.errorMessageHandler( err, req, res, next, `Can't find default playlist for user ${req.user.username}` );
+                    }
+
+                    if(_defPl) {
+                        pls.unshift(_defPl);
+                    }
+
+                    res.json({
+                        success: true,
+                        msg: pls
+                    });
+                });
+            }
+
+            res.json({
+                success: true,
+                msg: pls
+            });
         });
     });
 };
@@ -154,6 +177,14 @@ exports.update = function (req, res, next) {
 
 exports.delete = function (req, res, next) {
     const pl = req.model;
+
+    if( pl.defaultPlaylist ){
+        return res.json({
+            success: false,
+            msg: 'Can\'t remove default playlist'
+        });
+    }
+
     pl.remove(function(err){
         if (err) {
             res.status(422);
@@ -177,4 +208,21 @@ exports.playlistByTitle = function(req, res, next, title) {
         req.model = playlist;
         next();
     });
+};
+
+
+// HELPER
+function getDefaultPlaylist ( user, done ) {
+
+    const __def = `__def${user.username}`;
+
+    // Get default playlist for user.
+    Playlist.findOne({ title: __def })
+        .populate('author', 'username')
+        .exec(function(err, pls){
+            if (err) {
+                return done(err);
+            }
+            done( null, pls );
+        });
 };
