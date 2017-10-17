@@ -69,11 +69,13 @@ exports.create = function (req, res, next) {
 
     const { title, user } = req.body;
 
+    // Create playlist.
     const newPl = new Playlist({
         title: title,
         author: user._id,
     });
 
+    // Save it.
     newPl.save((err) => {
         if (err) {
             return errorHandler.errorMessageHandler( err, req, res, next );
@@ -87,7 +89,11 @@ exports.create = function (req, res, next) {
 
 
 exports.playlist = function (req, res) {
+
+    // Get playlist.
     const pl = req.model;
+
+    // Send it.
     if (!pl) {
         return res.status(401).json({
             success: false,
@@ -101,6 +107,7 @@ exports.playlist = function (req, res) {
 
 exports.allPlaylist = function (req, res, next) {
 
+    // Search all playlist, without defaults playlists.
     Playlist.find({defaultPlaylist: false})
         .populate('author', 'username')
         .exec(function(err, pls){
@@ -112,17 +119,22 @@ exports.allPlaylist = function (req, res, next) {
         // If user authenticated, search and add default playlist.
         usersServices.getUserFromToken(req, (user) => {
 
+            // If authenticated.
             if ( user ) {
+
+                // Get the default playlist of this user.
                 return getDefaultPlaylist( user, (err, _defPl) => {
                     if (err) {
                         res.status(422);
                         return errorHandler.errorMessageHandler( err, req, res, next, `Can't find default playlist for user ${req.user.username}` );
                     }
 
+                    // User has default plyalist, add it to all playlist.
                     if(_defPl) {
                         pls.unshift(_defPl);
                     }
 
+                    // Send all.
                     res.json({
                         success: true,
                         msg: pls
@@ -130,6 +142,7 @@ exports.allPlaylist = function (req, res, next) {
                 });
             }
 
+            // If no authenticated, send all without default playlist.
             res.json({
                 success: true,
                 msg: pls
@@ -140,10 +153,13 @@ exports.allPlaylist = function (req, res, next) {
 
 exports.addTracks = function (req, res, next) {
 
+    // Get concerned playlist.
     const pl = req.model;
 
+    // Just add tracks from body post request.
     pl.tracks = pl.tracks.concat(req.body.tracks);
 
+    // Save on db.
     pl.save( function(err){
         if (err) {
             res.status(422);
@@ -158,6 +174,7 @@ exports.addTracks = function (req, res, next) {
 
 exports.update = function (req, res, next) {
 
+    // Get concerned playlist.
     const pl = req.model;
 
     // Update playlist consist on adding or deleting tracks.
@@ -176,8 +193,12 @@ exports.update = function (req, res, next) {
 };
 
 exports.delete = function (req, res, next) {
+
+    // Get playlist.
     const pl = req.model;
 
+    // Verify if not a default playlist.
+    // Default playlist must not be deleted by this way.
     if( pl.defaultPlaylist ){
         return res.json({
             success: false,
@@ -185,6 +206,8 @@ exports.delete = function (req, res, next) {
         });
     }
 
+    // Remove playlist.
+    // Then, send deleted playlist ( useful to update states on client side )
     pl.remove(function(err){
         if (err) {
             res.status(422);
@@ -199,6 +222,7 @@ exports.delete = function (req, res, next) {
 
 exports.playlistByTitle = function(req, res, next, title) {
 
+    // Find an store a playlist.
     Playlist.findOne({title: title})
         .populate('author', 'username')
         .exec(function (err, playlist) {
@@ -214,6 +238,7 @@ exports.playlistByTitle = function(req, res, next, title) {
 // HELPER
 function getDefaultPlaylist ( user, done ) {
 
+    // Build default playlist name according to user's username.
     const __def = `__def${user.username}`;
 
     // Get default playlist for user.

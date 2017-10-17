@@ -38,6 +38,6 @@ exports.getUserFromToken = function( req, done ) {
         });
     }
     else {
-        return done( null );
+        return done(null);
     }
 };
