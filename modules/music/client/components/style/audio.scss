@@ -2,7 +2,7 @@
 .playerRange {
   width: 100%;
   border: none;
-  height:5px;
+  height: 5px;
 
   &.noUi-horizontal {
     .noUi-connect {
@@ -45,7 +45,7 @@
   color: white;
 
   .column {
-    padding-top: 0.3rem !important;
+    //padding-top: 0.3rem !important;
     padding-bottom: 0.3rem !important;
   }
 }

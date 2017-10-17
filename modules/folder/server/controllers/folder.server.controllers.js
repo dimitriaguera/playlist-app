@@ -18,6 +18,8 @@ exports.open = function (req, res) {
     //console.log(path);
     //console.log(process.env);
 
+    // @todo passer la query au regex ( eviter les ../ ou les ./ ou des fichiers autre qu'audio ).
+
     fs.readdir( path, ( err, dir ) => {
 
         if ( err ) {
@@ -141,7 +143,7 @@ const walk = function(dir, done, p) {
                         next();
                     }, relPath);
                 } else {
-                    if ( config.fileSystem.fileAudioTypes.test(file) ){
+                    if ( config.fileSystem.fileAudioTypes.test(name) ){
                         results.push({src: relPath, name: name});
                     }
                     next();

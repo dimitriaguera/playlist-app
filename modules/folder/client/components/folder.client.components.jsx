@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { List, Divider, Button, Icon, Breadcrumb, Segment, Label, Confirm } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
-import { playItem, updateActivePlaylist } from 'music/client/redux/actions'
+import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import AddPlaylist from 'music/client/components/addPlaylist.client.components'
 
@@ -23,6 +23,7 @@ class Folder extends Component {
         this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerAddItem = this.handlerAddItem.bind(this);
+        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
 
         this.state = {
             path: [],
@@ -171,6 +172,28 @@ class Folder extends Component {
         if( e ) e.preventDefault();
     }
 
+    handlerPlayAlbum( e, item, path ) {
+
+        const _self = this;
+        const {fetchFiles, addAlbumToPlay} = this.props;
+
+        fetchFiles( path ).then((data) => {
+            if ( !data.success ) {
+                _self.setState({ error: true });
+            }
+            else {
+                const album = {
+                    al: {
+                        title: item.name,
+                        path: path,
+                        tracks: data.msg,
+                    }
+                };
+                addAlbumToPlay( album );
+            }
+        });
+    }
+
     render(){
 
         const { folder, path, error, params, modal } = this.state;
@@ -204,6 +227,7 @@ class Folder extends Component {
                                 onClick={handlerClick(nextPath)}
                                 onGetFiles={(e) => this.handlerGetDeepFiles(e, nextPath)}
                                 addItem={(e) => this.handlerAddItem(e, item, stringPath)}
+                                onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
                 />
             );
         });
@@ -261,9 +285,11 @@ const mapDispatchToProps = dispatch => {
         fetchFolder: ( query ) => dispatch(
             get( `folder?path=${query || ''}` )
         ),
+
         fetchFiles: ( query ) => dispatch(
             get( `files?path=${query || ''}` )
         ),
+
         addPlaylistItems: ( title, items ) => dispatch(
             put( `addtracks/${title}`, {
                 data: items,
@@ -276,6 +302,16 @@ const mapDispatchToProps = dispatch => {
                 }
             } )
         ),
+
+        addAlbumToPlay: ( item ) => {
+            // Search first track on list.
+            const track = item.al.tracks[0];
+            // Add album to store.
+            dispatch(addAlbumToPlay(item));
+            // If track, play it.
+            if( track ) dispatch(playItem( track ));
+        },
+
         readFile: ( item ) => dispatch(
             playItem( item )
         ),
@@ -289,7 +325,7 @@ const FolderContainer = connect(
 
 
 
-const FolderItemList = ({ onClick, onGetFiles, item, user, addItem, activePl }) => {
+const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, addItem, activePl }) => {
 
     return (
         <List.Item>
@@ -301,13 +337,18 @@ const FolderItemList = ({ onClick, onGetFiles, item, user, addItem, activePl }) 
                 {!activePl && <Link to='/'>Create playlist</Link>}
             </List.Content>
             )}
+
             {(!item.isFile) && (
             <List.Content floated='right'>
+                <Button onClick={onPlayAlbum} icon basic size="mini" color="teal">
+                    <Icon name='play' />
+                </Button>
                 <Button onClick={onGetFiles} disabled={!user} icon basic size="mini" color="teal">
                     <Icon name='plus' />
                 </Button>
             </List.Content>
             )}
+
             <List.Icon name={item.isFile?'music':'folder'} verticalAlign='middle' />
             <List.Content onClick={onClick}>
                 <List.Header as='a'>{item.name}</List.Header>

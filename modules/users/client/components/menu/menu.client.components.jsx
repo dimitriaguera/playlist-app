@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom'
 import { Dropdown, Menu } from 'semantic-ui-react'
 import { logoutUser } from 'users/client/redux/actions'
 
+// AddExt.
+import { activatePlaylist } from 'music/client/redux/actions'
+// End AddExt.
 
 /**
  * Account menu entry and sub-menu.
@@ -35,6 +38,10 @@ const mapDispatchToProps = ( dispatch ) => {
         logoutHandler: e => {
             e.preventDefault();
             dispatch(logoutUser());
+
+            // AddExt.
+            dispatch(activatePlaylist(null));
+            // End AddExt.
         }
     }
 };

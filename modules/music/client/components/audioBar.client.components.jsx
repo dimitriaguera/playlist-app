@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { get, post } from 'core/client/services/core.api.services'
 import ReactAudioPlayer from 'react-audio-player'
 import socketServices from 'core/client/services/core.socket.services'
-import { playOnPlaylist, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
+import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import PlayList from './playlist.client.components'
 import PlayHistory from './playHistory.client.components'
 import { Menu, Icon, Popup, Button, Grid, Segment, Table } from 'semantic-ui-react'
@@ -73,19 +73,20 @@ class AudioBar extends Component {
      */
     onEndedHandler(e) {
 
-        const { playingList, nextTracks } = this.props;
+        const { nextTracks, playingList, albumList } = this.props;
+        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
 
-        // Test if playlist context.
-        if ( playingList && playingList.pl !== null ) {
+        const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
 
-            const { onPlayIndex, pl } = playingList;
+        // Test if playlist or album context.
+        if ( pl !== null ) {
 
             // Test if not the last track.
             if ( onPlayIndex + 1 === pl.tracks.length ) return;
             nextTracks({
                 onPlayIndex: onPlayIndex + 1,
                 pl: pl,
-            });
+            }, callback);
         }
     }
 
@@ -111,23 +112,25 @@ class AudioBar extends Component {
     }
 
     onNextHandler(e) {
-        const { nextTracks, playingList } = this.props;
-        const { onPlayIndex, pl } = playingList;
+        const { nextTracks, playingList, albumList } = this.props;
+        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
+        const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
 
         nextTracks({
             onPlayIndex: onPlayIndex + 1,
             pl: pl,
-        });
+        }, callback);
     }
 
     onPrevHandler(e) {
-        const { nextTracks, playingList } = this.props;
-        const { onPlayIndex, pl } = playingList;
+        const { nextTracks, playingList, albumList } = this.props;
+        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
+        const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
 
         nextTracks({
             onPlayIndex: onPlayIndex - 1,
             pl: pl,
-        });
+        }, callback);
     }
 
     onChangeHandler( value ) {
@@ -154,8 +157,8 @@ class AudioBar extends Component {
     render(){
 
         const { duration, currentTime, visible } = this.state;
-        const { onPlay, isPaused, playingList } = this.props;
-        const { onPlayIndex, pl } = playingList;
+        const { onPlay, isPaused, playingList, albumList } = this.props;
+        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
 
         if ( this.rap ) {
             isPaused ? this.rap.audioEl.pause() : this.rap.audioEl.play();
@@ -178,7 +181,7 @@ class AudioBar extends Component {
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
 
-                        <Grid.Column computer='3' textAlign='center'>
+                        <Grid.Column computer='16' textAlign='center'>
                             <PlayingControls onPauseHandler={this.onPauseHandler}
                                              onPlayHandler={this.onPlayHandler}
                                              onPrevHandler={this.onPrevHandler}
@@ -190,7 +193,7 @@ class AudioBar extends Component {
                             />
                         </Grid.Column>
 
-                        <Grid.Column computer='1' textAlign='center'>
+                        <Grid.Column computer='4' textAlign='left'>
                             <a href='#' onClick={this.toggleVisible}>Recent play</a>
                         </Grid.Column>
 
@@ -207,7 +210,7 @@ class AudioBar extends Component {
                         </Grid.Column>
 
                         <Grid.Column computer='4' textAlign='right'>
-                            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} />
+                            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
                         </Grid.Column>
                     </Grid>
 
@@ -221,6 +224,7 @@ const mapStateToProps = state => {
     return {
         onPlay: state.playlistStore.onPlay,
         playingList: state.playlistStore.playingList,
+        albumList: state.playlistStore.albumList,
         activePlaylist: state.playlistStore.activePlaylist,
         isPaused: state.playlistStore.pause,
     }
@@ -234,8 +238,8 @@ const mapDispatchToProps = dispatch => {
         play: () => dispatch(
             playState()
         ),
-        nextTracks: ( item ) => dispatch(
-            playOnPlaylist( item )
+        nextTracks: ( item, callback ) => dispatch(
+            callback( item )
         ),
         updatePlayingList: ( item ) => dispatch(
             updatePlaylistToPlay( item )
@@ -254,9 +258,8 @@ class RangeSlider extends Component {
 
     componentDidMount() {
 
-        const _self = this;
         const elmt = this.elmt;
-        const { onChange, onSlide, onStartSlide, onEndSlide } = this.props;
+        const { onChange, onStartSlide, onEndSlide } = this.props;
 
         noUiSlider.create(elmt, {
             start: 0,
@@ -436,18 +439,18 @@ class MetaTimeTracksEnd extends Component {
 class MetaInfoPlaylist extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { pl, onPlayIndex } = nextProps;
+        const { onPlayIndex, pl } = nextProps;
         return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
     }
 
     render() {
-        const { pl, onPlayIndex } = this.props;
+        const { pl, onPlayIndex, mode } = this.props;
         if (pl) {
             return (
                 <div>
-                    <MetaPopupPlaylist pl={pl} />
+                    {mode === 'Playlist' && <MetaPopupPlaylist pl={pl} />}
                     <Link as='span'  to={`/playlist/${pl.title}`}>
-                    {`Mode : Playlist`}<br/>
+                    {`Mode : ${mode}`}<br/>
                     {`${pl.title}`}<br/>
                     {`${onPlayIndex + 1}/${pl.tracks.length}`}
                     </Link>
@@ -461,7 +464,8 @@ class MetaInfoPlaylist extends Component {
 class MetaPopupPlaylist extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { pl } = nextProps;
+        const { playingList, albumList } = nextProps;
+        const { pl } = getActiveMode(playingList, albumList);
         return ( pl !== this.props.pl );
     }
 
@@ -493,6 +497,33 @@ function getFormatedTime( time ) {
     m = (m >= 10) ? m : "0" + m;
 
     return m + ':' + s ;
+}
+
+function getActiveMode( playingList, albumList ) {
+
+    if ( playingList && playingList.pl !== null ) {
+        const { onPlayIndex, pl } = playingList;
+        return {
+            pl: pl,
+            onPlayIndex: onPlayIndex,
+            mode: 'Playlist'
+        }
+    }
+
+    if ( albumList && albumList.al !== null ) {
+        const { onPlayIndex, al } = albumList;
+        return {
+            pl: al,
+            onPlayIndex: onPlayIndex,
+            mode: 'Albums'
+        }
+    }
+
+    return {
+        pl: null,
+        onPlayIndex: 0,
+        mode: 'Free',
+    }
 }
 
 export default AudioBarContainer
