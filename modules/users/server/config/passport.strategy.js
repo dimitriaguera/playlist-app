@@ -6,7 +6,7 @@
 const JwtStrategy = require('passport-jwt').Strategy,
       ExtractJwt = require('passport-jwt').ExtractJwt,
       path = require('path'),
-      config = require(path.resolve('./config/env/config')),
+      config = require(path.resolve('./config/env/config.server')),
       User = require('../models/users.server.models');
 
 module.exports.setStrategy = function ( passport ){

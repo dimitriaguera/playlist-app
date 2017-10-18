@@ -6,7 +6,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
 
 const socketsEvents = require('../../../../config/sockets/sockets.conf');
 
@@ -24,20 +24,21 @@ const TrackSchema = new Schema({
 });
 
 const PlaylistSchema = new Schema ({
-
     title: {
         type: String,
         unique: true,
         required: true,
     },
-
     tracks: [TrackSchema],
-
     created: {
         type: Date,
         default: Date.now
     },
-    author: { type: Schema.Types.ObjectId, ref: 'User' }
+    defaultPlaylist: {
+        type: Boolean,
+        default: false,
+    },
+    author: { type: Schema.Types.ObjectId, ref: 'User' },
 });
 
 /**
@@ -54,7 +55,6 @@ PlaylistSchema.post('save', function( doc ) {
  *
  */
 PlaylistSchema.post('save', function( err, doc, next ) {
-
     if ( err.name === 'MongoError' && err.code === 11000 ) {
         next(new Error( `${doc.title} already exist. Please choose an other playlist title.`));
     }

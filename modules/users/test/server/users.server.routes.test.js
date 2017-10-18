@@ -7,7 +7,7 @@ const should = require('should');
 const path = require('path');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
 const express = require(path.resolve('./config/init-app'));
 
 

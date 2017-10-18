@@ -13,13 +13,16 @@ class AllPlaylist extends Component {
         super( props );
         this.socket = socketServices.getPublicSocket();
         this.state = {
-            nbCards: 3,
             allPlaylist: [],
         }
     }
 
     componentWillMount() {
         const _self = this;
+        const { user } = this.props;
+        const username = user ? user.username : '';
+
+        // Get all playlist.
         this.props.getAllPlaylist()
             .then( (data) => {
                 if( data.success ){
@@ -27,12 +30,39 @@ class AllPlaylist extends Component {
                 }
             });
 
+        // Socket connexion.
         this.socket.on('save:playlist', (data) => {
-            const apl = _self.state.allPlaylist.slice(0);
-            apl.push(data);
+            const apl = updateAllPlaylist( _self.state.allPlaylist, data );
             _self.setState({ allPlaylist: apl })
         });
     }
+
+    // Update Playlists list if user connexion move.
+    componentWillReceiveProps( nextProps ) {
+
+        if( this.props.user !== nextProps.user ){
+
+            const _self = this;
+
+            // If user connected, get all with default playlist.
+            if( nextProps.user ) {
+                console.log('UPDATE DPL');
+                this.props.getAllPlaylist()
+                    .then( (data) => {
+                        if( data.success ){
+                            _self.setState({ allPlaylist: data.msg });
+                        }
+                    });
+            }
+
+            // No user, delete default playlist.
+            else {
+                const apl = deleteDefaultPlaylist( _self.state.allPlaylist );
+                _self.setState({ allPlaylist: apl });
+            }
+        }
+    }
+
 
     // On unmount component, disconnect Socket.io.
     componentWillUnmount() {
@@ -42,8 +72,17 @@ class AllPlaylist extends Component {
 
     render(){
 
-        const { allPlaylist, nbCards } = this.state;
+        const { allPlaylist } = this.state;
         const { history } = this.props;
+
+        const getAuthor = function( item ) {
+            if ( !item.author ) {
+                return 'Created by anonyme';
+            }
+            else {
+                return `Created by ${item.author.username}`;
+            }
+        };
 
         const playLists = allPlaylist.map( (item, i) => {
             return (
@@ -54,10 +93,12 @@ class AllPlaylist extends Component {
                             <Card.Header as={Link} to={`/playlist/${item.title}`}>
                                 {item.title}
                             </Card.Header>
-                            <Card.Meta>Created by {item.author.username}</Card.Meta>
+                            <Card.Meta>{getAuthor(item)}</Card.Meta>
                             <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
                         </Card.Content>
-                        <Card.Content extra><MenuPlay isMini playlist={item} /></Card.Content>
+                        <Card.Content extra>
+                            <MenuPlay playlist={item} />
+                        </Card.Content>
                         <Card.Content>
                             <Card.Meta>
                                 <Icon name='music'/> {item.tracks.length} tracks
@@ -87,20 +128,72 @@ class AllPlaylist extends Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+      user: state.authenticationStore._user,
+    }
+};
+
 const mapDispatchToProps = dispatch => {
     return {
         createPlaylist: ( item ) => dispatch(
             post( 'playlist', {data: item} )
         ),
-        getAllPlaylist: ( item ) => dispatch(
-            get( 'allPlaylist' )
+        getAllPlaylist: () => dispatch(
+            get( `allPlaylist` )
         ),
     }
 };
 
 const AllPlaylistContainer = connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps
 )(AllPlaylist);
+
+
+// HELPER
+function updateAllPlaylist( arr, item ) {
+
+    const array = arr.slice(0);
+
+    for( let i = 0; i < array.length; i++ ) {
+
+        if ( item.title === array[i].title ) {
+            array[i] = item;
+            return array;
+        }
+    }
+    array.push(item);
+    return array;
+}
+
+function updateDefaultPlaylist( arr, item ) {
+
+    const array = arr.slice(0);
+
+    for( let i = 0; i < array.length; i++ ) {
+
+        if ( array[i].defaultPlaylist ) {
+            array[i] = item;
+            return array;
+        }
+    }
+    array.unshift( item );
+    return array;
+}
+
+function deleteDefaultPlaylist( arr ) {
+
+    const array = arr.slice(0);
+
+    for( let i = 0; i < array.length; i++ ) {
+
+        if ( array[i].defaultPlaylist ) {
+            array.splice(i, 1);
+            return array;
+        }
+    }
+    return array;
+}
 
 export default AllPlaylistContainer

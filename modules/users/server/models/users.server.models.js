@@ -8,10 +8,9 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt-nodejs');
 const Promise = require('bluebird');
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
 
 const socketsEvents = require('../../../../config/sockets/sockets.conf');
-
 
 /**
  * From MEAN JS.

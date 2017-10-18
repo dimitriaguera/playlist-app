@@ -101,7 +101,7 @@ class Playlist extends Component {
                 <MenuEditPlaylist history={history} target={playlist}/>
                 <Header as='h1'>{playlist.title}</Header>
                 <Divider/>
-                <Segment>
+                <Segment basic>
                     <List divided verticalAlign='middle'>
                         {itemsList}
                     </List>

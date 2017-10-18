@@ -9,4 +9,7 @@ module.exports = function(app){
     // Return index file.
     app.route('/api/folder').get(folder.open);
 
+    // Return only files, in deep.
+    app.route('/api/files').get(folder.searchSyncFiles);
+
 };

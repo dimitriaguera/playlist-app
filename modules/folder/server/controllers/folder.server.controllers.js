@@ -4,7 +4,8 @@
 const fs = require('fs');
 const async = require('async');
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
+const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
 exports.open = function (req, res) {
 
@@ -16,6 +17,8 @@ exports.open = function (req, res) {
 
     //console.log(path);
     //console.log(process.env);
+
+    // @todo passer la query au regex ( eviter les ../ ou les ./ ou des fichiers autre qu'audio ).
 
     fs.readdir( path, ( err, dir ) => {
 
@@ -81,6 +84,72 @@ exports.open = function (req, res) {
     });
 };
 
-function getStats() {
+exports.searchSyncFiles = function(req, res, next) {
 
-}
+    const drive = config.folder_base_url;
+    const query = req.query.path;
+    const path = `${drive}/${query}`;
+
+    // Call recursive search.
+    walk( path, function(err, results) {
+
+        if ( err ) {
+
+            res.status(401);
+            return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
+        }
+
+        return res.json({
+            success: true,
+            msg: results,
+        });
+    }, query);
+};
+
+
+/**
+ * Recursive search of all files inside a root folder.
+ * Dir is the root folder path.
+ * Done is the callback called with all results.
+ * P is the initial root folder name.
+ *
+ * @param dir
+ * @param done
+ * @param p
+ */
+const walk = function(dir, done, p) {
+
+    let results = [];
+
+    fs.readdir(dir, function(err, list) {
+
+        if (err) return done(err);
+
+        let i = 0;
+
+        (function next() {
+
+            let name = list[i++];
+
+            if (!name) return done(null, results);
+
+            let relPath = p + '/' + name;
+            let file = dir + '/' + name;
+
+            fs.stat(file, function(err, stat) {
+                if (stat && stat.isDirectory()) {
+                    walk(file, function(err, res) {
+                        results = results.concat(res);
+                        next();
+                    }, relPath);
+                } else {
+                    if ( config.fileSystem.fileAudioTypes.test(name) ){
+                        results.push({src: relPath, name: name});
+                    }
+                    next();
+                }
+            });
+        })();
+    });
+};
+

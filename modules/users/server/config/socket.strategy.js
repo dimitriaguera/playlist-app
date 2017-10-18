@@ -5,7 +5,8 @@
 const jwt = require('jsonwebtoken');
 const authorizedRoles = require('../roles/socket.role.authorize');
 const path = require('path');
-const config = require(path.resolve('./config/env/config'));
+const config = require(path.resolve('./config/env/config.server'));
+const services = require('../services/users.server.services');
 const User = require('../models/users.server.models');
 
 module.exports = function ( ...roles ){
@@ -15,13 +16,10 @@ module.exports = function ( ...roles ){
         console.log('Check token validity');
 
         // Extract token from headers.
-        let token = socket.handshake.headers.authorization;
-
-        // Extract 'BEARER ' from token.
-        let extractToken = token.substr(7);
+        let token = services.getToken( socket.handshake.headers ) ;
 
         // Test token validity.
-        jwt.verify(extractToken, config.security.jwtSecret, function (err, jwt_payload) {
+        jwt.verify(token, config.security.jwtSecret, function (err, jwt_payload) {
 
             // If error, return.
             if (err) {

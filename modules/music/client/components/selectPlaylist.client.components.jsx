@@ -97,5 +97,19 @@ function getValue( value, array ) {
     return null;
 }
 
+function deleteDefaultPlaylist( arr ) {
+
+    const array = arr.slice(0);
+
+    for( let i = 0; i < array.length; i++ ) {
+
+        if ( array[i].defaultPlaylist ) {
+            array.splice(i, 1);
+            return array;
+        }
+    }
+    return array;
+}
+
 
 export default SelectPlaylistContainer
