@@ -7,7 +7,7 @@ import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import PlayList from './playlist.client.components'
 import PlayHistory from './playHistory.client.components'
-import { Menu, Icon, Popup, Button, Grid, Segment, Table } from 'semantic-ui-react'
+import { Label, Icon, Popup, Button, Grid, Segment, Table } from 'semantic-ui-react'
 import noUiSlider from 'nouislider'
 
 import style from './style/nouislider.min.css'
@@ -181,37 +181,47 @@ class AudioBar extends Component {
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
 
-                        <Grid.Column computer='16' textAlign='center'>
-                            <PlayingControls onPauseHandler={this.onPauseHandler}
-                                             onPlayHandler={this.onPlayHandler}
-                                             onPrevHandler={this.onPrevHandler}
-                                             onNextHandler={this.onNextHandler}
-                                             onPlayIndex={onPlayIndex}
-                                             isPaused={isPaused}
-                                             onPlay={onPlay}
-                                             pl={pl}
-                            />
-                        </Grid.Column>
+                        <Grid.Row>
+                            <Grid.Column computer='6' textAlign='right'>
+                                <MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex}/>
+                            </Grid.Column>
+                            <Grid.Column computer='4' textAlign='center'>
+                                <PlayingControls onPauseHandler={this.onPauseHandler}
+                                                 onPlayHandler={this.onPlayHandler}
+                                                 onPrevHandler={this.onPrevHandler}
+                                                 onNextHandler={this.onNextHandler}
+                                                 onPlayIndex={onPlayIndex}
+                                                 isPaused={isPaused}
+                                                 onPlay={onPlay}
+                                                 pl={pl}
+                                />
+                            </Grid.Column>
+                            <Grid.Column computer='6' textAlign='left'>
+                                <MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex}/>
+                            </Grid.Column>
+                        </Grid.Row>
 
-                        <Grid.Column computer='4' textAlign='left'>
-                            <a href='#' onClick={this.toggleVisible}>Recent play</a>
-                        </Grid.Column>
+                        <Grid.Row className='audioBar-range-row'>
+                            <Grid.Column computer='4' textAlign='left'>
+                                <a href='#' onClick={this.toggleVisible}>Recent play</a>
+                            </Grid.Column>
 
-                        <Grid.Column computer='8'>
-                            <MetaNameTracks onPlay={onPlay} />
-                            <RangeSlider duration={duration}
-                                         currentTime={currentTime}
-                                         onChange={this.onChangeHandler}
-                                         onStartSlide={this.onStartSlideHandler}
-                                         onEndSlide={this.onEndSlideHandler}
-                            />
-                            <MetaTimeTracksCurrent currentSlideTime={currentTime}/>
-                            <MetaTimeTracksEnd duration={duration}/>
-                        </Grid.Column>
+                            <Grid.Column computer='8'>
+                                <MetaNameTracks onPlay={onPlay} />
+                                <RangeSlider duration={duration}
+                                             currentTime={currentTime}
+                                             onChange={this.onChangeHandler}
+                                             onStartSlide={this.onStartSlideHandler}
+                                             onEndSlide={this.onEndSlideHandler}
+                                />
+                                <MetaTimeTracksCurrent currentSlideTime={currentTime}/>
+                                <MetaTimeTracksEnd duration={duration}/>
+                            </Grid.Column>
 
-                        <Grid.Column computer='4' textAlign='right'>
-                            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
-                        </Grid.Column>
+                            <Grid.Column computer='4' textAlign='right'>
+                                <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
+                            </Grid.Column>
+                        </Grid.Row>
                     </Grid>
 
                     <AudioBarBottom show={visible}/>
@@ -370,11 +380,11 @@ class PlayingControls extends Component {
         };
 
         return (
-            <div>
+            <span className='playingControl'>
                 {leftBtn()}
                 {playPauseBtn()}
                 {rightBtn()}
-            </div>
+            </span>
         );
     }
 }
@@ -386,12 +396,85 @@ class MetaNameTracks extends Component {
         return ( onPlay !== this.props.onPlay );
     }
 
+    splitStr(str, handler) {
+
+        const regex = /(\/([^\/]*))/ig;
+
+        let path = '';
+        let result = [];
+        let m;
+
+        while ((m = regex.exec(str)) !== null) {
+            // This is necessary to avoid infinite loops with zero-width matches
+            if (m.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+            path += m[0];
+
+            result.push({
+                content: m[2],
+                path: path,
+            });
+        }
+
+        result[result.length - 1].path = null;
+
+        return result;
+    }
+
     render() {
-        const { onPlay } = this.props;
+            const { onPlay } = this.props;
+
+            const bread = this.splitStr(onPlay.src).map( ( item, i ) => {
+
+                if ( item.path ) {
+                    return (
+                        <span key={i} className='metaOnPlayInfo-link'><Link to={`/music${item.path}`}>{item.content}</Link><Icon name='angle right'/></span>
+                    );
+                }
+                return (
+                    <span key={i} className='metaOnPlayInfo-play'>{item.content}</span>
+                );
+            });
+
+            return (
+                <span className='metaOnPlayInfo' style={{textAlign:'center'}}>
+                    {bread}
+                </span>
+            );
+        };
+    }
+
+class MetaNameNextTracks extends Component {
+
+    shouldComponentUpdate(nextProps) {
+        const { onPlayIndex, pl } = nextProps;
+        return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
+    }
+
+    render() {
+        const { onPlayIndex, pl } = this.props;
+        const name = (pl && pl.tracks[onPlayIndex + 1]) ? pl.tracks[onPlayIndex + 1].name : null;
+
         return (
-            <div className='metaOnPlayInfo'>
-                {`${onPlay.name}`}
-            </div>
+            name && <span><Label color='teal' pointing='right'>Next</Label>{`${name}`}</span>
+        );
+    };
+}
+
+class MetaNamePrevTracks extends Component {
+
+    shouldComponentUpdate(nextProps) {
+        const { onPlayIndex, pl } = nextProps;
+        return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
+    }
+
+    render() {
+        const { onPlayIndex, pl } = this.props;
+        const name = (pl && pl.tracks[onPlayIndex - 1]) ? pl.tracks[onPlayIndex - 1].name : null;
+
+        return (
+            name && <span>{`${name}`}<Label color='teal' pointing='left'>Prev</Label></span>
         );
     };
 }
@@ -448,11 +531,13 @@ class MetaInfoPlaylist extends Component {
         if (pl) {
             return (
                 <div>
-                    {mode === 'Playlist' && <MetaPopupPlaylist pl={pl} />}
+                    {/*{mode === 'Playlist' && <MetaPopupPlaylist pl={pl} />}*/}
                     <Link as='span'  to={`/playlist/${pl.title}`}>
-                    {`Mode : ${mode}`}<br/>
-                    {`${pl.title}`}<br/>
-                    {`${onPlayIndex + 1}/${pl.tracks.length}`}
+                        <span className='audioBar-info-playlist-name'>{`${pl.title}`}</span><br/>
+                        <Label size='large' color='teal'>
+                            {`Mode ${mode}`}
+                            <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
+                        </Label>
                     </Link>
                 </div>
             );
