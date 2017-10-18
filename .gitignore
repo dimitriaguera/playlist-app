@@ -1,9 +1,14 @@
+#db
+db
+
 # Logs
+log
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+nohup.out
 
 # Runtime data
 pids
@@ -62,6 +67,7 @@ typings/
 
 # secret files
 /config/env/config.js
+/config/env/config.local.js
 
 # IDE
 /.idea/
