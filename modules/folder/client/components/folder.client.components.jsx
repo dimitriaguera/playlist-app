@@ -6,6 +6,7 @@ import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import AddPlaylist from 'music/client/components/addPlaylist.client.components'
+import ps from 'folder/client/services/path.client.services'
 
 class Folder extends Component {
 
@@ -45,9 +46,9 @@ class Folder extends Component {
 
         let path = location.pathname;
 
-        path = removeRoute( path, route );
+        path = ps.cleanPath(ps.removeRoute( path, route ));
 
-        fetchFolder( path ).then((data) => {
+        fetchFolder( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true, params: params });
             }
@@ -56,7 +57,7 @@ class Folder extends Component {
                     error: false,
                     folder: data.msg,
                     params: params,
-                    path: splitPath(path),
+                    path: ps.splitPath(path),
                 });
             }
         });
@@ -76,11 +77,11 @@ class Folder extends Component {
         const _self = this;
         const { location, match } = nextProps;
         const route = match.path;
-        const path = removeRoute( location.pathname, route );
+        const path = ps.cleanPath(ps.removeRoute( location.pathname, route ));
 
         // Query folder content, and set new state.
         // This start re-render component with folder content.
-        this.props.fetchFolder( path ).then((data) => {
+        this.props.fetchFolder( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
@@ -88,7 +89,7 @@ class Folder extends Component {
                 _self.setState({
                     error: false,
                     folder: data.msg,
-                    path: splitPath(path),
+                    path: ps.splitPath(path),
                 });
             }
         });
@@ -123,7 +124,7 @@ class Folder extends Component {
         const _self = this;
         const {fetchFiles} = this.props;
 
-        fetchFiles( buildPath(path) ).then((data) => {
+        fetchFiles( ps.urlEncode(ps.buildPath(path)) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
@@ -139,7 +140,7 @@ class Folder extends Component {
         const {history} = this.props;
         return (e) => {
 
-            const strPath = buildPath(path);
+            const strPath = ps.buildPath(path);
             history.push(`/music${strPath}`);
             e.preventDefault();
         }
@@ -149,7 +150,7 @@ class Folder extends Component {
         const _self = this;
         const { fetchFolder, history } = this.props;
         const path = this.state.path.slice(0, -1);
-        const strPath = buildPath(path);
+        const strPath = ps.buildPath(path);
 
         history.push(`/music${strPath}`);
         e.preventDefault();
@@ -194,11 +195,12 @@ class Folder extends Component {
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
 
-        fetchFiles( path ).then((data) => {
+        fetchFiles( ps.urlEncode(`/${path}`) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
             else {
+                console.log(data.msg);
                 const album = {
                     al: {
                         title: item.name,
@@ -229,7 +231,7 @@ class Folder extends Component {
             let nextPath = path.slice(0);
             nextPath.push(item.name);
 
-            const stringPath = buildPath(nextPath);
+            const stringPath = ps.buildPath(nextPath);
 
             let handlerClick = () => {
                 if ( item.isFile ) return (e) => this.handlerReadFile(e, item, stringPath);
@@ -379,42 +381,6 @@ const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, addItem,
 
 
 // HELPER
-// Return String path from Array path.
-function buildPath( array ){
-    let path = '';
-    for( let i=0; i<array.length; i++ ) {
-        path += `/${array[i]}`;
-    }
-    return path;
-}
-
-// Remove route pattern from str String.
-function removeRoute( str, route ) {
-
-    const regex = new RegExp('^(\\' + route + ')', 'i');
-    const result = str.replace(regex, '');
-
-    return result;
-}
-
-// Return Array path from String path.
-function splitPath( str ){
-
-    const regex = /(\/([^\/]*))/ig;
-    let result = [];
-    let m;
-
-    while ((m = regex.exec(str)) !== null) {
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (m.index === regex.lastIndex) {
-            regex.lastIndex++;
-        }
-        result.push(m[2]);
-    }
-
-    return result;
-}
-
 // Return Array to feed Breadcrumb Semantic UI React Component.
 function buildBread( array, handler ){
 

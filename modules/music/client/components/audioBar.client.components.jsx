@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
+import config from 'env/config.client'
 import { get, post } from 'core/client/services/core.api.services'
 import ReactAudioPlayer from 'react-audio-player'
 import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
+import ps from 'folder/client/services/path.client.services'
 import PlayList from './playlist.client.components'
 import PlayHistory from './playHistory.client.components'
 import { Label, Icon, Popup, Button, Grid, Segment, Table } from 'semantic-ui-react'
@@ -176,7 +178,7 @@ class AudioBar extends Component {
                                       onCanPlay={this.onCanPlayHandler}
                                       onListen={this.onListen}
                                       ref={(element) => { this.rap = element; }}
-                                      src={ `/api/music/read?path=${onPlay.src}` }
+                                      src={ `/api/music/read?path=${ps.urlEncode(onPlay.src)}` }
                     />
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
@@ -202,8 +204,10 @@ class AudioBar extends Component {
                         </Grid.Row>
 
                         <Grid.Row className='audioBar-range-row'>
-                            <Grid.Column computer='4' textAlign='left'>
-                                <a href='#' onClick={this.toggleVisible}>Recent play</a>
+                            <Grid.Column computer='4' verticalAlign='bottom' textAlign='left'>
+                                <Label onClick={this.toggleVisible} size='large' color='teal'>
+                                    Recent play
+                                </Label>
                             </Grid.Column>
 
                             <Grid.Column computer='8'>
@@ -433,7 +437,7 @@ class MetaNameTracks extends Component {
                     );
                 }
                 return (
-                    <span key={i} className='metaOnPlayInfo-play'>{item.content}</span>
+                    <span key={i} className='metaOnPlayInfo-play'>{item.content.replace(config.fileSystem.fileAudioTypes, '')}</span>
                 );
             });
 

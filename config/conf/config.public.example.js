@@ -22,7 +22,7 @@ module.exports = {
     api_base_url: '/api/',
 
     fileSystem: {
-        fileAudioTypes: /\.(wav|mp3|flac)$/i,
-        fileImageTypes: /\.(jpe?g|png|gif|bmp)$/i,
+        fileAudioTypes: /(\.(wav|mp3|m4a|flac))$/i,
+        fileImageTypes: /(\.(jpe?g|png|gif|bmp))$/i,
     },
 };

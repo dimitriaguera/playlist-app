@@ -6,19 +6,15 @@ const async = require('async');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
+const ps = require(path.resolve('./modules/folder/server/services/path.server.services'));
 
 exports.open = function (req, res) {
 
-    //const drive = process.env.SystemDrive;
+    const DRIVE = config.folder_base_url;
+    const NOT_SECURE_STRING = req.query.path;
 
-    const drive = config.folder_base_url;
-    const query = req.query.path;
-    const path = `${drive}/${query}`;
-
-    //console.log(path);
-    //console.log(process.env);
-
-    // @todo passer la query au regex ( eviter les ../ ou les ./ ou des fichiers autre qu'audio ).
+    const query = ps.cleanPath(NOT_SECURE_STRING);
+    const path = `${DRIVE}/${query}`;
 
     fs.readdir( path, ( err, dir ) => {
 
@@ -40,7 +36,7 @@ exports.open = function (req, res) {
 
                     if ( stats.isFile() ) {
 
-                        if ( !config.fileSystem.fileAudioTypes.test(item) ) {
+                        if ( !(config.security.secureFile.test(item) && config.fileSystem.fileAudioTypes.test(item)) ) {
                             result = null;
                         }
 
@@ -86,9 +82,12 @@ exports.open = function (req, res) {
 
 exports.searchSyncFiles = function(req, res, next) {
 
-    const drive = config.folder_base_url;
-    const query = req.query.path;
-    const path = `${drive}/${query}`;
+    const DRIVE = config.folder_base_url;
+    const NOT_SECURE_STRING = req.query.path;
+    const query = ps.cleanPath(NOT_SECURE_STRING);
+    const path = `${DRIVE}/${query}`;
+
+    console.log(NOT_SECURE_STRING, query);
 
     // Call recursive search.
     walk( path, function(err, results) {
@@ -143,8 +142,8 @@ const walk = function(dir, done, p) {
                         next();
                     }, relPath);
                 } else {
-                    if ( config.fileSystem.fileAudioTypes.test(name) ){
-                        results.push({src: relPath, name: name});
+                    if ( config.security.secureFile.test(name) && config.fileSystem.fileAudioTypes.test(name) ){
+                        results.push({src: relPath, name: name.replace(config.fileSystem.fileAudioTypes, '')});
                     }
                     next();
                 }
@@ -152,4 +151,6 @@ const walk = function(dir, done, p) {
         })();
     });
 };
+
+
 
