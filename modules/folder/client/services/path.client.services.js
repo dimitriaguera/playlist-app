@@ -31,12 +31,12 @@ exports.splitPath = function( str ){
     let result = [];
     let m;
 
-    while ((m = regex.exec(str)) !== null) {
+    while ((m = regex.exec(`/${str}`)) !== null) {
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
             regex.lastIndex++;
         }
-        result.push(m[2]);
+        if( !!m[2] ) result.push(m[2]);
     }
 
     return result;

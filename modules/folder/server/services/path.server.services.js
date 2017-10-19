@@ -14,12 +14,12 @@ exports.splitPath = function( str ){
     let result = [];
     let m;
 
-    while ((m = regex.exec(str)) !== null) {
+    while ((m = regex.exec(`/${str}`)) !== null) {
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
             regex.lastIndex++;
         }
-        result.push(m[2]);
+        if( !!m[2] ) result.push(m[2]);
     }
 
     return result;
@@ -39,7 +39,7 @@ exports.cleanPath = function( path ) {
     for ( let i = 0; i < pArr.length; i++ ) {
         const brin = sanitize(pArr[i]);
         if( brin === '' ) continue;
-        clean += `${i === 0 ? '' : '/'}${brin}`;
+        clean += `/${brin}`;
     }
     return clean;
 };

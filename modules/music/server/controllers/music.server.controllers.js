@@ -18,7 +18,7 @@ exports.read = function (req, res, next) {
     const NOT_SECURE_STRING = req.query.path;
 
     const query = ps.cleanPath(NOT_SECURE_STRING);
-    const filePath = `${DRIVE}/${query}`;
+    const filePath = `${DRIVE}${query}`;
 
     console.log(NOT_SECURE_STRING);
     console.log(query);

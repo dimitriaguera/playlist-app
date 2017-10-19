@@ -14,7 +14,7 @@ exports.open = function (req, res) {
     const NOT_SECURE_STRING = req.query.path;
 
     const query = ps.cleanPath(NOT_SECURE_STRING);
-    const path = `${DRIVE}/${query}`;
+    const path = `${DRIVE}${query}`;
 
     fs.readdir( path, ( err, dir ) => {
 
@@ -85,7 +85,7 @@ exports.searchSyncFiles = function(req, res, next) {
     const DRIVE = config.folder_base_url;
     const NOT_SECURE_STRING = req.query.path;
     const query = ps.cleanPath(NOT_SECURE_STRING);
-    const path = `${DRIVE}/${query}`;
+    const path = `${DRIVE}${query}`;
 
     console.log(NOT_SECURE_STRING, query);
 

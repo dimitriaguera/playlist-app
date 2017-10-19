@@ -111,7 +111,7 @@ class AllPlaylist extends Component {
 
         return (
             <div>
-                <h1>All Playlists</h1>
+                <h1>Playlists</h1>
                 <Divider/>
 
                 <Segment basic>

@@ -184,10 +184,10 @@ class AudioBar extends Component {
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
 
                         <Grid.Row>
-                            <Grid.Column computer='6' textAlign='right'>
+                            <Grid.Column only='computer tablet' computer='6' textAlign='right'>
                                 <MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex}/>
                             </Grid.Column>
-                            <Grid.Column computer='4' textAlign='center'>
+                            <Grid.Column mobile='16' tablet='4' computer='4' textAlign='center'>
                                 <PlayingControls onPauseHandler={this.onPauseHandler}
                                                  onPlayHandler={this.onPlayHandler}
                                                  onPrevHandler={this.onPrevHandler}
@@ -198,12 +198,12 @@ class AudioBar extends Component {
                                                  pl={pl}
                                 />
                             </Grid.Column>
-                            <Grid.Column computer='6' textAlign='left'>
+                            <Grid.Column only='computer tablet' computer='6' textAlign='left'>
                                 <MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex}/>
                             </Grid.Column>
                         </Grid.Row>
 
-                        <Grid.Row className='audioBar-range-row'>
+                        <Grid.Row only='computer' className='audioBar-range-row'>
                             <Grid.Column computer='4' verticalAlign='bottom' textAlign='left'>
                                 <Label onClick={this.toggleVisible} size='large' color='teal'>
                                     Recent play
@@ -224,6 +224,18 @@ class AudioBar extends Component {
 
                             <Grid.Column computer='4' textAlign='right'>
                                 <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
+                            </Grid.Column>
+                        </Grid.Row>
+
+                        <Grid.Row only='mobile tablet' className='audioBar-range-row'>
+                            <Grid.Column computer='16'>
+                                <MetaNameTracks onPlay={onPlay} />
+                                <RangeSlider duration={duration}
+                                             currentTime={currentTime}
+                                             onChange={this.onChangeHandler}
+                                             onStartSlide={this.onStartSlideHandler}
+                                             onEndSlide={this.onEndSlideHandler}
+                                />
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
@@ -428,21 +440,36 @@ class MetaNameTracks extends Component {
 
     render() {
             const { onPlay } = this.props;
+            const items = this.splitStr(onPlay.src);
 
-            const bread = this.splitStr(onPlay.src).map( ( item, i ) => {
+            const bread = items.map( ( item, i ) => {
+
+                const l = items.length;
+                const width = `${(100 - 65) / (l - 1)}%`;
 
                 if ( item.path ) {
                     return (
-                        <span key={i} className='metaOnPlayInfo-link'><Link to={`/music${item.path}`}>{item.content}</Link><Icon name='angle right'/></span>
+                    <Popup
+                        trigger={<span key={i} className='metaOnPlayInfo-link'><Link to={`/music/${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
+                        content={item.content}
+                        inverted
+                    />
                     );
                 }
+
+                const name = item.content.replace(config.fileSystem.fileAudioTypes, '');
+
                 return (
-                    <span key={i} className='metaOnPlayInfo-play'>{item.content.replace(config.fileSystem.fileAudioTypes, '')}</span>
+                    <Popup
+                    trigger={<span key={i} style={{maxWidth:'65%'}} className='metaOnPlayInfo-play'>{name}</span>}
+                    content={name}
+                    inverted
+                    />
                 );
             });
 
             return (
-                <span className='metaOnPlayInfo' style={{textAlign:'center'}}>
+                <span className='metaOnPlayInfo' style={{textAlign:'left'}}>
                     {bread}
                 </span>
             );

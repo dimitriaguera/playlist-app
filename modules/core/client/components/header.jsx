@@ -20,7 +20,7 @@ class Header extends Component {
         const { menuItems } = this.state;
 
         return (
-            <header>
+            <header className='app-header-container'>
                 <Menu as='nav' fixed='top'>
                     {buildMenuItems( menuItems, user )}
                 </Menu>

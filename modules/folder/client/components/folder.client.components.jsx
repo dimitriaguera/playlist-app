@@ -66,9 +66,9 @@ class Folder extends Component {
     // Re-render only if state.path change.
     shouldComponentUpdate(nextProps, nextState) {
 
-        const { path } = nextState;
+        const { path, modal } = nextState;
 
-        return ( path !== this.state.path );
+        return ( path !== this.state.path || modal !== this.state.modal );
     }
 
     // Force re-rendering on props location change.
@@ -125,6 +125,7 @@ class Folder extends Component {
         const {fetchFiles} = this.props;
 
         fetchFiles( ps.urlEncode(ps.buildPath(path)) ).then((data) => {
+            console.log(data);
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
@@ -256,7 +257,7 @@ class Folder extends Component {
 
         return (
             <div>
-                <h1>Browse Music</h1>
+                <h1>Music</h1>
                 <Divider/>
 
                 {!activePlaylist && (
