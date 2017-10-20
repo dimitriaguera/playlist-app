@@ -41,7 +41,10 @@ chkdir log
 chkdir db
 
 #Lunch MongoDB daemon
-mongod --dbpath db --logpath log/mongod.log &
+
+# Log in log File ce qui est pas bien pour le raspberry
+#mongod --dbpath db --logpath log/mongod.log &
+mongod --dbpath db &
 
 # Start server
 npm run start-prod &
