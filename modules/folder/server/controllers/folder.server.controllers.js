@@ -16,6 +16,9 @@ exports.open = function (req, res) {
     const query = ps.cleanPath(NOT_SECURE_STRING);
     const path = `${DRIVE}${query}`;
 
+    const regexFile = config.fileSystem.fileAudioTypes;
+    const regexSecure = config.security.secureFile;
+
     fs.readdir( path, ( err, dir ) => {
 
         if ( err ) {
@@ -36,7 +39,7 @@ exports.open = function (req, res) {
 
                     if ( stats.isFile() ) {
 
-                        if ( !(config.security.secureFile.test(item) && config.fileSystem.fileAudioTypes.test(item)) ) {
+                        if ( !(regexSecure.test(item) && regexFile.test(item)) ) {
                             result = null;
                         }
 
@@ -45,6 +48,7 @@ exports.open = function (req, res) {
                                 authorized: true,
                                 isFile: true,
                                 name: item,
+                                publicName: item.replace(regexFile, ''),
                             };
                         }
                     }
@@ -84,10 +88,9 @@ exports.searchSyncFiles = function(req, res, next) {
 
     const DRIVE = config.folder_base_url;
     const NOT_SECURE_STRING = req.query.path;
+
     const query = ps.cleanPath(NOT_SECURE_STRING);
     const path = `${DRIVE}${query}`;
-
-    console.log(NOT_SECURE_STRING, query);
 
     // Call recursive search.
     walk( path, function(err, results) {
@@ -118,6 +121,9 @@ exports.searchSyncFiles = function(req, res, next) {
  */
 const walk = function(dir, done, p) {
 
+    const regexFile = config.fileSystem.fileAudioTypes;
+    const regexSecure = config.security.secureFile;
+
     let results = [];
 
     fs.readdir(dir, function(err, list) {
@@ -142,8 +148,8 @@ const walk = function(dir, done, p) {
                         next();
                     }, relPath);
                 } else {
-                    if ( config.security.secureFile.test(name) && config.fileSystem.fileAudioTypes.test(name) ){
-                        results.push({src: relPath, name: name.replace(config.fileSystem.fileAudioTypes, '')});
+                    if ( regexSecure.test(name) && regexFile.test(name) ){
+                        results.push({src: relPath, name: name.replace(regexFile, '')});
                     }
                     next();
                 }

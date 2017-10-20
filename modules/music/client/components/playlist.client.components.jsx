@@ -81,8 +81,6 @@ class Playlist extends Component {
         const { onPlayIndex, pl } = playingList;
         const isActivePlaylist = pl && (pl.title === playlist.title);
 
-        console.log(isActivePlaylist);
-
         const itemsList = playlist.tracks.map( (item, i) => {
             return <PlaylistItem
                 key={i}

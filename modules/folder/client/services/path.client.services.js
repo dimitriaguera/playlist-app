@@ -3,7 +3,7 @@
  */
 const sanitize = require("sanitize-filename");
 
-
+// Build path from array.
 exports.buildPath = function( array ){
     let path = '';
     for ( let i = 0; i < array.length; i++ ) {

@@ -450,7 +450,8 @@ class MetaNameTracks extends Component {
                 if ( item.path ) {
                     return (
                     <Popup
-                        trigger={<span key={i} className='metaOnPlayInfo-link'><Link to={`/music/${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
+                        key={i}
+                        trigger={<span className='metaOnPlayInfo-link'><Link to={`/music${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
                         content={item.content}
                         inverted
                     />
@@ -461,9 +462,10 @@ class MetaNameTracks extends Component {
 
                 return (
                     <Popup
-                    trigger={<span key={i} style={{maxWidth:'65%'}} className='metaOnPlayInfo-play'>{name}</span>}
-                    content={name}
-                    inverted
+                        key={i}
+                        trigger={<span style={{maxWidth:'65%'}} className='metaOnPlayInfo-play'>{name}</span>}
+                        content={name}
+                        inverted
                     />
                 );
             });

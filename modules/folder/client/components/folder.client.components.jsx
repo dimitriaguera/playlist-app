@@ -8,6 +8,21 @@ import SelectPlaylist from 'music/client/components/selectPlaylist.client.compon
 import AddPlaylist from 'music/client/components/addPlaylist.client.components'
 import ps from 'folder/client/services/path.client.services'
 
+
+/**
+ * Folder is the file explorator component.
+ * The folder's path to open is get with component URL, via react-router v4.
+ *
+ * For example :
+ * ----> http://my.example.com/music/Brassens
+ * will call component to display /Brassens folder's content.
+ * ----> http://my.example.com/music/amy_winhouse/bestOf/theBest
+ * will call component to display /amy_winhouse/bestOf/theBest folder's content.
+ *
+ */
+
+
+
 class Folder extends Component {
 
     constructor() {
@@ -41,13 +56,14 @@ class Folder extends Component {
 
         const _self = this;
         const { fetchFolder, location, match } = this.props;
+
+        // TODO a simplifier. Sert à récupérer via url query la playlist à activer dès le cargement du component. Ne devrait pas être l'affaire de ce component.
         const params = new URLSearchParams(location.search);
-        const route = match.path;
 
-        let path = location.pathname;
+        // Extract folder's path to url.
+        const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
-        path = ps.cleanPath(ps.removeRoute( path, route ));
-
+        // Get folder's content.
         fetchFolder( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true, params: params });
@@ -63,21 +79,20 @@ class Folder extends Component {
         });
     }
 
-    // Re-render only if state.path change.
-    shouldComponentUpdate(nextProps, nextState) {
-
+    // Re-render only if path array or modal state are modified.
+    shouldComponentUpdate( nextState ) {
         const { path, modal } = nextState;
-
         return ( path !== this.state.path || modal !== this.state.modal );
     }
 
     // Force re-rendering on props location change.
-    componentWillReceiveProps( nextProps, nextState ) {
+    componentWillReceiveProps( nextProps ) {
 
         const _self = this;
         const { location, match } = nextProps;
-        const route = match.path;
-        const path = ps.cleanPath(ps.removeRoute( location.pathname, route ));
+
+        // Extract folder's path form url.
+        const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
         // Query folder content, and set new state.
         // This start re-render component with folder content.
@@ -120,12 +135,12 @@ class Folder extends Component {
         }});
     }
 
+    // Handler to get all files recursively in a folder.
     handlerGetDeepFiles( e, path ) {
         const _self = this;
         const {fetchFiles} = this.props;
 
-        fetchFiles( ps.urlEncode(ps.buildPath(path)) ).then((data) => {
-            console.log(data);
+        fetchFiles( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
@@ -136,49 +151,63 @@ class Folder extends Component {
         e.preventDefault();
     }
 
+    // Handler onClick on a folder link.
+    // Return list a folder content.
     handlerOpenFolder( path ) {
 
-        const {history} = this.props;
+        const { history } = this.props;
         return (e) => {
 
+            // Build path from array.
             const strPath = ps.buildPath(path);
+            // Update component via url update.
             history.push(`/music${strPath}`);
             e.preventDefault();
         }
     }
 
+    // Handler that return parent folder content.
     handlerPrevFolder( e ) {
-        const _self = this;
-        const { fetchFolder, history } = this.props;
-        const path = this.state.path.slice(0, -1);
-        const strPath = ps.buildPath(path);
 
+        const { history } = this.props;
+        // Delete last entry form path array.
+        const path = this.state.path.slice(0, -1);
+        // Build path from array.
+        const strPath = ps.buildPath(path);
+        // Update component via url update.
         history.push(`/music${strPath}`);
         e.preventDefault();
     }
 
+    // Handler to play music file.
     handlerReadFile( e, item, path ) {
 
+        // Build track item.
         const play = {
             name: item.name,
             src: path,
         };
 
+        // Change global state to start playing track.
         this.props.readFile( play );
         e.preventDefault();
     }
 
+    // Handler to add single track on playlist.
     handlerAddItem( e, item, path ) {
 
         const { user, history, activePlaylist, addPlaylistItems } = this.props;
 
+        // User must be connected to add tracks.
         if ( !user ) return history.push('/login');
 
+        // May be an array of several tracks.
         let tracks = item;
 
+        // If just one item, build array with only one track.
         if ( !Array.isArray( tracks ) ) {
             tracks = [{
-                name: item.name,
+                name: item.publicName,
                 src: path,
             }];
         }
@@ -187,21 +216,22 @@ class Folder extends Component {
             tracks: tracks
         };
 
+        // Add tracks into activated Playlist.
         addPlaylistItems( activePlaylist.title, data );
         if( e ) e.preventDefault();
     }
 
+    // Handler to add recursively all tracks on playlist.
     handlerPlayAlbum( e, item, path ) {
 
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
 
-        fetchFiles( ps.urlEncode(`/${path}`) ).then((data) => {
+        fetchFiles( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
             else {
-                console.log(data.msg);
                 const album = {
                     al: {
                         title: item.name,
@@ -227,16 +257,23 @@ class Folder extends Component {
 
         const folderList = folder.map( ( item, i )=> {
 
+            // If item phantom, no render and next entry.
             if ( item === null ) return null;
 
-            let nextPath = path.slice(0);
-            nextPath.push(item.name);
+            const arrayPath = path.slice(0);
+            arrayPath.push(item.name);
+            const stringPath = ps.buildPath(arrayPath);
 
-            const stringPath = ps.buildPath(nextPath);
-
+            // Set handler to use on file link click.
+            // If item is a folder, fetch and display content.
+            // If item is a file, start playing track.
             let handlerClick = () => {
-                if ( item.isFile ) return (e) => this.handlerReadFile(e, item, stringPath);
-                else return this.handlerOpenFolder(nextPath);
+                if ( item.isFile ) {
+                    return (e) => this.handlerReadFile(e, item, stringPath);
+                }
+                else {
+                    return this.handlerOpenFolder(arrayPath);
+                }
             };
 
             return (
@@ -245,9 +282,9 @@ class Folder extends Component {
                                 user={user}
                                 path={stringPath}
                                 activePl={!!activePlaylist}
-                                onClick={handlerClick(nextPath)}
-                                onGetFiles={(e) => this.handlerGetDeepFiles(e, nextPath)}
-                                addItem={(e) => this.handlerAddItem(e, item, stringPath)}
+                                onClick={handlerClick(arrayPath)}
+                                onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
+                                onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
                                 onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
                 />
             );
@@ -348,13 +385,15 @@ const FolderContainer = connect(
 
 
 
-const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, addItem, activePl }) => {
+const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, onAddItem, activePl }) => {
+
+    const name = item.publicName || item.name;
 
     return (
         <List.Item>
             {(item.isFile) && (
             <List.Content floated='right'>
-                {activePl && <Button onClick={addItem} disabled={!user} icon basic size="mini" color="teal">
+                {activePl && <Button onClick={onAddItem} disabled={!user} icon basic size="mini" color="teal">
                                 <Icon name='plus' />
                             </Button>}
                 {!activePl && <Link to='/'>Create playlist</Link>}
@@ -374,7 +413,7 @@ const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, addItem,
 
             <List.Icon name={item.isFile?'music':'folder'} verticalAlign='middle' />
             <List.Content onClick={onClick}>
-                <List.Header as='a'>{item.name}</List.Header>
+                <List.Header as='a'>{name}</List.Header>
             </List.Content>
         </List.Item>
     );
