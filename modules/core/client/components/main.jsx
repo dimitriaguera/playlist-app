@@ -20,7 +20,7 @@ class Main extends Component {
         const { routes } = this.state;
 
         return (
-            <div>
+            <div className='app-main-container'>
             <Container style={{paddingTop:'80px'}}>
                 <Switch>
                     {routes}

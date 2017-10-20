@@ -9,16 +9,29 @@ const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const usersServices = require(path.resolve('./modules/users/server/services/users.server.services'));
+const ps = require(path.resolve('./modules/folder/server/services/path.server.services'));
 
 exports.read = function (req, res, next) {
 
     // Build absolute path.
-    const drive = config.folder_base_url;
-    const query = req.query.path;
+    const DRIVE = config.folder_base_url;
+    const NOT_SECURE_STRING = req.query.path;
 
-    // @todo passer la query au regex ( eviter les ../ ou les ./ ou des fichiers autre qu'audio ).
+    const query = ps.cleanPath(NOT_SECURE_STRING);
+    const filePath = `${DRIVE}${query}`;
 
-    const filePath = `${drive}/${query}`;
+    console.log(NOT_SECURE_STRING);
+    console.log(query);
+    console.log(filePath);
+
+    // Only read audi files.
+    if( !config.fileSystem.fileAudioTypes.test(filePath) ) {
+        res.status(404);
+        return res.json({
+            success: false,
+            msg: 'Not authorized audio format.',
+        });
+    }
 
     // Get stat file.
     fs.stat(filePath, (err, stat) => {

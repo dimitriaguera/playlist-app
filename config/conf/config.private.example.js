@@ -18,10 +18,11 @@ module.exports = {
 
     security: {
         jwtSecret: 'SECRET',
+        secureFile: /(^[^.].*)/,
         illegalUsernames: [
             'administrator', 'password', 'user',
             'unknown', 'anonymous', 'null', 'undefined', 'api'
-        ]
+        ],
     },
 
     session: {

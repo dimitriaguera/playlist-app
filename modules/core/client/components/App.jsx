@@ -8,7 +8,7 @@ import Loader from './loader.jsx'
 
 const App = () => (
 
-    <div>
+    <div className='app-container'>
         <Header />
         <Main />
         <Loader />

@@ -26,16 +26,8 @@ const socketService = {
         // Try to connect.
         const socket = io.connect(url + nsp, options);
 
-        // Catch error on client side connexion request.
-        socket.on('connect_error', function(err) {
-            console.log('Connexion error : ', err);
-        });
-
-        // Catch error send by server.
-        socket.on('error', function(err) {
-            console.log('Server socket sent an error : ', err);
-        });
-
+        // Manage socket error or fail events.
+        errorSocketEvents(socket);
 
         return socket;
     },
@@ -50,18 +42,34 @@ const socketService = {
         // Try to connect.
         const socket = io.connect(url + nsp, options);
 
-        // Catch error on client side connexion request.
-        socket.on('connect_error', function(err) {
-            console.log('Connexion error : ', err);
-        });
-
-        // Catch error send by server.
-        socket.on('error', function(err) {
-            console.log('Server socket sent an error : ', err);
-        });
+        // Manage socket error or fail events.
+        errorSocketEvents(socket);
 
         return socket;
     }
 };
+
+
+//HELPER.
+function errorSocketEvents( socket ) {
+
+    // Catch error send by server.
+    socket.on('error', function(err) {
+        console.log('Server socket sent an error', err);
+    });
+
+    // Catch error on client side connexion request.
+    socket.on('connect_error', function(err) {
+        console.log('Connexion error', err);
+        socket.close();
+    });
+
+    // Stop if reconnect failed.
+    socket.on('reconnect_failed', () => {
+        console.log('Reconnect failed' );
+        socket.close();
+    });
+}
+
 
 export default socketService;
