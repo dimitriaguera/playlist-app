@@ -28,7 +28,7 @@
     "react",
     "express"
   ],
-  "license": "GNU GENERAL PUBLIC LICENSE",
+  "license": "GPL-3.0",
   "dependencies": {
     "async": "^2.5.0",
     "bluebird": "^3.5.1",
