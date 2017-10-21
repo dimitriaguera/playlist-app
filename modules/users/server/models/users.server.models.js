@@ -67,8 +67,9 @@ UserSchema.pre('save', function (next) {
     const user = this;
     console.log('Debut Hash');
     if ( this.isModified('password') || this.isNew ) {
-        bcrypt.hash(user.password, null, null, (err, hash) => {
+        bcrypt.hash(user.password, 8, (err, hash) => {
             if (err) {
+                console.log('Error on Hash');
                 return next(err);
             }
             console.log('Fin Hash');
