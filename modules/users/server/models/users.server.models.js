@@ -5,7 +5,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
@@ -65,11 +65,13 @@ const UserSchema = new Schema ({
  */
 UserSchema.pre('save', function (next) {
     const user = this;
+    console.log('Debut Hash');
     if ( this.isModified('password') || this.isNew ) {
         bcrypt.hash(user.password, null, null, (err, hash) => {
             if (err) {
                 return next(err);
             }
+            console.log('Fin Hash');
             user.password = hash;
             next();
         });
@@ -104,9 +106,19 @@ UserSchema.post('save', function( err, doc, next ) {
 
 UserSchema.method('comparePassword', function(password){
     const self = this;
+
+    console.log('Debut Check Pass');
+
     return new Promise(function(resolve, reject) {
         bcrypt.compare( password, self.password,
-            ( err, res ) => err ? reject(err) : resolve(res));
+            ( err, res ) => {
+              if (err) {
+                return reject(err)
+              }
+
+              console.log('Fin Check Pass');
+              resolve(res);
+            });
     });
 });
 
