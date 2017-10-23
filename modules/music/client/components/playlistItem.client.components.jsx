@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { List, Button } from 'semantic-ui-react'
+import { Item, Icon, Button } from 'semantic-ui-react'
 
 class PlaylistItem extends Component {
 
@@ -18,15 +18,17 @@ class PlaylistItem extends Component {
         const iconName = isPaused ? 'pause' : 'play';
 
         return (
-            <List.Item>
-                <List.Content floated='right'>
+            <Item>
+                <Item.Content>
+                <Item.Extra floated='right'>
                     <Button icon='minus' onClick={onDelete}/>
-                </List.Content>
-                {active && <List.Icon name={iconName} verticalAlign='middle'/>}
-                <List.Content onClick={onPlay}>
-                    {index + 1}. <List.Header as='a'>{item.name}</List.Header>
-                </List.Content>
-            </List.Item>
+                </Item.Extra>
+                {active && <Icon name={iconName} verticalAlign='middle'/>}
+                <Item.Header onClick={onPlay}>
+                    {index + 1}. <Item.Header as='a'>{item.name}</Item.Header>
+                </Item.Header>
+                </Item.Content>
+            </Item>
         );
     }
 }

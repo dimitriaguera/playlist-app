@@ -5,7 +5,7 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from './menuPlay.client.components'
 import AddPlaylist from './addPlaylist.client.components'
-import { Divider, Card, Segment, Responsive, Icon, Image, Grid } from 'semantic-ui-react'
+import { Divider, Card, Segment, Icon, Grid } from 'semantic-ui-react'
 
 class AllPlaylist extends Component {
 

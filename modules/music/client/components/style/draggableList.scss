@@ -1,0 +1,12 @@
+.dl {
+  &.dl-container {
+    position: relative;
+
+    .dl-item {
+      position: absolute;
+      width: 100%;
+      height: 50px;
+      border: 1px solid #f1f1f1;
+    }
+  }
+}

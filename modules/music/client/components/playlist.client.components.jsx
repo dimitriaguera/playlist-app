@@ -5,12 +5,18 @@ import { playOnPlaylist } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
 import PlaylistItem from 'music/client/components/playlistItem.client.components'
 import MenuEditPlaylist from 'music/client/components/menuEditPlaylist.client.components'
-import { List, Divider, Header, Segment } from 'semantic-ui-react'
+import { Item, Divider, Header, Segment } from 'semantic-ui-react'
+
+import DraggableList from 'music/client/components/draggableList'
 
 class Playlist extends Component {
 
     constructor( props ) {
+
         super( props );
+
+        this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
+
         this.socket = socketServices.getPublicSocket();
         this.state = {
         playlist: {
@@ -37,7 +43,9 @@ class Playlist extends Component {
             });
 
         this.socket.on('save:playlist', (data) => {
-            _self.setState({ playlist: data })
+            if( this.state.playlist.title === data.title ) {
+                _self.setState({ playlist: data })
+            }
         });
     }
 
@@ -69,9 +77,17 @@ class Playlist extends Component {
             const tracks = this.state.playlist.tracks;
             tracks.splice(key, 1);
 
-            this.props.onDelete( title, tracks );
+            this.props.savePlaylist( title, tracks );
             e.preventDefault();
         }
+    }
+
+    handlerSavePlaylist( items ) {
+
+        console.log('tracks sauvés : ', items);
+
+        const { playlist } = this.state;
+        this.props.savePlaylist( playlist.title, items );
     }
 
     render(){
@@ -81,29 +97,32 @@ class Playlist extends Component {
         const { onPlayIndex, pl } = playingList;
         const isActivePlaylist = pl && (pl.title === playlist.title);
 
-        const itemsList = playlist.tracks.map( (item, i) => {
-            return <PlaylistItem
-                key={i}
-                item={item}
-                index={i}
-                isPaused={isPaused}
-                active={isActivePlaylist && (i === onPlayIndex)}
-                onDelete={this.handlerDelete(i)}
-                onPlay={this.handlerReadFile(i)}
-            />
-        });
+        // const itemsList = playlist.tracks.map( (item, i) => {
+        //     return <PlaylistItem
+        //         key={i}
+        //         item={item}
+        //         index={i}
+        //         isPaused={isPaused}
+        //         active={isActivePlaylist && (i === onPlayIndex)}
+        //         onDelete={this.handlerDelete(i)}
+        //         onPlay={this.handlerReadFile(i)}
+        //     />
+        // });
 
         return (
             <div>
-                <Header as='h3'>Playlist</Header>
-                <MenuEditPlaylist history={history} target={playlist}/>
-                <Header as='h1'>{playlist.title}</Header>
-                <Divider/>
-                <Segment basic>
-                    <List divided verticalAlign='middle'>
-                        {itemsList}
-                    </List>
-                </Segment>
+                <DraggableList items={playlist.tracks} callbackMouseUp={this.handlerSavePlaylist}/>
+            {/*<div>*/}
+                {/*<Header as='h3'>Playlist</Header>*/}
+                {/*<MenuEditPlaylist history={history} target={playlist}/>*/}
+                {/*<Header as='h1'>{playlist.title}</Header>*/}
+                {/*<Divider/>*/}
+                {/*<Segment basic>*/}
+                    {/*<Item.Group divided verticalAlign='middle'>*/}
+                        {/*{itemsList}*/}
+                    {/*</Item.Group>*/}
+                {/*</Segment>*/}
+            {/*</div>*/}
             </div>
         );
     }
@@ -124,9 +143,9 @@ const mapDispatchToProps = dispatch => {
         readFile: ( item ) => dispatch(
             playOnPlaylist( item )
         ),
-        onDelete: ( title, tracks ) => dispatch(
+        savePlaylist: ( title, tracks ) => dispatch(
             put( `playlist/${title}`, {data:{tracks:tracks}} )
-        ),
+        )
     }
 };
 
