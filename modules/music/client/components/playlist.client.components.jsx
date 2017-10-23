@@ -16,6 +16,8 @@ class Playlist extends Component {
         super( props );
 
         this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
+        this.handlerReadFile = this.handlerReadFile.bind(this);
+        this.handlerDelete = this.handlerDelete.bind(this);
 
         this.socket = socketServices.getPublicSocket();
         this.state = {
@@ -111,7 +113,16 @@ class Playlist extends Component {
 
         return (
             <div>
-                <DraggableList items={playlist.tracks} callbackMouseUp={this.handlerSavePlaylist}/>
+                <DraggableList
+                    items={playlist.tracks}
+                    callbackMouseUp={this.handlerSavePlaylist}
+                    component={PlaylistItem}
+                    isPaused={isPaused}
+                    isActivePlaylist={isActivePlaylist}
+                    onPlayIndex={onPlayIndex}
+                    onDelete={this.handlerDelete}
+                    onPlay={this.handlerReadFile}
+                />
             {/*<div>*/}
                 {/*<Header as='h3'>Playlist</Header>*/}
                 {/*<MenuEditPlaylist history={history} target={playlist}/>*/}

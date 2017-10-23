@@ -4,7 +4,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {Motion, spring} from 'react-motion'
-import _ from 'lodash'
 
 import style from './style/draggableList.scss'
 
@@ -20,12 +19,14 @@ class DraggableList extends Component {
         this.handleMouseUp = this.handleMouseUp.bind(this);
 
         this.state = {
-            order: _.range(props.items.length),
+            //order: _.range(props.items.length),
+            items: props.items,
             h: 60,
             delta: 0,
             mouseY: 0,
             isPressed: false,
             originalPosOfLastPressed: 0,
+            originalIdOfLastPressed: null,
             currentRow: 0,
         }
     }
@@ -44,18 +45,19 @@ class DraggableList extends Component {
         if ( items !== this.props.items ) {
             console.log('NEW ORDER');
             this.setState({
-                order: _.range(items.length),
+                //order: _.range(items.length),
+                items: items,
             });
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        console.log('shouldUpdate : ', ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) ));
-        return ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) );
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     console.log('shouldUpdate : ', ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) ));
+    //     return ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) );
+    // }
 
-    handleTouchStart(key, pressLocation, e){
-        this.handleMouseDown(key, pressLocation, e.touches[0]);
+    handleTouchStart(key, id, pressLocation, e){
+        this.handleMouseDown(key, id, pressLocation, e.touches[0]);
     };
 
     handleTouchMove(e){
@@ -65,8 +67,11 @@ class DraggableList extends Component {
 
     handleMouseUp() {
 
-        const { currentRow, originalPosOfLastPressed } = this.state;
-        const { callbackMouseUp, items } = this.props;
+        const { currentRow, originalPosOfLastPressed, items, isPressed } = this.state;
+
+        if ( !isPressed ) return;
+
+        const { callbackMouseUp } = this.props;
 
         let newItems = items;
 
@@ -76,91 +81,92 @@ class DraggableList extends Component {
 
             callbackMouseUp( newItems );
 
-            // this.setState({
-            //     items: newItems,
-            // });
+            this.setState({
+                items: newItems,
+            });
         }
 
         this.setState({
             isPressed: false,
             delta: 0,
             currentRow: 0,
+            originalIdOfLastPressed: null,
         });
     }
 
     handleMouseMove({pageY}) {
 
-        const {h, isPressed, delta, order, originalPosOfLastPressed} = this.state;
-        const orderCount = order.length;
+        const {h, isPressed, delta, items} = this.state;
+        const itemsCount = items.length;
 
         if (isPressed) {
             const mouseY = pageY - delta;
-            const currentRow = clamp(Math.round(mouseY / h), 0, orderCount );
-
-            let newOrder = order;
-
-            const lastRow = order.indexOf(originalPosOfLastPressed);
-
-            if (currentRow !== lastRow){
-                newOrder = reinsert(order, lastRow, currentRow);
-            }
-
-            this.setState({mouseY: mouseY, order: newOrder, currentRow: currentRow});
+            const currentRow = clamp(Math.round(mouseY / h), 0, itemsCount - 1 );
+            this.setState({mouseY: mouseY, currentRow: currentRow});
         }
     }
 
 
-    handleMouseDown(pos, pressY, {pageY}){
+    handleMouseDown(pos, id, pressY, {pageY}){
         this.setState({
             delta: pageY - pressY,
             mouseY: pressY,
             isPressed: true,
+            currentRow: pos,
             originalPosOfLastPressed: pos,
+            originalIdOfLastPressed: id,
         });
     };
 
     render() {
 
-        const { h, order, mouseY, isPressed, originalPosOfLastPressed } = this.state;
-        const { items } = this.props;
+        const { h, mouseY, isPressed, originalPosOfLastPressed, originalIdOfLastPressed, items } = this.state;
+        const { component: Component, callbackMouUp, ...props } = this.props;
 
          return (
              <div className='dl dl-container'>
-                 {order.map( ( itemNumber, i ) =>{
+                 {items.map( ( item, i ) =>{
 
-                     const style = originalPosOfLastPressed === i && isPressed
+                     let name = item.name;
+                     let id = item._id;
+
+                     const style = isPressed && originalIdOfLastPressed === id
                          ? {
                              scale: spring(1.1, springConfig),
                              shadow: spring(16, springConfig),
                              y: mouseY,
-                             itemNumber: itemNumber,
-                             itemIndex: i,
                          }
                          : {
                              scale: spring(1, springConfig),
                              shadow: spring(1, springConfig),
-                             y: spring(order.indexOf(i) * h, springConfig),
-                             itemNumber: itemNumber,
-                             itemIndex: i,
+                             y: spring(i * h, springConfig),
                          };
 
                      return (
 
-                         <Motion style={style} key={i}>
-                             {({scale, shadow, y, itemIndex}) =>
+                         <Motion style={style} key={id}>
+                             {({scale, shadow, y}) => {
+
+                                 return(
                                  <div
-                                     onMouseDown={this.handleMouseDown.bind(this, i, y)}
-                                     onTouchStart={this.handleTouchStart.bind(this, i, y)}
                                      className="dl-item"
                                      style={{
                                          boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
                                          transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                                          WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                         zIndex: i === originalPosOfLastPressed ? 99 : i,
+                                         zIndex: id === originalIdOfLastPressed ? 99 : i,
                                      }}>
-                                     {/*{item.name}*/}
-                                     {items[itemIndex].name}
+
+                                     <Component
+                                         item={item}
+                                         index={i}
+                                         onMouseDown={this.handleMouseDown.bind(this, i, id, y)}
+                                         onTouchStart={this.handleTouchStart.bind(this, i, id, y)}
+                                         {...props}
+                                     />
+
                                  </div>
+                                 )}
                              }
                          </Motion>
                      )
