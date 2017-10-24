@@ -115,6 +115,9 @@ class Playlist extends Component {
         const isActivePlaylist = pl && (pl.title === playlist.title);
 
         return (
+            <div>
+                <h1>{playlist.title}</h1>
+                <Divider/>
                 <DraggableList
                     items={playlist.tracks}
                     dragActive={isAuthenticated}
@@ -127,6 +130,7 @@ class Playlist extends Component {
                     onDelete={this.handlerDelete}
                     onPlay={this.handlerReadFile}
                 />
+            </div>
         );
     }
 }
