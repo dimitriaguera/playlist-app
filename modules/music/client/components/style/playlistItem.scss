@@ -1,7 +1,7 @@
 .playlistItem {
   position: relative;
   height: 100%;
-  padding: 0 40px 0 10px;
+  padding: 0 0 0 10px;
   transition: padding 0.3s, color 0.3s;
   -khtml-user-select: none;
   -webkit-user-select: none;
@@ -26,23 +26,6 @@
     transition: width 0.3s;
 
     .pli-play {
-      margin-left: 5px;
-    }
-  }
-
-  .pli-inner-right {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 40px;
-    background: #f9f9f9;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-around;
-    align-items: center;
-
-    .pli-move {
       margin-left: 5px;
     }
   }

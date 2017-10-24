@@ -51,10 +51,22 @@ class AudioBar extends Component {
 
             const { playingList, updatePlayingList } = _self.props;
 
+            // If playlist is playing, check if we need to move item played.
             if ( playingList.pl && playingList.pl.title === data.title ) {
+
+                const oldTracks = playingList.pl.tracks;
+                const newTracks = data.tracks;
+                let newIndex = playingList.onPlayIndex;
+
+                // If item playing moved, get his index.
+                if( oldTracks[newIndex]._id !== newTracks[newIndex]._id ) {
+                    newIndex = getTrackIndexById( oldTracks[newIndex]._id, newTracks );
+                }
+
+                // Update playing playlist and playIndex.
                 updatePlayingList({
                     pl: data,
-                    onPlayIndex: playingList.onPlayIndex
+                    onPlayIndex: newIndex
                 });
             }
         });
@@ -642,6 +654,14 @@ function getActiveMode( playingList, albumList ) {
         onPlayIndex: 0,
         mode: 'Free',
     }
+}
+
+function getTrackIndexById( id, array ) {
+    let l = array.length;
+    for( let i=0; i < l; i++ ) {
+        if( array[i]._id == id ) return i;
+    }
+    return null;
 }
 
 export default AudioBarContainer

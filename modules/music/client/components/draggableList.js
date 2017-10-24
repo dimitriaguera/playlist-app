@@ -4,6 +4,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {Motion, spring} from 'react-motion'
+import { Icon } from 'semantic-ui-react'
 
 import style from './style/draggableList.scss'
 
@@ -19,7 +20,6 @@ class DraggableList extends Component {
         this.handleMouseUp = this.handleMouseUp.bind(this);
 
         this.state = {
-            //order: _.range(props.items.length),
             items: props.items,
             h: 60,
             delta: 0,
@@ -43,9 +43,7 @@ class DraggableList extends Component {
         const { items } = nextProps;
 
         if ( items !== this.props.items ) {
-            console.log('NEW ORDER');
             this.setState({
-                //order: _.range(items.length),
                 items: items,
             });
         }
@@ -69,18 +67,15 @@ class DraggableList extends Component {
 
         const { currentRow, originalPosOfLastPressed, items, isPressed } = this.state;
 
+        // Avoid firing on all mouse click.
         if ( !isPressed ) return;
 
         const { callbackMouseUp } = this.props;
-
         let newItems = items;
 
         if (currentRow !== originalPosOfLastPressed){
-
             newItems = reinsert(newItems, originalPosOfLastPressed, currentRow);
-
-            callbackMouseUp( newItems );
-
+            callbackMouseUp( newItems, originalPosOfLastPressed, currentRow );
             this.setState({
                 items: newItems,
             });
@@ -90,6 +85,7 @@ class DraggableList extends Component {
             isPressed: false,
             delta: 0,
             currentRow: 0,
+            originalPosOfLastPressed: 0,
             originalIdOfLastPressed: null,
         });
     }
@@ -120,14 +116,16 @@ class DraggableList extends Component {
 
     render() {
 
-        const { h, mouseY, isPressed, originalPosOfLastPressed, originalIdOfLastPressed, items } = this.state;
-        const { component: Component, callbackMouUp, ...props } = this.props;
+        const { h, mouseY, isPressed, originalIdOfLastPressed, items } = this.state;
+        const { component: Component, dragActive, ...props } = this.props;
+        const classes = ['dl', 'dl-container'];
+
+        if( dragActive ) classes.push('dl-drag-active');
 
          return (
-             <div className='dl dl-container'>
+             <div className={classes.join(' ')}>
                  {items.map( ( item, i ) =>{
 
-                     let name = item.name;
                      let id = item._id;
 
                      const style = isPressed && originalIdOfLastPressed === id
@@ -143,30 +141,24 @@ class DraggableList extends Component {
                          };
 
                      return (
-
                          <Motion style={style} key={id}>
-                             {({scale, shadow, y}) => {
-
-                                 return(
-                                 <div
-                                     className="dl-item"
-                                     style={{
+                             {({scale, shadow, y}) =>
+                                 <div className='dl-item'
+                                      style={{
                                          boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
                                          transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                                          WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                         zIndex: id === originalIdOfLastPressed ? 99 : i,
-                                     }}>
-
-                                     <Component
-                                         item={item}
-                                         index={i}
-                                         onMouseDown={this.handleMouseDown.bind(this, i, id, y)}
-                                         onTouchStart={this.handleTouchStart.bind(this, i, id, y)}
-                                         {...props}
-                                     />
-
+                                         zIndex: scale !== 1 ? 1000 : i,
+                                      }}>
+                                     <Component item={item} index={i} {...props} />
+                                     {dragActive &&
+                                         <div className='dl-hand-right'
+                                              onMouseDown={this.handleMouseDown.bind(this, i, id, y)}
+                                              onTouchStart={this.handleTouchStart.bind(this, i, id, y)}>
+                                             <Icon className='pli-move' name='move' color='grey'/>
+                                         </div>
+                                     }
                                  </div>
-                                 )}
                              }
                          </Motion>
                      )
