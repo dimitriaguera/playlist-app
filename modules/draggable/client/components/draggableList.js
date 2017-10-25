@@ -228,8 +228,6 @@ function getDisplayedItems( arr, h ) {
     const indexStart = clamp(Math.round( (y-100) / h), 0, arr.length);
     const indexEnd = clamp(Math.round((y+w-100) / h), 0, arr.length);
 
-    console.log( indexStart, indexEnd );
-
     return [ indexStart, indexEnd ];
 }
 

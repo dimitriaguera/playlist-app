@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { List, Divider, Button, Icon, Breadcrumb, Segment, Label, Confirm } from 'semantic-ui-react'
+import { List, Divider, Button, Icon, Breadcrumb, Segment, Label, Confirm, Step } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
@@ -166,16 +166,13 @@ class Folder extends Component {
         }
     }
 
-    // Handler that return parent folder content.
+    // Handler that return root folder content.
     handlerPrevFolder( e ) {
 
         const { history } = this.props;
-        // Delete last entry form path array.
-        const path = this.state.path.slice(0, -1);
-        // Build path from array.
-        const strPath = ps.buildPath(path);
+
         // Update component via url update.
-        history.push(`/music${strPath}`);
+        history.push(`/music`);
         e.preventDefault();
     }
 
@@ -249,11 +246,28 @@ class Folder extends Component {
         const { folder, path, error, params, modal } = this.state;
         const { activePlaylist, history, user } = this.props;
 
-        const bread = buildBread(path, this.handlerOpenFolder);
+        const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
 
-        const Bread = () => (
-            <Breadcrumb divider='/' sections={bread} />
-        );
+        const Bread = () => {
+            return(
+                <Step.Group size='mini' unstackable fluid>
+                    <Step link onClick={this.handlerPrevFolder} style={{maxWidth:'70px'}}>
+                        <Step.Content>
+                            <Step.Title><Icon name='home' size='large' /></Step.Title>
+                        </Step.Content>
+                    </Step>
+                    {path.map( (item, i) => {
+                        return (
+                            <Step link key={i} active={i === path.length - 1} onClick={this.handlerOpenFolder(path.slice(0, i + 1))} style={{maxWidth:stepWidth}}>
+                                <Step.Content>
+                                    <Step.Title>{item}</Step.Title>
+                                </Step.Content>
+                            </Step>
+                        );
+                    })}
+                </Step.Group>
+            )
+        };
 
         const folderList = folder.map( ( item, i )=> {
 
@@ -311,12 +325,9 @@ class Folder extends Component {
                     </Segment>
                 )}
 
-                <Segment basic>
-                    <Button circular size="small" color="grey" basic disabled={!path.length} onClick={this.handlerPrevFolder} icon>
-                        <Icon name='arrow left' />
-                    </Button>
-                    <Bread/>
-                </Segment>
+
+                    {!!path.length && <Bread/>}
+
 
                 <Segment>
                     <List divided relaxed='very' size='large' verticalAlign='middle'>
