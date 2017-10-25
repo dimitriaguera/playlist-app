@@ -152,8 +152,6 @@ class DraggableList extends Component {
                      let realIndex = i + range_array[0];
                      let classes = ['dl-item', 'dl-item'];
 
-                     if ( isDragged ) classes.push('dl-dragged');
-
                      const style = isDragged
                          ? {
                              scale: spring(1.1, springConfig),
@@ -178,8 +176,12 @@ class DraggableList extends Component {
                                      zIndex: realIndex,
                                  }}
                                  key={id}>
-                             {({scale, shadow, y, opacity}) =>
-                                 <div className={classes.join(' ')}
+                             {({scale, shadow, y, opacity}) => {
+
+                                 if ( scale > 1 ) classes.push('dl-dragged');
+
+                                 return (
+                                     <div className={classes.join(' ')}
                                       style={{
                                          opacity: `${opacity}`,
                                          boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
@@ -196,6 +198,7 @@ class DraggableList extends Component {
                                          </div>
                                      }
                                  </div>
+                                 )}
                              }
                          </Motion>
                      )

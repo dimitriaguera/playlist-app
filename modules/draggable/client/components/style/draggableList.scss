@@ -5,6 +5,11 @@
     &.dl-drag-active {
       .dl-item {
         padding-right: 40px;
+        transition: background-color 0.2s;
+
+        &.dl-dragged {
+          background: rgba(255, 255, 255, 1);
+        }
 
         .dl-hand-right {
           position: absolute;
