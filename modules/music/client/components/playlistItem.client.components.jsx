@@ -29,21 +29,18 @@ class PlaylistItem extends Component {
         if ( active ) classes.push('active');
 
         return (
-            <div className={classes.join(' ')}>
-                {active && <div className='pli-inner-left'><Icon className='pli-play' color='teal' name={iconName} /></div>}
-                <div className='pli-inner'>
+            <a className={classes.join(' ')} onClick={onPlay(index)} href='#'>
+                {active && <div className='pli-inner-left'><Icon className='pli-play' inverted name={iconName} /></div>}
+                <span className='pli-inner'>
                     <span className='pli-number'>{index + 1}.</span>
-                    {active
-                        ? <span>{item.name}</span>
-                        : <a href='#' onClick={onPlay(index)}>{item.name}</a>
-                    }
-                    {!!user &&
-                        <span className='pli-menu'>
-                            <Icon className='pli-delete' name='minus' onClick={onDelete(index)}/>
-                        </span>
-                    }
-                </div>
-            </div>
+                        {item.name}
+                    {/*{!!user &&*/}
+                        {/*<span className='pli-menu'>*/}
+                            {/*<Icon className='pli-delete' name='minus' onClick={onDelete(index)}/>*/}
+                        {/*</span>*/}
+                    {/*}*/}
+                </span>
+            </a>
         );
     }
 }

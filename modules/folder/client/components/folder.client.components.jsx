@@ -318,9 +318,11 @@ class Folder extends Component {
                     <Bread/>
                 </Segment>
 
-                <List divided relaxed size='large'>
-                    {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
-                </List>
+                <Segment>
+                    <List divided relaxed='very' size='large' verticalAlign='middle'>
+                        {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
+                    </List>
+                </Segment>
                 <Confirm
                     open={ modal.open }
                     onCancel={ this.handleCancel }
@@ -411,7 +413,7 @@ const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, onAddIte
             </List.Content>
             )}
 
-            <List.Icon name={item.isFile?'music':'folder'} verticalAlign='middle' />
+            <List.Icon name={item.isFile?'music':'folder'} />
             <List.Content onClick={onClick}>
                 <List.Header as='a'>{name}</List.Header>
             </List.Content>

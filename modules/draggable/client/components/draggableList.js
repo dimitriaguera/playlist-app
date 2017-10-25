@@ -18,9 +18,12 @@ class DraggableList extends Component {
 
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handleTouchMove = this.handleTouchMove.bind(this);
+        this.handleOnScroll = this.handleOnScroll.bind(this);
 
         this.state = {
             items: props.items,
+            range_array: [],
             h: 60,
             delta: 0,
             mouseY: 0,
@@ -28,10 +31,12 @@ class DraggableList extends Component {
             originalPosOfLastPressed: 0,
             originalIdOfLastPressed: null,
             currentRow: 0,
+            containerHeight: 0,
         }
     }
 
     componentDidMount() {
+        window.addEventListener('scroll', this.handleOnScroll);
         window.addEventListener('touchmove', this.handleTouchMove);
         window.addEventListener('touchend', this.handleMouseUp);
         window.addEventListener('mousemove', this.handleMouseMove);
@@ -43,8 +48,11 @@ class DraggableList extends Component {
         const { items } = nextProps;
 
         if ( items !== this.props.items ) {
+
             this.setState({
                 items: items,
+                range_array: getDisplayedItems( items, this.state.h ),
+                containerHeight: `${items.length * this.state.h}px`
             });
         }
     }
@@ -53,6 +61,13 @@ class DraggableList extends Component {
     //     console.log('shouldUpdate : ', ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) ));
     //     return ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) );
     // }
+
+    handleOnScroll(){
+        const { h, items } = this.state;
+        this.setState({
+            range_array: getDisplayedItems( items, h ),
+        });
+    }
 
     handleTouchStart(key, id, pressLocation, e){
         this.handleMouseDown(key, id, pressLocation, e.touches[0]);
@@ -116,19 +131,26 @@ class DraggableList extends Component {
 
     render() {
 
-        const { h, mouseY, isPressed, originalIdOfLastPressed, items } = this.state;
+        const { h, mouseY, isPressed, originalIdOfLastPressed, items, range_array, containerHeight } = this.state;
         const { component: Component, dragActive, ...props } = this.props;
         const classes = ['dl', 'dl-container'];
+
+        const range = items.slice( range_array[0], range_array[1] );
 
         if( dragActive ) classes.push('dl-drag-active');
 
          return (
-             <div className={classes.join(' ')}>
-                 {items.map( ( item, i ) =>{
+             <div className={classes.join(' ')} style={{minHeight:containerHeight}}>
+                 {range.map( ( item, i ) =>{
 
                      let id = item._id;
+                     let isDragged = isPressed && originalIdOfLastPressed === id;
+                     let realIndex = i + range_array[0];
+                     let classes = ['dl-item', 'dl-item'];
 
-                     const style = isPressed && originalIdOfLastPressed === id
+                     if ( isDragged ) classes.push('dl-dragged');
+
+                     const style = isDragged
                          ? {
                              scale: spring(1.1, springConfig),
                              shadow: spring(16, springConfig),
@@ -137,24 +159,24 @@ class DraggableList extends Component {
                          : {
                              scale: spring(1, springConfig),
                              shadow: spring(1, springConfig),
-                             y: spring(i * h, springConfig),
+                             y: spring( realIndex * h, springConfig),
                          };
 
                      return (
                          <Motion style={style} key={id}>
                              {({scale, shadow, y}) =>
-                                 <div className='dl-item'
+                                 <div className={classes.join(' ')}
                                       style={{
                                          boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
                                          transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                                          WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                         zIndex: scale !== 1 ? 1000 : i,
+                                         zIndex: scale !== 1 ? 1000 : realIndex,
                                       }}>
-                                     <Component item={item} index={i} {...props} />
+                                     <Component item={item} index={realIndex} {...props} />
                                      {dragActive &&
                                          <div className='dl-hand-right'
-                                              onMouseDown={this.handleMouseDown.bind(this, i, id, y)}
-                                              onTouchStart={this.handleTouchStart.bind(this, i, id, y)}>
+                                              onMouseDown={this.handleMouseDown.bind(this, realIndex, id, y)}
+                                              onTouchStart={this.handleTouchStart.bind(this, realIndex, id, y)}>
                                              <Icon className='pli-move' name='move' color='grey'/>
                                          </div>
                                      }
@@ -196,6 +218,19 @@ function reinsert(arr, from, to) {
 
 function clamp(n, min, max) {
     return Math.max(Math.min(n, max), min);
+}
+
+function getDisplayedItems( arr, h ) {
+
+    const y = window.scrollY;
+    const w = window.innerHeight;
+
+    const indexStart = clamp(Math.round( (y-100) / h), 0, arr.length);
+    const indexEnd = clamp(Math.round((y+w-100) / h), 0, arr.length);
+
+    console.log( indexStart, indexEnd );
+
+    return [ indexStart, indexEnd ];
 }
 
 

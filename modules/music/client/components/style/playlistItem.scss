@@ -1,13 +1,14 @@
 .playlistItem {
+  display: inline-block;
   position: relative;
+  width: 100%;
   height: 100%;
-  padding: 0 0 0 10px;
-  transition: padding 0.3s, color 0.3s;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: -moz-none;
-  -ms-user-select: none;
-  user-select: none;
+  padding: 0 0 0 20px;
+  transition: padding 0.3s;
+
+  &:hover {
+    background-color: #f9f9f9;
+  }
 
   i.icon {
     line-height: 1em;
@@ -23,10 +24,9 @@
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
-    transition: width 0.3s;
 
     .pli-play {
-      margin-left: 5px;
+      margin-left: 20px;
     }
   }
 
@@ -56,15 +56,24 @@
 
   &.active {
     padding-left: 50px;
+    background-color: #00b5ad;
+    color: #fff !important;
 
     .pli-inner-left {
       width: 50px;
+      opacity: 1;
     }
 
     .pli-inner {
       .pli-number {
-        color: #00b5ad;
+        color: #fff !important;
       }
     }
   }
 }
+
+//.dl-dragged {
+//  .playlistItem {
+//    background: none !important;
+//  }
+//}

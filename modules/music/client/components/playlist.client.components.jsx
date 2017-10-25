@@ -4,10 +4,9 @@ import { get, put } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
 import PlaylistItem from 'music/client/components/playlistItem.client.components'
-import MenuEditPlaylist from 'music/client/components/menuEditPlaylist.client.components'
-import { Item, Divider, Header, Segment } from 'semantic-ui-react'
+import { Divider } from 'semantic-ui-react'
 
-import DraggableList from 'music/client/components/draggableList'
+import DraggableList from 'draggable/client/components/draggableList'
 
 class Playlist extends Component {
 
