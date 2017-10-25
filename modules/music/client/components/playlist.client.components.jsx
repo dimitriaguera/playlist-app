@@ -103,7 +103,7 @@ class Playlist extends Component {
         const { playlist } = this.state;
 
         // Saving updated playlist.
-        savePlaylist( playlist.title, items );
+        return savePlaylist( playlist.title, items );
     }
 
     render(){

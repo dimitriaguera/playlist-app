@@ -94,10 +94,14 @@ class DraggableList extends Component {
 
         if (currentRow !== originalPosOfLastPressed){
             newItems = reinsert(newItems, originalPosOfLastPressed, currentRow);
-            callbackMouseUp( newItems, originalPosOfLastPressed, currentRow );
-            this.setState({
-                items: newItems,
-            });
+            callbackMouseUp( newItems, originalPosOfLastPressed, currentRow )
+                .then( (data) => {
+                    if(data.success) {
+                        this.setState({
+                            items: newItems,
+                        });
+                    }
+                });
         }
 
         this.setState({
@@ -182,22 +186,22 @@ class DraggableList extends Component {
 
                                  return (
                                      <div className={classes.join(' ')}
-                                      style={{
-                                         opacity: `${opacity}`,
-                                         boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
-                                         transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                         WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                         zIndex: scale !== 1 ? 1000 : realIndex,
-                                      }}>
-                                     <Component item={item} index={realIndex} {...props} />
-                                     {dragActive &&
-                                         <div className='dl-hand-right'
-                                              onMouseDown={this.handleMouseDown.bind(this, realIndex, id, y)}
-                                              onTouchStart={this.handleTouchStart.bind(this, realIndex, id, y)}>
-                                             <Icon className='pli-move' name='move' color='grey'/>
-                                         </div>
-                                     }
-                                 </div>
+                                          style={{
+                                             opacity: `${opacity}`,
+                                             boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
+                                             transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
+                                             WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
+                                             zIndex: scale !== 1 ? 1000 : realIndex,
+                                          }}>
+                                         <Component item={item} index={realIndex} {...props} />
+                                         {dragActive &&
+                                             <div className='dl-hand-right'
+                                                  onMouseDown={this.handleMouseDown.bind(this, realIndex, id, y)}
+                                                  onTouchStart={this.handleTouchStart.bind(this, realIndex, id, y)}>
+                                                 <Icon className='pli-move' name='move' color='grey'/>
+                                             </div>
+                                         }
+                                     </div>
                                  )}
                              }
                          </Motion>
