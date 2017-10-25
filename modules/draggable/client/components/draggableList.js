@@ -36,12 +36,21 @@ class DraggableList extends Component {
     }
 
     componentDidMount() {
+
         window.addEventListener('scroll', this.handleOnScroll);
         window.addEventListener('touchmove', this.handleTouchMove);
         window.addEventListener('touchend', this.handleMouseUp);
         window.addEventListener('mousemove', this.handleMouseMove);
         window.addEventListener('mouseup', this.handleMouseUp);
     };
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleOnScroll, false);
+        window.removeEventListener('touchmove', this.handleTouchMove, false);
+        window.removeEventListener('touchend', this.handleMouseUp, false);
+        window.removeEventListener('mousemove', this.handleMouseMove, false);
+        window.removeEventListener('mouseup', this.handleMouseUp, false);
+    }
 
     componentWillReceiveProps(nextProps) {
 
@@ -56,11 +65,6 @@ class DraggableList extends Component {
             });
         }
     }
-
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     console.log('shouldUpdate : ', ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) ));
-    //     return ( !this.props.items.length || this.state.isPressed || (nextProps.items.title !== this.props.items.title) );
-    // }
 
     handleOnScroll(){
         const { h, items } = this.state;
@@ -155,18 +159,29 @@ class DraggableList extends Component {
                              scale: spring(1.1, springConfig),
                              shadow: spring(16, springConfig),
                              y: mouseY,
+                             opacity: 1,
                          }
                          : {
                              scale: spring(1, springConfig),
                              shadow: spring(1, springConfig),
                              y: spring( realIndex * h, springConfig),
+                             opacity: spring(1, springConfig),
                          };
 
                      return (
-                         <Motion style={style} key={id}>
-                             {({scale, shadow, y}) =>
+                         <Motion style={style}
+                                 defaultStyle={{
+                                     opacity: 0,
+                                     scale: 1,
+                                     shadow: 1,
+                                     y: realIndex * h,
+                                     zIndex: realIndex,
+                                 }}
+                                 key={id}>
+                             {({scale, shadow, y, opacity}) =>
                                  <div className={classes.join(' ')}
                                       style={{
+                                         opacity: `${opacity}`,
                                          boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
                                          transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                                          WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
@@ -225,7 +240,7 @@ function getDisplayedItems( arr, h ) {
     const y = window.scrollY;
     const w = window.innerHeight;
 
-    const indexStart = clamp(Math.round( (y-100) / h), 0, arr.length);
+    const indexStart = clamp(Math.round( (y-200) / h), 0, arr.length);
     const indexEnd = clamp(Math.round((y+w-100) / h), 0, arr.length);
 
     return [ indexStart, indexEnd ];
