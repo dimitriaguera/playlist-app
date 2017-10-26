@@ -24,7 +24,7 @@ class DraggableList extends Component {
         this.state = {
             items: props.items,
             range_array: [],
-            h: 60,
+            h: props.height || 70,
             delta: 0,
             mouseY: 0,
             isPressed: false,
@@ -94,11 +94,16 @@ class DraggableList extends Component {
 
         if (currentRow !== originalPosOfLastPressed){
             newItems = reinsert(newItems, originalPosOfLastPressed, currentRow);
+
+            this.setState({
+                items: newItems,
+            });
+
             callbackMouseUp( newItems, originalPosOfLastPressed, currentRow )
                 .then( (data) => {
-                    if(data.success) {
+                    if(!data.success) {
                         this.setState({
-                            items: newItems,
+                            items: items,
                         });
                     }
                 });
@@ -140,12 +145,13 @@ class DraggableList extends Component {
     render() {
 
         const { h, mouseY, isPressed, originalIdOfLastPressed, items, range_array, containerHeight } = this.state;
-        const { component: Component, dragActive, ...props } = this.props;
+        const { component: Component, dragActive, color, ...props } = this.props;
         const classes = ['dl', 'dl-container'];
 
         const range = items.slice( range_array[0], range_array[1] );
 
         if( dragActive ) classes.push('dl-drag-active');
+        if( color ) classes.push( color );
 
          return (
              <div className={classes.join(' ')} style={{minHeight:containerHeight}}>
@@ -192,6 +198,7 @@ class DraggableList extends Component {
                                              transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                                              WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                                              zIndex: scale !== 1 ? 1000 : realIndex,
+                                              height:`${h}px`,
                                           }}>
                                          <Component item={item} index={realIndex} {...props} />
                                          {dragActive &&

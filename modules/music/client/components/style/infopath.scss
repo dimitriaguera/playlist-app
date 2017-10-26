@@ -1,0 +1,38 @@
+.ip-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  padding-right: 10px;
+
+  .ip-item {
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 0.85rem;
+    color: #fcfcfc;
+
+    .icon {
+      font-weight: bold;
+      color: #5c5c5c;
+      margin: 0;
+    }
+  }
+}
+
+.white {
+  .ip-container {
+    .ip-item {
+      color: #8d8d8d;
+    }
+  }
+}
+
+.dl-dragged,
+.playlistItem:hover {
+  .ip-container {
+    .ip-item {
+      color: #5c5c5c;
+    }
+  }
+}

@@ -20,14 +20,14 @@ class Main extends Component {
         const { routes } = this.state;
 
         return (
-            <div className='app-main-container'>
-            <Container style={{paddingTop:'80px'}}>
-                <Switch>
-                    {routes}
-                    <Route component={NotFound} />
-                </Switch>
-            </Container>
-            <AudioBar />
+            <div>
+                <Container className='app-main-container'>
+                    <Switch>
+                        {routes}
+                        <Route component={NotFound} />
+                    </Switch>
+                </Container>
+                <AudioBar />
             </div>
         )
     };

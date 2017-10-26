@@ -5,6 +5,25 @@ body {
   background-size: cover;
 }
 
+.ui {
+  &.container {
+    &.app-main-container {
+      padding-top: 80px;
+    }
+  }
+}
+
 a {
   color: #00928a;
+}
+
+@media (max-width: 767px) {
+  .ui {
+    &.container {
+      &.app-main-container {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+    }
+  }
 }

@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { Icon } from 'semantic-ui-react'
+import InfoPath from 'music/client/components/infopath'
+
 import style from './style/playlistItem.scss'
 
 class PlaylistItem extends Component {
@@ -33,7 +35,10 @@ class PlaylistItem extends Component {
                 {active && <div className='pli-inner-left'><Icon className='pli-play' inverted name={iconName} /></div>}
                 <span className='pli-inner'>
                     <span className='pli-number'>{index + 1}.</span>
-                        {item.name}
+                    <span className='pli-info'>
+                        <span className={'pli-title'}>{item.name}</span>
+                        <InfoPath path={item.src}/>
+                    </span>
                     {/*{!!user &&*/}
                         {/*<span className='pli-menu'>*/}
                             {/*<Icon className='pli-delete' name='minus' onClick={onDelete(index)}/>*/}

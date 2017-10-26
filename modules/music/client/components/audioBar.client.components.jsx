@@ -9,7 +9,7 @@ import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePla
 import ps from 'folder/client/services/path.client.services'
 import PlayList from './playlist.client.components'
 import PlayHistory from './playHistory.client.components'
-import { Label, Icon, Popup, Button, Grid, Segment, Table } from 'semantic-ui-react'
+import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
 import noUiSlider from 'nouislider'
 
 import style from './style/nouislider.min.css'

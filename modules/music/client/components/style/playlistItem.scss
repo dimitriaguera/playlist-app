@@ -8,6 +8,13 @@
 
   &:hover {
     background-color: #f9f9f9;
+
+    .pli-inner {
+      .pli-title {
+        font-size: 1.2rem;
+        color: #00b5ad;
+      }
+    }
   }
 
   i.icon {
@@ -39,11 +46,26 @@
     justify-content: flex-start;
     align-items: center;
 
+    .pli-info {
+      width: calc(100% - 40px);
+    }
+
     .pli-number {
       width: 70px;
       font-size: 2rem;
       line-height: 1em;
       color: #bcbcbc;
+    }
+
+    .pli-title {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      font-size: 1.2rem;
+      color: #00f8f0;
     }
 
     .pli-menu {
@@ -55,7 +77,7 @@
   }
 
   &.active {
-    padding-left: 50px;
+    padding-left: 40px;
     background-color: #00b5ad;
     color: #fff !important;
 
@@ -65,15 +87,63 @@
     }
 
     .pli-inner {
-      .pli-number {
+      .pli-number,
+      .pli-title,
+      .ip-item {
         color: #fff !important;
       }
     }
   }
 }
 
-//.dl-dragged {
-//  .playlistItem {
-//    background: none !important;
-//  }
-//}
+.dl-dragged {
+  .playlistItem {
+    .pli-inner {
+      .pli-title {
+        color: #00b5ad;
+      }
+    }
+  }
+}
+
+.white {
+  .playlistItem {
+    .pli-inner {
+      .pli-title {
+        color: #00b5ad;
+      }
+    }
+  }
+}
+
+@media (max-width: 667px) {
+  .playlistItem {
+    padding-left: 5px;
+
+    .pli-inner-left {
+      .pli-play {
+        margin-left: 5px;
+      }
+    }
+
+    .pli-inner {
+      .pli-number {
+        width: 50px;
+        font-size: 1.3rem;
+      }
+
+      .pli-title {
+        font-size: 1.1rem;
+      }
+    }
+
+    &.active {
+      padding-left: 20px;
+
+      .pli-inner-left {
+        width: 20px;
+      }
+    }
+  }
+}
+
