@@ -577,7 +577,7 @@ class MetaInfoPlaylist extends Component {
             return (
                 <div>
                     {/*{mode === 'Playlist' && <MetaPopupPlaylist pl={pl} />}*/}
-                    <Link as='span'  to={`/playlist/${pl.title}`}>
+                    <Link as='span'  to={`/${mode.toLowerCase()}/${pl.title}`}>
                         <span className='audioBar-info-playlist-name'>{`${pl.title}`}</span><br/>
                         <Label size='large' color='teal'>
                             {`Mode ${mode}`}
@@ -645,7 +645,7 @@ function getActiveMode( playingList, albumList ) {
         return {
             pl: al,
             onPlayIndex: onPlayIndex,
-            mode: 'Albums'
+            mode: 'Album'
         }
     }
 

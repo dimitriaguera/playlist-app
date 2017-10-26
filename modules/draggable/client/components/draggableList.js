@@ -23,7 +23,7 @@ class DraggableList extends Component {
 
         this.state = {
             items: props.items,
-            range_array: [],
+            range_array: getDisplayedItems( props.items, (props.height || 70) ),
             h: props.height || 70,
             delta: 0,
             mouseY: 0,
@@ -31,7 +31,7 @@ class DraggableList extends Component {
             originalPosOfLastPressed: 0,
             originalIdOfLastPressed: null,
             currentRow: 0,
-            containerHeight: 0,
+            containerHeight: `${props.items.length * (props.height || 70)}px`,
         }
     }
 
@@ -145,7 +145,7 @@ class DraggableList extends Component {
     render() {
 
         const { h, mouseY, isPressed, originalIdOfLastPressed, items, range_array, containerHeight } = this.state;
-        const { component: Component, dragActive, color, ...props } = this.props;
+        const { component: Component, dragActive = true, color, ...props } = this.props;
         const classes = ['dl', 'dl-container'];
 
         const range = items.slice( range_array[0], range_array[1] );
@@ -157,7 +157,7 @@ class DraggableList extends Component {
              <div className={classes.join(' ')} style={{minHeight:containerHeight}}>
                  {range.map( ( item, i ) =>{
 
-                     let id = item._id;
+                     let id = item._id || item.name;
                      let isDragged = isPressed && originalIdOfLastPressed === id;
                      let realIndex = i + range_array[0];
                      let classes = ['dl-item', 'dl-item'];

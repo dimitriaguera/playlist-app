@@ -21,7 +21,7 @@ class PlaylistItem extends Component {
     render() {
 
         const {
-            item, onPlay, onDelete, index, isPaused, onPlayIndex, isActivePlaylist, user
+            item, onPlay, onDelete, user, index, isPaused, onPlayIndex, isActivePlaylist
         } = this.props;
 
         const active = isActivePlaylist && ( index === onPlayIndex );

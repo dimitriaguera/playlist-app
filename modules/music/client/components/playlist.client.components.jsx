@@ -76,7 +76,6 @@ class Playlist extends Component {
 
         return (e) => {
 
-            const { playingList, updatePlayingList } = this.props;
             const { playlist } = this.state;
             const tracks = playlist.tracks;
 
@@ -97,9 +96,9 @@ class Playlist extends Component {
         this.props.savePlaylist( playlist.title, items );
     }
 
-    handlerMoveItem( items, lastIndex, currentIndex ) {
+    handlerMoveItem( items ) {
 
-        const { playingList, updatePlayingList, savePlaylist } = this.props;
+        const { savePlaylist } = this.props;
         const { playlist } = this.state;
 
         // Saving updated playlist.
