@@ -6,17 +6,18 @@ const async = require('async');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
+const ps = require(path.resolve('./modules/folder/server/services/path.server.services'));
 
 exports.open = function (req, res) {
 
-    //const drive = process.env.SystemDrive;
+    const DRIVE = config.folder_base_url;
+    const NOT_SECURE_STRING = req.query.path;
 
-    const drive = config.folder_base_url;
-    const query = req.query.path;
-    const path = `${drive}/${query}`;
+    const query = ps.cleanPath(NOT_SECURE_STRING);
+    const path = `${DRIVE}${query}`;
 
-    //console.log(path);
-    //console.log(process.env);
+    const regexFile = config.fileSystem.fileAudioTypes;
+    const regexSecure = config.security.secureFile;
 
     fs.readdir( path, ( err, dir ) => {
 
@@ -38,7 +39,7 @@ exports.open = function (req, res) {
 
                     if ( stats.isFile() ) {
 
-                        if ( !config.fileSystem.fileAudioTypes.test(item) ) {
+                        if ( !(regexSecure.test(item) && regexFile.test(item)) ) {
                             result = null;
                         }
 
@@ -47,6 +48,7 @@ exports.open = function (req, res) {
                                 authorized: true,
                                 isFile: true,
                                 name: item,
+                                publicName: item.replace(regexFile, ''),
                             };
                         }
                     }
@@ -84,9 +86,11 @@ exports.open = function (req, res) {
 
 exports.searchSyncFiles = function(req, res, next) {
 
-    const drive = config.folder_base_url;
-    const query = req.query.path;
-    const path = `${drive}/${query}`;
+    const DRIVE = config.folder_base_url;
+    const NOT_SECURE_STRING = req.query.path;
+
+    const query = ps.cleanPath(NOT_SECURE_STRING);
+    const path = `${DRIVE}${query}`;
 
     // Call recursive search.
     walk( path, function(err, results) {
@@ -117,6 +121,9 @@ exports.searchSyncFiles = function(req, res, next) {
  */
 const walk = function(dir, done, p) {
 
+    const regexFile = config.fileSystem.fileAudioTypes;
+    const regexSecure = config.security.secureFile;
+
     let results = [];
 
     fs.readdir(dir, function(err, list) {
@@ -141,8 +148,8 @@ const walk = function(dir, done, p) {
                         next();
                     }, relPath);
                 } else {
-                    if ( config.fileSystem.fileAudioTypes.test(file) ){
-                        results.push({src: relPath, name: name});
+                    if ( regexSecure.test(name) && regexFile.test(name) ){
+                        results.push({src: relPath, name: name.replace(regexFile, '')});
                     }
                     next();
                 }
@@ -150,4 +157,6 @@ const walk = function(dir, done, p) {
         })();
     });
 };
+
+
 

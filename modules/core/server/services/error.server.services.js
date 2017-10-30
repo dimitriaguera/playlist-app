@@ -16,8 +16,9 @@ module.exports.xhrErrorHandler = function( err, req, res, next ) {
 
     // By default, if xhr client request and no error handler on modules controller.
     if (req.xhr && !res.headersSent) {
+        console.log( 'XHRRRRRRRRR', res.statusCode);
         res
-            .status( res.statusCode || 500 )
+            .status( setDefaultStatus(res.statusCode, 500) )
             .json({
                 success: false,
                 msg: 'Something failed !'
@@ -32,13 +33,15 @@ module.exports.defaultErrorHandler = function( err, req, res, next ) {
 
     // If Header sent, let Express manage error, stop flux and cut connexion.
     if (res.headersSent) {
+        console.log( 'EXPRESS', res.statusCode);
         next(err);
     }
 
     // Redirect to error page with code 500
     else {
+        console.log( 'DEFNOHEAD', res.statusCode);
         res
-            .status( res.statusCode || 500 )
+            .status( setDefaultStatus(res.statusCode, 500) )
             .redirect('../public/dist/views/500');
     }
 };
@@ -65,9 +68,15 @@ module.exports.errorMessageHandler = function ( err, req, res, next, msg ) {
 
     // Response.
     return res
-        .status( res.statusCode || 500 )
+        .status( setDefaultStatus(res.statusCode, 500) )
         .json({
             success: false,
             msg: msg || err.message || err.name || err.code
         });
 };
+
+
+//  HELPER
+function setDefaultStatus( code, def ){
+    return (!code || code === 200) ? def : code;
+}

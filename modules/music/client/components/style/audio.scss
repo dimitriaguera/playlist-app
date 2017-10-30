@@ -1,7 +1,11 @@
+.app-main-container {
+  padding-bottom: 200px;
+}
 
 .playerRange {
-  width: 400px;
+  width: 100%;
   border: none;
+  height: 5px;
 
   &.noUi-horizontal {
     .noUi-connect {
@@ -22,6 +26,29 @@
 .audioBar {
   transition: transform 0.5s ease;
   transform: translate3d(0, 100%, 0);
+  z-index: 1001;
+
+  .metaOnPlayInfo {
+    display: inline-block;
+    width: 100%;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.5;
+    font-size: 1.1rem;
+
+    a {
+      display: inline-block;
+      line-height: 1;
+      max-width: 80px;
+      color: #00f8f0;
+      font-size: 0.8rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
 }
 
 .audioBar.show {
@@ -32,6 +59,20 @@
   transition: transform 0.5s ease;
   transform: translate3d(0, -100%, 0);
   margin: 0 !important;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+
+  .audioBar-range-row {
+    padding: 0 !important;
+    padding-bottom: 0.3rem !important;
+  }
+
+  .audioBar-info-playlist-name {
+    display: inline-block;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .audioBar.show .audioBarMenu {

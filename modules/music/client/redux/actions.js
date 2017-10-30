@@ -5,7 +5,9 @@ import { post } from 'core/client/services/core.api.services'
 
 export const ACTIVATE_PLAYLIST = 'ACTIVATE_PLAYLIST';
 export const UPDATE_ACTIVE_PLAYLIST = 'UPDATE_ACTIVE_PLAYLIST';
+export const ADD_ALBUM_TO_PLAY = 'ADD_ALBUM_TO_PLAY';
 export const ADD_PLAYLIST_TO_PLAY = 'ADD_PLAYLIST_TO_PLAY';
+export const UPDATE_ALBUM_TO_PLAY = 'UPDATE_ALBUM_TO_PLAY';
 export const UPDATE_PLAYLIST_TO_PLAY = 'UPDATE_PLAYLIST_TO_PLAY';
 export const UPDATE_PLAY_HISTORY = 'UPDATE_PLAY_HISTORY';
 export const PLAY_ITEM = 'PLAY_ITEM';
@@ -43,9 +45,28 @@ export const playOnPlaylist = ( item ) => dispatch => {
     dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
 };
 
+export const playOnAlbum = ( item ) => dispatch => {
+    dispatch(addAlbumToPlay(item));
+    dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
+};
+
+export const addAlbumToPlay = ( item ) => {
+    return {
+        type: ADD_ALBUM_TO_PLAY,
+        item: item
+    }
+};
+
 export const addPlaylistToPlay = ( item ) => {
     return {
         type: ADD_PLAYLIST_TO_PLAY,
+        item: item
+    }
+};
+
+export const updateAlbumToPlay = ( item ) => {
+    return {
+        type: UPDATE_ALBUM_TO_PLAY,
         item: item
     }
 };

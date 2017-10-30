@@ -4,6 +4,10 @@ import { connect } from 'react-redux'
 import { loginUser } from 'users/client/redux/actions'
 import { Form, Button, Divider, Header, Message } from 'semantic-ui-react'
 
+// AddExt.
+import { activatePlaylist } from 'music/client/redux/actions'
+// End AddExt.
+
 class Login extends Component {
 
     constructor(){
@@ -35,11 +39,16 @@ class Login extends Component {
         const _self = this;
 
         this.props.handleSubmit(this.state).then( (data) => {
-                if (!data.success) {
-                    _self.setState({message: data.msg, error: true });
-                } else {
-                    _self.setState({redirectToReferrer: true});
-                }
+            if (!data.success) {
+                _self.setState({message: data.msg, error: true });
+
+            } else {
+                _self.setState({redirectToReferrer: true});
+
+                // AddExt.
+                _self.props.handleActivatePlaylist( data.msg.defaultPlaylist );
+                // End AddExt.
+            }
             }
         );
         e.preventDefault();
@@ -79,7 +88,10 @@ class Login extends Component {
 
 const mapDispatchToProps = dispatch => {
     return {
-        handleSubmit: ( creds ) => dispatch(loginUser(creds))
+        handleSubmit: ( creds ) => dispatch(loginUser(creds)),
+        // AddExt.
+        handleActivatePlaylist: ( item ) => dispatch(activatePlaylist( item )),
+        // End AddExt.
     }
 };
 

@@ -8,14 +8,30 @@ const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-
+const usersServices = require(path.resolve('./modules/users/server/services/users.server.services'));
+const ps = require(path.resolve('./modules/folder/server/services/path.server.services'));
 
 exports.read = function (req, res, next) {
 
     // Build absolute path.
-    const drive = config.folder_base_url;
-    const query = req.query.path;
-    const filePath = `${drive}/${query}`;
+    const DRIVE = config.folder_base_url;
+    const NOT_SECURE_STRING = req.query.path;
+
+    const query = ps.cleanPath(NOT_SECURE_STRING);
+    const filePath = `${DRIVE}${query}`;
+
+    console.log(NOT_SECURE_STRING);
+    console.log(query);
+    console.log(filePath);
+
+    // Only read audi files.
+    if( !config.fileSystem.fileAudioTypes.test(filePath) ) {
+        res.status(404);
+        return res.json({
+            success: false,
+            msg: 'Not authorized audio format.',
+        });
+    }
 
     // Get stat file.
     fs.stat(filePath, (err, stat) => {
@@ -25,21 +41,30 @@ exports.read = function (req, res, next) {
             return errorHandler.errorMessageHandler( err, req, res, next, `Can't find file.` );
         }
 
-        // Get buffer to extract MIME from checking magic number of the buffer.
-        const buffer = readChunk.sync(filePath, 0, 4100);
-        const ft = fileType( buffer );
+        let audio;
 
-        // Create response Header.
-        res.writeHead(200, {
-            'Content-Type': ft.mime,
-            'Content-Length': stat.size
-        });
+        try {
+            // Get buffer to extract MIME from checking magic number of the buffer.
+            const buffer = readChunk.sync(filePath, 0, 4100);
+            const ft = fileType(buffer);
 
-        // Create Readable.
-        const audio = fs.createReadStream(filePath);
+            // Create response Header.
+            res.writeHead(200, {
+                'Content-Type': ft.mime,
+                'Content-Length': stat.size
+            });
 
-        // Pipe data in server response.
-        audio.pipe(res, { end: false });
+            // Create Readable.
+            audio = fs.createReadStream(filePath);
+
+            // Pipe data in server response.
+            audio.pipe(res, { end: false });
+        }
+        catch( err ) {
+            //res.status(500);
+            return next( err );
+        }
+
 
         res.on('close', () => {
             console.log('CLOSE RESP');
@@ -69,11 +94,13 @@ exports.create = function (req, res, next) {
 
     const { title, user } = req.body;
 
+    // Create playlist.
     const newPl = new Playlist({
         title: title,
         author: user._id,
     });
 
+    // Save it.
     newPl.save((err) => {
         if (err) {
             return errorHandler.errorMessageHandler( err, req, res, next );
@@ -87,7 +114,11 @@ exports.create = function (req, res, next) {
 
 
 exports.playlist = function (req, res) {
+
+    // Get playlist.
     const pl = req.model;
+
+    // Send it.
     if (!pl) {
         return res.status(401).json({
             success: false,
@@ -101,26 +132,61 @@ exports.playlist = function (req, res) {
 
 exports.allPlaylist = function (req, res, next) {
 
-    Playlist.find({})
+    // Search all playlist, without defaults playlists.
+    Playlist.find({defaultPlaylist: false})
         .populate('author', 'username')
         .exec(function(err, pls){
         if (err) {
             res.status(422);
-            return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
+            return errorHandler.errorMessageHandler( err, req, res, next, `Can't find playlists.` );
         }
-        res.json({
-            success: true,
-            msg: pls
+
+        // If user authenticated, search and add default playlist.
+        usersServices.getUserFromToken(req, (user) => {
+
+            // If authenticated.
+            if ( user ) {
+
+                // Get the default playlist of this user.
+                return getDefaultPlaylist( user, (err, _defPl) => {
+                    if (err) {
+                        res.status(422);
+                        return errorHandler.errorMessageHandler( err, req, res, next, `Can't find default playlist for user ${user.username}` );
+                    }
+
+                    // User has default playlist, add it to all playlist.
+                    if(_defPl) {
+                        pls.unshift(_defPl);
+                    }
+
+                    // Send all.
+                    res.json({
+                        success: true,
+                        msg: pls
+                    });
+                });
+            }
+
+            // If no authenticated, send all without default playlist.
+            res.json({
+                success: true,
+                msg: pls
+            });
         });
     });
 };
 
 exports.addTracks = function (req, res, next) {
 
+    // Get concerned playlist.
     const pl = req.model;
 
+    // @todo regexer les entrées DB pour enlever les scripts. ).
+
+    // Just add tracks from body post request.
     pl.tracks = pl.tracks.concat(req.body.tracks);
 
+    // Save on db.
     pl.save( function(err){
         if (err) {
             res.status(422);
@@ -135,11 +201,13 @@ exports.addTracks = function (req, res, next) {
 
 exports.update = function (req, res, next) {
 
+    // Get concerned playlist.
     const pl = req.model;
 
     // Update playlist consist on adding or deleting tracks.
     if ( req.body.tracks ) pl.tracks = req.body.tracks;
 
+    // Save on db.
     pl.save( function(err){
         if (err) {
             res.status(422);
@@ -153,7 +221,21 @@ exports.update = function (req, res, next) {
 };
 
 exports.delete = function (req, res, next) {
+
+    // Get playlist.
     const pl = req.model;
+
+    // Verify if not a default playlist.
+    // Default playlist must not be deleted by this way.
+    if( pl.defaultPlaylist ){
+        return res.json({
+            success: false,
+            msg: 'Can\'t remove default playlist'
+        });
+    }
+
+    // Remove playlist.
+    // Then, send deleted playlist ( useful to update states on client side )
     pl.remove(function(err){
         if (err) {
             res.status(422);
@@ -168,6 +250,7 @@ exports.delete = function (req, res, next) {
 
 exports.playlistByTitle = function(req, res, next, title) {
 
+    // Find an store a playlist.
     Playlist.findOne({title: title})
         .populate('author', 'username')
         .exec(function (err, playlist) {
@@ -178,3 +261,23 @@ exports.playlistByTitle = function(req, res, next, title) {
         next();
     });
 };
+
+
+// HELPER
+function getDefaultPlaylist( user, done ) {
+
+    // Build default playlist name according to user's username.
+    const __def = `__def${user.username}`;
+
+    // Get default playlist for user.
+    Playlist.findOne({ title: __def })
+        .populate('author', 'username')
+        .exec(function(err, pls){
+            if (err) {
+                return done(err);
+            }
+            done( null, pls );
+        });
+};
+
+exports.getDefaultPlaylist = getDefaultPlaylist;

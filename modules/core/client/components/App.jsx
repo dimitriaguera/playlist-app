@@ -6,9 +6,11 @@ import Header from './header.jsx'
 import Main from './main.jsx'
 import Loader from './loader.jsx'
 
+import style from './style/general.scss'
+
 const App = () => (
 
-    <div>
+    <div className='app-container'>
         <Header />
         <Main />
         <Loader />

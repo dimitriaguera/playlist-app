@@ -21,13 +21,13 @@ class Main extends Component {
 
         return (
             <div>
-            <Container style={{paddingTop:'80px'}}>
-                <Switch>
-                    {routes}
-                    <Route component={NotFound} />
-                </Switch>
-            </Container>
-            <AudioBar />
+                <Container className='app-main-container'>
+                    <Switch>
+                        {routes}
+                        <Route component={NotFound} />
+                    </Switch>
+                </Container>
+                <AudioBar />
             </div>
         )
     };

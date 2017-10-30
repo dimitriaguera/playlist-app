@@ -1,0 +1,53 @@
+.dl {
+  &.dl-container {
+    position: relative;
+
+    &.dl-drag-active {
+      .dl-item {
+        padding-right: 40px;
+        transition: background-color 0.2s;
+
+        &.dl-dragged {
+          background: rgba(255, 255, 255, 1);
+        }
+
+        .dl-hand-right {
+          position: absolute;
+          top: 0;
+          right: 0;
+          height: 100%;
+          width: 40px;
+          background: #f9f9f9;
+          display: flex;
+          flex-wrap: nowrap;
+          justify-content: space-around;
+          align-items: center;
+          touch-action: none;
+
+          .pli-move {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+
+    .dl-item {
+      position: absolute;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: -moz-none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
+
+  &.white {
+    &.dl-container {
+      .dl-item {
+        background: rgba(255, 255, 255, 0.85);
+      }
+    }
+  }
+}

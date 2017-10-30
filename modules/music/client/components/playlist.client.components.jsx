@@ -1,16 +1,25 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { get, put } from 'core/client/services/core.api.services'
-import { playOnPlaylist } from 'music/client/redux/actions'
+import { get, put, del } from 'core/client/services/core.api.services'
+import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
 import PlaylistItem from 'music/client/components/playlistItem.client.components'
-import MenuEditPlaylist from 'music/client/components/menuEditPlaylist.client.components'
-import { List, Divider, Header, Segment } from 'semantic-ui-react'
+import { Divider, Label, Button } from 'semantic-ui-react'
+
+import DraggableList from 'draggable/client/components/draggableList'
 
 class Playlist extends Component {
 
     constructor( props ) {
+
         super( props );
+
+        this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
+        this.handlerReadFile = this.handlerReadFile.bind(this);
+        this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
+        this.handlerMoveItem = this.handlerMoveItem.bind(this);
+        this.handlerDeletePlaylist = this.handlerDeletePlaylist.bind(this);
+
         this.socket = socketServices.getPublicSocket();
         this.state = {
         playlist: {
@@ -37,7 +46,9 @@ class Playlist extends Component {
             });
 
         this.socket.on('save:playlist', (data) => {
-            _self.setState({ playlist: data })
+            if( this.state.playlist.title === data.title ) {
+                _self.setState({ playlist: data })
+            }
         });
     }
 
@@ -60,52 +71,101 @@ class Playlist extends Component {
         }
     }
 
-    handlerDelete( key ) {
+    handlerDeleteTrack( key ) {
 
         const title = this.props.match.params.title;
 
         return (e) => {
 
-            const tracks = this.state.playlist.tracks;
+            const { playlist } = this.state;
+            const tracks = playlist.tracks;
+
+            // Delete item in tracks array.
             tracks.splice(key, 1);
 
-            this.props.onDelete( title, tracks );
+            // Save updated playlist.
+            this.props.savePlaylist( title, tracks );
+
             e.preventDefault();
         }
+    }
+
+    handlerSavePlaylist( items ) {
+
+        const { savePlaylist } = this.props;
+        const { playlist } = this.state;
+
+        // Save tracks in DB.
+        return savePlaylist( playlist.title, items );
+    }
+
+    handlerMoveItem( prevItems, nextItems, _drag ) {
+
+        const { savePlaylist } = this.props;
+        const { playlist } = this.state;
+
+        // Saving updated playlist.
+        return savePlaylist( playlist.title, nextItems )
+            .then( (data) => {
+                if(!data.success) {
+                    _drag.setState({
+                        items: prevItems,
+                    });
+                }
+            });
+    }
+
+    handlerDeletePlaylist() {
+
+        const { playlist } = this.state;
+        const { history, deletePlaylist } = this.props;
+
+        // Saving updated playlist.
+        return deletePlaylist( playlist.title )
+            .then( (data) => {
+                if(data.success) {
+                    history.push('/');
+                }
+            });
     }
 
     render(){
 
         const { playlist } = this.state;
-        const { history, playingList, isPaused } = this.props;
+        const { playingList, isPaused, isAuthenticated, user, history } = this.props;
         const { onPlayIndex, pl } = playingList;
         const isActivePlaylist = pl && (pl.title === playlist.title);
 
-        console.log(isActivePlaylist);
-
-        const itemsList = playlist.tracks.map( (item, i) => {
-            return <PlaylistItem
-                key={i}
-                item={item}
-                index={i}
-                isPaused={isPaused}
-                active={isActivePlaylist && (i === onPlayIndex)}
-                onDelete={this.handlerDelete(i)}
-                onPlay={this.handlerReadFile(i)}
-            />
-        });
+        const title = playlist.defaultPlaylist ? playlist.title.replace('__def', 'Queue - ') : playlist.title;
 
         return (
             <div>
-                <Header as='h3'>Playlist</Header>
-                <MenuEditPlaylist history={history} target={playlist}/>
-                <Header as='h1'>{playlist.title}</Header>
+                <Label color='teal' style={{textTransform:'uppercase'}}>Playlist</Label>
+                <h1>{title}</h1>
+                {!playlist.defaultPlaylist &&
+                    <Button style={{float:'right'}} onClick={this.handlerDeletePlaylist} icon basic inverted>
+                        Delete playlist
+                    </Button>
+                }
+                <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
+                    Add tracks
+                </Button>
+                <Button onClick={() => this.handlerSavePlaylist([])} icon basic inverted>
+                    Clear all
+                </Button>
                 <Divider/>
-                <Segment basic>
-                    <List divided verticalAlign='middle'>
-                        {itemsList}
-                    </List>
-                </Segment>
+                <DraggableList
+                    items={playlist.tracks}
+                    dragActive={isAuthenticated}
+                    callbackMouseUp={this.handlerMoveItem}
+                    component={PlaylistItem}
+                    user={user}
+                    isPaused={isPaused}
+                    isActivePlaylist={isActivePlaylist}
+                    onPlayIndex={onPlayIndex}
+                    onDelete={this.handlerDeleteTrack}
+                    onPlay={this.handlerReadFile}
+                />
             </div>
         );
     }
@@ -115,6 +175,9 @@ const mapStateToProps = state => {
     return {
         playingList: state.playlistStore.playingList,
         isPaused: state.playlistStore.pause,
+        onPlay: state.playlistStore.onPlay,
+        isAuthenticated: state.authenticationStore.isAuthenticated,
+        user: state.authenticationStore._user,
     }
 };
 
@@ -126,8 +189,14 @@ const mapDispatchToProps = dispatch => {
         readFile: ( item ) => dispatch(
             playOnPlaylist( item )
         ),
-        onDelete: ( title, tracks ) => dispatch(
+        updatePlayingList: ( item ) => dispatch(
+            updatePlaylistToPlay( item )
+        ),
+        savePlaylist: ( title, tracks ) => dispatch(
             put( `playlist/${title}`, {data:{tracks:tracks}} )
+        ),
+        deletePlaylist: ( title ) => dispatch(
+            del( `playlist/${title}` )
         ),
     }
 };

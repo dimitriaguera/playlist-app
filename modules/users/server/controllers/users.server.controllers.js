@@ -12,6 +12,11 @@ const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const _ = require('lodash');
 
+// AddExt
+const Playlist = require(path.resolve('./modules/music/server/models/music.server.models'));
+const musicCtrl = require(path.resolve('./modules/music/server/controllers/music.server.controllers'));
+// End AddExt
+
 exports.login = function (req, res, next) {
 
     const { username, password } = req.body;
@@ -33,13 +38,24 @@ exports.login = function (req, res, next) {
              const secureUser = user.secure();
              const token = jwt.sign( secureUser, config.security.jwtSecret, {expiresIn: config.session.maxAgeToken} );
 
-             res.json({
-                 success: true,
-                 msg: {
-                     user: secureUser,
-                     token: `BEARER ${token}`,
+             // AddExt. If login success, search user's default playlist.
+             musicCtrl.getDefaultPlaylist( user, ( err, _defPl) => {
+                 if (err) {
+                     res.status(422);
+                     return errorHandler.errorMessageHandler( err, req, res, next, `Can't find default playlist for user ${user.username}` );
                  }
+
+                 // Send all.
+                 res.json({
+                     success: true,
+                     msg: {
+                         user: secureUser,
+                         token: `BEARER ${token}`,
+                         defaultPlaylist: _defPl,
+                     }
+                 });
              });
+             // End AddExt
 
          } else {
              res.json({
@@ -62,19 +78,36 @@ exports.register = function (req, res, next) {
         });
     } else {
 
+        // Build user.
         const newUser = new User({
             username: username,
             password: password,
             roles: roles,
         });
 
+        // Save user.
         newUser.save(function(err) {
             if (err) {
                 return errorHandler.errorMessageHandler( err, req, res, next );
             }
-            res.json({
-                success: true,
-                msg: 'Successful created new user.'
+
+            // If success build default playlist.
+            const defPl = new Playlist({
+                title: `__def${username}`,
+                defaultPlaylist: true,
+            });
+
+            // Save default playlist.
+            defPl.save(function(err) {
+                if (err) {
+                    return errorHandler.errorMessageHandler( err, req, res, next );
+                }
+
+                // If success send message.
+                res.json({
+                    success: true,
+                    msg: 'Successful created new user.'
+                });
             });
         });
     }
