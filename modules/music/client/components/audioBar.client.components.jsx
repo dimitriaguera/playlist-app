@@ -196,10 +196,13 @@ class AudioBar extends Component {
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
 
                         <Grid.Row>
+                            <Grid.Column only='mobile' mobile='4' textAlign='left'>
+
+                            </Grid.Column>
                             <Grid.Column only='computer tablet' computer='6' textAlign='right'>
                                 <MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex}/>
                             </Grid.Column>
-                            <Grid.Column mobile='16' tablet='4' computer='4' textAlign='center'>
+                            <Grid.Column mobile='8' tablet='4' computer='4' textAlign='center'>
                                 <PlayingControls onPauseHandler={this.onPauseHandler}
                                                  onPlayHandler={this.onPlayHandler}
                                                  onPrevHandler={this.onPrevHandler}
@@ -212,6 +215,9 @@ class AudioBar extends Component {
                             </Grid.Column>
                             <Grid.Column only='computer tablet' computer='6' textAlign='left'>
                                 <MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex}/>
+                            </Grid.Column>
+                            <Grid.Column only='mobile' mobile='4' textAlign='left'>
+                                <MetaInfoPlaylistMini pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
                             </Grid.Column>
                         </Grid.Row>
 
@@ -331,14 +337,16 @@ class RangeSlider extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        const { currentTime } = nextProps;
-        return ( currentTime === this.props.currentTime );
+        // const { currentTime } = nextProps;
+        // return ( currentTime === this.props.currentTime );
+        // const { onPlayIndex, pl } = nextProps;
+        // return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
+        return false;
     }
 
     render() {
 
         console.log('RENDER RANGE');
-        const { duration } = this.props;
 
         return (
             <div className='playerRange'
@@ -573,12 +581,14 @@ class MetaInfoPlaylist extends Component {
 
     render() {
         const { pl, onPlayIndex, mode } = this.props;
+        const title = pl.defaultPlaylist ? pl.title.replace('__def', 'Queue - ') : pl.title;
+
         if (pl) {
             return (
                 <div>
                     {/*{mode === 'Playlist' && <MetaPopupPlaylist pl={pl} />}*/}
                     <Link as='span'  to={`/${mode.toLowerCase()}/${pl.title}`}>
-                        <span className='audioBar-info-playlist-name'>{`${pl.title}`}</span><br/>
+                        <span className='audioBar-info-playlist-name'>{`${title}`}</span><br/>
                         <Label size='large' color='teal'>
                             {`Mode ${mode}`}
                             <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
@@ -591,25 +601,24 @@ class MetaInfoPlaylist extends Component {
     };
 }
 
-class MetaPopupPlaylist extends Component {
+class MetaInfoPlaylistMini extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { playingList, albumList } = nextProps;
-        const { pl } = getActiveMode(playingList, albumList);
-        return ( pl !== this.props.pl );
+        const { onPlayIndex, pl } = nextProps;
+        return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
     }
 
     render() {
-        const { pl } = this.props;
+        const { pl, onPlayIndex, mode } = this.props;
+
         if (pl) {
             return (
-                <Popup
-                    trigger={<Icon size='large' name='list layout'/>}
-                    flowing
-                    on='click'
-                >
-                    <PlayList match={{params:{title:pl.title}}} />
-                </Popup>
+                    <Link as='span'  to={`/${mode.toLowerCase()}/${pl.title}`}>
+                        <Label color='teal'>
+                            {`${mode}`}
+                            <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
+                        </Label>
+                    </Link>
             );
         }
         return null;
@@ -640,10 +649,10 @@ function getActiveMode( playingList, albumList ) {
         }
     }
 
-    if ( albumList && albumList.al !== null ) {
-        const { onPlayIndex, al } = albumList;
+    if ( albumList && albumList.pl !== null ) {
+        const { onPlayIndex, pl } = albumList;
         return {
-            pl: al,
+            pl: pl,
             onPlayIndex: onPlayIndex,
             mode: 'Album'
         }

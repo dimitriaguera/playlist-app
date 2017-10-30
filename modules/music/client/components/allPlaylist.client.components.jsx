@@ -85,13 +85,16 @@ class AllPlaylist extends Component {
         };
 
         const playLists = allPlaylist.map( (item, i) => {
+
+            const title = item.defaultPlaylist ? item.title.replace('__def', 'Queue - ') : item.title;
+
             return (
                 <Grid.Column key={i}>
                     <Card>
                         {/*<Image src='/static/images/test.jpg' />*/}
                         <Card.Content>
                             <Card.Header as={Link} to={`/playlist/${item.title}`}>
-                                {item.title}
+                                {title}
                             </Card.Header>
                             <Card.Meta>{getAuthor(item)}</Card.Meta>
                             <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>

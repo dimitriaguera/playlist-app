@@ -11,8 +11,6 @@ class InfoPath extends Component {
 
     render() {
 
-        console.log('render breadcrumb');
-
         const { path, icon = 'angle right', delta = 0 } = this.props;
         const items = pathService.splitPath(path);
 

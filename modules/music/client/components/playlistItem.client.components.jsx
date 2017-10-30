@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Icon } from 'semantic-ui-react'
+import { Icon, Button } from 'semantic-ui-react'
 import InfoPath from 'music/client/components/infopath'
 
 import style from './style/playlistItem.scss'
@@ -13,6 +13,7 @@ class PlaylistItem extends Component {
 
         return (
             this.props.item !== nextProps.item ||
+            this.props.index !== nextProps.index ||
             active !== nextActive ||
             (active && this.props.isPaused !== nextProps.isPaused)
         )
@@ -41,7 +42,9 @@ class PlaylistItem extends Component {
                     </span>
                     {/*{!!user &&*/}
                         {/*<span className='pli-menu'>*/}
-                            {/*<Icon className='pli-delete' name='minus' onClick={onDelete(index)}/>*/}
+                            {/*<Button onClick={onDelete(index)} icon circular basic size="mini" color="teal">*/}
+                                {/*<Icon name='minus' />*/}
+                            {/*</Button>*/}
                         {/*</span>*/}
                     {/*}*/}
                 </span>

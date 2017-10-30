@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { get, put } from 'core/client/services/core.api.services'
+import { get, put, del } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
 import PlaylistItem from 'music/client/components/playlistItem.client.components'
-import { Divider } from 'semantic-ui-react'
+import { Divider, Label, Button } from 'semantic-ui-react'
 
 import DraggableList from 'draggable/client/components/draggableList'
 
@@ -16,8 +16,9 @@ class Playlist extends Component {
 
         this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
-        this.handlerDelete = this.handlerDelete.bind(this);
+        this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
         this.handlerMoveItem = this.handlerMoveItem.bind(this);
+        this.handlerDeletePlaylist = this.handlerDeletePlaylist.bind(this);
 
         this.socket = socketServices.getPublicSocket();
         this.state = {
@@ -70,7 +71,7 @@ class Playlist extends Component {
         }
     }
 
-    handlerDelete( key ) {
+    handlerDeleteTrack( key ) {
 
         const title = this.props.match.params.title;
 
@@ -91,30 +92,67 @@ class Playlist extends Component {
 
     handlerSavePlaylist( items ) {
 
-        // Save tracks in DB.
+        const { savePlaylist } = this.props;
         const { playlist } = this.state;
-        this.props.savePlaylist( playlist.title, items );
+
+        // Save tracks in DB.
+        return savePlaylist( playlist.title, items );
     }
 
-    handlerMoveItem( items ) {
+    handlerMoveItem( prevItems, nextItems, _drag ) {
 
         const { savePlaylist } = this.props;
         const { playlist } = this.state;
 
         // Saving updated playlist.
-        return savePlaylist( playlist.title, items );
+        return savePlaylist( playlist.title, nextItems )
+            .then( (data) => {
+                if(!data.success) {
+                    _drag.setState({
+                        items: prevItems,
+                    });
+                }
+            });
+    }
+
+    handlerDeletePlaylist() {
+
+        const { playlist } = this.state;
+        const { history, deletePlaylist } = this.props;
+
+        // Saving updated playlist.
+        return deletePlaylist( playlist.title )
+            .then( (data) => {
+                if(data.success) {
+                    history.push('/');
+                }
+            });
     }
 
     render(){
 
         const { playlist } = this.state;
-        const { playingList, isPaused, isAuthenticated, user } = this.props;
+        const { playingList, isPaused, isAuthenticated, user, history } = this.props;
         const { onPlayIndex, pl } = playingList;
         const isActivePlaylist = pl && (pl.title === playlist.title);
 
+        const title = playlist.defaultPlaylist ? playlist.title.replace('__def', 'Queue - ') : playlist.title;
+
         return (
             <div>
-                <h1>{playlist.title}</h1>
+                <Label color='teal' style={{textTransform:'uppercase'}}>Playlist</Label>
+                <h1>{title}</h1>
+                {!playlist.defaultPlaylist &&
+                    <Button style={{float:'right'}} onClick={this.handlerDeletePlaylist} icon basic inverted>
+                        Delete playlist
+                    </Button>
+                }
+                <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
+                    Add tracks
+                </Button>
+                <Button onClick={() => this.handlerSavePlaylist([])} icon basic inverted>
+                    Clear all
+                </Button>
                 <Divider/>
                 <DraggableList
                     items={playlist.tracks}
@@ -125,7 +163,7 @@ class Playlist extends Component {
                     isPaused={isPaused}
                     isActivePlaylist={isActivePlaylist}
                     onPlayIndex={onPlayIndex}
-                    onDelete={this.handlerDelete}
+                    onDelete={this.handlerDeleteTrack}
                     onPlay={this.handlerReadFile}
                 />
             </div>
@@ -156,6 +194,9 @@ const mapDispatchToProps = dispatch => {
         ),
         savePlaylist: ( title, tracks ) => dispatch(
             put( `playlist/${title}`, {data:{tracks:tracks}} )
+        ),
+        deletePlaylist: ( title ) => dispatch(
+            del( `playlist/${title}` )
         ),
     }
 };

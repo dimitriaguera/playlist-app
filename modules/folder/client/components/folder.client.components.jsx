@@ -40,6 +40,7 @@ class Folder extends Component {
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerAddItem = this.handlerAddItem.bind(this);
         this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
+        this.onListTracks = this.onListTracks.bind(this);
 
         this.state = {
             path: [],
@@ -176,6 +177,15 @@ class Folder extends Component {
         e.preventDefault();
     }
 
+    // Handler to looks at files as tracks list.
+    onListTracks(e, path) {
+        const { history } = this.props;
+
+        // Go to album display mode.
+        history.push(`/album${path}`);
+        e.preventDefault();
+    }
+
     // Handler to play music file.
     handlerReadFile( e, item, path ) {
 
@@ -230,7 +240,7 @@ class Folder extends Component {
             }
             else {
                 const album = {
-                    al: {
+                    pl: {
                         title: item.name,
                         path: path,
                         tracks: data.msg,
@@ -300,6 +310,7 @@ class Folder extends Component {
                                 onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
                                 onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
                                 onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
+                                onListTracks={(e) => this.onListTracks(e, stringPath)}
                 />
             );
         });
@@ -378,7 +389,7 @@ const mapDispatchToProps = dispatch => {
 
         addAlbumToPlay: ( item ) => {
             // Search first track on list.
-            const track = item.al.tracks[0];
+            const track = item.pl.tracks[0];
             // Add album to store.
             dispatch(addAlbumToPlay(item));
             // If track, play it.
@@ -398,7 +409,7 @@ const FolderContainer = connect(
 
 
 
-const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, onAddItem, activePl }) => {
+const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, activePl }) => {
 
     const name = item.publicName || item.name;
 
@@ -417,6 +428,9 @@ const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, item, user, onAddIte
             <List.Content floated='right'>
                 <Button onClick={onPlayAlbum} icon basic size="mini" color="teal">
                     <Icon name='play' />
+                </Button>
+                <Button onClick={onListTracks} icon basic size="mini" color="teal">
+                    <Icon name='eye' />
                 </Button>
                 <Button onClick={onGetFiles} disabled={!user} icon basic size="mini" color="teal">
                     <Icon name='plus' />

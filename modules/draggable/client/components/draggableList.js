@@ -36,7 +36,6 @@ class DraggableList extends Component {
     }
 
     componentDidMount() {
-
         window.addEventListener('scroll', this.handleOnScroll);
         window.addEventListener('touchmove', this.handleTouchMove);
         window.addEventListener('touchend', this.handleMouseUp);
@@ -84,6 +83,7 @@ class DraggableList extends Component {
 
     handleMouseUp() {
 
+        const _self = this;
         const { currentRow, originalPosOfLastPressed, items, isPressed } = this.state;
 
         // Avoid firing on all mouse click.
@@ -99,14 +99,7 @@ class DraggableList extends Component {
                 items: newItems,
             });
 
-            callbackMouseUp( newItems, originalPosOfLastPressed, currentRow )
-                .then( (data) => {
-                    if(!data.success) {
-                        this.setState({
-                            items: items,
-                        });
-                    }
-                });
+            callbackMouseUp( items, newItems, _self );
         }
 
         this.setState({

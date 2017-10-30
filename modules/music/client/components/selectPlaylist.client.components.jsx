@@ -51,10 +51,11 @@ class SelectPlaylist extends Component {
         const defaultValue = activePlaylist ? activePlaylist.title : null;
 
         const playlistOptions = allPlaylist.map( (pl) => {
+            const title = pl.defaultPlaylist ? pl.title.replace('__def', 'Queue - ') : pl.title;
             return {
                 key: pl.title,
                 value: pl.title,
-                text: pl.title,
+                text: title,
             }
         });
 
