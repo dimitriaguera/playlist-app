@@ -3,6 +3,7 @@
  */
 'use strict';
 
+const chalk = require('chalk');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Promise = require('bluebird');
@@ -14,11 +15,11 @@ const socketsEvents = require('../../../../config/sockets/sockets.conf');
 let bcrypt;
 try {
   bcrypt = require('bcrypt');
-  console.log('bcrypt');
+  console.log(chalk.blue('bcryptjs : If authentification is slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs'));
 }
 catch(e) {
   bcrypt = require('bcryptjs');
-  console.log('bcryptjs : If authentification is really slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs');
+  console.log(chalk.red('bcryptjs : If authentification is slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs'));
 }
 
 
