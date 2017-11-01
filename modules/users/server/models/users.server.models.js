@@ -15,7 +15,7 @@ const socketsEvents = require('../../../../config/sockets/sockets.conf');
 let bcrypt;
 try {
   bcrypt = require('bcrypt');
-  console.log(chalk.blue('bcryptjs : If authentification is slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs'));
+  console.log(chalk.blue('bcrypt'));
 }
 catch(e) {
   bcrypt = require('bcryptjs');
