@@ -7,10 +7,10 @@
   "author": "Dimitri Aguera <dimitri.aguera@gmail.com>",
   "scripts": {
     "test": "mocha",
-    "start": "set NODE_ENV=development && node server",
-    "watch": "webpack -w --config webpack.dev.js",
-    "start-prod": "set NODE_ENV=production && node server",
-    "build-prod": "webpack --config webpack.prod.js"
+    "start": "cross-env NODE_ENV=development node server",
+    "watch": "cross-env NODE_ENV=development webpack -w --config webpack.dev.js",
+    "start-prod": "cross-env NODE_ENV=production node server",
+    "build-prod": "cross-env NODE_ENV=production webpack --config webpack.prod.js"
   },
   "babel": {
     "presets": [
@@ -52,6 +52,7 @@
     "immutability-helper": "^2.4.0",
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.4",
+    "minimist": "^1.2.0",
     "mongoose": "^4.12.3",
     "morgan": "^1.9.0",
     "nouislider": "^10.1.0",
