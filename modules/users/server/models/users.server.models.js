@@ -5,12 +5,22 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
 
 const socketsEvents = require('../../../../config/sockets/sockets.conf');
+
+let bcrypt;
+try {
+  bcrypt = require('bcrypt');
+  console.log('bcrypt');
+}
+catch(e) {
+  bcrypt = require('bcryptjs');
+  console.log('bcryptjs : If authentification is really slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs');
+}
+
 
 /**
  * From MEAN JS.

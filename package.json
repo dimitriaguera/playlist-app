@@ -109,5 +109,8 @@
     "url-loader": "^0.5.9",
     "webpack": "^3.6.0",
     "webpack-merge": "^4.1.0"
+  },
+  "optionalDependencies": {
+    "bcrypt": "^1.0.3"
   }
 }
