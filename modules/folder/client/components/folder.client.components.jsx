@@ -317,6 +317,7 @@ class Folder extends Component {
 
             return (
                 <FolderItem key={i}
+                            index={i}
                             item={item}
                             user={user}
                             path={stringPath}

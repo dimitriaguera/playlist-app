@@ -3,9 +3,10 @@ import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/folderItem.scss'
 
-const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem }) => {
+const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, index }) => {
 
     const name = item.publicName || item.name;
+    const inputName = `input-${index}`;
 
     const ItemMenu = () => {
       if( !item.isFile ) {
@@ -41,13 +42,15 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
 
     return (
         <div className='fol-item'>
-            <ItemMenu/>
             <a onClick={onClick} href='#' className='fol-item-inner'>
                 <Icon name={item.isFile?'music':'folder'} size='large'/>
                 <span className='fol-item-title'>
                     {name}
                 </span>
             </a>
+            <label htmlFor={inputName} className='fol-item-menu-label'><Icon color='teal' size='large' name='ellipsis vertical'></Icon></label>
+            <input id={inputName} name='sub-menu-radio' type='radio'/>
+            <ItemMenu/>
         </div>
     );
 };
