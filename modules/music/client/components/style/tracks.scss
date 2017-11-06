@@ -1,4 +1,4 @@
-.playlistItem {
+.pli-tracks {
   display: inline-block;
   position: relative;
   width: 100%;
@@ -67,18 +67,18 @@
       font-size: 1.2rem;
       color: #00f8f0;
     }
+  }
 
-    .pli-menu {
-      position: absolute;
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: space-around;
-      align-items: center;
-      width: 40px;
-      height: 100%;
-      top: 0;
-      right: 0;
-    }
+  .pli-menu {
+    position: absolute;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center;
+    width: 40px;
+    height: 100%;
+    top: 0;
+    right: 10px;
   }
 
   &.active {
@@ -102,7 +102,7 @@
 }
 
 .dl-dragged {
-  .playlistItem {
+  .pli-tracks {
     .pli-inner {
       .pli-title {
         color: #00b5ad;
@@ -112,7 +112,7 @@
 }
 
 .white {
-  .playlistItem {
+  .pli-tracks {
     .pli-inner {
       .pli-title {
         color: #00b5ad;
@@ -122,7 +122,7 @@
 }
 
 @media (max-width: 667px) {
-  .playlistItem {
+  .pli-tracks {
     padding-left: 5px;
 
     .pli-inner-left {

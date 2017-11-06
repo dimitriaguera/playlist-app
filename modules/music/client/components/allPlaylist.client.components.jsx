@@ -73,7 +73,7 @@ class AllPlaylist extends Component {
     render(){
 
         const { allPlaylist } = this.state;
-        const { history } = this.props;
+        const { history, user } = this.props;
 
         const getAuthor = function( item ) {
             if ( !item.author ) {
@@ -86,17 +86,29 @@ class AllPlaylist extends Component {
 
         const playLists = allPlaylist.map( (item, i) => {
 
-            const title = item.defaultPlaylist ? item.title.replace('__def', 'Queue - ') : item.title;
+            let title;
+            let path;
+            let author;
+
+            if ( !item.defaultPlaylist ) {
+                title = item.title;
+                path = `/playlist/${item.title}`;
+                author = getAuthor(item);
+            } else {
+                title = 'Queue';
+                path = '/queue';
+                author = user ? `${user.username}'s tracks queue` : '';
+            }
 
             return (
                 <Grid.Column key={i}>
                     <Card>
                         {/*<Image src='/static/images/test.jpg' />*/}
                         <Card.Content>
-                            <Card.Header as={Link} to={`/playlist/${item.title}`}>
+                            <Card.Header as={Link} to={path}>
                                 {title}
                             </Card.Header>
-                            <Card.Meta>{getAuthor(item)}</Card.Meta>
+                            <Card.Meta>{author}</Card.Meta>
                             <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
                         </Card.Content>
                         <Card.Content extra>

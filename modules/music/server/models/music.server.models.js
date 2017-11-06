@@ -39,6 +39,20 @@ const PlaylistSchema = new Schema ({
         default: false,
     },
     author: { type: Schema.Types.ObjectId, ref: 'User' },
+    publicTitle: {
+        type: String,
+    },
+});
+
+/**
+ * Handle before saving new user queue playlist.
+ *
+ */
+PlaylistSchema.pre('save', function (next) {
+    if ( this.isNew && this.defaultPlaylist ) {
+        this.publicTitle = this.title.replace('__def', 'Queue - ');
+    }
+    return next();
 });
 
 /**

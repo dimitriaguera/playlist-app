@@ -14,6 +14,9 @@ export const PLAY_ITEM = 'PLAY_ITEM';
 export const PLAY_STATE = 'PLAY_STATE';
 export const PAUSE_STATE = 'PAUSE_STATE';
 
+export const PLAY_TRACK_ON_ALBUM = 'PLAY_TRACK_ON_ALBUM';
+export const PLAY_TRACK_ON_PLAYLIST = 'PLAY_TRACK_ON_PLAYLIST';
+
 export const playState = () => {
     return {
         type: PLAY_STATE,
@@ -40,14 +43,18 @@ export const updateActivePlaylist = ( item ) => {
     }
 };
 
-export const playOnPlaylist = ( item ) => dispatch => {
-    dispatch(addPlaylistToPlay(item));
-    dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
+export const playOnPlaylist = ( item ) => {
+    return {
+        type: PLAY_TRACK_ON_PLAYLIST,
+        item: item,
+    }
 };
 
-export const playOnAlbum = ( item ) => dispatch => {
-    dispatch(addAlbumToPlay(item));
-    dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
+export const playOnAlbum = ( item ) => {
+    return {
+        type: PLAY_TRACK_ON_ALBUM,
+        item: item,
+    }
 };
 
 export const addAlbumToPlay = ( item ) => {
@@ -85,18 +92,36 @@ export const updatePlayHistory = ( item ) => {
     }
 };
 
-export const storePlayItem = ( item ) => {
-   return {
-       type: PLAY_ITEM,
-       item: item
-   }
-};
-
-export const playItem = ( item, noHistory = false ) => dispatch => {
-    dispatch(playState());
-    dispatch(storePlayItem(item));
-    if ( !noHistory ) {
-        dispatch(updatePlayHistory(item));
+export const playItem = ( item ) => {
+    return {
+        type: PLAY_ITEM,
+        item: item
     }
 };
+
+// export const playOnPlaylist = ( item ) => dispatch => {
+//     dispatch(addPlaylistToPlay(item));
+//     dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
+// };
+
+// export const playOnAlbum = ( item ) => dispatch => {
+//     dispatch(addAlbumToPlay(item));
+//     dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
+// };
+// export const storePlayItem = ( item ) => {
+//    return {
+//        type: PLAY_ITEM,
+//        item: item
+//    }
+// };
+//
+// export const playItem = ( item, noHistory = false ) => dispatch => {
+//     dispatch(playState());
+//     dispatch(storePlayItem(item));
+//     if ( !noHistory ) {
+//         dispatch(updatePlayHistory(item));
+//     }
+// };
+
+
 

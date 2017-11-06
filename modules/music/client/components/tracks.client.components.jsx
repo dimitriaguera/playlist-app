@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import { Icon, Button } from 'semantic-ui-react'
 import InfoPath from 'music/client/components/infopath'
 
-import style from './style/playlistItem.scss'
+import style from './style/tracks.scss'
 
-class PlaylistItem extends Component {
+class Tracks extends Component {
 
     shouldComponentUpdate( nextProps ){
 
@@ -28,29 +28,29 @@ class PlaylistItem extends Component {
         const active = isActivePlaylist && ( index === onPlayIndex );
         const iconName = isPaused ? 'pause' : 'play';
 
-        let classes = ['playlistItem'];
+        let classes = ['pli-tracks'];
         if ( active ) classes.push('active');
 
         return (
-            <a className={classes.join(' ')} onClick={onPlay(index)} href='#'>
+            <span className={classes.join(' ')}>
                 {active && <div className='pli-inner-left'><Icon className='pli-play' inverted name={iconName} /></div>}
-                <span className='pli-inner'>
+                <a className='pli-inner' onClick={onPlay(index)} href='#'>
                     <span className='pli-number'>{index + 1}.</span>
                     <span className='pli-info'>
                         <span className={'pli-title'}>{item.name}</span>
                         <InfoPath path={item.src}/>
                     </span>
-                    {/*{!!user &&*/}
-                        {/*<span className='pli-menu'>*/}
-                            {/*<Button onClick={onDelete(index)} icon circular basic size="mini" color="teal">*/}
-                                {/*<Icon name='minus' />*/}
-                            {/*</Button>*/}
-                        {/*</span>*/}
-                    {/*}*/}
+                </a>
+                {(onDelete && !!user) &&
+                <span className='pli-menu'>
+                    <Button onClick={onDelete(index)} icon basic size="mini" color="teal">
+                    <Icon name='minus' />
+                    </Button>
                 </span>
-            </a>
+                }
+            </span>
         );
     }
 }
 
-export default PlaylistItem
+export default Tracks
