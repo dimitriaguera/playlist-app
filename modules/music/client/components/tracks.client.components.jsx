@@ -22,7 +22,7 @@ class Tracks extends Component {
     render() {
 
         const {
-            item, onPlay, onDelete, user, index, isPaused, onPlayIndex, isActivePlaylist
+            item, onPlay, onDelete, canEdit, index, isPaused, onPlayIndex, isActivePlaylist
         } = this.props;
 
         const active = isActivePlaylist && ( index === onPlayIndex );
@@ -41,7 +41,7 @@ class Tracks extends Component {
                         <InfoPath path={item.src}/>
                     </span>
                 </a>
-                {(onDelete && !!user) &&
+                {(onDelete && canEdit) &&
                 <span className='pli-menu'>
                     <Button onClick={onDelete(index)} icon basic size="mini" color="teal">
                     <Icon name='minus' />

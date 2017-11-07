@@ -177,6 +177,52 @@ exports.allPlaylist = function (req, res, next) {
     });
 };
 
+exports.ownedPlaylist = function (req, res, next) {
+
+    // If user authenticated, search playlist he creates.
+    usersServices.getUserFromToken(req, (user) => {
+
+        // If authenticated.
+        if ( user ) {
+
+            Playlist.find({author:user._id})
+                .populate('author', 'username')
+                .exec(function(err, pls) {
+                    if (err) {
+                        res.status(422);
+                        return errorHandler.errorMessageHandler(err, req, res, next, `Can't find owned playlists.`);
+                    }
+
+                    // Get the default playlist of this user.
+                    return getDefaultPlaylist( user, (err, _defPl) => {
+                        if (err) {
+                            res.status(422);
+                            return errorHandler.errorMessageHandler( err, req, res, next, `Can't find default playlist for user ${user.username}` );
+                        }
+
+                        // User has default playlist, add it to all playlist.
+                        if(_defPl) {
+                            pls.unshift(_defPl);
+                        }
+
+                        // Send all.
+                        res.json({
+                            success: true,
+                            msg: pls
+                        });
+                    });
+                });
+        }
+
+        // If no authenticated, bye.
+        res.status(401);
+        return res.json({
+            success: false,
+            msg: 'Not authorized.',
+        });
+    });
+};
+
 exports.addTracks = function (req, res, next) {
 
     // Get concerned playlist.

@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Loader } from 'semantic-ui-react'
 
-const CustomLoader = ( {loading, fetching} ) => <Loader active={loading || fetching}/>;
+const CustomLoader = ( {loading, fetching} ) => <Loader inverted active={loading || fetching}/>;
 
 const mapStateToProps = state => {
     return {

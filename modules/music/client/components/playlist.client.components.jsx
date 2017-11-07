@@ -4,7 +4,7 @@ import { get, put, del } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks.client.components'
-import { Divider, Label, Button, Modal, Header } from 'semantic-ui-react'
+import { Divider, Label, Button } from 'semantic-ui-react'
 
 import DraggableList from 'draggable/client/components/draggableList'
 
@@ -14,7 +14,7 @@ class Playlist extends Component {
 
         super( props );
 
-        this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
+        this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
         this.handlerMoveItem = this.handlerMoveItem.bind(this);
@@ -25,6 +25,7 @@ class Playlist extends Component {
         playlist: {
                 title: '',
                 tracks: [],
+                author: {},
             },
         }
     }
@@ -90,13 +91,13 @@ class Playlist extends Component {
         }
     }
 
-    handlerSavePlaylist( items ) {
+    handlerClearPlaylist() {
 
         const { savePlaylist } = this.props;
         const { playlist } = this.state;
 
         // Save tracks in DB.
-        return savePlaylist( playlist.title, items );
+        return savePlaylist( playlist.title, [] );
     }
 
     handlerMoveItem( prevItems, nextItems, _drag ) {
@@ -132,9 +133,10 @@ class Playlist extends Component {
     render(){
 
         const { playlist } = this.state;
-        const { playingList, isPaused, isAuthenticated, user, history } = this.props;
+        const { playingList, isPaused, user, history } = this.props;
         const { onPlayIndex, pl } = playingList;
         const isActivePlaylist = pl && (pl.title === playlist.title);
+        const isAuthor = user && (playlist.author.username === user.username);
 
         let label_mode = 'Playlist';
 
@@ -143,22 +145,15 @@ class Playlist extends Component {
                 <Label color='teal' style={{textTransform:'uppercase'}}>{label_mode}</Label>
                 <h1>{playlist.title}</h1>
 
-                {!! user &&
+                {isAuthor &&
                 <div>
-                    {/*Delete button displayed for all playlist but Queue*/}
-                    {!playlist.defaultPlaylist &&
-                    <Button style={{float:'right'}} onClick={this.handlerDeletePlaylist} icon basic inverted>
-                        Delete playlist
-                    </Button>
-                    }
-
                     {/*Add tracks button.*/}
                     <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
                         Add tracks
                     </Button>
 
                     {/*Clear all tracks button.*/}
-                    <Button onClick={() => this.handlerSavePlaylist([])} icon basic inverted>
+                    <Button onClick={this.handlerClearPlaylist} icon basic inverted>
                         Clear all
                     </Button>
                 </div>}
@@ -167,13 +162,13 @@ class Playlist extends Component {
 
                 <DraggableList
                     items={playlist.tracks}
-                    dragActive={isAuthenticated}
-                    callbackMouseUp={this.handlerMoveItem}
                     component={Tracks}
-                    user={user}
+                    dragActive={isAuthor}
+                    canEdit={isAuthor}
                     isPaused={isPaused}
                     isActivePlaylist={isActivePlaylist}
                     onPlayIndex={onPlayIndex}
+                    callbackMouseUp={this.handlerMoveItem}
                     onDelete={this.handlerDeleteTrack}
                     onPlay={this.handlerReadFile}
                 />
@@ -187,7 +182,6 @@ const mapStateToProps = state => {
         playingList: state.playlistStore.playingList,
         isPaused: state.playlistStore.pause,
         onPlay: state.playlistStore.onPlay,
-        isAuthenticated: state.authenticationStore.isAuthenticated,
         user: state.authenticationStore._user,
     }
 };
