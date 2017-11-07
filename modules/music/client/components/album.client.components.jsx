@@ -26,7 +26,6 @@ class Album extends Component {
 
         this.handlerMoveItem = this.handlerMoveItem.bind(this);
         this.handlerReadTrack = this.handlerReadTrack.bind(this);
-        this.handlerSaveAsPlaylist = this.handlerSaveAsPlaylist.bind(this);
     }
 
     componentWillMount() {
@@ -186,21 +185,6 @@ class Album extends Component {
 
     }
 
-    handlerSaveAsPlaylist( key ) {
-
-        // return (e) => {
-        //
-        //     const { albumOfUrl } = this.state;
-        //     const { pl } = albumOfUrl;
-        //
-        //     this.props.playTrackAlbum({
-        //         pl: pl,
-        //         onPlayIndex: key,
-        //     });
-        //     e.preventDefault();
-        // }
-    }
-
     render(){
 
         const { albumOfUrl, isActive } = this.state;
@@ -215,7 +199,7 @@ class Album extends Component {
 
                     {!! user &&
                     <Modal trigger={
-                        <Button onClick={() => this.handlerSaveAsPlaylist} icon basic inverted>
+                        <Button icon basic inverted>
                             Save As Playlist
                         </Button>
                     } basic size='small' closeIcon>

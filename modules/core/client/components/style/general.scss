@@ -11,10 +11,14 @@ body.pl-app {
       padding-top: 80px;
     }
   }
+
+  .loader {
+    position: fixed !important;
+  }
 }
 
 a {
-  color: #00f8f0;
+  color: #00b5ad;
 }
 
 @media (max-width: 767px) {

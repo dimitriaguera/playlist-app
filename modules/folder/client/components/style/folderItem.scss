@@ -4,7 +4,15 @@
   position: relative;
   box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0;
   background: rgba(0, 0, 0, 0.5);
-  padding: 0 80px 0 20px;
+  padding: 0 60px 0 20px;
+
+  &.fol-item-isfolder {
+    padding-right: 170px;
+
+    .fol-item-menu {
+      width: 170px;
+    }
+  }
 
   input[type='radio'] {
     display: none;
@@ -36,7 +44,7 @@
     top: 0;
     right: 0;
     position: absolute;
-    width: 180px;
+    width: 60px;
     height: 100%;
 
     .fol-item-menu-inner {
@@ -46,7 +54,7 @@
 
     .button,
     .ui.basic.teal.button {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       margin: 0.25em !important;
 
       .list {
@@ -68,43 +76,50 @@
 
 @media (max-width: 667px) {
   .fol-item {
-    padding: 0 5px;
+    padding: 0 5px !important;
 
-    .fol-item-menu-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      right: 10px;
-      top: 0;
-      height: 100%;
-      width: 30px;
-    }
-
-    .fol-item-menu-label:hover,
-    .fol-item-menu-label:focus {
-      .icon {
-        color: #00fcf4 !important;
+    &.fol-item-isfolder {
+      .fol-item-menu-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 70px;
+        width: 40px;
+        transition: transform 0.2s;
       }
-    }
 
-    .fol-item-inner {
-      padding-right: 30px;
-    }
+      .fol-item-menu-label:hover,
+      .fol-item-menu-label:focus {
+        .icon {
+          color: #00f8f0 !important;
+        }
+      }
 
-    .fol-item-menu {
-      position: relative;
-      justify-content: flex-start;
-      width: 100%;
-      height: 0;
-      opacity: 0;
-      overflow: hidden;
-      transition: height 0.3s, opacity 0.2s;
-    }
+      .fol-item-inner {
+        padding-right: 30px;
+      }
 
-    input[type='radio']:checked + .fol-item-menu {
-      height: 56px;
-      opacity: 1;
+      .fol-item-menu {
+        position: relative;
+        justify-content: flex-start;
+        width: 100%;
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: height 0.3s, opacity 0.2s;
+      }
+
+      input[type='radio']:checked + label .icon {
+        transform: rotate(90deg);
+      }
+
+      input[type='radio']:checked + label + .fol-item-menu {
+        height: 56px;
+        opacity: 1;
+      }
     }
   }
 }

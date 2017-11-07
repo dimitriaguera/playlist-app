@@ -19,6 +19,10 @@ module.exports = function(app){
     app.route('/api/allPlaylist')
         .get( music.allPlaylist );
 
+    // Return playlist's created by user.
+    app.route('/api/ownedPlaylist').all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
+        .get( music.ownedPlaylist );
+
     // Create Playlist
     app.route('/api/playlist').all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
         .post( music.create );

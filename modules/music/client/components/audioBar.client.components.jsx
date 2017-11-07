@@ -581,15 +581,17 @@ class MetaInfoPlaylist extends Component {
 
     render() {
         const { pl, onPlayIndex, mode } = this.props;
-        let path = `/${mode.toLowerCase()}/${pl.title}`;
-        let title = pl.title;
-
-        if (pl.defaultPlaylist) {
-         title = title.replace('__def', '');
-         path = '/queue';
-        }
 
         if (pl) {
+
+            let title = pl.title;
+            let path = `/${mode.toLowerCase()}/${title}`;
+
+            if (pl.defaultPlaylist) {
+                title = title.replace('__def', '');
+                path = '/queue';
+            }
+
             return (
                 <div>
                     <Link as='span'  to={path}>

@@ -89,15 +89,18 @@ class AllPlaylist extends Component {
             let title;
             let path;
             let author;
+            let isAuthor;
 
             if ( !item.defaultPlaylist ) {
                 title = item.title;
                 path = `/playlist/${item.title}`;
                 author = getAuthor(item);
+                isAuthor = ( user && item.author.username === user.username );
             } else {
                 title = 'Queue';
                 path = '/queue';
                 author = user ? `${user.username}'s tracks queue` : '';
+                isAuthor = true;
             }
 
             return (
@@ -109,7 +112,7 @@ class AllPlaylist extends Component {
                                 {title}
                             </Card.Header>
                             <Card.Meta>{author}</Card.Meta>
-                            <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>
+                            {isAuthor && <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>}
                         </Card.Content>
                         <Card.Content extra>
                             <MenuPlay playlist={item} />

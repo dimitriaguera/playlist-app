@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { List, Divider, Button, Icon, Breadcrumb, Segment, Label, Confirm, Step } from 'semantic-ui-react'
+import { List, Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import FolderItem from './folderItem.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
-import AddPlaylist from 'music/client/components/addPlaylist.client.components'
 import ps from 'folder/client/services/path.client.services'
 
 
@@ -255,14 +254,14 @@ class Folder extends Component {
     render(){
 
         const { folder, path, error, params, modal } = this.state;
-        const { activePlaylist, history, user } = this.props;
+        const { activePlaylist, user } = this.props;
 
         let activePlaylistTitle = '';
         let pathUrl = '';
 
         if( activePlaylist ) {
             if( activePlaylist.defaultPlaylist ) {
-                activePlaylistTitle = activePlaylistTitle.replace('__def', 'Queue - ');
+                activePlaylistTitle = activePlaylist.publicTitle;
                 pathUrl = '/queue'
             }
             else {
@@ -275,7 +274,7 @@ class Folder extends Component {
 
         const Bread = () => {
             return(
-                <Step.Group size='mini' unstackable fluid>
+                <Step.Group size='mini' unstackable>
                     <Step link onClick={this.handlerPrevFolder} style={{maxWidth:'70px'}}>
                         <Step.Content>
                             <Step.Title><Icon name='home' size='large' /></Step.Title>
@@ -332,36 +331,43 @@ class Folder extends Component {
 
         return (
             <div>
-                <h1>Music</h1>
+                <h1>Music Folders</h1>
                 <Divider/>
-
-                {!activePlaylist && (
-                <Segment>
-                    <AddPlaylist history={history} />
-                </Segment>
-                )}
 
                 {user && (
                     <Segment>
+                        <Header icon='pencil' content='Editing playlist' />
                         <SelectPlaylist defaultValue={ params ? params.get('pl') : null }/>
                         {activePlaylist && <Label as={Link} to={pathUrl} color='teal'
                                                   tag>{`${activePlaylist.tracks.length} tracks`}</Label>}
                     </Segment>
                 )}
 
+                {!!path.length && <Bread/>}
 
-                    {!!path.length && <Bread/>}
+                <List divided relaxed='very' size='large' verticalAlign='middle'>
+                    {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
+                </List>
 
-
-                    <List divided relaxed='very' size='large' verticalAlign='middle'>
-                        {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
-                    </List>
-                <Confirm
+                <Modal
                     open={ modal.open }
-                    onCancel={ this.handleCancel }
-                    onConfirm={ this.handleConfirm }
-                    content={`Add ${modal.addTracks.length} tracks on ${activePlaylistTitle} playlist ?`}
-                />
+                    onClose={ this.handleCancel }
+                    basic
+                    size='small'
+                >
+                    <Header icon='pencil' content={`Add ${modal.addTracks.length} tracks ?`} />
+                    <Modal.Content>
+                        <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button inverted onClick={ this.handleCancel }>
+                            <Icon name='remove' /> No
+                        </Button>
+                        <Button color='teal' inverted onClick={ this.handleConfirm }>
+                            <Icon name='checkmark' /> Yes
+                        </Button>
+                    </Modal.Actions>
+                </Modal>
             </div>
         );
     }
