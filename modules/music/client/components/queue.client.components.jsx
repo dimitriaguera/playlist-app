@@ -4,35 +4,45 @@ import { get, put, del } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks.client.components'
-import { Divider, Label, Button, Modal, Header } from 'semantic-ui-react'
+import AddPlaylist from './addPlaylist.client.components'
+import { Divider, Label, Button, Modal, Header, Checkbox } from 'semantic-ui-react'
 
 import DraggableList from 'draggable/client/components/draggableList'
 
-class Playlist extends Component {
+import style from './style/queue.scss'
+
+class Queue extends Component {
 
     constructor( props ) {
 
         super( props );
 
+        this.handleCheckChange = this.handleCheckChange.bind(this);
         this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
+        this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
         this.handlerMoveItem = this.handlerMoveItem.bind(this);
-        this.handlerDeletePlaylist = this.handlerDeletePlaylist.bind(this);
 
         this.socket = socketServices.getPublicSocket();
         this.state = {
-        playlist: {
-                title: '',
-                tracks: [],
-            },
-        }
+            clearAfterSave: false,
+            playlist: {
+                    title: '',
+                    tracks: [],
+                },
+            }
     }
 
     componentWillMount() {
         const _self = this;
-        const title = _self.props.match.params.title;
-        const { history } = _self.props;
+        const { history, user } = _self.props;
+
+        if ( !user ) {
+            return history.push('/not-found');
+        }
+
+        const title = `__def${user.username}`;
 
         this.props.getPlaylist(title)
             .then( (data) => {
@@ -57,6 +67,14 @@ class Playlist extends Component {
         console.log("Disconnecting Socket as component will unmount");
     }
 
+    // Make Form input controlled.
+    handleCheckChange(e, data) {
+        const value = data.checked;
+        const name = data.name;
+
+        this.setState({[name]: value});
+    }
+
     handlerReadFile( key ) {
 
         const { playlist } = this.state;
@@ -73,7 +91,8 @@ class Playlist extends Component {
 
     handlerDeleteTrack( key ) {
 
-        const title = this.props.match.params.title;
+        const { user } = this.props;
+        const title = `__def${user.username}`;
 
         return (e) => {
 
@@ -90,14 +109,25 @@ class Playlist extends Component {
         }
     }
 
-    handlerSavePlaylist( items ) {
+    handlerClearPlaylist() {
 
         const { savePlaylist } = this.props;
         const { playlist } = this.state;
 
         // Save tracks in DB.
-        return savePlaylist( playlist.title, items );
+        return savePlaylist( playlist.title, [] );
     }
+
+    handlerSavePlaylist() {
+
+        const { clearAfterSave } = this.state;
+
+        if ( clearAfterSave ) {
+            // Save tracks in DB.
+            return this.handlerClearPlaylist();
+        }
+    }
+
 
     handlerMoveItem( prevItems, nextItems, _drag ) {
 
@@ -115,20 +145,6 @@ class Playlist extends Component {
             });
     }
 
-    handlerDeletePlaylist() {
-
-        const { playlist } = this.state;
-        const { history, deletePlaylist } = this.props;
-
-        // Saving updated playlist.
-        return deletePlaylist( playlist.title )
-            .then( (data) => {
-                if(data.success) {
-                    history.push('/');
-                }
-            });
-    }
-
     render(){
 
         const { playlist } = this.state;
@@ -136,32 +152,45 @@ class Playlist extends Component {
         const { onPlayIndex, pl } = playingList;
         const isActivePlaylist = pl && (pl.title === playlist.title);
 
-        let label_mode = 'Playlist';
-
         return (
             <div>
-                <Label color='teal' style={{textTransform:'uppercase'}}>{label_mode}</Label>
-                <h1>{playlist.title}</h1>
+                <Label color='teal' style={{textTransform:'uppercase'}}>Queue</Label>
+                <h1>{user.username}</h1>
 
-                {!! user &&
-                <div>
-                    {/*Delete button displayed for all playlist but Queue*/}
-                    {!playlist.defaultPlaylist &&
-                    <Button style={{float:'right'}} onClick={this.handlerDeletePlaylist} icon basic inverted>
-                        Delete playlist
-                    </Button>
+
+                <div className='queue-menu'>
+                    {/*Save as playlist displayed only for Queue.*/}
+                    {!!playlist.tracks.length &&
+                        <Modal trigger={
+                            <Button onClick={() => this.handlerSaveAsPlaylist} icon basic inverted>
+                                Save As Playlist
+                            </Button>
+                        } basic size='small' closeIcon>
+                            <Header icon='sound' content={`Save current queue as playlist ?`}/>
+                            <Modal.Content>
+                                <p>Type the playlist's title you want to create.</p>
+                                <AddPlaylist
+                                    history={history}
+                                    tracks={playlist.tracks}
+                                    validation='Save'
+                                    redirect={true}
+                                    onSave={this.handlerSavePlaylist}
+                                />
+                            </Modal.Content>
+                            <Modal.Actions><Checkbox name='clearAfterSave' label='Clear queue after save.'
+                                                     onChange={this.handleCheckChange}/></Modal.Actions>
+                        </Modal>
                     }
-
                     {/*Add tracks button.*/}
                     <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
                         Add tracks
                     </Button>
 
                     {/*Clear all tracks button.*/}
-                    <Button onClick={() => this.handlerSavePlaylist([])} icon basic inverted>
+                    <Button onClick={this.handlerClearPlaylist} icon basic inverted>
                         Clear all
                     </Button>
-                </div>}
+                </div>
 
                 <Divider/>
 
@@ -212,9 +241,9 @@ const mapDispatchToProps = dispatch => {
     }
 };
 
-const PlaylistContainer = connect(
+const QueueContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Playlist);
+)(Queue);
 
-export default PlaylistContainer
+export default QueueContainer

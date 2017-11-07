@@ -92,12 +92,13 @@ exports.read = function (req, res, next) {
 
 exports.create = function (req, res, next) {
 
-    const { title, user } = req.body;
+    const { title, user, tracks = [] } = req.body;
 
     // Create playlist.
     const newPl = new Playlist({
         title: title,
         author: user._id,
+        tracks: tracks,
     });
 
     // Save it.

@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, put } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
-import PlaylistItem from 'music/client/components/playlistItem.client.components'
-import { Divider, Label } from 'semantic-ui-react'
+import Tracks from 'music/client/components/tracks.client.components'
+import AddPlaylist from './addPlaylist.client.components'
+import { Divider, Label, Button, Modal, Header, Icon } from 'semantic-ui-react'
 import ps from 'folder/client/services/path.client.services'
 
 import DraggableList from 'draggable/client/components/draggableList'
@@ -25,6 +26,7 @@ class Album extends Component {
 
         this.handlerMoveItem = this.handlerMoveItem.bind(this);
         this.handlerReadTrack = this.handlerReadTrack.bind(this);
+        this.handlerSaveAsPlaylist = this.handlerSaveAsPlaylist.bind(this);
     }
 
     componentWillMount() {
@@ -184,10 +186,25 @@ class Album extends Component {
 
     }
 
+    handlerSaveAsPlaylist( key ) {
+
+        // return (e) => {
+        //
+        //     const { albumOfUrl } = this.state;
+        //     const { pl } = albumOfUrl;
+        //
+        //     this.props.playTrackAlbum({
+        //         pl: pl,
+        //         onPlayIndex: key,
+        //     });
+        //     e.preventDefault();
+        // }
+    }
+
     render(){
 
         const { albumOfUrl, isActive } = this.state;
-        const { isPaused, user } = this.props;
+        const { isPaused, user, history } = this.props;
         const { onPlayIndex, pl } = albumOfUrl;
 
         return (
@@ -195,11 +212,32 @@ class Album extends Component {
                 <div>
                     <Label color='teal' style={{textTransform:'uppercase'}}>Album</Label>
                     <h1>{pl.title}</h1>
+
+                    {!! user &&
+                    <Modal trigger={
+                        <Button onClick={() => this.handlerSaveAsPlaylist} icon basic inverted>
+                            Save As Playlist
+                        </Button>
+                    } basic size='small' closeIcon>
+                        <Header icon='sound' content={`Save ${pl.title} as playlist ?`} />
+                        <Modal.Content>
+                            <p>Type the playlist's title you want to create.</p>
+                            <AddPlaylist
+                                history={history}
+                                placeholder={`${pl.title}'s playlist`}
+                                tracks={pl.tracks}
+                                validation='Save'
+                                redirect={true}
+                            />
+                        </Modal.Content>
+                    </Modal>}
+
                     <Divider/>
+
                     <DraggableList
                         items={pl.tracks}
                         callbackMouseUp={this.handlerMoveItem}
-                        component={PlaylistItem}
+                        component={Tracks}
                         isActivePlaylist={isActive}
                         user={user}
                         isPaused={isPaused}

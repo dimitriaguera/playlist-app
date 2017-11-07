@@ -21,7 +21,7 @@ class Header extends Component {
 
         return (
             <header className='app-header-container' style={{zIndex:1002, position:'relative'}}>
-                <Menu as='nav' fixed='top' size='large'>
+                <Menu as='nav' fixed='top' size='large' inverted color='teal'>
                     {buildMenuItems( menuItems, user )}
                 </Menu>
             </header>

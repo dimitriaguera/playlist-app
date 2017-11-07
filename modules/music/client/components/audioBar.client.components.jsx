@@ -128,7 +128,7 @@ class AudioBar extends Component {
     onNextHandler(e) {
         const { nextTracks, playingList, albumList } = this.props;
         const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
-        const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
+        const callback = (mode === 'Album') ? playOnAlbum : playOnPlaylist;
 
         nextTracks({
             onPlayIndex: onPlayIndex + 1,
@@ -139,7 +139,7 @@ class AudioBar extends Component {
     onPrevHandler(e) {
         const { nextTracks, playingList, albumList } = this.props;
         const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
-        const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
+        const callback = (mode === 'Album') ? playOnAlbum : playOnPlaylist;
 
         nextTracks({
             onPlayIndex: onPlayIndex - 1,
@@ -387,11 +387,11 @@ class PlayingControls extends Component {
         const playPauseBtn = () => {
             // If active playlist and on play, display Pause button.
             if (!isPaused) return (
-                <Button circular inverted size='big' icon='pause' onClick={onPauseHandler} />
+                <Button circular inverted size='massive' icon='pause' onClick={onPauseHandler} />
             );
             // Else display Play button.
             else return (
-                <Button circular inverted size='big' icon='play' onClick={onPlayHandler} />
+                <Button circular inverted size='massive' icon='play' onClick={onPlayHandler} />
             );
         };
 
@@ -581,16 +581,21 @@ class MetaInfoPlaylist extends Component {
 
     render() {
         const { pl, onPlayIndex, mode } = this.props;
-        const title = pl.defaultPlaylist ? pl.title.replace('__def', 'Queue - ') : pl.title;
+        let path = `/${mode.toLowerCase()}/${pl.title}`;
+        let title = pl.title;
+
+        if (pl.defaultPlaylist) {
+         title = title.replace('__def', '');
+         path = '/queue';
+        }
 
         if (pl) {
             return (
                 <div>
-                    {/*{mode === 'Playlist' && <MetaPopupPlaylist pl={pl} />}*/}
-                    <Link as='span'  to={`/${mode.toLowerCase()}/${pl.title}`}>
+                    <Link as='span'  to={path}>
                         <span className='audioBar-info-playlist-name'>{`${title}`}</span><br/>
                         <Label size='large' color='teal'>
-                            {`Mode ${mode}`}
+                            {`${mode}`}
                             <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
                         </Label>
                     </Link>
@@ -642,10 +647,11 @@ function getActiveMode( playingList, albumList ) {
 
     if ( playingList && playingList.pl !== null ) {
         const { onPlayIndex, pl } = playingList;
+
         return {
             pl: pl,
             onPlayIndex: onPlayIndex,
-            mode: 'Playlist'
+            mode: pl.defaultPlaylist ? 'Queue' : 'Playlist'
         }
     }
 

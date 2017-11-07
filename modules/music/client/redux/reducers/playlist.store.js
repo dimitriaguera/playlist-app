@@ -2,7 +2,8 @@
  * Created by Dimitri Aguera on 08/09/2017.
  */
 import { ACTIVATE_PLAYLIST, ADD_ALBUM_TO_PLAY, ADD_PLAYLIST_TO_PLAY, UPDATE_PLAYLIST_TO_PLAY, UPDATE_ALBUM_TO_PLAY,
-PLAY_ITEM, PLAY_STATE, PAUSE_STATE, UPDATE_ACTIVE_PLAYLIST, UPDATE_PLAY_HISTORY } from '../actions'
+PLAY_ITEM, PLAY_STATE, PAUSE_STATE, UPDATE_ACTIVE_PLAYLIST, UPDATE_PLAY_HISTORY,
+PLAY_TRACK_ON_PLAYLIST, PLAY_TRACK_ON_ALBUM} from '../actions'
 
 let initialState = {
     onPlay: {
@@ -32,7 +33,8 @@ export const playlistStore = (state = initialState, action) => {
         case PLAY_ITEM:
             return {
                 ...state,
-                onPlay: action.item
+                onPlay: action.item,
+                pause: false,
             };
 
         case PAUSE_STATE:
@@ -90,6 +92,24 @@ export const playlistStore = (state = initialState, action) => {
             return {
                 ...state,
                 playingHistory: {tracks: tracks},
+            };
+
+        case PLAY_TRACK_ON_ALBUM:
+            return {
+                ...state,
+                playingList: { pl: null, onPlayIndex: 0 ,currentTime: 0 },
+                albumList: Object.assign({}, state.albumList, action.item),
+                pause: false,
+                onPlay: action.item.pl.tracks[action.item.onPlayIndex]
+            };
+
+        case PLAY_TRACK_ON_PLAYLIST:
+            return {
+                ...state,
+                albumList: { pl: null, onPlayIndex: 0, currentTime: 0 },
+                playingList: Object.assign({}, state.playingList, action.item),
+                pause: false,
+                onPlay: action.item.pl.tracks[action.item.onPlayIndex]
             };
 
         default:

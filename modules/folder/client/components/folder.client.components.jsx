@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { List, Divider, Button, Icon, Breadcrumb, Segment, Label, Confirm, Step } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
+import FolderItem from './folderItem.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import AddPlaylist from 'music/client/components/addPlaylist.client.components'
 import ps from 'folder/client/services/path.client.services'
@@ -256,6 +257,20 @@ class Folder extends Component {
         const { folder, path, error, params, modal } = this.state;
         const { activePlaylist, history, user } = this.props;
 
+        let activePlaylistTitle = '';
+        let pathUrl = '';
+
+        if( activePlaylist ) {
+            if( activePlaylist.defaultPlaylist ) {
+                activePlaylistTitle = activePlaylistTitle.replace('__def', 'Queue - ');
+                pathUrl = '/queue'
+            }
+            else {
+                activePlaylistTitle = activePlaylist.title;
+                pathUrl = `/playlist/${activePlaylist.title}`;
+            }
+        }
+
         const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
 
         const Bread = () => {
@@ -301,21 +316,19 @@ class Folder extends Component {
             };
 
             return (
-                <FolderItemList key={i}
-                                item={item}
-                                user={user}
-                                path={stringPath}
-                                activePl={!!activePlaylist}
-                                onClick={handlerClick(arrayPath)}
-                                onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
-                                onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
-                                onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
-                                onListTracks={(e) => this.onListTracks(e, stringPath)}
+                <FolderItem key={i}
+                            index={i}
+                            item={item}
+                            user={user}
+                            path={stringPath}
+                            onClick={handlerClick(arrayPath)}
+                            onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
+                            onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
+                            onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
+                            onListTracks={(e) => this.onListTracks(e, stringPath)}
                 />
             );
         });
-
-        console.log('RENDER FOLDER');
 
         return (
             <div>
@@ -331,7 +344,7 @@ class Folder extends Component {
                 {user && (
                     <Segment>
                         <SelectPlaylist defaultValue={ params ? params.get('pl') : null }/>
-                        {activePlaylist && <Label as={Link} to={`/playlist/${activePlaylist.title}`} color='teal'
+                        {activePlaylist && <Label as={Link} to={pathUrl} color='teal'
                                                   tag>{`${activePlaylist.tracks.length} tracks`}</Label>}
                     </Segment>
                 )}
@@ -340,16 +353,14 @@ class Folder extends Component {
                     {!!path.length && <Bread/>}
 
 
-                <Segment>
                     <List divided relaxed='very' size='large' verticalAlign='middle'>
                         {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
                     </List>
-                </Segment>
                 <Confirm
                     open={ modal.open }
                     onCancel={ this.handleCancel }
                     onConfirm={ this.handleConfirm }
-                    content={`Add ${modal.addTracks.length} tracks on playlist ?`}
+                    content={`Add ${modal.addTracks.length} tracks on ${activePlaylistTitle} playlist ?`}
                 />
             </div>
         );
@@ -406,45 +417,6 @@ const FolderContainer = connect(
     mapStateToProps,
     mapDispatchToProps
 )(Folder);
-
-
-
-const FolderItemList = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, activePl }) => {
-
-    const name = item.publicName || item.name;
-
-    return (
-        <List.Item>
-            {(item.isFile) && (
-            <List.Content floated='right'>
-                {activePl && <Button onClick={onAddItem} disabled={!user} icon basic size="mini" color="teal">
-                                <Icon name='plus' />
-                            </Button>}
-                {!activePl && <Link to='/'>Create playlist</Link>}
-            </List.Content>
-            )}
-
-            {(!item.isFile) && (
-            <List.Content floated='right'>
-                <Button onClick={onPlayAlbum} icon basic size="mini" color="teal">
-                    <Icon name='play' />
-                </Button>
-                <Button onClick={onListTracks} icon basic size="mini" color="teal">
-                    <Icon name='eye' />
-                </Button>
-                <Button onClick={onGetFiles} disabled={!user} icon basic size="mini" color="teal">
-                    <Icon name='plus' />
-                </Button>
-            </List.Content>
-            )}
-
-            <List.Icon name={item.isFile?'music':'folder'} />
-            <List.Content onClick={onClick}>
-                <List.Header as='a'>{name}</List.Header>
-            </List.Content>
-        </List.Item>
-    );
-};
 
 
 // HELPER

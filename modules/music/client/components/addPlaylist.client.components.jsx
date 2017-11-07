@@ -30,7 +30,7 @@ class AddPlaylist extends Component {
     submitForm(e) {
 
         const _self = this;
-        const { user, createPlaylist, history } = this.props;
+        const { user, createPlaylist, history, tracks, redirect, onSave } = this.props;
         const { title } = this.state;
 
         // User need to be authenticated.
@@ -46,14 +46,27 @@ class AddPlaylist extends Component {
             }
         }
 
+        // If empty field, send message error.
+        if ( !title ) {
+            return _self.setState({
+                error: true,
+                message: 'You must choose playlist title.',
+            });
+        }
 
         // User authenticated on any role can create playlist.
-        createPlaylist({ title: title, user: user })
+        createPlaylist({ title: title, user: user, tracks: tracks })
             .then( (data) => {
                 if (!data.success) {
                     _self.setState({message: data.msg, error: true });
                 } else {
                     _self.setState({error: false, message: '', title: ''});
+                    if ( typeof onSave === 'function' ) {
+                        onSave(data);
+                    }
+                    if ( redirect ) {
+                        return history.push(`/playlist/${title}`);
+                    }
                 }
             });
     }
@@ -61,15 +74,15 @@ class AddPlaylist extends Component {
     render(){
 
         const { error, message, title } = this.state;
-
+        const { placeholder = 'Playlist Title...', validation = 'Create' } = this.props;
 
         return (
             <Form error={error} onSubmit={this.submitForm}>
                 <Message error content={message}/>
                 <Form.Input
-                    action={{ color: 'teal', labelPosition: 'left', icon: 'list layout', content: 'Create' }}
+                    action={{ color: 'teal', labelPosition: 'left', icon: 'list layout', content: validation }}
                     actionPosition='left'
-                    placeholder='Playlist Title...'
+                    placeholder={placeholder}
                     name='title'
                     value={title}
                     onChange={this.handleInputChange}

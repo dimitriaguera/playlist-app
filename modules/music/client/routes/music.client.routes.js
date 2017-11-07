@@ -4,6 +4,7 @@
 import AllPlaylist from 'music/client/components/allPlaylist.client.components';
 import Playlist from 'music/client/components/playlist.client.components';
 import Album from 'music/client/components/album.client.components';
+import Queue from 'music/client/components/queue.client.components';
 
 export const routes = [
     {
@@ -19,6 +20,14 @@ export const routes = [
         route: {
             path: '/playlist/:title',
             component: Playlist,
+        },
+    },
+    {
+        private: true,
+        route: {
+            path: '/queue',
+            exact: true,
+            component: Queue,
         },
     },
     {
