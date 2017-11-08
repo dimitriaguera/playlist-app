@@ -9,7 +9,7 @@ const server = app.startApp();
 
 
 /**
- * Quit well the app
+ * Fine exit
  */
 function exitApp() {
   server.close( () => {
