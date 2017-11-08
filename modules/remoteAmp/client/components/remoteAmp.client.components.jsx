@@ -17,7 +17,7 @@ class RemoteAmp extends Component {
     handlerClickOnOff( opt ) {
     const _self = this;
       return (e) => {
-        this.props.clickOnOff( opt)
+        this.props.clickOnOff( opt )
           .then( data => {
 
             if (!data.success){
@@ -39,9 +39,17 @@ class RemoteAmp extends Component {
             <h1>Remote Amp</h1>
             <section>
               {response}
-              <Button type='button' onClick={this.handlerClickOnOff('on')} content='On/Off' color='blue'/>
-              <Button type='button' onClick={this.handlerClickOnOff('volPlus')} content='Volume +' color='blue'/>
-              <Button type='button' onClick={this.handlerClickOnOff('volMoins')} content='Volume -' color='blue'/>
+              <Button type='button' onClick={this.handlerClickOnOff('KEY_POWER')} content='On' color='blue'/>
+              <Button type='button' onClick={this.handlerClickOnOff('off')} content='Off' color='red'/>
+
+              {/*<Button type='button' onClick={this.handlerClickOnOff('KEY_CD')} content='Cd' color='green'/>*/}
+              {/*<Button type='button' onClick={this.handlerClickOnOff('KEY_TUNER')} content='Tuner' color='green'/>*/}
+              <Button type='button' onClick={this.handlerClickOnOff('KEY_AUX')} content='Rasp' color='green'/>
+
+              <Button type='button' onClick={this.handlerClickOnOff('KEY_VOLUMEUP')} content='Volume +' color='blue'/>
+              <Button type='button' onClick={this.handlerClickOnOff('KEY_VOLUMEDOWN')} content='Volume -' color='blue'/>
+              <Button type='button' onClick={this.handlerClickOnOff('KEY_MUTE')} content='Mute' color='blue'/>
+
             </section>
           </div>
         );
