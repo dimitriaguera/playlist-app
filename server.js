@@ -6,3 +6,19 @@
 const app = require('./config/init-app');
 
 const server = app.startApp();
+
+
+/**
+ * Quit well the app
+ */
+function exitApp() {
+  server.close( () => {
+    console.log('Finished all requests');
+    console.log('Bonne journée');
+    process.exit();
+  });
+}
+
+process.on('SIGTERM', exitApp);
+process.on('SIGINT', exitApp);
+process.on('SIGHUP', exitApp);
