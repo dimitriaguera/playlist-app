@@ -585,19 +585,30 @@ class MetaInfoPlaylist extends Component {
         if (pl) {
 
             let title = pl.title;
-            let path = `/${mode.toLowerCase()}/${title}`;
+            let path = `/${mode.toLowerCase()}`;
 
-            if (pl.defaultPlaylist) {
+            // If pl is album, use folder path to construct link path.
+            if ( pl.path ) {
+                path += pl.path;
+            }
+
+            // Else if pl is Queue.
+            else if (pl.defaultPlaylist) {
                 title = title.replace('__def', '');
                 path = '/queue';
             }
 
+            // Else, pl is playlist, just construct link path with title.
+            else {
+                path += `/${title}`;
+            }
+
             return (
                 <div>
-                    <Link as='span'  to={path}>
-                        <span className='audioBar-info-playlist-name'>{`${title}`}</span><br/>
+                    <Link as='span' to={path}>
+                        <span className='audioBar-info-playlist-name'>{title}</span><br/>
                         <Label size='large' color='teal'>
-                            {`${mode}`}
+                            {mode}
                             <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
                         </Label>
                     </Link>
