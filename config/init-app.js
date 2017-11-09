@@ -78,6 +78,7 @@ module.exports.initMiddleware = function(app) {
     app.use(bodyParser.urlencoded({
         extended: false
     }));
+
     app.use(bodyParser.json());
 };
 
@@ -149,6 +150,9 @@ module.exports.initRoutes = function(app) {
     require('../modules/users/server/routes/users.server.routes')(app);
     require('../modules/folder/server/routes/folder.server.routes')(app);
     require('../modules/music/server/routes/music.server.routes')(app);
+    require('../modules/remoteAmp/server/routes/remoteAmp.server.routes')(app);
+
+    // Let it at the end
     require('../modules/core/server/routes/core.server.routes')(app);
 
 };
@@ -179,7 +183,6 @@ module.exports.socketConnect = function(app) {
     return serve;
 };
 
-
 /**
  * Main initialisation
  * @param app
@@ -209,6 +212,8 @@ module.exports.startApp = function() {
     console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
     console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
     console.log(chalk.blue(`SOCKET listening`));
+
+    serve.expressApp = app;
 
     return serve;
 };
