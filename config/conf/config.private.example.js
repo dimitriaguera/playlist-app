@@ -7,6 +7,11 @@ module.exports = {
 
     folder_base_url: 'D:/Musique',
 
+    port: process.env.PORT || '3000',
+    host: process.env.HOST || 'localhost',
+    protocol: process.env.PROTOCOL || 'http',
+    domain: process.env.DOMAIN,
+
     db: {
         client: 'mongodb',
         database: process.env.DB_NAME || 'playlist-webapp',

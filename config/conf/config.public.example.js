@@ -14,11 +14,6 @@ module.exports = {
         favicon: '/static/assets/img/ico.png',
     },
 
-    port: process.env.PORT || '3000',
-    host: process.env.HOST || 'localhost',
-    protocol: process.env.PROTOCOL || 'http',
-    domain: process.env.DOMAIN,
-
     api_base_url: '/api/',
 
     fileSystem: {
