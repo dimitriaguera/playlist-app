@@ -4,11 +4,14 @@
 'use strict';
 
 const lircNode = require('lirc_node');
+const path = require('path');
+const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
 const chalk = require('chalk');
 const _ = require('lodash');
-const device = 'NAD_SR6';
 
+
+const device = 'NAD_SR6';
 lircNode.init();
 
 // To see all of the remotes and commands that LIRC knows about:
@@ -18,19 +21,26 @@ if (_.isEmpty(lircNode.remotes)){
   console.log(chalk.blue('remoteAmp : remote avaible in LIRC' + lircNode.remotes));
 }
 
-exports.toDo = function (req, res) {
+exports.toDo = function (req, res, next) {
 
   let command = req.params.toDo;
 
-  // Tell the TV to turn on
-  lircNode.irsend.send_once(device, req.params.toDo, function() {
-    console.log(`Sent ${command} to ${device}`);
-  });
+
+  try {
+    lircNode.irsend.send_once(device, req.params.toDo, function() {
+      console.log(`Sent ${command} to ${device}`);
+    });
+
+    res.json({
+      success: true,
+      msg: `Sent ${command} to ${device}`
+    });
+
+  } catch(err){
+    res.status(202);
+    errorHandler.errorMessageHandler( err, req, res, next, 'error LIRC' );
+  }
 
 
-  res.json({
-    success: true,
-    msg: req.params.toDo
-  });
 
 };
