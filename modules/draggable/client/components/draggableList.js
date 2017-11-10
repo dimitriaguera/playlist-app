@@ -153,7 +153,7 @@ class DraggableList extends Component {
                      let id = item._id || item.name;
                      let isDragged = isPressed && originalIdOfLastPressed === id;
                      let realIndex = i + range_array[0];
-                     let classes = ['dl-item', 'dl-item'];
+                     let classes = ['dl-item'];
 
                      const style = isDragged
                          ? {

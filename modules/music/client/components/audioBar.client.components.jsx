@@ -7,13 +7,10 @@ import ReactAudioPlayer from 'react-audio-player'
 import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import ps from 'folder/client/services/path.client.services'
-import PlayList from './playlist.client.components'
 import PlayHistory from './playHistory.client.components'
 import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
-import noUiSlider from 'nouislider'
 
-import style from './style/nouislider.min.css'
-import style2 from './style/audio.scss'
+import style from './style/audio.scss'
 
 class AudioBar extends Component {
 
@@ -27,13 +24,8 @@ class AudioBar extends Component {
         this.onPauseHandler = this.onPauseHandler.bind(this);
         this.onPlayHandler = this.onPlayHandler.bind(this);
         this.onCanPlayHandler = this.onCanPlayHandler.bind(this);
-        this.onListen = this.onListen.bind(this);
         this.onNextHandler = this.onNextHandler.bind(this);
         this.onPrevHandler = this.onPrevHandler.bind(this);
-        this.onChangeHandler = this.onChangeHandler.bind(this);
-        this.onStartSlideHandler = this.onStartSlideHandler.bind(this);
-        this.onEndSlideHandler = this.onEndSlideHandler.bind(this);
-
         this.toggleVisible = this.toggleVisible.bind(this);
 
         this.state = {
@@ -119,12 +111,6 @@ class AudioBar extends Component {
         });
     }
 
-    onListen(e) {
-        this.setState({
-            currentTime: this.rap.audioEl.currentTime
-        });
-    }
-
     onNextHandler(e) {
         const { nextTracks, playingList, albumList } = this.props;
         const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
@@ -147,35 +133,17 @@ class AudioBar extends Component {
         }, callback);
     }
 
-    onChangeHandler( value ) {
-        const { duration } = this.state;
-        const time = ( duration * value )/100 ;
-
-        this.rap.audioEl.currentTime = time;
-
-        this.setState({
-            currentTime: time,
-        });
-    }
-
-    onStartSlideHandler() {
-        if ( !this.rap ) return;
-        this.rap.audioEl.pause();
-    }
-
-    onEndSlideHandler() {
-        if ( !this.rap ) return;
-        this.rap.audioEl.play();
-    }
-
     render(){
 
         const { duration, currentTime, visible } = this.state;
         const { onPlay, isPaused, playingList, albumList } = this.props;
         const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
 
-        if ( this.rap ) {
-            isPaused ? this.rap.audioEl.pause() : this.rap.audioEl.play();
+        let audioEl = null;
+
+        if( this.rap && this.rap.audioEl ) {
+            audioEl = this.rap.audioEl;
+            isPaused ? audioEl.pause() : audioEl.play();
         }
 
         const classes = ['audioBar'];
@@ -185,10 +153,9 @@ class AudioBar extends Component {
             !!onPlay.src &&
                 <div style={{width:'100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
 
-                    <ReactAudioPlayer preload="auto" autoPlay listenInterval={1000}
+                    <ReactAudioPlayer preload="auto" autoPlay
                                       onEnded={this.onEndedHandler}
                                       onCanPlay={this.onCanPlayHandler}
-                                      onListen={this.onListen}
                                       ref={(element) => { this.rap = element; }}
                                       src={ `/api/music/read?path=${ps.urlEncode(onPlay.src)}` }
                     />
@@ -221,7 +188,7 @@ class AudioBar extends Component {
                             </Grid.Column>
                         </Grid.Row>
 
-                        <Grid.Row only='computer' className='audioBar-range-row'>
+                        <Grid.Row className='audioBar-range-row'>
                             <Grid.Column computer='4' verticalAlign='bottom' textAlign='left'>
                                 <Label onClick={this.toggleVisible} size='large' color='teal'>
                                     Recent play
@@ -230,30 +197,13 @@ class AudioBar extends Component {
 
                             <Grid.Column computer='8'>
                                 <MetaNameTracks onPlay={onPlay} />
-                                <RangeSlider duration={duration}
-                                             currentTime={currentTime}
-                                             onChange={this.onChangeHandler}
-                                             onStartSlide={this.onStartSlideHandler}
-                                             onEndSlide={this.onEndSlideHandler}
-                                />
+                                <RangeSlider audioEl={audioEl} />
                                 <MetaTimeTracksCurrent currentSlideTime={currentTime}/>
                                 <MetaTimeTracksEnd duration={duration}/>
                             </Grid.Column>
 
                             <Grid.Column computer='4' textAlign='right'>
                                 <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
-                            </Grid.Column>
-                        </Grid.Row>
-
-                        <Grid.Row only='mobile tablet' className='audioBar-range-row'>
-                            <Grid.Column computer='16'>
-                                <MetaNameTracks onPlay={onPlay} />
-                                <RangeSlider duration={duration}
-                                             currentTime={currentTime}
-                                             onChange={this.onChangeHandler}
-                                             onStartSlide={this.onStartSlideHandler}
-                                             onEndSlide={this.onEndSlideHandler}
-                                />
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
@@ -300,58 +250,185 @@ const AudioBarContainer = connect(
 
 class RangeSlider extends Component {
 
-    componentDidMount() {
+    constructor() {
+        super();
 
-        const elmt = this.elmt;
-        const { onChange, onStartSlide, onEndSlide } = this.props;
+        this.progressHandler = this.progressHandler.bind(this);
+        this.bufferHandler = this.bufferHandler.bind(this);
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleTouchMove = this.handleTouchMove.bind(this);
+        this.handleTouchStart = this.handleTouchStart.bind(this);
 
-        noUiSlider.create(elmt, {
-            start: 0,
-            connect: [true, false],
-            range: {
-                'min': [ 0 ],
-                'max': [ 100 ],
-            }
-        });
-
-        elmt.noUiSlider.on('change', (value, handle) => {
-            onChange(value);
-        });
-
-        elmt.noUiSlider.on('start', () => {
-            onStartSlide();
-        });
-
-        elmt.noUiSlider.on('end', () => {
-            onEndSlide();
-        });
+        this.state = {
+            buffer: 0,
+            position: 0,
+            elementX: 0,
+            elementW: 0,
+            isPressed: false,
+        };
     }
 
     componentWillReceiveProps(nextProps) {
 
-        const elmt = this.elmt;
-        const { currentTime, duration } = nextProps;
-        const time = parseInt(((currentTime / duration) * 100), 10);
+        const { audioEl } = nextProps;
 
-        elmt.noUiSlider.set(time);
+        // Applying handlers on audio element.
+        if( !this.props.audioEl && audioEl) {
+
+            this.setProgressInterval();
+            this.setBufferInterval();
+
+            audioEl.addEventListener('play', () => {
+                this.setProgressInterval();
+            });
+
+            audioEl.addEventListener('pause', () => {
+                this.clearProgressInterval();
+            });
+        }
     }
 
-    shouldComponentUpdate(nextProps) {
-        // const { currentTime } = nextProps;
-        // return ( currentTime === this.props.currentTime );
-        // const { onPlayIndex, pl } = nextProps;
-        // return ( pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex );
-        return false;
+    /**
+     * Set an interval to call progressHandler.
+     */
+     setProgressInterval() {
+        if (!this.progressInterval) {
+            this.progressInterval = setInterval(() => {
+                this.progressHandler();
+            }, 500);
+        }
+    }
+
+    /**
+     * Clear the progress interval
+     */
+    clearProgressInterval() {
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
+        }
+    }
+
+    /**
+     * Set an interval to call bufferHandler.
+     */
+    setBufferInterval() {
+        if (!this.bufferInterval) {
+            this.bufferInterval = setInterval(() => {
+                this.bufferHandler();
+            }, 1000);
+        }
+    }
+
+    /**
+     * Clear the buffer interval
+     */
+    clearBufferInterval() {
+        if (this.bufferInterval) {
+            clearInterval(this.bufferInterval);
+            this.bufferInterval = null;
+        }
+    }
+
+    bufferHandler() {
+
+        const audio = this.props.audioEl;
+        const duration = audio.duration;
+
+        if (duration > 0) {
+            for (let i = 0; i < audio.buffered.length; i++) {
+                if (audio.buffered.start(audio.buffered.length - 1 - i) < audio.currentTime) {
+                    const time = (audio.buffered.end(audio.buffered.length - 1 - i) / duration) * 100;
+                    this.setState({
+                        buffer: time,
+                    });
+                    break;
+                }
+            }
+        }
+    }
+
+    progressHandler() {
+
+        if( !this.state.isPressed ){
+
+            const audio = this.props.audioEl;
+            const time = (audio.currentTime / audio.duration) * 100;
+
+            this.setState({
+                position: time,
+            });
+        }
+    }
+
+    handleTouchStart(e){
+        this.handleMouseDown(e.touches[0]);
+    };
+
+    handleTouchMove(e){
+        e.preventDefault();
+        this.handleMouseMove(e.touches[0]);
+    };
+
+    handleMouseDown({ pageX }) {
+
+        const box = this.bar.getBoundingClientRect();
+
+        this.setState({
+            elementX: box.x,
+            elementW: box.width,
+            position: ((pageX - box.x) / box.width) * 100,
+            isPressed: true,
+        });
+    }
+
+    handleMouseMove({ pageX }) {
+
+        if( this.state.isPressed ){
+
+            const { elementX, elementW } = this.state;
+
+            this.setState({
+                position: ((pageX - elementX) / elementW) * 100,
+            });
+        }
+    }
+
+    handleMouseUp() {
+
+        if( this.state.isPressed ) {
+            const { position } = this.state;
+            const audio = this.props.audioEl;
+
+            audio.currentTime = ( position / 100 ) * audio.duration;
+
+            this.setState({
+                isPressed: false,
+            });
+        }
     }
 
     render() {
 
         console.log('RENDER RANGE');
 
+        const { position, buffer } = this.state;
+
         return (
-            <div className='playerRange'
-                ref={(elmt) => { this.elmt = elmt; }}
-            ></div>
+            <div className='pr-control-bar'
+                 onMouseDown={this.handleMouseDown}
+                 onMouseUp={this.handleMouseUp}
+                 onMouseMove={this.handleMouseMove}
+                 onTouchStart={this.handleTouchStart}
+                 ref={(bar) => { this.bar = bar; }}
+            >
+                <div className='pr-bar pr-bar-line'></div>
+                <div className='pr-bar pr-bar-buffed' style={{width:`${buffer}%`}}></div>
+                <div className='pr-bar pr-bar-played' style={{width:`${position}%`}}></div>
+                <div className='pr-bar-handler' style={{left:`${position}%`}}></div>
+            </div>
         );
     }
 }

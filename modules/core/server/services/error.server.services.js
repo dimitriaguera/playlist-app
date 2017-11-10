@@ -68,7 +68,7 @@ module.exports.errorMessageHandler = function ( err, req, res, next, msg ) {
 
     // Response.
     return res
-        .status( setDefaultStatus(res.statusCode, 500) )
+        .status( setDefaultStatus(res.statusCode, 500, err) )
         .json({
             success: false,
             msg: msg || err.message || err.name || err.code
@@ -77,6 +77,6 @@ module.exports.errorMessageHandler = function ( err, req, res, next, msg ) {
 
 
 //  HELPER
-function setDefaultStatus( code, def ){
+function setDefaultStatus( code, def, err ){
     return (!code || code === 200) ? def : code;
 }

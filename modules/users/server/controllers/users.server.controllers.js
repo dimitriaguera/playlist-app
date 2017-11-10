@@ -86,8 +86,12 @@ exports.register = function (req, res, next) {
         });
 
         // Save user.
-        newUser.save(function(err) {
+        newUser.save(function(err, savedUser) {
             if (err) {
+                if ( err.name === 'MongoError' && err.code === 11000 ) {
+                    res.status(202);
+                    return errorHandler.errorMessageHandler( err, req, res, next, `${username} already exist. Please choose an other account name.` );
+                }
                 return errorHandler.errorMessageHandler( err, req, res, next );
             }
 
@@ -95,6 +99,7 @@ exports.register = function (req, res, next) {
             const defPl = new Playlist({
                 title: `__def${username}`,
                 defaultPlaylist: true,
+                author: savedUser._id,
             });
 
             // Save default playlist.

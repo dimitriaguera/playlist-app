@@ -101,21 +101,6 @@ UserSchema.post('save', function( doc ) {
     socketsEvents.emit( 'save:user', doc );
 });
 
-/**
- * Handle save errors.
- *
- */
-UserSchema.post('save', function( err, doc, next ) {
-
-    if ( err.name === 'MongoError' && err.code === 11000 ) {
-        next(new Error( `${doc.username} already exist. Please choose an other account name.`));
-    }
-
-    else {
-        next( err );
-    }
-});
-
 UserSchema.method('comparePassword', function(password){
     const self = this;
 

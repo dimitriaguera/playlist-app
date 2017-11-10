@@ -77,7 +77,7 @@ const mapDispatchToProps = dispatch => {
             activatePlaylist( item )
         ),
         getAllPlaylistName: () => dispatch(
-            get( 'allPlaylist' )
+            get( 'ownedPlaylist' )
         ),
     }
 };

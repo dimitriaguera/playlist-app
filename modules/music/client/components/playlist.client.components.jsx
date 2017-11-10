@@ -12,7 +12,7 @@ class Playlist extends Component {
 
     constructor( props ) {
 
-        super( props );
+        super(props);
 
         this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
@@ -22,7 +22,7 @@ class Playlist extends Component {
 
         this.socket = socketServices.getPublicSocket();
         this.state = {
-        playlist: {
+            playlist: {
                 title: '',
                 tracks: [],
                 author: {},
@@ -138,7 +138,7 @@ class Playlist extends Component {
         const isActivePlaylist = pl && (pl.title === playlist.title);
         const isAuthor = user && (playlist.author.username === user.username);
 
-        let label_mode = 'Playlist';
+            let label_mode = 'Playlist';
 
         return (
             <div>
