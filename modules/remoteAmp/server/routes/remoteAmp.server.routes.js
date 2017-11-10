@@ -11,7 +11,7 @@ const { REMOTEAMP_ROLE } = require(path.resolve('./modules/users/commons/roles')
 
 module.exports = function (app) {
 
-    const remoteAmp = require(path.resolve('./controllers/remoteAmp.server.controllers');
+    const remoteAmp = require('../controllers/remoteAmp.server.controllers');
 
     // Users list
     app.route('/api/remoteAmp/:toDo').all(passport.authenticate('jwt', { session: false }), authorizeRoles(REMOTEAMP_ROLE))

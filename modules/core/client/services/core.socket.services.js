@@ -2,10 +2,10 @@
  * Created by Dimitri Aguera on 21/09/2017.
  */
 import io from 'socket.io-client'
-import { host, protocol, port } from 'env/config.client'
 import { getLocalToken } from 'users/client/services/users.storage.services'
 
-const url = `${protocol}://${host}:${port}/`;
+//@todo change how this url is generated
+const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/`;
 
 const socketService = {
 

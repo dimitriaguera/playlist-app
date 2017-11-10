@@ -5,7 +5,7 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import storeApp from './reducers/reducers.index.js'
 import middlewares from './middlewares/middlewares.index.js'
 
-console.log(process.env.NODE_ENV);
+//@todo change this check on process.env on client side
 const composeEnhancers = ( process.env.NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ) ?
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : compose;
 
