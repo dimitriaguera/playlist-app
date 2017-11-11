@@ -74,12 +74,12 @@ class DraggableList extends Component {
 
     handleTouchStart(key, id, pressLocation, e){
         this.handleMouseDown(key, id, pressLocation, e.touches[0]);
-    };
+    }
 
     handleTouchMove(e){
         e.preventDefault();
         this.handleMouseMove(e.touches[0]);
-    };
+    }
 
     handleMouseUp() {
 

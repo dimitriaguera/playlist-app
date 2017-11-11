@@ -189,20 +189,20 @@ class AudioBar extends Component {
                         </Grid.Row>
 
                         <Grid.Row className='audioBar-range-row'>
-                            <Grid.Column computer='4' verticalAlign='bottom' textAlign='left'>
+                            <Grid.Column only='computer tablet' computer='4' verticalAlign='bottom' textAlign='left'>
                                 <Label onClick={this.toggleVisible} size='large' color='teal'>
                                     Recent play
                                 </Label>
                             </Grid.Column>
 
-                            <Grid.Column computer='8'>
+                            <Grid.Column mobile='16' computer='8'>
                                 <MetaNameTracks onPlay={onPlay} />
                                 <RangeSlider audioEl={audioEl} />
                                 <MetaTimeTracksCurrent currentSlideTime={currentTime}/>
                                 <MetaTimeTracksEnd duration={duration}/>
                             </Grid.Column>
 
-                            <Grid.Column computer='4' textAlign='right'>
+                            <Grid.Column only='computer tablet' computer='4' textAlign='right'>
                                 <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode}/>
                             </Grid.Column>
                         </Grid.Row>
@@ -270,6 +270,20 @@ class RangeSlider extends Component {
         };
     }
 
+    componentDidMount() {
+        window.addEventListener('touchmove', this.handleTouchMove);
+        window.addEventListener('touchend', this.handleMouseUp);
+        window.addEventListener('mousemove', this.handleMouseMove);
+        window.addEventListener('mouseup', this.handleMouseUp);
+    };
+
+    componentWillUnmount() {
+        window.removeEventListener('touchmove', this.handleTouchMove, false);
+        window.removeEventListener('touchend', this.handleMouseUp, false);
+        window.removeEventListener('mousemove', this.handleMouseMove, false);
+        window.removeEventListener('mouseup', this.handleMouseUp, false);
+    }
+
     componentWillReceiveProps(nextProps) {
 
         const { audioEl } = nextProps;
@@ -280,14 +294,24 @@ class RangeSlider extends Component {
             this.setProgressInterval();
             this.setBufferInterval();
 
-            audioEl.addEventListener('play', () => {
-                this.setProgressInterval();
-            });
-
-            audioEl.addEventListener('pause', () => {
-                this.clearProgressInterval();
-            });
+            // audioEl.addEventListener('play', () => {
+            //     this.setProgressInterval();
+            // });
+            //
+            // audioEl.addEventListener('pause', () => {
+            //     this.clearProgressInterval();
+            // });
         }
+    }
+
+    handleTouchStart(e){
+        this.handleMouseDown(e.touches[0]);
+    }
+
+
+    handleTouchMove(e){
+        e.preventDefault();
+        this.handleMouseMove(e.touches[0]);
     }
 
     /**
@@ -363,15 +387,6 @@ class RangeSlider extends Component {
         }
     }
 
-    handleTouchStart(e){
-        this.handleMouseDown(e.touches[0]);
-    };
-
-    handleTouchMove(e){
-        e.preventDefault();
-        this.handleMouseMove(e.touches[0]);
-    };
-
     handleMouseDown({ pageX }) {
 
         const box = this.bar.getBoundingClientRect();
@@ -404,6 +419,8 @@ class RangeSlider extends Component {
 
             audio.currentTime = ( position / 100 ) * audio.duration;
 
+            console.log('MOUSEUP', ( position / 100 ) * audio.duration);
+
             this.setState({
                 isPressed: false,
             });
@@ -419,8 +436,6 @@ class RangeSlider extends Component {
         return (
             <div className='pr-control-bar'
                  onMouseDown={this.handleMouseDown}
-                 onMouseUp={this.handleMouseUp}
-                 onMouseMove={this.handleMouseMove}
                  onTouchStart={this.handleTouchStart}
                  ref={(bar) => { this.bar = bar; }}
             >
