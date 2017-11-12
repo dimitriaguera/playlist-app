@@ -26,14 +26,6 @@ class AudioBar extends Component {
         this.onCanPlayHandler = this.onCanPlayHandler.bind(this);
         this.onNextHandler = this.onNextHandler.bind(this);
         this.onPrevHandler = this.onPrevHandler.bind(this);
-        this.toggleVisible = this.toggleVisible.bind(this);
-
-        this.state = {
-            currentSlideTime: null,
-            currentTime: null,
-            duration: null,
-            visible: false,
-        };
     }
 
     componentWillMount() {
@@ -67,10 +59,6 @@ class AudioBar extends Component {
     componentWillUnmount() {
         this.socket.disconnect();
         console.log("Disconnecting Socket as component will unmount");
-    }
-
-    toggleVisible() {
-        this.setState({ visible: !this.state.visible });
     }
 
     /**
@@ -135,7 +123,6 @@ class AudioBar extends Component {
 
     render(){
 
-        const { duration, currentTime, visible } = this.state;
         const { onPlay, isPaused, playingList, albumList } = this.props;
         const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
 
@@ -147,7 +134,6 @@ class AudioBar extends Component {
         }
 
         const classes = ['audioBar'];
-        if ( this.state.visible ) { classes.push('show'); }
 
         return (
             !!onPlay.src &&
@@ -190,16 +176,14 @@ class AudioBar extends Component {
 
                         <Grid.Row className='audioBar-range-row'>
                             <Grid.Column only='computer tablet' computer='4' verticalAlign='bottom' textAlign='left'>
-                                <Label onClick={this.toggleVisible} size='large' color='teal'>
+                                <Label size='large' color='teal'>
                                     Recent play
                                 </Label>
                             </Grid.Column>
 
-                            <Grid.Column mobile='16' computer='8'>
+                            <Grid.Column mobile='16' tablet='8' computer='8'>
                                 <MetaNameTracks onPlay={onPlay} />
                                 <RangeSlider audioEl={audioEl} />
-                                <MetaTimeTracksCurrent currentSlideTime={currentTime}/>
-                                <MetaTimeTracksEnd duration={duration}/>
                             </Grid.Column>
 
                             <Grid.Column only='computer tablet' computer='4' textAlign='right'>
@@ -207,8 +191,6 @@ class AudioBar extends Component {
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
-
-                    <AudioBarBottom show={visible}/>
             </div>
         );
     }
@@ -275,7 +257,7 @@ class RangeSlider extends Component {
         window.addEventListener('touchend', this.handleMouseUp);
         window.addEventListener('mousemove', this.handleMouseMove);
         window.addEventListener('mouseup', this.handleMouseUp);
-    };
+    }
 
     componentWillUnmount() {
         window.removeEventListener('touchmove', this.handleTouchMove, false);
@@ -294,13 +276,13 @@ class RangeSlider extends Component {
             this.setProgressInterval();
             this.setBufferInterval();
 
-            // audioEl.addEventListener('play', () => {
-            //     this.setProgressInterval();
-            // });
-            //
-            // audioEl.addEventListener('pause', () => {
-            //     this.clearProgressInterval();
-            // });
+            audioEl.addEventListener('play', () => {
+                this.setProgressInterval();
+            });
+
+            audioEl.addEventListener('pause', () => {
+                this.clearProgressInterval();
+            });
         }
     }
 
@@ -419,8 +401,6 @@ class RangeSlider extends Component {
 
             audio.currentTime = ( position / 100 ) * audio.duration;
 
-            console.log('MOUSEUP', ( position / 100 ) * audio.duration);
-
             this.setState({
                 isPressed: false,
             });
@@ -446,21 +426,6 @@ class RangeSlider extends Component {
             </div>
         );
     }
-}
-
-class AudioBarBottom extends Component {
-
-    render(){
-
-        const classes = ['audioBarBottom'];
-        if ( this.props.show ) { classes.push('show'); }
-
-        return (
-            <div className={classes.join(' ')}>
-                <PlayHistory/>
-            </div>
-        )
-    };
 }
 
 class PlayingControls extends Component {

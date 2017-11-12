@@ -44,17 +44,52 @@ exports.read = function (req, res, next) {
             const buffer = readChunk.sync(filePath, 0, 4100);
             const ft = fileType(buffer);
 
-            // Create response Header.
-            res.writeHead(200, {
-                'Content-Type': ft.mime,
-                'Content-Length': stat.size
-            });
+            const fileSize = stat.size;
+            const range = req.headers.range;
 
-            // Create Readable.
-            audio = fs.createReadStream(filePath);
+            // If range requested in header, make 206 range response server.
+            if (range) {
 
-            // Pipe data in server response.
-            audio.pipe(res, { end: false });
+                // Get range start / end.
+                const parts = range.replace(/bytes=/, "").split("-");
+                const start = parseInt(parts[0], 10);
+                const end = parts[1]
+                    ? parseInt(parts[1], 10)
+                    : fileSize-1;
+
+                // Get size of chunk.
+                const chunksize = (end-start)+1;
+
+                // Create stream chunk.
+                audio = fs.createReadStream(filePath, {start, end});
+
+                // Make specific header.
+                const head = {
+                    'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                    'Accept-Ranges': 'bytes',
+                    'Content-Length': chunksize,
+                    'Content-Type': ft.mime,
+                };
+
+                // Resp in range mode.
+                res.writeHead(206, head);
+                audio.pipe(res);
+            }
+
+            // If no range request, 200 response.
+            else {
+                // Create response Header.
+                res.writeHead(200, {
+                    'Content-Type': ft.mime,
+                    'Content-Length': fileSize
+                });
+
+                // Create Readable.
+                audio = fs.createReadStream(filePath);
+
+                // Pipe data in server response.
+                audio.pipe(res, { end: false });
+            }
         }
         catch( err ) {
             //res.status(500);
