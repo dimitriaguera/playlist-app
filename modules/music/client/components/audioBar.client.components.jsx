@@ -274,7 +274,7 @@ class RangeSlider extends Component {
         if( !this.props.audioEl && audioEl) {
 
             this.setProgressInterval();
-            this.setBufferInterval();
+            // this.setBufferInterval();
 
             audioEl.addEventListener('play', () => {
                 this.setProgressInterval();
@@ -303,7 +303,8 @@ class RangeSlider extends Component {
         if (!this.progressInterval) {
             this.progressInterval = setInterval(() => {
                 this.progressHandler();
-            }, 500);
+                this.bufferHandler();
+            }, 1000);
         }
     }
 
@@ -317,26 +318,26 @@ class RangeSlider extends Component {
         }
     }
 
-    /**
-     * Set an interval to call bufferHandler.
-     */
-    setBufferInterval() {
-        if (!this.bufferInterval) {
-            this.bufferInterval = setInterval(() => {
-                this.bufferHandler();
-            }, 1000);
-        }
-    }
-
-    /**
-     * Clear the buffer interval
-     */
-    clearBufferInterval() {
-        if (this.bufferInterval) {
-            clearInterval(this.bufferInterval);
-            this.bufferInterval = null;
-        }
-    }
+    // /**
+    //  * Set an interval to call bufferHandler.
+    //  */
+    // setBufferInterval() {
+    //     if (!this.bufferInterval) {
+    //         this.bufferInterval = setInterval(() => {
+    //             this.bufferHandler();
+    //         }, 1000);
+    //     }
+    // }
+    //
+    // /**
+    //  * Clear the buffer interval
+    //  */
+    // clearBufferInterval() {
+    //     if (this.bufferInterval) {
+    //         clearInterval(this.bufferInterval);
+    //         this.bufferInterval = null;
+    //     }
+    // }
 
     bufferHandler() {
 
@@ -374,15 +375,14 @@ class RangeSlider extends Component {
         const box = this.bar.getBoundingClientRect();
 
         this.setState({
-            elementX: box.x,
+            elementX: box.left,
             elementW: box.width,
-            position: ((pageX - box.x) / box.width) * 100,
+            position: ((pageX - box.left) / box.width) * 100,
             isPressed: true,
         });
     }
 
     handleMouseMove({ pageX }) {
-
         if( this.state.isPressed ){
 
             const { elementX, elementW } = this.state;
@@ -395,21 +395,23 @@ class RangeSlider extends Component {
 
     handleMouseUp() {
 
-        if( this.state.isPressed ) {
-            const { position } = this.state;
-            const audio = this.props.audioEl;
+        const { position, isPressed } = this.state;
+        const audio = this.props.audioEl;
 
-            audio.currentTime = ( position / 100 ) * audio.duration;
+        if ( !isPressed ) return;
 
-            this.setState({
-                isPressed: false,
-            });
-        }
+        //alert('mouseup' + ( position / 100 ) * audio.duration);
+
+        audio.currentTime = ( position / 100 ) * audio.duration;
+
+        this.setState({
+            isPressed: false,
+        });
     }
 
     render() {
 
-        console.log('RENDER RANGE');
+        //console.log('RENDER RANGE');
 
         const { position, buffer } = this.state;
 
