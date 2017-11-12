@@ -248,6 +248,8 @@ class RangeSlider extends Component {
             position: 0,
             elementX: 0,
             elementW: 0,
+            currentTime: 0,
+            duration: 0,
             isPressed: false,
         };
     }
@@ -273,15 +275,28 @@ class RangeSlider extends Component {
         // Applying handlers on audio element.
         if( !this.props.audioEl && audioEl) {
 
+            // Initialise duration track, and launch setInterval timer.
+            this.setState({duration: audioEl.duration});
             this.setProgressInterval();
+
             // this.setBufferInterval();
 
+
+            // Apply events handlers on audio html5 element.
             audioEl.addEventListener('play', () => {
                 this.setProgressInterval();
             });
 
             audioEl.addEventListener('pause', () => {
                 this.clearProgressInterval();
+            });
+
+            audioEl.addEventListener('durationchange', () => {
+                this.setState({
+                    duration: audioEl.duration,
+                    currentTime: 0,
+                    position: 0,
+                });
             });
         }
     }
@@ -366,6 +381,7 @@ class RangeSlider extends Component {
 
             this.setState({
                 position: time,
+                currentTime: audio.currentTime,
             });
         }
     }
@@ -385,10 +401,12 @@ class RangeSlider extends Component {
     handleMouseMove({ pageX }) {
         if( this.state.isPressed ){
 
-            const { elementX, elementW } = this.state;
+            const { elementX, elementW, duration } = this.state;
+            const time = (pageX - elementX) / elementW;
 
             this.setState({
-                position: ((pageX - elementX) / elementW) * 100,
+                position: time * 100,
+                currentTime: time * duration,
             });
         }
     }
@@ -413,18 +431,22 @@ class RangeSlider extends Component {
 
         //console.log('RENDER RANGE');
 
-        const { position, buffer } = this.state;
+        const { position, buffer, currentTime, duration } = this.state;
 
         return (
-            <div className='pr-control-bar'
-                 onMouseDown={this.handleMouseDown}
-                 onTouchStart={this.handleTouchStart}
-                 ref={(bar) => { this.bar = bar; }}
-            >
-                <div className='pr-bar pr-bar-line'></div>
-                <div className='pr-bar pr-bar-buffed' style={{width:`${buffer}%`}}></div>
-                <div className='pr-bar pr-bar-played' style={{width:`${position}%`}}></div>
-                <div className='pr-bar-handler' style={{left:`${position}%`}}></div>
+            <div className='pr-control-element'>
+                <MetaTimeTracksCurrent currentTime={currentTime} />
+                <div className='pr-control-bar'
+                     onMouseDown={this.handleMouseDown}
+                     onTouchStart={this.handleTouchStart}
+                     ref={(bar) => { this.bar = bar; }}
+                >
+                    <div className='pr-bar pr-bar-line'></div>
+                    <div className='pr-bar pr-bar-buffed' style={{width:`${buffer}%`}}></div>
+                    <div className='pr-bar pr-bar-played' style={{width:`${position}%`}}></div>
+                    <div className='pr-bar-handler' style={{left:`${position}%`}}></div>
+                </div>
+                <MetaTimeTracksEnd duration={duration} />
             </div>
         );
     }
@@ -594,17 +616,17 @@ class MetaNamePrevTracks extends Component {
 class MetaTimeTracksCurrent extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { currentSlideTime } = nextProps;
-        return ( currentSlideTime !== this.props.currentSlideTime );
+        const { currentTime } = nextProps;
+        return ( currentTime !== this.props.currentTime );
     }
 
     render() {
 
-        const { currentSlideTime } = this.props;
-        const cst = getFormatedTime(currentSlideTime);
+        const { currentTime } = this.props;
+        const cst = getFormatedTime(currentTime);
 
         return (
-            <span>
+            <span className='mtn-elmt mtn-elmt-current'>
                 {`${cst}`}
             </span>
         );
@@ -624,7 +646,7 @@ class MetaTimeTracksEnd extends Component {
         const dur = getFormatedTime(duration);
 
         return (
-            <span style={{float:'right'}}>
+            <span className='mtn-elmt mtn-elmt-end'>
                 {`${dur}`}
             </span>
         );
