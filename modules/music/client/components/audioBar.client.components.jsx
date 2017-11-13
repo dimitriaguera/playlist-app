@@ -7,7 +7,6 @@ import ReactAudioPlayer from 'react-audio-player'
 import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import ps from 'folder/client/services/path.client.services'
-import PlayHistory from './playHistory.client.components'
 import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
 
 import style from './style/audio.scss'
@@ -26,6 +25,10 @@ class AudioBar extends Component {
         this.onCanPlayHandler = this.onCanPlayHandler.bind(this);
         this.onNextHandler = this.onNextHandler.bind(this);
         this.onPrevHandler = this.onPrevHandler.bind(this);
+
+        this.state = {
+            audioReady: false,
+        }
     }
 
     componentWillMount() {
@@ -84,38 +87,43 @@ class AudioBar extends Component {
         }
     }
 
+    // When first tracks ready to play, fire ready to true.
+    // This allows range slider element to render.
+    onCanPlayHandler(e) {
+        if( !this.state.audioReady ) {
+            this.setState({audioReady: true});
+        }
+    }
+
+    // If app state is play, apply play() method to audio element.
+    // Permit remote pause/play trough redux state changes on all app.
     onPlayHandler(e) {
         this.props.play();
-    };
+    }
 
+    // If app state is pause, apply pause() method to audio element.
+    // Permit remote pause/play trough redux state changes on all app.
     onPauseHandler(e) {
         this.props.pause();
     }
 
-    onCanPlayHandler(e) {
-        this.setState({
-            currentTime: this.rap.audioEl.currentTime,
-            duration: this.rap.audioEl.duration,
-        });
-    }
-
+    // Play next tracks on album/playlist list.
     onNextHandler(e) {
-        const { nextTracks, playingList, albumList } = this.props;
-        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
-        const callback = (mode === 'Album') ? playOnAlbum : playOnPlaylist;
+        const { playingList, albumList } = this.props;
+        const { onPlayIndex, pl, callback } = getActiveMode(playingList, albumList);
 
-        nextTracks({
+        this.props.nextTracks({
             onPlayIndex: onPlayIndex + 1,
             pl: pl,
         }, callback);
     }
 
+    // Play previous tracks on album/playlist list.
     onPrevHandler(e) {
-        const { nextTracks, playingList, albumList } = this.props;
-        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
-        const callback = (mode === 'Album') ? playOnAlbum : playOnPlaylist;
+        const { playingList, albumList } = this.props;
+        const { onPlayIndex, pl, callback } = getActiveMode(playingList, albumList);
 
-        nextTracks({
+        this.props.nextTracks({
             onPlayIndex: onPlayIndex - 1,
             pl: pl,
         }, callback);
@@ -125,6 +133,7 @@ class AudioBar extends Component {
 
         const { onPlay, isPaused, playingList, albumList } = this.props;
         const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
+        const { audioReady } = this.state;
 
         let audioEl = null;
 
@@ -183,7 +192,7 @@ class AudioBar extends Component {
 
                             <Grid.Column mobile='16' tablet='8' computer='8'>
                                 <MetaNameTracks onPlay={onPlay} />
-                                <RangeSlider audioEl={audioEl} />
+                                {audioReady && <RangeSlider audioEl={audioEl} />}
                             </Grid.Column>
 
                             <Grid.Column only='computer tablet' computer='4' textAlign='right'>
@@ -255,6 +264,34 @@ class RangeSlider extends Component {
     }
 
     componentDidMount() {
+
+        const { audioEl } = this.props;
+
+        // Initialise duration track, and launch setInterval timer.
+        this.setState({duration: audioEl.duration});
+        this.setProgressInterval();
+
+        // On play event, start interval callback.
+        audioEl.addEventListener('play', () => {
+            this.setProgressInterval();
+        });
+
+        // On pause event, clear interval.
+        audioEl.addEventListener('pause', () => {
+            this.clearProgressInterval();
+        });
+
+        // On new tracks, reset duration, progress bar, buffer bar.
+        audioEl.addEventListener('durationchange', () => {
+            this.setState({
+                duration: audioEl.duration,
+                currentTime: 0,
+                position: 0,
+                buffer: 0,
+            });
+        });
+
+        // Apply windows touch/mouse control listeners.
         window.addEventListener('touchmove', this.handleTouchMove);
         window.addEventListener('touchend', this.handleMouseUp);
         window.addEventListener('mousemove', this.handleMouseMove);
@@ -262,58 +299,31 @@ class RangeSlider extends Component {
     }
 
     componentWillUnmount() {
+
+        // Clear interval.
+        this.clearProgressInterval();
+
+        // Clear listeners.
         window.removeEventListener('touchmove', this.handleTouchMove, false);
         window.removeEventListener('touchend', this.handleMouseUp, false);
         window.removeEventListener('mousemove', this.handleMouseMove, false);
         window.removeEventListener('mouseup', this.handleMouseUp, false);
     }
 
-    componentWillReceiveProps(nextProps) {
 
-        const { audioEl } = nextProps;
-
-        // Applying handlers on audio element.
-        if( !this.props.audioEl && audioEl) {
-
-            // Initialise duration track, and launch setInterval timer.
-            this.setState({duration: audioEl.duration});
-            this.setProgressInterval();
-
-            // this.setBufferInterval();
-
-
-            // Apply events handlers on audio html5 element.
-            audioEl.addEventListener('play', () => {
-                this.setProgressInterval();
-            });
-
-            audioEl.addEventListener('pause', () => {
-                this.clearProgressInterval();
-            });
-
-            audioEl.addEventListener('durationchange', () => {
-                this.setState({
-                    duration: audioEl.duration,
-                    currentTime: 0,
-                    position: 0,
-                });
-            });
-        }
-    }
-
+    // Touch start handler.
     handleTouchStart(e){
         this.handleMouseDown(e.touches[0]);
     }
 
 
+    // Touch move handler.
     handleTouchMove(e){
         e.preventDefault();
         this.handleMouseMove(e.touches[0]);
     }
 
-    /**
-     * Set an interval to call progressHandler.
-     */
+     // Set an interval to call progressHandler.
      setProgressInterval() {
         if (!this.progressInterval) {
             this.progressInterval = setInterval(() => {
@@ -323,9 +333,7 @@ class RangeSlider extends Component {
         }
     }
 
-    /**
-     * Clear the progress interval
-     */
+    // Clear the progress interval.
     clearProgressInterval() {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
@@ -333,29 +341,8 @@ class RangeSlider extends Component {
         }
     }
 
-    // /**
-    //  * Set an interval to call bufferHandler.
-    //  */
-    // setBufferInterval() {
-    //     if (!this.bufferInterval) {
-    //         this.bufferInterval = setInterval(() => {
-    //             this.bufferHandler();
-    //         }, 1000);
-    //     }
-    // }
-    //
-    // /**
-    //  * Clear the buffer interval
-    //  */
-    // clearBufferInterval() {
-    //     if (this.bufferInterval) {
-    //         clearInterval(this.bufferInterval);
-    //         this.bufferInterval = null;
-    //     }
-    // }
-
+    // Check and set buffer position.
     bufferHandler() {
-
         const audio = this.props.audioEl;
         const duration = audio.duration;
 
@@ -372,8 +359,8 @@ class RangeSlider extends Component {
         }
     }
 
+    // Check and set playing progress position.
     progressHandler() {
-
         if( !this.state.isPressed ){
 
             const audio = this.props.audioEl;
@@ -386,23 +373,30 @@ class RangeSlider extends Component {
         }
     }
 
+    // Handler mouse down.
     handleMouseDown({ pageX }) {
 
         const box = this.bar.getBoundingClientRect();
+        const elementX = box.left;
+        const elementW = box.width;
+
+        //const posX = clamp(pageX, elementX, elementX + elementW);
 
         this.setState({
-            elementX: box.left,
-            elementW: box.width,
-            position: ((pageX - box.left) / box.width) * 100,
+            elementX: elementX,
+            elementW: elementW,
+            position: ((pageX - elementX) / elementW) * 100,
             isPressed: true,
         });
     }
 
+    // Handler mouse move.
     handleMouseMove({ pageX }) {
         if( this.state.isPressed ){
 
             const { elementX, elementW, duration } = this.state;
-            const time = (pageX - elementX) / elementW;
+            const posX = clamp(pageX, elementX, elementX + elementW);
+            const time = (posX - elementX) / elementW;
 
             this.setState({
                 position: time * 100,
@@ -411,14 +405,13 @@ class RangeSlider extends Component {
         }
     }
 
+    // Handler mouse up.
     handleMouseUp() {
 
         const { position, isPressed } = this.state;
         const audio = this.props.audioEl;
 
         if ( !isPressed ) return;
-
-        //alert('mouseup' + ( position / 100 ) * audio.duration);
 
         audio.currentTime = ( position / 100 ) * audio.duration;
 
@@ -429,12 +422,15 @@ class RangeSlider extends Component {
 
     render() {
 
-        //console.log('RENDER RANGE');
+        console.log('RENDER RANGE');
 
-        const { position, buffer, currentTime, duration } = this.state;
+        const { position, buffer, currentTime, duration, isPressed } = this.state;
+        const classes = ['pr-control-element'];
+
+        if( isPressed ) classes.push('pr-is-pressed');
 
         return (
-            <div className='pr-control-element'>
+            <div className={classes.join(' ')}>
                 <MetaTimeTracksCurrent currentTime={currentTime} />
                 <div className='pr-control-bar'
                      onMouseDown={this.handleMouseDown}
@@ -455,8 +451,8 @@ class RangeSlider extends Component {
 class PlayingControls extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { isPaused, pl, onPlay } = nextProps;
-        return ( isPaused !== this.props.isPaused || pl !== this.props.pl || onPlay !== this.props.onPlay );
+        const { isPaused, pl } = nextProps;
+        return ( isPaused !== this.props.isPaused || pl !== this.props.pl );
     }
 
     render() {
@@ -745,7 +741,8 @@ function getActiveMode( playingList, albumList ) {
         return {
             pl: pl,
             onPlayIndex: onPlayIndex,
-            mode: pl.defaultPlaylist ? 'Queue' : 'Playlist'
+            mode: pl.defaultPlaylist ? 'Queue' : 'Playlist',
+            callback: playOnPlaylist,
         }
     }
 
@@ -754,7 +751,8 @@ function getActiveMode( playingList, albumList ) {
         return {
             pl: pl,
             onPlayIndex: onPlayIndex,
-            mode: 'Album'
+            mode: 'Album',
+            callback: playOnAlbum,
         }
     }
 
@@ -762,6 +760,7 @@ function getActiveMode( playingList, albumList ) {
         pl: null,
         onPlayIndex: 0,
         mode: 'Free',
+        callback: playOnPlaylist,
     }
 }
 
@@ -771,6 +770,10 @@ function getTrackIndexById( id, array ) {
         if( array[i]._id == id ) return i;
     }
     return null;
+}
+
+function clamp(n, min, max) {
+    return Math.max(Math.min(n, max), min);
 }
 
 export default AudioBarContainer
