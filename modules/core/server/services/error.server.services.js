@@ -9,7 +9,9 @@
 
 module.exports.logsError = function( err, req, res, next ) {
     console.error(err.stack);
-    next(err);
+    if(next){
+        next(err);
+    }
 };
 
 module.exports.xhrErrorHandler = function( err, req, res, next ) {

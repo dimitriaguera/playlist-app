@@ -451,8 +451,8 @@ class RangeSlider extends Component {
 class PlayingControls extends Component {
 
     shouldComponentUpdate(nextProps) {
-        const { isPaused, pl } = nextProps;
-        return ( isPaused !== this.props.isPaused || pl !== this.props.pl );
+        const { isPaused, pl, onPlay } = nextProps;
+        return ( isPaused !== this.props.isPaused || pl !== this.props.pl || onPlay !== this.props.onPlay );
     }
 
     render() {
