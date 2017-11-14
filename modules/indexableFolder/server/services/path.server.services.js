@@ -26,6 +26,14 @@ exports.splitPath = function( str ){
 };
 
 /**
+ * Just clean string.
+ * @param str {String}
+ */
+exports.clean = function( str ) {
+    return sanitize(str);
+};
+
+/**
  * Remove unsecure caracter on path, and construct secure one.
  * @param path {string}
  * @returns {string}

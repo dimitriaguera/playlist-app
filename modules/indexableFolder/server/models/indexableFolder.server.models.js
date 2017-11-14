@@ -15,9 +15,14 @@ const config = require(path.resolve('./config/env/config.server'));
  *
  */
 const NodeSchema = new Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true,
+    },
+    publicName: String,
     path: {
         type: String,
+        unique: true,
         required: true,
     },
     parent: {
@@ -35,6 +40,28 @@ const NodeSchema = new Schema({
         default: false,
     },
     meta: []
+});
+
+/**
+ * Middleware that remove Node's children.
+ * Cascade effect : all children removed call middleware, and remove his own children.
+ *
+ */
+NodeSchema.pre('remove', function(next) {
+
+    const id = this._id;
+
+    // Delete children Nodes.
+    Node.find({parent: id}, (err, nodes) => {
+        nodes.forEach(function(node) {
+            node.remove( (err) => {
+                if(err) return next(err);
+            });
+        });
+    });
+
+    console.log(`Remove Index file ${this.path}.`);
+    next();
 });
 
 // /**
@@ -65,4 +92,5 @@ const NodeSchema = new Schema({
 //     });
 // });
 
-module.exports = mongoose.model('Node', NodeSchema);
+const Node = mongoose.model('Node', NodeSchema);
+module.exports = Node;

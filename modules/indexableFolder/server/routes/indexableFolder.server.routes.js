@@ -9,7 +9,13 @@ module.exports = function(app){
     // Index files on DB.
     app.route('/api/indexFiles').get(iFolder.index);
 
-    // Return only files, in deep.
-    //app.route('/api/files').get(folder.searchSyncFiles);
+    // Index files on DB.
+    app.route('/api/indexFilesDelete').get(iFolder.deleteIndex);
+
+    // Return children files/folder list.
+    app.route('/api/getFiles').get(iFolder.getFiles);
+
+    // Return deep files list.
+    app.route('/api/getDeepFiles').get(iFolder.getDeepFiles);
 
 };
