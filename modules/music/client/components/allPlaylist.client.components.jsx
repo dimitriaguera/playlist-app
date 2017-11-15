@@ -46,7 +46,6 @@ class AllPlaylist extends Component {
 
             // If user connected, get all with default playlist.
             if( nextProps.user ) {
-                console.log('UPDATE DPL');
                 this.props.getAllPlaylist()
                     .then( (data) => {
                         if( data.success ){

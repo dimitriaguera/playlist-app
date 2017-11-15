@@ -84,8 +84,9 @@ class IndexableFolder extends Component {
 
     // Re-render only if path array or modal state are modified.
     shouldComponentUpdate( nextProps, nextState ) {
+        const { activePlaylist } = nextProps;
         const { query, modal } = nextState;
-        return ( query !== this.state.query || modal !== this.state.modal );
+        return ( query !== this.state.query || modal !== this.state.modal || activePlaylist !== this.props.activePlaylist );
     }
 
     // Force re-rendering on props location change.
@@ -134,7 +135,15 @@ class IndexableFolder extends Component {
 
     // Handle for confirm Confirm Box.
     handleConfirm() {
-        this.handlerAddItem(null, this.state.modal.addTracks);
+        const tracks = this.state.modal.addTracks.map((file) => {
+                return {
+                    src:file.path,
+                    name:file.publicName,
+                    meta:file.meta,
+                }
+            });
+
+        this.handlerAddItem(null, tracks);
         this.setState({modal:{
             open:false,
             addTracks: [],
@@ -219,8 +228,9 @@ class IndexableFolder extends Component {
         // If just one item, build array with only one track.
         if ( !Array.isArray( tracks ) ) {
             tracks = [{
-                name: item.publicName,
+                name: item.publicName || item.name,
                 src: path,
+                meta: item.meta || [],
             }];
         }
 
@@ -252,6 +262,7 @@ class IndexableFolder extends Component {
                             return {
                                 src:file.path,
                                 name:file.publicName,
+                                meta:file.meta,
                             }
                         }),
                     }
