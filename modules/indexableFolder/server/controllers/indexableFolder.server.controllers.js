@@ -20,10 +20,12 @@ const Node = require(path.resolve('./modules/indexableFolder/server/models/index
 exports.index = function (req, res, next) {
 
     const DRIVE = config.folder_base_url;
-    const path = `${DRIVE}`;
+    const root = `${DRIVE}`;
+    const path = '';
     const context = {
         firstParent: true,
         indexCount: 0,
+        rootPath: root,
     };
 
     // Delete all Nodes in Nodes collection.
@@ -144,7 +146,7 @@ exports.getFiles = function (req, res, next) {
     // If query file by path.
     if(req.query.path || req.query.path === '') {
         NOT_SECURE_STRING = req.query.path;
-        queryString = `${config.folder_base_url}${ps.cleanPath(NOT_SECURE_STRING)}`;
+        queryString = ps.cleanPath(NOT_SECURE_STRING);
         query = Node.findOne({ path:queryString });
     }
 
@@ -207,7 +209,7 @@ exports.getDeepFiles = function (req, res, next) {
     // If query file by path.
     if(req.query.path || req.query.path === '') {
         NOT_SECURE_STRING = req.query.path;
-        queryString = `${config.folder_base_url}${ps.cleanPath(NOT_SECURE_STRING)}`;
+        queryString = ps.cleanPath(NOT_SECURE_STRING);
         query = Node.findOne({ path:queryString });
     }
 
@@ -227,55 +229,66 @@ exports.getDeepFiles = function (req, res, next) {
         });
     }
 
-    function walk(query, done){
+    query.exec((err, node) => {
 
-        // Build and exec query.
-        query
-            .lean()
-            .populate('children')
-            .exec((err, node) => {
-                if ( err ) {
-                    return errorHandler.errorMessageHandler(err, req, res, next);
-                }
-                if ( !node.isFile && node.children ) {
-                    return walk();
-                }
-                files.push(node);
+        if( err ) return errorHandler.errorMessageHandler(err, req, res, next);
+        if(!node) {
+            res.status(404);
+            return res.json({
+                success: false,
+                msg: 'No files found.',
             });
-    }(query);
+        }
+
+        walk(node, (err, files) => {
+            if( err ) return errorHandler.errorMessageHandler(err, req, res, next);
+            res.json({
+                success: true,
+                count: files.length,
+                msg: files,
+            });
+        })
+    });
 };
 
-const walk = function(id, done) {
 
-    let results = [];
+const walk = function( id, done ) {
 
-    Node.findById(id).lean()
-        .populate('children')
-        .exec((err, node) => {
+    let files = [];
 
-            if (err) return done(err);
+    if ( !id._id ) {
+        Node.findById(id).exec(nodeSearch);
+    }
+    else {
+        nodeSearch(null, id);
+    }
 
-            let i = 0;
+    function nodeSearch(err, node) {
 
-            (function next() {
+        if(err) return done(err);
 
-                let child = node.children[i++];
-
-                if(!child) return done(null, results);
-
-                if(!child.isFile) {
-                    walk(child._id, (err, res) => {
-                        results = results.concat(res);
-                        next();
+        if (!node.isFile) {
+            async.map(
+                node.children,
+                (id, callback) => {
+                    walk(id, (err, res) => {
+                        if(err) return done(err);
+                        files = files.concat(res);
+                        callback(null, files);
                     });
+                },
+                (err, result) => {
+                    if(err) return done(err);
+                    done(null, files);
                 }
+            );
+        }
 
-                else {
-                    results.push(child);
-                    next();
-                }
-         })();
-    });
+        else {
+            files.push(node);
+            done(null, files);
+        }
+    }
 };
 
 /**
@@ -296,11 +309,13 @@ function walkAsync( context, path, name, callback, parentId, isFile, done ) {
 
     const regexFile = config.fileSystem.fileAudioTypes;
     const regexSecure = config.security.secureFile;
+    const uri = `${context.rootPath}${path}`;
 
     // Create item's Node document.
     let node = new Node({
         name: name || 'root',
         path: path,
+        uri: uri,
         parent: parentId || null,
         isFile: isFile,
     });
@@ -328,7 +343,7 @@ function walkAsync( context, path, name, callback, parentId, isFile, done ) {
     }
 
     // If item is folder, read it.
-    fs.readdir(path, (err, dir) => {
+    fs.readdir(uri, (err, dir) => {
 
         if (err) {
             // If error on first iteration, call done callback with error. That stop process, log err and send resp.
@@ -356,9 +371,10 @@ function walkAsync( context, path, name, callback, parentId, isFile, done ) {
 
                 // Build current item's child path.
                 let nodePath = `${path}/${item}`;
+                let nodeUri = `${uri}/${item}`;
 
                 // Read item's child.
-                fs.lstat(nodePath, (err, stats) => {
+                fs.lstat(nodeUri, (err, stats) => {
 
                     if (err) {
                         return console.error(`Error on indexing file ${nodePath}.`);

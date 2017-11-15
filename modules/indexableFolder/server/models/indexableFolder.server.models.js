@@ -20,10 +20,13 @@ const NodeSchema = new Schema({
         required: true,
     },
     publicName: String,
-    path: {
+    uri: {
         type: String,
         unique: true,
         required: true,
+    },
+    path: {
+        type: String,
     },
     parent: {
         type: Schema.Types.ObjectId,

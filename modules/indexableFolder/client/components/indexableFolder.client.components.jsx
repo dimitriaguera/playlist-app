@@ -44,6 +44,7 @@ class IndexableFolder extends Component {
 
         this.state = {
             path: [],
+            query: null,
             nodes: [],
             error: false,
             modal: {
@@ -74,6 +75,7 @@ class IndexableFolder extends Component {
                     error: false,
                     nodes: data.msg,
                     params: params,
+                    query: path,
                     path: ps.splitPath(path),
                 });
             }
@@ -81,9 +83,9 @@ class IndexableFolder extends Component {
     }
 
     // Re-render only if path array or modal state are modified.
-    shouldComponentUpdate( nextState ) {
-        const { path, modal } = nextState;
-        return ( path !== this.state.path || modal !== this.state.modal );
+    shouldComponentUpdate( nextProps, nextState ) {
+        const { query, modal } = nextState;
+        return ( query !== this.state.query || modal !== this.state.modal );
     }
 
     // Force re-rendering on props location change.
@@ -95,20 +97,23 @@ class IndexableFolder extends Component {
         // Extract folder's path form url.
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
-        // Query folder content, and set new state.
-        // This start re-render component with folder content.
-        this.props.fetchFolder( ps.urlEncode(path) ).then((data) => {
-            if ( !data.success ) {
-                _self.setState({ error: true });
-            }
-            else {
-                _self.setState({
-                    error: false,
-                    nodes: data.msg,
-                    path: ps.splitPath(path),
-                });
-            }
-        });
+        if( path !== this.state.query ) {
+            // Query folder content, and set new state.
+            // This start re-render component with folder content.
+            this.props.fetchFolder(ps.urlEncode(path)).then((data) => {
+                if (!data.success) {
+                    _self.setState({error: true});
+                }
+                else {
+                    _self.setState({
+                        error: false,
+                        nodes: data.msg,
+                        query: path,
+                        path: ps.splitPath(path),
+                    });
+                }
+            });
+        }
     }
 
     // Handle func when open Confirm Box.
@@ -243,7 +248,12 @@ class IndexableFolder extends Component {
                     pl: {
                         title: item.name,
                         path: path,
-                        tracks: data.msg,
+                        tracks: data.msg.map((file) => {
+                            return {
+                                src:file.path,
+                                name:file.publicName,
+                            }
+                        }),
                     }
                 };
                 addAlbumToPlay( album );
@@ -376,7 +386,6 @@ class IndexableFolder extends Component {
 const mapStateToProps = state => {
     return {
         activePlaylist: state.playlistStore.activePlaylist,
-        playingList: state.playlistStore.playingList,
         user: state.authenticationStore._user,
     }
 };
@@ -388,7 +397,7 @@ const mapDispatchToProps = dispatch => {
         ),
 
         fetchFiles: ( query ) => dispatch(
-            get( `files?path=${query || ''}` )
+            get( `getDeepFiles?path=${query || ''}` )
         ),
 
         addPlaylistItems: ( title, items ) => dispatch(
