@@ -12,6 +12,12 @@ module.exports = function(app){
     // Index files on DB.
     app.route('/api/indexFilesDelete').get(iFolder.deleteIndex);
 
+    // Index nodes on elastisearch server.
+    app.route('/api/elasticIndex').get(iFolder.elasticIndex);
+
+    // Return all nodes from elastisearch.
+    app.route('/api/elasticSearchAll').get(iFolder.elasticSearchAll);
+
     // Return children files/folder list.
     app.route('/api/getFiles').get(iFolder.getFiles);
 

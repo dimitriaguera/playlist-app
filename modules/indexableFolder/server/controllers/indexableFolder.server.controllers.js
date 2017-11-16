@@ -9,6 +9,7 @@ const errorHandler = require(path.resolve('./modules/core/server/services/error.
 
 const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
+const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
 
 /**
  * Create Node collection reflection deep folder structure from root folder.
@@ -45,6 +46,43 @@ exports.index = function (req, res, next) {
                 success: true,
                 msg: 'Starting indexation.',
             });
+        });
+    });
+};
+
+exports.elasticIndex = function (req, res, next) {
+
+    Node.find({}).select('-_id name path meta').lean().exec((err, data) => {
+        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        es.indexDelete('folder', (err, resp) => {
+            if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+            const param = {
+                index:'folder',
+                type:'album',
+            };
+
+            es.indexBulk(data, param, (err, data) => {
+                if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                res.json({
+                    success: true,
+                    msg: data,
+                });
+            });
+        });
+    });
+};
+
+exports.elasticSearchAll = function (req, res, next) {
+
+    es.searchAll('folder', (err, data) => {
+        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        res.json({
+            success: true,
+            msg: data,
         });
     });
 };
@@ -154,17 +192,22 @@ exports.getFiles = function (req, res, next) {
     else if(req.query.id) {
         NOT_SECURE_STRING = req.query.id;
         queryString = ps.clean(NOT_SECURE_STRING);
-        query = Node.findById(queryString)
+        query = Node.findById(queryString);
     }
 
-    // If no query param.
+    // If no query param, get All.
     else {
-        res.status(404);
-        return res.json({
-            success: false,
-            msg: 'Bad request.',
-        });
+        query = Node.find({});
     }
+
+    // // If no query param.
+    // else {
+    //     res.status(404);
+    //     return res.json({
+    //         success: false,
+    //         msg: 'Bad request.',
+    //     });
+    // }
 
     // Build and exec query.
     query
