@@ -29,12 +29,9 @@ module.exports = merge(common, {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: [{
-                        loader: 'css-loader', options: {
-                            sourceMap: true
-                        }
-                    }
-                        // , {loader: 'autoprefixer-loader'}
+                    use: [
+                      {loader: 'css-loader'},
+                      {loader: 'postcss-loader'}
                     ],
                 }),
             },

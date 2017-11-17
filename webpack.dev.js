@@ -17,42 +17,49 @@ const common = require('./webpack.default.js');
 
 module.exports = merge(common, {
     output: {
-        path: path.resolve('public/dist'),
-        publicPath: "/static/dist/",
-        filename: 'bundle.js'
+      path: path.resolve('public/dist'),
+      publicPath: '/static/dist/',
+      filename: 'bundle.js'
     },
+    devtool: 'cheap-module-eval-source-map',
     module: {
         rules: [
             {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: [{
+                    use: [
+                      {
                         loader: 'css-loader', options: {
                             sourceMap: true
                         }
-                    }
+                      }
                     ],
                 }),
             },
             {
                 test: /\.scss$/,
-                use: [{
+                use: [
+                  {
                     loader: 'style-loader'
-                },{
+                  },
+                  {
                     loader: "css-loader", options: {
                         sourceMap: true,
                         importLoaders: 1,
                     }
-                },{
+                  },
+                  {
                     loader: 'postcss-loader', options: {
                         sourceMap: true,
                     }
-                }, {
+                  },
+                  {
                     loader: "sass-loader", options: {
                         sourceMap: true,
                     }
-                }],
+                  }
+                ],
             },
         ],
     },
