@@ -14,6 +14,7 @@ class Tracks extends Component {
         return (
             this.props.item !== nextProps.item ||
             this.props.index !== nextProps.index ||
+            this.props.canEdit !== nextProps.canEdit ||
             active !== nextActive ||
             (active && this.props.isPaused !== nextProps.isPaused)
         )

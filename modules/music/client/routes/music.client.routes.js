@@ -33,7 +33,7 @@ export const routes = [
     {
         private: false,
         route: {
-            path: '/album/:title',
+            path: '/album',
             component: Album,
         },
     },

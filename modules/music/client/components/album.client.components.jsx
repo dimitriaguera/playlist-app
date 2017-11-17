@@ -33,7 +33,8 @@ class Album extends Component {
         const _self = this;
         const { history, fetchFiles, albumList } = _self.props;
 
-        let pathArray = ps.splitPath(_self.props.match.params.title);
+        // Build folder path from url path.
+        let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
         let path = ps.buildPath(pathArray);
 
         // Test if album is already playing.
@@ -46,6 +47,7 @@ class Album extends Component {
         }
         // Else, query data from DB.
         else {
+            console.log(ps.urlEncode(path));
             fetchFiles(ps.urlEncode(path))
                 .then((data) => {
 
@@ -78,11 +80,11 @@ class Album extends Component {
         const { albumOfUrl } = this.state;
 
         // Force re-rendering on props location change.
-        if ( _self.props.match.params.title !== nextProps.match.params.title ) {
+        if ( _self.props.location.pathname !== nextProps.location.pathname ) {
 
             // Test if album is already playing.
             // Get and clean path.
-            let pathArray = ps.splitPath(_self.props.match.params.title);
+            let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
             let path = ps.buildPath(pathArray);
 
             // If album playing, mount data from store.

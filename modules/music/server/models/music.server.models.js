@@ -61,22 +61,15 @@ PlaylistSchema.pre('save', function (next) {
  */
 PlaylistSchema.post('save', function( doc ) {
     console.log('save post middleware called on Playlist Model');
-    socketsEvents.emit( 'save:playlist', doc );
+    doc.populate({
+        path: 'author',
+        select: 'username -_id',
+    }, (e, popDoc) => {
+        if( e ) {
+            return socketsEvents.emit( 'save:playlist', doc );
+        }
+        socketsEvents.emit( 'save:playlist', popDoc );
+    });
 });
-
-/**
- * Handle save errors.
- *
- */
-PlaylistSchema.post('save', function( err, doc, next ) {
-    if ( err.name === 'MongoError' && err.code === 11000 ) {
-        next(new Error( `${doc.title} already exist. Please choose an other playlist title.`));
-    }
-
-    else {
-        next( err );
-    }
-});
-
 
 module.exports = mongoose.model('Playlist', PlaylistSchema);
