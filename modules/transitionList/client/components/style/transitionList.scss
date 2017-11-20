@@ -1,0 +1,24 @@
+.tl {
+  &.tl-container {
+    position: relative;
+
+    .tl-item {
+      position: absolute;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: -moz-none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
+
+  &.white {
+    &.tl-container {
+      .tl-item {
+        background: rgba(255, 255, 255, 0.85);
+      }
+    }
+  }
+}

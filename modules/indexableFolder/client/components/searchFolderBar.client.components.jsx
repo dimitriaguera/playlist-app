@@ -17,7 +17,7 @@ class SearchFolderBar extends Component {
 
         const obs = Rx.Observable.fromEvent(this.element, 'keyup')
             .pluck('target', 'value')
-            .filter(text => text.length > 2 )
+            .filter(text => text.length > 1 )
             .debounce(500 /* ms */)
             .distinctUntilChanged()
             .flatMapLatest(searchApi)

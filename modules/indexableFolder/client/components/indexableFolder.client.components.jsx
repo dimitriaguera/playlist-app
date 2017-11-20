@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { List, Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
+import { Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
+import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import ps from 'folder/client/services/path.client.services'
-
 
 /**
  * Folder is the file explorator component.
@@ -296,6 +296,8 @@ class IndexableFolder extends Component {
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
 
+        console.log('play file !!!');
+
         fetchFiles( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
@@ -326,6 +328,8 @@ class IndexableFolder extends Component {
 
         let activePlaylistTitle = '';
         let pathUrl = '';
+
+        const defaultStyles = [];
 
         if( activePlaylist ) {
             if( activePlaylist.defaultPlaylist ) {
@@ -361,40 +365,51 @@ class IndexableFolder extends Component {
             )
         };
 
-        const folderList = nodes.map( ( item, i ) => {
+        // const folderList = nodes.map( ( item, i ) => {
+        //
+        //     // If item phantom, no render and next entry.
+        //     if ( item === null ) return null;
+        //
+        //     //const stringPath = ps.buildPath(arrayPath);
+        //     const stringPath = item.path;
+        //
+        //     defaultStyles.push({opacity:0});
+        //
+        //         // Set handler to use on file link click.
+        //     // If item is a folder, fetch and display content.
+        //     // If item is a file, start playing track.
+        //     let handlerClick = (item) => {
+        //         if ( item.isFile ) {
+        //             return (e) => this.handlerReadFile(e, item, stringPath);
+        //         }
+        //         else {
+        //             return this.handlerOpenFolder(stringPath);
+        //         }
+        //     };
+        //
+        //     return (
+        //         <IndexableFolderItem key={i}
+        //                     index={i}
+        //                     item={item}
+        //                     user={user}
+        //                     path={stringPath}
+        //                     onClick={handlerClick}
+        //                     onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
+        //                     onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
+        //                     onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
+        //                     onListTracks={(e) => this.onListTracks(e, stringPath)}
+        //         />
+        //     );
+        // });
 
-            // If item phantom, no render and next entry.
-            if ( item === null ) return null;
-
-            //const stringPath = ps.buildPath(arrayPath);
-            const stringPath = item.path;
-
-                // Set handler to use on file link click.
-            // If item is a folder, fetch and display content.
-            // If item is a file, start playing track.
-            let handlerClick = () => {
-                if ( item.isFile ) {
-                    return (e) => this.handlerReadFile(e, item, stringPath);
-                }
-                else {
-                    return this.handlerOpenFolder(stringPath);
-                }
-            };
-
-            return (
-                <IndexableFolderItem key={i}
-                            index={i}
-                            item={item}
-                            user={user}
-                            path={stringPath}
-                            onClick={handlerClick()}
-                            onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
-                            onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
-                            onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
-                            onListTracks={(e) => this.onListTracks(e, stringPath)}
-                />
-            );
-        });
+       const handlerClick = (item, stringPath) => {
+            if ( item.isFile ) {
+                return (e) => this.handlerReadFile(e, item, stringPath);
+            }
+            else {
+                return this.handlerOpenFolder(stringPath);
+            }
+        };
 
         return (
             <div>
@@ -413,9 +428,22 @@ class IndexableFolder extends Component {
 
                 {!!path.length && <Bread/>}
 
-                <List divided relaxed='very' size='large' verticalAlign='middle'>
-                    {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
-                </List>
+                {/*<List divided relaxed='very' size='large' verticalAlign='middle'>*/}
+                    {/*{!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}*/}
+                {/*</List>*/}
+                {(!!nodes.length && !error) &&
+                <TransitionList
+                    items={nodes}
+                    component={IndexableFolderItem}
+                    user={user}
+                    onClick={handlerClick}
+                    onGetFiles={this.handlerGetDeepFiles}
+                    onAddItem={this.handlerAddItem}
+                    onPlayAlbum={this.handlerPlayAlbum}
+                    onListTracks={this.onListTracks}
+                />
+                 }
+
 
                 <Modal
                     open={ modal.open }

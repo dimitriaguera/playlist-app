@@ -93,24 +93,6 @@ exports.elasticSearch = function (req, res, next) {
     const type = ps.clean(req.params.type);
     const terms = ps.clean(NOT_SECURE_STRING);
 
-    // const params = {
-    //     index: 'folder',
-    //     type: type,
-    //     body: {
-    //         size: 3000,
-    //         from: 0,
-    //         query: {
-    //             multi_match: {
-    //                 query: `*${terms}*`,
-    //                 fields: ['name', 'path'],
-    //                 type: 'best_fields',
-    //                 //fuzziness: 1,
-    //                 //minimum_should_match: 3
-    //             }
-    //         }
-    //     }
-    // };
-
     const params = {
         index: 'folder',
         type: type,
@@ -122,6 +104,7 @@ exports.elasticSearch = function (req, res, next) {
                     query: `${terms}*`,
                     fields: ['name'],
                     type: 'best_fields',
+                    default_operator: 'AND'
                     //fuzziness: 1,
                     //minimum_should_match: 3
                 }
