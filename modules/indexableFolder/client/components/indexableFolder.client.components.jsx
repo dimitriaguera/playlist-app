@@ -5,6 +5,7 @@ import { List, Divider, Button, Modal, Icon, Segment, Label, Step, Header } from
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import IndexableFolderItem from './indexableFolderItem.client.components'
+import SearchFolderBar from './SearchFolderBar.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import ps from 'folder/client/services/path.client.services'
 
@@ -45,6 +46,7 @@ class IndexableFolder extends Component {
         this.state = {
             path: [],
             query: null,
+            search: null,
             nodes: [],
             error: false,
             modal: {
@@ -57,16 +59,35 @@ class IndexableFolder extends Component {
     componentWillMount() {
 
         const _self = this;
-        const { fetchFolder, location, match } = this.props;
+        const { fetchFolder, searchNodes, location, match } = this.props;
 
         // TODO a simplifier. Sert à récupérer via url query la playlist à activer dès le chargement du component. Ne devrait pas être l'affaire de ce component.
-        const params = new URLSearchParams(location.search);
+        const params = new URLSearchParams(location.search.substring(1));
+        const term = params.get('search');
+
+        // If search param, only display result.
+        if( term ) {
+            return searchNodes( term ).then((data) => {
+                if ( !data.success ) {
+                    _self.setState({ error: true, params: params });
+                }
+                else {
+                    const nodes = data.msg.hits.hits.map((item) => item._source);
+                    _self.setState({
+                        error: false,
+                        nodes: nodes,
+                        search: term,
+                        params: params,
+                    });
+                }
+            });
+        }
 
         // Extract folder's path to url.
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
         // Get folder's content.
-        fetchFolder( ps.urlEncode(path) ).then((data) => {
+        return fetchFolder( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true, params: params });
             }
@@ -85,8 +106,12 @@ class IndexableFolder extends Component {
     // Re-render only if path array or modal state are modified.
     shouldComponentUpdate( nextProps, nextState ) {
         const { activePlaylist } = nextProps;
-        const { query, modal } = nextState;
-        return ( query !== this.state.query || modal !== this.state.modal || activePlaylist !== this.props.activePlaylist );
+        const { query, modal, nodes } = nextState;
+        return (
+            query !== this.state.query ||
+            modal !== this.state.modal ||
+            nodes !== this.state.nodes ||
+            activePlaylist !== this.props.activePlaylist );
     }
 
     // Force re-rendering on props location change.
@@ -94,6 +119,29 @@ class IndexableFolder extends Component {
 
         const _self = this;
         const { location, match } = nextProps;
+
+        // TODO a simplifier. Sert à récupérer via url query la playlist à activer dès le chargement du component. Ne devrait pas être l'affaire de ce component.
+        const params = new URLSearchParams(location.search.substring(1));
+        const term = params.get('search');
+
+        // If search param, only display result.
+        if( term && term !== this.state.search ) {
+            return this.props.searchNodes( term ).then((data) => {
+                if ( !data.success ) {
+                    _self.setState({ error: true, params: params });
+                }
+                else {
+                    const nodes = data.msg.hits.hits.map((item) => item._source);
+                    _self.setState({
+                        error: false,
+                        nodes: nodes,
+                        query: null,
+                        search: term,
+                        params: params,
+                    });
+                }
+            });
+        }
 
         // Extract folder's path form url.
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
@@ -110,6 +158,7 @@ class IndexableFolder extends Component {
                         error: false,
                         nodes: data.msg,
                         query: path,
+                        search: null,
                         path: ps.splitPath(path),
                     });
                 }
@@ -173,10 +222,8 @@ class IndexableFolder extends Component {
         const { history } = this.props;
         return (e) => {
 
-            // Build path from array.
-            const strPath = ps.buildPath(path);
             // Update component via url update.
-            history.push(`/indexMusic${strPath}`);
+            history.push(`/indexMusic${path}`);
             e.preventDefault();
         }
     }
@@ -303,7 +350,7 @@ class IndexableFolder extends Component {
                     </Step>
                     {path.map( (item, i) => {
                         return (
-                            <Step link key={i} active={i === path.length - 1} onClick={this.handlerOpenFolder(path.slice(0, i + 1))} style={{maxWidth:stepWidth}}>
+                            <Step link key={i} active={i === path.length - 1} onClick={this.handlerOpenFolder(ps.buildPath(path.slice(0, i + 1)))} style={{maxWidth:stepWidth}}>
                                 <Step.Content>
                                     <Step.Title>{item}</Step.Title>
                                 </Step.Content>
@@ -319,11 +366,10 @@ class IndexableFolder extends Component {
             // If item phantom, no render and next entry.
             if ( item === null ) return null;
 
-            const arrayPath = path.slice(0);
-            arrayPath.push(item.name);
-            const stringPath = ps.buildPath(arrayPath);
+            //const stringPath = ps.buildPath(arrayPath);
+            const stringPath = item.path;
 
-            // Set handler to use on file link click.
+                // Set handler to use on file link click.
             // If item is a folder, fetch and display content.
             // If item is a file, start playing track.
             let handlerClick = () => {
@@ -331,7 +377,7 @@ class IndexableFolder extends Component {
                     return (e) => this.handlerReadFile(e, item, stringPath);
                 }
                 else {
-                    return this.handlerOpenFolder(arrayPath);
+                    return this.handlerOpenFolder(stringPath);
                 }
             };
 
@@ -341,7 +387,7 @@ class IndexableFolder extends Component {
                             item={item}
                             user={user}
                             path={stringPath}
-                            onClick={handlerClick(arrayPath)}
+                            onClick={handlerClick()}
                             onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
                             onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
                             onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
@@ -352,6 +398,7 @@ class IndexableFolder extends Component {
 
         return (
             <div>
+                <SearchFolderBar handlerResult={result => this.setState({nodes:result})} style={{float:'right'}} />
                 <h1>Music Folders</h1>
                 <Divider/>
 
@@ -405,6 +452,10 @@ const mapDispatchToProps = dispatch => {
     return {
         fetchFolder: ( query ) => dispatch(
             get( `getFiles?path=${query || ''}` )
+        ),
+
+        searchNodes: ( query ) => dispatch(
+            get( `search/album?search=${query || ''}` )
         ),
 
         fetchFiles: ( query ) => dispatch(

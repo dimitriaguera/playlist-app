@@ -16,7 +16,10 @@ module.exports = function(app){
     app.route('/api/elasticIndex').get(iFolder.elasticIndex);
 
     // Return all nodes from elastisearch.
-    app.route('/api/elasticSearchAll').get(iFolder.elasticSearchAll);
+    app.route('/api/searchAll').get(iFolder.elasticSearchAll);
+
+    // Return searching nodes from elastisearch.
+    app.route('/api/search/:type').get(iFolder.elasticSearch);
 
     // Return children files/folder list.
     app.route('/api/getFiles').get(iFolder.getFiles);

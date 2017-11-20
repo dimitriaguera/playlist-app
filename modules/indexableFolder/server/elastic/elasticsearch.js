@@ -15,3 +15,4 @@ exports.indexBulk = index.indexBulk(client);
 exports.indexDelete = index.indexDelete(client);
 
 exports.searchAll = search.searchAll(client);
+exports.search = search.search(client);

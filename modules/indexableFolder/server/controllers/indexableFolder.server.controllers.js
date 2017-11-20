@@ -52,7 +52,7 @@ exports.index = function (req, res, next) {
 
 exports.elasticIndex = function (req, res, next) {
 
-    Node.find({}).select('-_id name path meta').lean().exec((err, data) => {
+    Node.find({}).select('-_id name path meta isFile publicName').lean().exec((err, data) => {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
         es.indexDelete('folder', (err, resp) => {
@@ -78,6 +78,58 @@ exports.elasticIndex = function (req, res, next) {
 exports.elasticSearchAll = function (req, res, next) {
 
     es.searchAll('folder', (err, data) => {
+        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        res.json({
+            success: true,
+            msg: data,
+        });
+    });
+};
+
+exports.elasticSearch = function (req, res, next) {
+
+    const NOT_SECURE_STRING = req.query.search;
+    const type = ps.clean(req.params.type);
+    const terms = ps.clean(NOT_SECURE_STRING);
+
+    // const params = {
+    //     index: 'folder',
+    //     type: type,
+    //     body: {
+    //         size: 3000,
+    //         from: 0,
+    //         query: {
+    //             multi_match: {
+    //                 query: `*${terms}*`,
+    //                 fields: ['name', 'path'],
+    //                 type: 'best_fields',
+    //                 //fuzziness: 1,
+    //                 //minimum_should_match: 3
+    //             }
+    //         }
+    //     }
+    // };
+
+    const params = {
+        index: 'folder',
+        type: type,
+        body: {
+            size: 3000,
+            from: 0,
+            query: {
+                query_string: {
+                    query: `${terms}*`,
+                    fields: ['name'],
+                    type: 'best_fields',
+                    //fuzziness: 1,
+                    //minimum_should_match: 3
+                }
+            }
+        }
+    };
+
+    es.search( params, (err, data) => {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
         res.json({

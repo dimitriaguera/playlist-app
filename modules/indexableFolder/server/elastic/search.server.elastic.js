@@ -17,3 +17,17 @@ function searchAll( client ) {
     }
 }
 exports.searchAll = searchAll;
+
+
+function search( client ) {
+    return ( params, callback ) => {
+        return client.search(
+            {
+                index: params.index,
+                type: params.type,
+                body: params.body
+            },
+            callback);
+    }
+}
+exports.search = search;

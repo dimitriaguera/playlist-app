@@ -72,6 +72,7 @@
     "read-chunk": "^2.1.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
+    "rx": "^4.1.0",
     "sanitize-filename": "^1.6.1",
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.73.1",
