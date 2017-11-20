@@ -44,7 +44,7 @@ module.exports.defaultErrorHandler = function( err, req, res, next ) {
         console.log( 'DEFNOHEAD', res.statusCode);
         res
             .status( setDefaultStatus(res.statusCode, 500) )
-            .redirect('../public/dist/views/500');
+            .render('./public/dist/views/500');
     }
 };
 

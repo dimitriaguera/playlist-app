@@ -72,3 +72,5 @@ typings/
 # IDE
 /.idea/
 /config/conf/config.public.js
+/public/distV/
+/public/dist2/

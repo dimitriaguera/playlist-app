@@ -1,7 +1,4 @@
 /**
- * Created by Dimitri Aguera on 20/09/2017.
- */
-/**
  * Created by Dimitri Aguera on 30/08/2017.
  */
 const path = require('path');
@@ -29,12 +26,9 @@ module.exports = merge(common, {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: [{
-                        loader: 'css-loader', options: {
-                            sourceMap: true
-                        }
-                    }
-                        // , {loader: 'autoprefixer-loader'}
+                    use: [
+                      {loader: 'css-loader'},
+                      {loader: 'postcss-loader'}
                     ],
                 }),
             },
