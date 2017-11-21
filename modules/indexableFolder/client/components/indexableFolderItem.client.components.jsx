@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/indexableFolder.scss'
@@ -63,5 +63,28 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
         </div>
     );
 };
+
+// class IndexableFolderItem extends Component {
+//
+//     render() {
+//
+//         const { item } = this.props;
+//         let classes = ['fol-item'];
+//         let iconName = item.isFile?'music':'folder';
+//
+//         return (
+//             <div className={classes.join(' ')}>
+//                 <a href='#' className='fol-item-inner'>
+//                     <Icon name={iconName} />
+//                     <span className='fol-item-title'>
+//                         {item.name}
+//                     </span>
+//                 </a>
+//                 <input name='sub-menu-radio' type='radio'/>
+//                 <label className='fol-item-menu-label'><Icon color='teal' size='large' name='ellipsis vertical'></Icon></label>
+//             </div>
+//         );
+//     }
+// }
 
 export default IndexableFolderItem

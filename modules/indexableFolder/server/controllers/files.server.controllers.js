@@ -9,7 +9,6 @@ const errorHandler = require(path.resolve('./modules/core/server/services/error.
 
 const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
-const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
 
 /**
  * Create Node collection reflection deep folder structure from root folder.
@@ -50,77 +49,6 @@ exports.index = function (req, res, next) {
     });
 };
 
-exports.elasticIndex = function (req, res, next) {
-
-    Node.find({}).select('-_id name path meta isFile publicName').lean().exec((err, data) => {
-        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-        es.indexDelete('folder', (err, resp) => {
-            if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-            const param = {
-                index:'folder',
-                type:'album',
-            };
-
-            es.indexBulk(data, param, (err, data) => {
-                if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                res.json({
-                    success: true,
-                    msg: data,
-                });
-            });
-        });
-    });
-};
-
-exports.elasticSearchAll = function (req, res, next) {
-
-    es.searchAll('folder', (err, data) => {
-        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-        res.json({
-            success: true,
-            msg: data,
-        });
-    });
-};
-
-exports.elasticSearch = function (req, res, next) {
-
-    const NOT_SECURE_STRING = req.query.search;
-    const type = ps.clean(req.params.type);
-    const terms = ps.clean(NOT_SECURE_STRING);
-
-    const params = {
-        index: 'folder',
-        type: type,
-        body: {
-            size: 3000,
-            from: 0,
-            query: {
-                query_string: {
-                    query: `${terms}*`,
-                    fields: ['name'],
-                    type: 'best_fields',
-                    default_operator: 'AND'
-                    //fuzziness: 1,
-                    //minimum_should_match: 3
-                }
-            }
-        }
-    };
-
-    es.search( params, (err, data) => {
-        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-        res.json({
-            success: true,
-            msg: data,
-        });
-    });
-};
 
 /**
  * Delete deeply Node and his children on Nodes collection.
@@ -129,7 +57,7 @@ exports.elasticSearch = function (req, res, next) {
  * @param res
  * @param next
  */
-exports.deleteIndex = function (req, res, next) {
+exports.delete = function (req, res, next) {
 
     let NOT_SECURE_STRING = '';
     let queryString = '';
@@ -210,7 +138,7 @@ exports.deleteIndex = function (req, res, next) {
  * @param res
  * @param next
  */
-exports.getFiles = function (req, res, next) {
+exports.openNode = function (req, res, next) {
 
     let NOT_SECURE_STRING = '';
     let queryString = '';
@@ -234,15 +162,6 @@ exports.getFiles = function (req, res, next) {
     else {
         query = Node.find({});
     }
-
-    // // If no query param.
-    // else {
-    //     res.status(404);
-    //     return res.json({
-    //         success: false,
-    //         msg: 'Bad request.',
-    //     });
-    // }
 
     // Build and exec query.
     query
@@ -277,7 +196,7 @@ exports.getFiles = function (req, res, next) {
  * @param res
  * @param next
  */
-exports.getDeepFiles = function (req, res, next) {
+exports.getFilesNode = function (req, res, next) {
 
     let NOT_SECURE_STRING = '';
     let queryString = '';

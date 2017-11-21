@@ -2,7 +2,6 @@
  * Created by Dimitri on 22/10/2017.
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import {Motion, spring} from 'react-motion'
 
 import style from './style/transitionList.scss'
@@ -17,7 +16,6 @@ class TransitionList extends Component {
         this.handleOnScroll = this.handleOnScroll.bind(this);
 
         this.state = {
-            items: props.items,
             range_array: getDisplayedItems( props.items, (props.height || 70) ),
             h: props.height || 70,
             containerHeight: `${props.items.length * (props.height || 70)}px`,
@@ -39,7 +37,6 @@ class TransitionList extends Component {
         if ( items !== this.props.items ) {
 
             this.setState({
-                items: items,
                 range_array: getDisplayedItems( items, this.state.h ),
                 containerHeight: `${items.length * this.state.h}px`
             });
@@ -47,7 +44,9 @@ class TransitionList extends Component {
     }
 
     handleOnScroll(){
-        const { h, items } = this.state;
+        const { h } = this.state;
+        const { items } = this.props;
+
         this.setState({
             range_array: getDisplayedItems( items, h ),
         });
@@ -55,8 +54,8 @@ class TransitionList extends Component {
 
     render() {
 
-        const { h, items, range_array, containerHeight } = this.state;
-        const { component: Component, color, ...props } = this.props;
+        const { h, range_array, containerHeight } = this.state;
+        const { component: Component, color, items, ...props } = this.props;
         const classes = ['tl', 'tl-container'];
 
         const range = items.slice( range_array[0], range_array[1] );
@@ -67,8 +66,8 @@ class TransitionList extends Component {
              <div className={classes.join(' ')} style={{minHeight:containerHeight}}>
                  {range.map( ( item, i ) =>{
 
-                     let id = item._id || item.name;
                      let realIndex = i + range_array[0];
+                     let id = item._id || `item.name${realIndex}`;
                      let classes = ['tl-item'];
 
                      const style = {
@@ -107,14 +106,6 @@ class TransitionList extends Component {
 }
 
 //HELPER
-function reinsert(arr, from, to) {
-    const _arr = arr.slice(0);
-    const val = _arr[from];
-    _arr.splice(from, 1);
-    _arr.splice(to, 0, val);
-    return _arr;
-}
-
 function clamp(n, min, max) {
     return Math.max(Math.min(n, max), min);
 }
@@ -124,8 +115,10 @@ function getDisplayedItems( arr, h ) {
     const y = window.scrollY;
     const w = window.innerHeight;
 
-    const indexStart = clamp(Math.round( (y-200) / h), 0, arr.length);
-    const indexEnd = clamp(Math.round((y+w-100) / h), 0, arr.length);
+    const delta = 300;
+
+    const indexStart = clamp(Math.round( (y-delta) / h), 0, arr.length);
+    const indexEnd = clamp(Math.round((y+w+delta) / h), 0, arr.length);
 
     return [ indexStart, indexEnd ];
 }

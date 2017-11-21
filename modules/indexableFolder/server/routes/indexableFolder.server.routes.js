@@ -2,29 +2,36 @@
  * Created by Dimitri Aguera on 30/09/2017.
  */
 
-const iFolder = require('../controllers/indexableFolder.server.controllers.js');
+const nodes = require('../controllers/nodes.server.controllers.js');
+const elastic = require('../controllers/elastic.server.controllers.js');
 
 module.exports = function(app){
 
-    // Index files on DB.
-    app.route('/api/indexFiles').get(iFolder.index);
+    // Update or delete a Node.
+    app.route('/api/nodes/:id')
+        .put(nodes.update)
+        .delete(nodes.delete);
 
-    // Index files on DB.
-    app.route('/api/indexFilesDelete').get(iFolder.deleteIndex);
+    // Index files in Nodes DB.
+    app.route('/api/nodes/index').post(nodes.index);
 
-    // Index nodes on elastisearch server.
-    app.route('/api/elasticIndex').get(iFolder.elasticIndex);
+    // Get Node children from query path or id.
+    app.route('/api/nodes/:query/child').get(nodes.openNode);
 
-    // Return all nodes from elastisearch.
-    app.route('/api/searchAll').get(iFolder.elasticSearchAll);
+    // Get deeply all Nodes files from querying Node.
+    app.route('/api/nodes/:query/files').get(nodes.getFilesNode);
 
-    // Return searching nodes from elastisearch.
-    app.route('/api/search/:type').get(iFolder.elasticSearch);
 
-    // Return children files/folder list.
-    app.route('/api/getFiles').get(iFolder.getFiles);
+    // Index all Nodes into elastisearch folder index.
+    app.route('/api/elastic/index')
+        .post(elastic.index)
+        .put(elastic.update)
+        .delete(elastic.delete);
 
-    // Return deep files list.
-    app.route('/api/getDeepFiles').get(iFolder.getDeepFiles);
+    // Get searching nodes from elastisearch query.
+    app.route('/api/search/:type').get(elastic.search);
 
+    // Get a Node and attach it to req.
+    app.param('id', nodes.getNodeById);
+    app.param('query', nodes.getNodeFromQuery);
 };
