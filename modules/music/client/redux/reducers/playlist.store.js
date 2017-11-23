@@ -8,7 +8,8 @@ PLAY_TRACK_ON_PLAYLIST, PLAY_TRACK_ON_ALBUM} from '../actions'
 let initialState = {
     onPlay: {
         name: null,
-        src: null,
+        path: null,
+        meta: [],
     },
     playingList: {
         pl: null,

@@ -16,7 +16,7 @@ const socketsEvents = require('../../../../config/sockets/sockets.conf');
  */
 const TrackSchema = new Schema({
     name: String,
-    src: {
+    path: {
         type: String,
         required: true,
     },
@@ -29,7 +29,15 @@ const PlaylistSchema = new Schema ({
         unique: true,
         required: true,
     },
-    tracks: [TrackSchema],
+    tracks:[{
+        type: Schema.Types.ObjectId,
+        ref: 'Node',
+    }],
+    tracksFiles: [TrackSchema],
+    length: {
+        type: Number,
+        default: 0,
+    },
     created: {
         type: Date,
         default: Date.now
@@ -42,6 +50,9 @@ const PlaylistSchema = new Schema ({
     publicTitle: {
         type: String,
     },
+}, {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
 });
 
 /**
@@ -49,6 +60,9 @@ const PlaylistSchema = new Schema ({
  *
  */
 PlaylistSchema.pre('save', function (next) {
+
+    this.length = this.tracks.length;
+
     if ( this.isNew && this.defaultPlaylist ) {
         this.publicTitle = this.title.replace('__def', 'Queue - ');
     }
@@ -61,7 +75,9 @@ PlaylistSchema.pre('save', function (next) {
  */
 PlaylistSchema.post('save', function( doc ) {
     console.log('save post middleware called on Playlist Model');
-    doc.populate({
+    doc
+        .populate('tracks')
+        .populate({
         path: 'author',
         select: 'username -_id',
     }, (e, popDoc) => {

@@ -162,8 +162,8 @@ class Album extends Component {
         let newIndex = albumOfUrl.onPlayIndex;
 
         // // If item playing moved, get his index.
-        if( oldTracks[newIndex].src !== newTracks[newIndex].src ) {
-            newIndex = getTrackIndexBySrc( oldTracks[newIndex].src, newTracks );
+        if( oldTracks[newIndex].path !== newTracks[newIndex].path ) {
+            newIndex = getTrackIndexBySrc( oldTracks[newIndex].path, newTracks );
         }
 
         // Build album object.
@@ -267,10 +267,10 @@ const AlbumContainer = connect(
 
 
 // HELPER
-function getTrackIndexBySrc( src, array ) {
+function getTrackIndexBySrc( path, array ) {
     let l = array.length;
     for( let i=0; i < l; i++ ) {
-        if( array[i].src == src ) return i;
+        if( array[i].path == path ) return i;
     }
     return null;
 }

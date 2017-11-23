@@ -145,14 +145,14 @@ class AudioBar extends Component {
         const classes = ['audioBar'];
 
         return (
-            !!onPlay.src &&
+            !!onPlay.path &&
                 <div style={{width:'100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
 
                     <ReactAudioPlayer preload="auto" autoPlay
                                       onEnded={this.onEndedHandler}
                                       onCanPlay={this.onCanPlayHandler}
                                       ref={(element) => { this.rap = element; }}
-                                      src={ `/api/music/read?path=${ps.urlEncode(onPlay.src)}` }
+                                      src={ `/api/music/read?path=${ps.urlEncode(onPlay.path)}` }
                     />
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
@@ -537,7 +537,7 @@ class MetaNameTracks extends Component {
 
     render() {
             const { onPlay } = this.props;
-            const items = this.splitStr(onPlay.src);
+            const items = this.splitStr(onPlay.path);
 
             const bread = items.map( ( item, i ) => {
 

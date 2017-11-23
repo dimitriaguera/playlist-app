@@ -61,7 +61,7 @@ class PlayingControls extends Component {
 
         // Test if menu linked with active playlist.
         const isActive = pl && (pl.title === playlist.title);
-        const disable = ( !playlist.tracks.length );
+        const disable = ( !playlist.length );
 
         const playPauseBtn = () => {
             // If active playlist and on play, display Pause button.
@@ -92,7 +92,7 @@ class PlayingControls extends Component {
 
         const rightBtn = () => {
             if ( isActive ) {
-                const disabled = ( onPlayIndex + 1 === playlist.tracks.length );
+                const disabled = ( onPlayIndex + 1 === playlist.length );
                 return (
                     <Menu.Item disabled={disabled} onClick={this.onNextHandler}>
                         <Icon disabled={disabled} name='right chevron'/>

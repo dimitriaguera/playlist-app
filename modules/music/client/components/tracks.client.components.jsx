@@ -39,7 +39,7 @@ class Tracks extends Component {
                     <span className='pli-number'>{index + 1}.</span>
                     <span className='pli-info'>
                         <span className={'pli-title'}>{item.name}</span>
-                        <InfoPath path={item.src}/>
+                        <InfoPath path={item.path}/>
                     </span>
                 </a>
                 {(onDelete && canEdit) &&

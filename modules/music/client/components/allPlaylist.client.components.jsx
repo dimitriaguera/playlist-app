@@ -118,7 +118,7 @@ class AllPlaylist extends Component {
                         </Card.Content>
                         <Card.Content>
                             <Card.Meta>
-                                <Icon name='music'/> {item.tracks.length} tracks
+                                <Icon name='music'/> {item.length} tracks
                             </Card.Meta>
                         </Card.Content>
                     </Card>

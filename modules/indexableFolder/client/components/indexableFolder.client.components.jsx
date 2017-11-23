@@ -183,12 +183,8 @@ class IndexableFolder extends Component {
     // Handle for confirm Confirm Box.
     handleModalConfirm() {
         const tracks = this.state.modal.addTracks.map((file) => {
-                return {
-                    src:file.path,
-                    name:file.publicName,
-                    meta:file.meta,
-                }
-            });
+                return file._id
+        });
 
         this.handlerAddItem(null, tracks);
         this.setState({modal:{
@@ -247,10 +243,7 @@ class IndexableFolder extends Component {
     handlerReadFile( e, item ) {
 
         // Build track item.
-        const play = {
-            name: item.name,
-            src: item.path,
-        };
+        const play = item;
 
         // Change global state to start playing track.
         this.props.readFile( play );
@@ -270,11 +263,7 @@ class IndexableFolder extends Component {
 
         // If just one item, build array with only one track.
         if ( !Array.isArray( tracks ) ) {
-            tracks = [{
-                name: item.publicName || item.name,
-                src: item.path,
-                meta: item.meta || [],
-            }];
+            tracks = [item._id];
         }
 
         const data = {
@@ -302,13 +291,7 @@ class IndexableFolder extends Component {
                     pl: {
                         title: item.name,
                         path: item.path,
-                        tracks: data.msg.map((file) => {
-                            return {
-                                src:file.path,
-                                name:file.publicName,
-                                meta:file.meta,
-                            }
-                        }),
+                        tracks: data.msg,
                     }
                 };
                 addAlbumToPlay( album );
@@ -360,7 +343,7 @@ class IndexableFolder extends Component {
                         <Header icon='pencil' content='Editing playlist' />
                         <SelectPlaylist defaultValue={ params ? params.get('pl') : null }/>
                         {activePlaylist && <Label as={Link} to={pathUrl} color='teal'
-                                                  tag>{`${activePlaylist.tracks.length} tracks`}</Label>}
+                                                  tag>{`${activePlaylist.length} tracks`}</Label>}
                     </Segment>
                 )}
 
