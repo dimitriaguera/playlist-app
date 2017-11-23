@@ -151,7 +151,6 @@ module.exports.initRoutes = function(app) {
     require('../modules/folder/server/routes/folder.server.routes')(app);
     require('../modules/indexableFolder/server/routes/indexableFolder.server.routes')(app);
     require('../modules/music/server/routes/music.server.routes')(app);
-    require('../modules/remoteAmp/server/routes/remoteAmp.server.routes')(app);
 
     // Let it at the end
     require('../modules/core/server/routes/core.server.routes')(app);
