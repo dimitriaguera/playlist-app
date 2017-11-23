@@ -20,6 +20,7 @@ const errorHandler = require('../modules/core/server/services/error.server.servi
 const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
+const fs = require('fs');
 
 /**
  * Check basics needs on config file.
@@ -38,6 +39,19 @@ module.exports.checkConfig = function() {
     if ( config.security.jwtSecret === 'SECRET' ) {
         console.log(chalk.red('Hey bro! You have to change security jwtSecret word on config.js file....'));
     }
+
+    // Check ffmpeg
+    if ( !process.env.FFMPEG_PATH ) {
+      if ( config.ffmpegPath ) {
+        process.env.FFMPEG_PATH = config.ffmpegPath;
+      } else {
+        process.env.FFMPEG_PATH = '';
+      }
+    }
+    fs.access(process.env.FFMPEG_PATH + 'ffmpeg', fs.constants.X_OK , (err) => {
+      console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'ffmpeg ok for reading music tag!'));
+    });
+
 };
 
 /**
@@ -151,7 +165,6 @@ module.exports.initRoutes = function(app) {
     require('../modules/folder/server/routes/folder.server.routes')(app);
     require('../modules/indexableFolder/server/routes/indexableFolder.server.routes')(app);
     require('../modules/music/server/routes/music.server.routes')(app);
-    require('../modules/remoteAmp/server/routes/remoteAmp.server.routes')(app);
 
     // Let it at the end
     require('../modules/core/server/routes/core.server.routes')(app);
@@ -205,16 +218,23 @@ module.exports.startApp = function() {
 
     const serve = this.socketConnect(app);
 
-    serve.listen(config.port);
 
-    seedDB.populate();
+    serve.on('error', (e) => {
+      if (e.code === 'EADDRINUSE') {
+        console.log(chalk.bgRed('Address/port already in use, please change port...'));
+        serve.close();
+        process.exit();
+      } else {
+        console.log(chalk.bgRed('Error when starting server'));
+      }
+    });
 
-    console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
-    console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
-    console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
-    console.log(chalk.blue(`SOCKET listening`));
+    return serve.listen(config.port, () => {
+        console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
+        console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
+        console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
+        console.log(chalk.blue(`SOCKET listening`));
+        seedDB.populate();
+    });
 
-    serve.expressApp = app;
-
-    return serve;
 };

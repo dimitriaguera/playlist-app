@@ -44,7 +44,7 @@ chkdir db
 
 # Log in log File ce qui est pas bien pour le raspberry
 #mongod --dbpath db --logpath log/mongod.log &
-mongod --dbpath db &
+mongod --dbpath db < /dev/null &>/dev/null &
 
 # Start server
-npm run start &
+npm run start

@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
-
+const musicTag = require(path.resolve('./modules/music/server/services/readTag/readTag.server.services.js'));
 //const socketsEvents = require('../../../../config/sockets/sockets.conf');
 
 /**
@@ -71,12 +71,25 @@ NodeSchema.pre('remove', function(next) {
 //  * Handle before saving new user queue playlist.
 //  *
 //  */
-// NodeSchema.pre('save', function (next) {
-//     if ( this.isNew && this.defaultPlaylist ) {
-//         this.publicTitle = this.title.replace('__def', 'Queue - ');
-//     }
-//     return next();
-// });
+
+NodeSchema.pre('save', function (next) {
+    if ( this.isFile ) {
+
+      musicTag.read(this.uri, (err, data) => {
+        if (err) {
+          console.log('Error when reading meta for :' + this.uri);
+          return next();
+        }
+        this.meta = data;
+        return next();
+      });
+
+    }
+
+    return next();
+
+});
+
 //
 // /**
 //  * Handle for sockets.

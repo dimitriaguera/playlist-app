@@ -64,6 +64,8 @@ typings/
 
 # bundle files
 /public/dist/
+/public/distV/
+/public/dist2/
 
 # secret files
 /config/conf/config.private.js
@@ -71,6 +73,8 @@ typings/
 
 # IDE
 /.idea/
-/config/conf/config.public.js
-/public/distV/
-/public/dist2/
+
+/modules/music/server/services/readTag/ffmpeg/
+
+# Working dir
+/marcW/
