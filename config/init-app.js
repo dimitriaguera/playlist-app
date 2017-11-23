@@ -123,14 +123,12 @@ module.exports.initAuth = function(app, passport) {
  */
 module.exports.initViewEngine = function(app) {
 
-    // Use pug (jade) view engine for file with name server.views.html
+    // Use pug (jade) view engine.
     app.engine('server.views.html', require('pug').__express);
-    // Without this you would need to supply the extension to res.render()
     app.set('view engine', 'server.views.html');
-    // Set view path
-    app.set('views', path.resolve('/public/dist/views/'));
+    app.set('views', path.resolve('./'));
 
-  // Environment dependent middleware
+    // Environment dependent middleware
     if ( process.env.NODE_ENV === 'development' ) {
         // Disable views cache
         app.set('view cache', false);
@@ -189,26 +187,12 @@ module.exports.socketConnect = function(app) {
 /**
  * Main initialisation
  * @param app
- * @todo remove webPackServ
  */
-module.exports.startApp = function(webPackServ) {
+module.exports.startApp = function() {
 
     const app = express();
 
     this.checkConfig();
-
-    if (webPackServ) {
-      const webpack = require('webpack');
-      const webpackDevMiddleware = require('webpack-dev-middleware');
-      const webPackConfig = require(path.resolve('./webpack.dev.js'));
-      const compiler = webpack(webPackConfig);
-      // Tell express to use the webpack-dev-middleware and use the webpack.config.js
-      // configuration file as a base.
-      app.use(webpackDevMiddleware(compiler, {
-          publicPath: '/static/dist/',
-        }
-      ));
-    }
 
     this.initLocals(app);
     this.initMiddleware(app);
@@ -229,6 +213,8 @@ module.exports.startApp = function(webPackServ) {
     console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
     console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
     console.log(chalk.blue(`SOCKET listening`));
+
+    serve.expressApp = app;
 
     return serve;
 };

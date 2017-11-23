@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { List, Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
+import { Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
+import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import ps from 'folder/client/services/path.client.services'
-
 
 /**
  * Folder is the file explorator component.
@@ -35,7 +35,7 @@ class IndexableFolder extends Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleConfirm = this.handleConfirm.bind(this);
 
-        this.handlerGetDeepFiles = this.handlerGetDeepFiles.bind(this);
+        this.handlerGetAllFiles = this.handlerGetAllFiles.bind(this);
         this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
         this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
@@ -200,7 +200,7 @@ class IndexableFolder extends Component {
     }
 
     // Handler to get all files recursively in a folder.
-    handlerGetDeepFiles( e, path ) {
+    handlerGetAllFiles( e, path ) {
         const _self = this;
         const {fetchFiles} = this.props;
 
@@ -296,6 +296,7 @@ class IndexableFolder extends Component {
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
 
+
         fetchFiles( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
@@ -361,46 +362,23 @@ class IndexableFolder extends Component {
             )
         };
 
-        const folderList = nodes.map( ( item, i ) => {
-
-            // If item phantom, no render and next entry.
-            if ( item === null ) return null;
-
-            //const stringPath = ps.buildPath(arrayPath);
-            const stringPath = item.path;
-
-                // Set handler to use on file link click.
-            // If item is a folder, fetch and display content.
-            // If item is a file, start playing track.
-            let handlerClick = () => {
-                if ( item.isFile ) {
-                    return (e) => this.handlerReadFile(e, item, stringPath);
-                }
-                else {
-                    return this.handlerOpenFolder(stringPath);
-                }
-            };
-
-            return (
-                <IndexableFolderItem key={i}
-                            index={i}
-                            item={item}
-                            user={user}
-                            path={stringPath}
-                            onClick={handlerClick()}
-                            onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
-                            onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
-                            onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
-                            onListTracks={(e) => this.onListTracks(e, stringPath)}
-                />
-            );
-        });
+       const handlerClick = (item, stringPath) => {
+            if ( item.isFile ) {
+                return (e) => this.handlerReadFile(e, item, stringPath);
+            }
+            else {
+                return this.handlerOpenFolder(stringPath);
+            }
+        };
 
         return (
             <div>
-                <SearchFolderBar handlerResult={result => this.setState({nodes:result})} style={{float:'right'}} />
                 <h1>Music Folders</h1>
                 <Divider/>
+
+                <Segment>
+                    <SearchFolderBar handlerResult={result => this.setState({nodes:result})} />
+                </Segment>
 
                 {user && (
                     <Segment>
@@ -413,9 +391,23 @@ class IndexableFolder extends Component {
 
                 {!!path.length && <Bread/>}
 
-                <List divided relaxed='very' size='large' verticalAlign='middle'>
-                    {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
-                </List>
+                {/*<List divided relaxed='very' size='large' verticalAlign='middle'>*/}
+                    {/*{!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}*/}
+                {/*</List>*/}
+
+                {(!!nodes.length && !error) &&
+                <TransitionList
+                    items={nodes}
+                    component={IndexableFolderItem}
+                    user={user}
+                    onClick={handlerClick}
+                    onGetFiles={this.handlerGetAllFiles}
+                    onAddItem={this.handlerAddItem}
+                    onPlayAlbum={this.handlerPlayAlbum}
+                    onListTracks={this.onListTracks}
+                />
+                 }
+
 
                 <Modal
                     open={ modal.open }
@@ -451,7 +443,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         fetchFolder: ( query ) => dispatch(
-            get( `getFiles?path=${query || ''}` )
+            get( `nodes/q/child?path=${query || ''}` )
         ),
 
         searchNodes: ( query ) => dispatch(
@@ -459,7 +451,7 @@ const mapDispatchToProps = dispatch => {
         ),
 
         fetchFiles: ( query ) => dispatch(
-            get( `getDeepFiles?path=${query || ''}` )
+            get( `nodes/q/files?path=${query || ''}` )
         ),
 
         addPlaylistItems: ( title, items ) => dispatch(

@@ -34,7 +34,7 @@ class Folder extends Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.handleConfirm = this.handleConfirm.bind(this);
 
-        this.handlerGetDeepFiles = this.handlerGetDeepFiles.bind(this);
+        this.handlerGetAllFiles = this.handlerGetAllFiles.bind(this);
         this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
         this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
@@ -137,7 +137,7 @@ class Folder extends Component {
     }
 
     // Handler to get all files recursively in a folder.
-    handlerGetDeepFiles( e, path ) {
+    handlerGetAllFiles( e, path ) {
         const _self = this;
         const {fetchFiles} = this.props;
 
@@ -321,7 +321,7 @@ class Folder extends Component {
                             user={user}
                             path={stringPath}
                             onClick={handlerClick(arrayPath)}
-                            onGetFiles={(e) => this.handlerGetDeepFiles(e, stringPath)}
+                            onGetFiles={(e) => this.handlerGetAllFiles(e, stringPath)}
                             onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
                             onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
                             onListTracks={(e) => this.onListTracks(e, stringPath)}
