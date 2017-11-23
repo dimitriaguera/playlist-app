@@ -143,7 +143,7 @@ module.exports.initViewEngine = function(app) {
  * Init routes app
  * @param app
  */
-module.exports.initRoutes = function(app) {
+module.exports.initRoutes = function(app, devTools) {
 
     // Virtual path for Static files
     app.use('/static', express.static(path.resolve('./public')));
@@ -156,7 +156,7 @@ module.exports.initRoutes = function(app) {
     require('../modules/remoteAmp/server/routes/remoteAmp.server.routes')(app);
 
     // Let it at the end
-    require('../modules/core/server/routes/core.server.routes')(app);
+    require('../modules/core/server/routes/core.server.routes')(app, devTools);
 
 };
 
@@ -186,29 +186,51 @@ module.exports.socketConnect = function(app) {
     return serve;
 };
 
+module.exports.initDevTools = function(app) {
+
+  let devMiddleware = null,
+      outPutPath = null;
+
+  if (process.env.NODE_ENV !== 'production') {
+
+    const webpack = require('webpack');
+    const webPackConfig = require(path.resolve('./webpack.dev.js'));
+
+    outPutPath = webPackConfig.output.path;
+
+    const compiler = webpack(webPackConfig);
+
+    const webpackDevMiddleware = require('webpack-dev-middleware');
+    devMiddleware = webpackDevMiddleware(compiler, {
+        publicPath: '/static/dist/',
+      }
+    );
+
+    app.use(devMiddleware);
+  }
+
+  return { devMiddleware: devMiddleware, outPutPath: outPutPath };
+
+  //
+  /*      devMiddleware.waitUntilValid(() => (
+          console.log(devMiddleware.fileSystem.readFileSync(path.resolve(`${webPackConfig.output.path}/views/404.server.views.html`)).toString()))
+        );*/
+};
+
+
 /**
  * Main initialisation
  * @param app
  * @todo remove webPackServ
  */
-module.exports.startApp = function(webPackServ) {
+module.exports.startApp = function() {
 
     const app = express();
 
+
     this.checkConfig();
 
-    if (webPackServ) {
-      const webpack = require('webpack');
-      const webpackDevMiddleware = require('webpack-dev-middleware');
-      const webPackConfig = require(path.resolve('./webpack.dev.js'));
-      const compiler = webpack(webPackConfig);
-      // Tell express to use the webpack-dev-middleware and use the webpack.config.js
-      // configuration file as a base.
-      app.use(webpackDevMiddleware(compiler, {
-          publicPath: '/static/dist/',
-        }
-      ));
-    }
+    const devTools = this.initDevTools(app);
 
     this.initLocals(app);
     this.initMiddleware(app);
@@ -216,7 +238,7 @@ module.exports.startApp = function(webPackServ) {
     this.initLogger(app);
     this.initAuth(app, passport);
     this.initViewEngine(app);
-    this.initRoutes(app);
+    this.initRoutes(app, devTools);
     this.initErrorRoutes(app);
 
     const serve = this.socketConnect(app);
