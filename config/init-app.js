@@ -205,16 +205,23 @@ module.exports.startApp = function() {
 
     const serve = this.socketConnect(app);
 
-    serve.listen(config.port);
 
-    seedDB.populate();
+    serve.on('error', (e) => {
+      if (e.code === 'EADDRINUSE') {
+        console.log(chalk.bgRed('Address/port already in use, please change port...'));
+        serve.close();
+        process.exit();
+      } else {
+        console.log(chalk.bgRed('Error when starting server'));
+      }
+    });
 
-    console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
-    console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
-    console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
-    console.log(chalk.blue(`SOCKET listening`));
+    return serve.listen(config.port, () => {
+        console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
+        console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
+        console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
+        console.log(chalk.blue(`SOCKET listening`));
+        seedDB.populate();
+    });
 
-    serve.expressApp = app;
-
-    return serve;
 };
