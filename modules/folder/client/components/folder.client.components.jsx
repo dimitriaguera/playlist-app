@@ -27,20 +27,18 @@ class Folder extends Component {
 
     constructor() {
         super();
-        this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
-        this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
 
-        this.handleOpen = this.handleOpen.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
-        this.handleConfirm = this.handleConfirm.bind(this);
-
+        this.handleModalOpen = this.handleModalOpen.bind(this);
+        this.handleModalCancel = this.handleModalCancel.bind(this);
+        this.handleModalConfirm = this.handleModalConfirm.bind(this);
         this.handlerGetAllFiles = this.handlerGetAllFiles.bind(this);
         this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
-        this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
+        this.handlerRootFolder = this.handlerRootFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerAddItem = this.handlerAddItem.bind(this);
         this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
         this.onListTracks = this.onListTracks.bind(this);
+        this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
 
         this.state = {
             path: [],
@@ -112,7 +110,7 @@ class Folder extends Component {
     }
 
     // Handle func when open Confirm Box.
-    handleOpen( tracks ){
+    handleModalOpen( tracks ){
         this.setState({modal:{
             open:true,
             addTracks: tracks,
@@ -120,7 +118,7 @@ class Folder extends Component {
     }
 
     // Handle for cancel Confirm Box.
-    handleCancel() {
+    handleModalCancel() {
         this.setState({modal:{
             open:false,
             addTracks: [],
@@ -128,7 +126,7 @@ class Folder extends Component {
     }
 
     // Handle for confirm Confirm Box.
-    handleConfirm() {
+    handleModalConfirm() {
         this.handlerAddItem(null, this.state.modal.addTracks);
         this.setState({modal:{
             open:false,
@@ -137,16 +135,16 @@ class Folder extends Component {
     }
 
     // Handler to get all files recursively in a folder.
-    handlerGetAllFiles( e, path ) {
+    handlerGetAllFiles(e, item) {
         const _self = this;
         const {fetchFiles} = this.props;
 
-        fetchFiles( ps.urlEncode(path) ).then((data) => {
+        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
             else {
-                this.handleOpen(data.msg);
+                this.handleModalOpen(data.msg);
             }
         });
         e.preventDefault();
@@ -154,22 +152,19 @@ class Folder extends Component {
 
     // Handler onClick on a folder link.
     // Return list a folder content.
-    handlerOpenFolder( path ) {
+    handlerOpenFolder( e, path ) {
 
         const { history } = this.props;
-        return (e) => {
 
-            // Build path from array.
-            const strPath = ps.buildPath(path);
-            // Update component via url update.
-            history.push(`/music${strPath}`);
-            e.preventDefault();
-        }
+        // Build path from array.
+        // const strPath = ps.buildPath(path);
+        // Update component via url update.
+        history.push(`/music${path}`);
+        e.preventDefault();
     }
 
     // Handler that return root folder content.
-    handlerPrevFolder( e ) {
-
+    handlerRootFolder( e ) {
         const { history } = this.props;
 
         // Update component via url update.
@@ -178,21 +173,21 @@ class Folder extends Component {
     }
 
     // Handler to looks at files as tracks list.
-    onListTracks(e, path) {
+    onListTracks(e, item) {
         const { history } = this.props;
 
         // Go to album display mode.
-        history.push(`/album${path}`);
+        history.push(`/album${item.path}`);
         e.preventDefault();
     }
 
     // Handler to play music file.
-    handlerReadFile( e, item, path ) {
+    handlerReadFile(e, item) {
 
         // Build track item.
         const play = {
             name: item.name,
-            src: path,
+            src: item.path,
         };
 
         // Change global state to start playing track.
@@ -201,7 +196,7 @@ class Folder extends Component {
     }
 
     // Handler to add single track on playlist.
-    handlerAddItem( e, item, path ) {
+    handlerAddItem(e, item) {
 
         const { user, history, activePlaylist, addPlaylistItems } = this.props;
 
@@ -215,7 +210,7 @@ class Folder extends Component {
         if ( !Array.isArray( tracks ) ) {
             tracks = [{
                 name: item.publicName,
-                src: path,
+                src: item.path,
             }];
         }
 
@@ -229,12 +224,12 @@ class Folder extends Component {
     }
 
     // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum( e, item, path ) {
+    handlerPlayAlbum(e, item) {
 
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
 
-        fetchFiles( ps.urlEncode(path) ).then((data) => {
+        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
@@ -242,13 +237,23 @@ class Folder extends Component {
                 const album = {
                     pl: {
                         title: item.name,
-                        path: path,
+                        path: item.path,
                         tracks: data.msg,
                     }
                 };
                 addAlbumToPlay( album );
             }
         });
+    }
+
+    // Click on folder or file element.
+    handlerClickOnFile(e, item) {
+
+        if( item.isFile ) {
+            return this.handlerReadFile(e, item);
+        }
+
+        this.handlerOpenFolder(e, item.path);
     }
 
     render(){
@@ -262,36 +267,13 @@ class Folder extends Component {
         if( activePlaylist ) {
             if( activePlaylist.defaultPlaylist ) {
                 activePlaylistTitle = activePlaylist.publicTitle;
-                pathUrl = '/queue'
+                pathUrl = '/queue';
             }
             else {
                 activePlaylistTitle = activePlaylist.title;
                 pathUrl = `/playlist/${activePlaylist.title}`;
             }
         }
-
-        const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
-
-        const Bread = () => {
-            return(
-                <Step.Group size='mini' unstackable>
-                    <Step link onClick={this.handlerPrevFolder} style={{maxWidth:'70px'}}>
-                        <Step.Content>
-                            <Step.Title><Icon name='home' size='large' /></Step.Title>
-                        </Step.Content>
-                    </Step>
-                    {path.map( (item, i) => {
-                        return (
-                            <Step link key={i} active={i === path.length - 1} onClick={this.handlerOpenFolder(path.slice(0, i + 1))} style={{maxWidth:stepWidth}}>
-                                <Step.Content>
-                                    <Step.Title>{item}</Step.Title>
-                                </Step.Content>
-                            </Step>
-                        );
-                    })}
-                </Step.Group>
-            )
-        };
 
         const folderList = folder.map( ( item, i )=> {
 
@@ -300,31 +282,17 @@ class Folder extends Component {
 
             const arrayPath = path.slice(0);
             arrayPath.push(item.name);
-            const stringPath = ps.buildPath(arrayPath);
-
-            // Set handler to use on file link click.
-            // If item is a folder, fetch and display content.
-            // If item is a file, start playing track.
-            let handlerClick = () => {
-                if ( item.isFile ) {
-                    return (e) => this.handlerReadFile(e, item, stringPath);
-                }
-                else {
-                    return this.handlerOpenFolder(arrayPath);
-                }
-            };
 
             return (
                 <FolderItem key={i}
                             index={i}
                             item={item}
                             user={user}
-                            path={stringPath}
-                            onClick={handlerClick(arrayPath)}
-                            onGetFiles={(e) => this.handlerGetAllFiles(e, stringPath)}
-                            onAddItem={(e) => this.handlerAddItem(e, item, stringPath)}
-                            onPlayAlbum={(e) => this.handlerPlayAlbum(e, item, stringPath)}
-                            onListTracks={(e) => this.onListTracks(e, stringPath)}
+                            onClick={this.handlerClickOnFile}
+                            onGetFiles={this.handlerGetAllFiles}
+                            onAddItem={this.handlerAddItem}
+                            onPlayAlbum={this.handlerPlayAlbum}
+                            onListTracks={this.onListTracks}
                 />
             );
         });
@@ -343,7 +311,7 @@ class Folder extends Component {
                     </Segment>
                 )}
 
-                {!!path.length && <Bread/>}
+                <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
 
                 <List divided relaxed='very' size='large' verticalAlign='middle'>
                     {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
@@ -351,7 +319,7 @@ class Folder extends Component {
 
                 <Modal
                     open={ modal.open }
-                    onClose={ this.handleCancel }
+                    onClose={ this.handleModalCancel }
                     basic
                     size='small'
                 >
@@ -360,10 +328,10 @@ class Folder extends Component {
                         <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button inverted onClick={ this.handleCancel }>
+                        <Button inverted onClick={ this.handleModalCancel }>
                             <Icon name='remove' /> No
                         </Button>
-                        <Button color='teal' inverted onClick={ this.handleConfirm }>
+                        <Button color='teal' inverted onClick={ this.handleModalConfirm }>
                             <Icon name='checkmark' /> Yes
                         </Button>
                     </Modal.Actions>
@@ -424,6 +392,33 @@ const FolderContainer = connect(
     mapDispatchToProps
 )(Folder);
 
+
+
+function Bread({ path, handlerOpenFolder, handlerRootFolder }) {
+
+    const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
+
+    if( !path.length )
+
+    return(
+        <Step.Group size='mini' unstackable>
+            <Step link onClick={handlerRootFolder} style={{maxWidth:'70px'}}>
+                <Step.Content>
+                    <Step.Title><Icon name='home' size='large' /></Step.Title>
+                </Step.Content>
+            </Step>
+            {path.map( (item, i) => {
+                return (
+                    <Step link key={i} active={i === path.length - 1} onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))} style={{maxWidth:stepWidth}}>
+                        <Step.Content>
+                            <Step.Title>{item}</Step.Title>
+                        </Step.Content>
+                    </Step>
+                );
+            })}
+        </Step.Group>
+    )
+};
 
 // HELPER
 // Return Array to feed Breadcrumb Semantic UI React Component.

@@ -15,25 +15,19 @@ module.exports = function(app){
     app.route('/api/music/read')
         .get(music.read);
 
-    // Return all playlist's
-    app.route('/api/allPlaylist')
-        .get( music.allPlaylist );
-
     // Return playlist's created by user.
     app.route('/api/ownedPlaylist').all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
         .get( music.ownedPlaylist );
 
-    // Create Playlist
-    app.route('/api/playlist').all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
+    // Get all playlist or create a Playlist.
+    app.route('/api/playlist')
+        .get( music.allPlaylist ).all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
         .post( music.create );
-
-    // Add Tracks
-    app.route('/api/addtracks/:title').all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
-        .put( music.addTracks );
 
     // Unique playlist
     app.route('/api/playlist/:title')
         .get( music.playlist ).all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
+        .post( music.addTracks )
         .put( music.update )
         .delete( music.delete );
 

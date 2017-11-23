@@ -3,11 +3,9 @@ import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/indexableFolder.scss'
 
-const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, index }) => {
+const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem }) => {
 
     const name = item.publicName || item.name;
-    const stringPath = item.path;
-    const inputName = `input-${index}`;
 
     let classes = ['fol-item'];
     let iconName = 'music';
@@ -22,13 +20,13 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
           return (
               <span className='fol-item-menu'>
                 <span className='fol-item-menu-inner'>
-                    <Button onClick={(e) => onPlayAlbum(e, item, stringPath)} icon basic color="teal">
+                    <Button onClick={(e) => onPlayAlbum(e, item)} icon basic color="teal">
                         <Icon name='play' />
                     </Button>
-                    <Button onClick={(e) => onListTracks(e, stringPath)} icon basic color="teal">
+                    <Button onClick={(e) => onListTracks(e, item)} icon basic color="teal">
                         <Icon name='list' />
                     </Button>
-                    <Button onClick={(e) => onGetFiles(e, stringPath)} disabled={!user} icon basic color="teal">
+                    <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">
                         <Icon name='plus' />
                     </Button>
                 </span>
@@ -40,7 +38,7 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
           return (
               <span className='fol-item-menu'>
                 <span className='fol-item-menu-inner'>
-                    <Button onClick={(e) => onAddItem(e, item, stringPath)} disabled={!user} icon basic color="teal">
+                    <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">
                         <Icon name='plus' />
                     </Button>
                 </span>
@@ -51,14 +49,12 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
 
     return (
         <div className={classes.join(' ')}>
-            <a onClick={onClick(item, stringPath)} href='#' className='fol-item-inner'>
+            <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
                 <Icon name={iconName} />
                 <span className='fol-item-title'>
                     {name}
                 </span>
             </a>
-            <input id={inputName} name='sub-menu-radio' type='radio'/>
-            <label htmlFor={inputName} className='fol-item-menu-label'><Icon color='teal' size='large' name='ellipsis vertical'></Icon></label>
             <ItemMenu/>
         </div>
     );
@@ -69,19 +65,16 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
 //     render() {
 //
 //         const { item } = this.props;
-//         let classes = ['fol-item'];
-//         let iconName = item.isFile?'music':'folder';
+//         const iconName = item.isFile?'music':'folder';
 //
 //         return (
-//             <div className={classes.join(' ')}>
-//                 <a href='#' className='fol-item-inner'>
+//             <div className='ifol-item'>
+//                 <a href='#' className='ifol-item-inner'>
 //                     <Icon name={iconName} />
-//                     <span className='fol-item-title'>
+//                     <span className='ifol-item-title'>
 //                         {item.name}
 //                     </span>
 //                 </a>
-//                 <input name='sub-menu-radio' type='radio'/>
-//                 <label className='fol-item-menu-label'><Icon color='teal' size='large' name='ellipsis vertical'></Icon></label>
 //             </div>
 //         );
 //     }

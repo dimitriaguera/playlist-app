@@ -157,7 +157,7 @@ const mapDispatchToProps = dispatch => {
             post( 'playlist', {data: item} )
         ),
         getAllPlaylist: () => dispatch(
-            get( `allPlaylist` )
+            get( `playlist` )
         ),
     }
 };
