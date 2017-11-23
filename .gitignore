@@ -73,3 +73,8 @@ typings/
 
 # IDE
 /.idea/
+
+/modules/music/server/services/readTag/ffmpeg/
+
+# Working dir
+/marcW/

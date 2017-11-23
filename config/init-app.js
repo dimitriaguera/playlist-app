@@ -20,6 +20,7 @@ const errorHandler = require('../modules/core/server/services/error.server.servi
 const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
+const fs = require('fs');
 
 /**
  * Check basics needs on config file.
@@ -38,6 +39,19 @@ module.exports.checkConfig = function() {
     if ( config.security.jwtSecret === 'SECRET' ) {
         console.log(chalk.red('Hey bro! You have to change security jwtSecret word on config.js file....'));
     }
+
+    // Check ffmpeg
+    if ( !process.env.FFMPEG_PATH ) {
+      if ( config.ffmpegPath ) {
+        process.env.FFMPEG_PATH = config.ffmpegPath;
+      } else {
+        process.env.FFMPEG_PATH = '';
+      }
+    }
+    fs.access(process.env.FFMPEG_PATH + 'ffmpeg', fs.constants.X_OK , (err) => {
+      console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'ffmpeg ok for reading music tag!'));
+    });
+
 };
 
 /**

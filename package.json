@@ -48,6 +48,8 @@
     "dateformat": "^3.0.2",
     "elasticsearch": "^14.0.0",
     "express": "^4.16.2",
+    "ffmetadata": "^1.4.0",
+    "ffmpeg": "^0.0.4",
     "file-type": "^6.2.0",
     "helmet": "^3.9.0",
     "immutability-helper": "^2.4.0",
