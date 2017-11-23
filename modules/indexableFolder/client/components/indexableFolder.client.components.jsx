@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
-import { get, put } from 'core/client/services/core.api.services'
+import { get, post } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
@@ -28,20 +28,18 @@ class IndexableFolder extends Component {
 
     constructor() {
         super();
-        this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
-        this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
 
-        this.handleOpen = this.handleOpen.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
-        this.handleConfirm = this.handleConfirm.bind(this);
-
+        this.handleModalOpen = this.handleModalOpen.bind(this);
+        this.handleModalCancel = this.handleModalCancel.bind(this);
+        this.handleModalConfirm = this.handleModalConfirm.bind(this);
         this.handlerGetAllFiles = this.handlerGetAllFiles.bind(this);
         this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
-        this.handlerPrevFolder = this.handlerPrevFolder.bind(this);
+        this.handlerRootFolder = this.handlerRootFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerAddItem = this.handlerAddItem.bind(this);
         this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
         this.onListTracks = this.onListTracks.bind(this);
+        this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
 
         this.state = {
             path: [],
@@ -167,7 +165,7 @@ class IndexableFolder extends Component {
     }
 
     // Handle func when open Confirm Box.
-    handleOpen( tracks ){
+    handleModalOpen( tracks ){
         this.setState({modal:{
             open:true,
             addTracks: tracks,
@@ -175,7 +173,7 @@ class IndexableFolder extends Component {
     }
 
     // Handle for cancel Confirm Box.
-    handleCancel() {
+    handleModalCancel() {
         this.setState({modal:{
             open:false,
             addTracks: [],
@@ -183,7 +181,7 @@ class IndexableFolder extends Component {
     }
 
     // Handle for confirm Confirm Box.
-    handleConfirm() {
+    handleModalConfirm() {
         const tracks = this.state.modal.addTracks.map((file) => {
                 return {
                     src:file.path,
@@ -200,16 +198,16 @@ class IndexableFolder extends Component {
     }
 
     // Handler to get all files recursively in a folder.
-    handlerGetAllFiles( e, path ) {
+    handlerGetAllFiles( e, item ) {
         const _self = this;
         const {fetchFiles} = this.props;
 
-        fetchFiles( ps.urlEncode(path) ).then((data) => {
+        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
             else {
-                this.handleOpen(data.msg);
+                this.handleModalOpen(data.msg);
             }
         });
         e.preventDefault();
@@ -217,19 +215,17 @@ class IndexableFolder extends Component {
 
     // Handler onClick on a folder link.
     // Return list a folder content.
-    handlerOpenFolder( path ) {
+    handlerOpenFolder( e, path ) {
 
         const { history } = this.props;
-        return (e) => {
 
-            // Update component via url update.
-            history.push(`/indexMusic${path}`);
-            e.preventDefault();
-        }
+        // Update component via url update.
+        history.push(`/indexMusic${path}`);
+        e.preventDefault();
     }
 
     // Handler that return root folder content.
-    handlerPrevFolder( e ) {
+    handlerRootFolder( e ) {
 
         const { history } = this.props;
 
@@ -239,21 +235,21 @@ class IndexableFolder extends Component {
     }
 
     // Handler to looks at files as tracks list.
-    onListTracks(e, path) {
+    onListTracks(e, item) {
         const { history } = this.props;
 
         // Go to album display mode.
-        history.push(`/album${path}`);
+        history.push(`/album${item.path}`);
         e.preventDefault();
     }
 
     // Handler to play music file.
-    handlerReadFile( e, item, path ) {
+    handlerReadFile( e, item ) {
 
         // Build track item.
         const play = {
             name: item.name,
-            src: path,
+            src: item.path,
         };
 
         // Change global state to start playing track.
@@ -262,7 +258,7 @@ class IndexableFolder extends Component {
     }
 
     // Handler to add single track on playlist.
-    handlerAddItem( e, item, path ) {
+    handlerAddItem( e, item ) {
 
         const { user, history, activePlaylist, addPlaylistItems } = this.props;
 
@@ -276,7 +272,7 @@ class IndexableFolder extends Component {
         if ( !Array.isArray( tracks ) ) {
             tracks = [{
                 name: item.publicName || item.name,
-                src: path,
+                src: item.path,
                 meta: item.meta || [],
             }];
         }
@@ -291,13 +287,13 @@ class IndexableFolder extends Component {
     }
 
     // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum( e, item, path ) {
+    handlerPlayAlbum( e, item ) {
 
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
 
 
-        fetchFiles( ps.urlEncode(path) ).then((data) => {
+        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true });
             }
@@ -305,7 +301,7 @@ class IndexableFolder extends Component {
                 const album = {
                     pl: {
                         title: item.name,
-                        path: path,
+                        path: item.path,
                         tracks: data.msg.map((file) => {
                             return {
                                 src:file.path,
@@ -319,6 +315,17 @@ class IndexableFolder extends Component {
             }
         });
     }
+
+    // Click on folder or file element.
+    handlerClickOnFile(e, item) {
+
+        if( item.isFile ) {
+            return this.handlerReadFile(e, item);
+        }
+
+        this.handlerOpenFolder(e, item.path);
+    }
+
 
     render(){
 
@@ -339,45 +346,13 @@ class IndexableFolder extends Component {
             }
         }
 
-        const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
-
-        const Bread = () => {
-            return(
-                <Step.Group size='mini' unstackable>
-                    <Step link onClick={this.handlerPrevFolder} style={{maxWidth:'70px'}}>
-                        <Step.Content>
-                            <Step.Title><Icon name='home' size='large' /></Step.Title>
-                        </Step.Content>
-                    </Step>
-                    {path.map( (item, i) => {
-                        return (
-                            <Step link key={i} active={i === path.length - 1} onClick={this.handlerOpenFolder(ps.buildPath(path.slice(0, i + 1)))} style={{maxWidth:stepWidth}}>
-                                <Step.Content>
-                                    <Step.Title>{item}</Step.Title>
-                                </Step.Content>
-                            </Step>
-                        );
-                    })}
-                </Step.Group>
-            )
-        };
-
-       const handlerClick = (item, stringPath) => {
-            if ( item.isFile ) {
-                return (e) => this.handlerReadFile(e, item, stringPath);
-            }
-            else {
-                return this.handlerOpenFolder(stringPath);
-            }
-        };
-
         return (
             <div>
                 <h1>Music Folders</h1>
                 <Divider/>
 
                 <Segment>
-                    <SearchFolderBar handlerResult={result => this.setState({nodes:result})} />
+                    <SearchFolderBar handlerResult={result => this.setState({nodes: result})} />
                 </Segment>
 
                 {user && (
@@ -389,29 +364,29 @@ class IndexableFolder extends Component {
                     </Segment>
                 )}
 
-                {!!path.length && <Bread/>}
+                <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
 
-                {/*<List divided relaxed='very' size='large' verticalAlign='middle'>*/}
-                    {/*{!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}*/}
-                {/*</List>*/}
-
-                {(!!nodes.length && !error) &&
-                <TransitionList
-                    items={nodes}
-                    component={IndexableFolderItem}
-                    user={user}
-                    onClick={handlerClick}
-                    onGetFiles={this.handlerGetAllFiles}
-                    onAddItem={this.handlerAddItem}
-                    onPlayAlbum={this.handlerPlayAlbum}
-                    onListTracks={this.onListTracks}
-                />
+                {(!error) &&
+                    nodes.map((item, i) => {
+                        return (
+                            <IndexableFolderItem
+                                key={i}
+                                item={item}
+                                user={user}
+                                onClick={this.handlerClickOnFile}
+                                onGetFiles={this.handlerGetAllFiles}
+                                onAddItem={this.handlerAddItem}
+                                onPlayAlbum={this.handlerPlayAlbum}
+                                onListTracks={this.onListTracks}
+                            />
+                        )
+                    })
                  }
 
 
                 <Modal
                     open={ modal.open }
-                    onClose={ this.handleCancel }
+                    onClose={ this.handleModalCancel }
                     basic
                     size='small'
                 >
@@ -420,10 +395,10 @@ class IndexableFolder extends Component {
                         <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button inverted onClick={ this.handleCancel }>
+                        <Button inverted onClick={ this.handleModalCancel }>
                             <Icon name='remove' /> No
                         </Button>
-                        <Button color='teal' inverted onClick={ this.handleConfirm }>
+                        <Button color='teal' inverted onClick={ this.handleModalConfirm }>
                             <Icon name='checkmark' /> Yes
                         </Button>
                     </Modal.Actions>
@@ -455,7 +430,7 @@ const mapDispatchToProps = dispatch => {
         ),
 
         addPlaylistItems: ( title, items ) => dispatch(
-            put( `addtracks/${title}`, {
+            post( `playlist/${title}`, {
                 data: items,
                 types: {
                     HOOK_TYPE: ( data ) => {
@@ -487,6 +462,30 @@ const IndexableFolderContainer = connect(
     mapDispatchToProps
 )(IndexableFolder);
 
+
+function Bread({ path, handlerOpenFolder, handlerRootFolder }) {
+
+    const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
+
+    return(
+        <Step.Group size='mini' unstackable>
+            <Step link onClick={handlerRootFolder} style={{maxWidth:'70px'}}>
+                <Step.Content>
+                    <Step.Title><Icon name='home' size='large' /></Step.Title>
+                </Step.Content>
+            </Step>
+            {path.map( (item, i) => {
+                return (
+                    <Step link key={i} active={i === path.length - 1} onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))} style={{maxWidth:stepWidth}}>
+                        <Step.Content>
+                            <Step.Title>{item}</Step.Title>
+                        </Step.Content>
+                    </Step>
+                );
+            })}
+        </Step.Group>
+    )
+}
 
 // HELPER
 // Return Array to feed Breadcrumb Semantic UI React Component.

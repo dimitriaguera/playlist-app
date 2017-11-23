@@ -13,7 +13,7 @@ module.exports = function(app){
         .delete(nodes.delete);
 
     // Index files in Nodes DB.
-    app.route('/api/nodes/index').post(nodes.index);
+    app.route('/api/nodes/build').get(nodes.index);
 
     // Get Node children from query path or id.
     app.route('/api/nodes/:query/child').get(nodes.openNode);
@@ -23,7 +23,7 @@ module.exports = function(app){
 
 
     // Index all Nodes into elastisearch folder index.
-    app.route('/api/elastic/index')
+    app.route('/api/elastic/build')
         .post(elastic.index)
         .put(elastic.update)
         .delete(elastic.delete);
