@@ -42,7 +42,7 @@ const NodeSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    meta: []
+    meta: Object
 });
 
 /**
@@ -74,20 +74,17 @@ NodeSchema.pre('remove', function(next) {
 
 NodeSchema.pre('save', function (next) {
     if ( this.isFile ) {
-
       musicTag.read(this.uri, (err, data) => {
         if (err) {
-          console.log('Error when reading meta for :' + this.uri);
-          return next();
+          console.log('Error when reading meta for : ' + this.path);
+          next();
         }
         this.meta = data;
-        return next();
+        next();
       });
-
+    } else {
+      next();
     }
-
-    return next();
-
 });
 
 //
