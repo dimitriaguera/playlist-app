@@ -152,7 +152,7 @@ class AudioBar extends Component {
                                       onEnded={this.onEndedHandler}
                                       onCanPlay={this.onCanPlayHandler}
                                       ref={(element) => { this.rap = element; }}
-                                      src={ `/api/music/read?path=${ps.urlEncode(onPlay.path)}` }
+                                      src={ `/api/indexMusic/read?path=${ps.urlEncode(onPlay.path)}` }
                     />
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
@@ -690,7 +690,7 @@ class MetaNameTracks extends Component {
                     return (
                     <Popup
                         key={i}
-                        trigger={<span className='metaOnPlayInfo-link'><Link to={`/music${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
+                        trigger={<span className='metaOnPlayInfo-link'><Link to={`/indexMusic${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
                         content={item.content}
                         inverted
                     />

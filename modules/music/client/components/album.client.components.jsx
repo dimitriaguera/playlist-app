@@ -249,7 +249,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         fetchFiles: ( query ) => dispatch(
-            get( `files?path=${query || ''}` )
+            get( `nodes/q/files?path=${query || ''}` )
         ),
         updateAlbumList: ( item ) => dispatch(
             updateAlbumToPlay( item )

@@ -18,15 +18,24 @@ class PlayingControls extends Component {
     }
 
     onPlayHandler(e) {
+        const _self = this;
         const pl = this.props.playlist;
+
         if ( this.props.playingList.pl === pl ) {
             this.props.play();
         }
         else {
-            this.props.onPlay({
-                pl: pl,
-                onPlayIndex: 0,
-            });
+
+            this.props.getPlaylist(pl.title)
+                .then((data) => {
+                    if(data.success){
+                        _self.props.onPlay({
+                            pl: data.msg,
+                            onPlayIndex: 0,
+                        });
+                    }
+                });
+
         }
     }
 
@@ -126,6 +135,9 @@ const mapDispatchToProps = dispatch => {
         ),
         play: () => dispatch(
             playState()
+        ),
+        getPlaylist: ( title ) => dispatch(
+            get(`playlist/${title}`)
         ),
         onPlay: ( item ) => dispatch(
             playOnPlaylist( item )
