@@ -70,8 +70,8 @@ class AudioBar extends Component {
      */
     onEndedHandler(e) {
 
-        const { nextTracks, playingList, albumList } = this.props;
-        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
+        const { nextTracks, playingList, mode } = this.props;
+        const { callback } = getActiveMode(mode);
 
         const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
 
@@ -152,7 +152,7 @@ class AudioBar extends Component {
                                       onEnded={this.onEndedHandler}
                                       onCanPlay={this.onCanPlayHandler}
                                       ref={(element) => { this.rap = element; }}
-                                      src={ `/api/indexMusic/read?path=${ps.urlEncode(onPlay.path)}` }
+                                      src={ `/api/music/read?path=${ps.urlEncode(onPlay.path)}` }
                     />
 
                     <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
@@ -214,8 +214,9 @@ class AudioBar extends Component {
 const mapStateToProps = state => {
     return {
         onPlay: state.playlistStore.onPlay,
-        playingList: state.playlistStore.playingList,
-        albumList: state.playlistStore.albumList,
+        mode: state.playlistStore.mode,
+        pl: state.playlistStore.playingList.pl,
+        onPlayIndex: state.playlistStore.playingList.onPlayIndex,
         activePlaylist: state.playlistStore.activePlaylist,
         isPaused: state.playlistStore.pause,
     }
@@ -875,7 +876,20 @@ function getFormatedTime( time ) {
     return m + ':' + s ;
 }
 
-function getActiveMode( playingList, albumList ) {
+function getActiveMode( mode ) {
+
+    switch (mode) {
+        case 'playlist':
+
+            break;
+        case 'album':
+
+            break;
+
+        default:
+
+            break;
+    }
 
     if ( playingList && playingList.pl !== null ) {
         const { onPlayIndex, pl } = playingList;

@@ -99,29 +99,6 @@ export const playItem = ( item ) => {
     }
 };
 
-// export const playOnPlaylist = ( item ) => dispatch => {
-//     dispatch(addPlaylistToPlay(item));
-//     dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
-// };
-
-// export const playOnAlbum = ( item ) => dispatch => {
-//     dispatch(addAlbumToPlay(item));
-//     dispatch(playItem( item.pl.tracks[item.onPlayIndex] ));
-// };
-// export const storePlayItem = ( item ) => {
-//    return {
-//        type: PLAY_ITEM,
-//        item: item
-//    }
-// };
-//
-// export const playItem = ( item, noHistory = false ) => dispatch => {
-//     dispatch(playState());
-//     dispatch(storePlayItem(item));
-//     if ( !noHistory ) {
-//         dispatch(updatePlayHistory(item));
-//     }
-// };
 
 
 
