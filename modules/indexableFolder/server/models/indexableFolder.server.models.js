@@ -6,8 +6,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const path = require('path');
-const config = require(path.resolve('./config/env/config.server'));
-const musicTag = require(path.resolve('./modules/music/server/services/readTag/readTag.server.services.js'));
+//const config = require(path.resolve('./config/env/config.server'));
+const metaTag = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services.js'));
 //const socketsEvents = require('../../../../config/sockets/sockets.conf');
 
 /**
@@ -42,7 +42,9 @@ const NodeSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    meta: Object
+    meta: {
+      type: Schema.Types.Mixed
+    }
 });
 
 /**
@@ -73,18 +75,17 @@ NodeSchema.pre('remove', function(next) {
 //  */
 
 NodeSchema.pre('save', function (next) {
-    if ( this.isFile ) {
-      musicTag.read(this.uri, (err, data) => {
-        if (err) {
-          console.log('Error when reading meta for : ' + this.path);
-          next();
-        }
-        this.meta = data;
+    if ( ! this.isFile ) return next();
+
+    metaTag.read(this.uri, (err, data) => {
+      if (err) {
+        console.log('Error when reading meta for : ' + this.path);
         next();
-      });
-    } else {
+      }
+      this.meta = data;
       next();
-    }
+    });
+
 });
 
 //
