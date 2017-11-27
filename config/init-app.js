@@ -42,8 +42,8 @@ module.exports.checkConfig = function() {
 
     // Check ffmpeg
     if ( !process.env.FFMPEG_PATH ) {
-      if ( config.ffmpegPath ) {
-        process.env.FFMPEG_PATH = config.ffmpegPath;
+      if ( config.ffmpegExec ) {
+        process.env.FFMPEG_PATH = config.ffmpegExec;
       } else {
         process.env.FFMPEG_PATH = '';
       }

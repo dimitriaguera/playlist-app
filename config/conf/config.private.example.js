@@ -37,7 +37,7 @@ module.exports = {
     logger: ':method :url :status :response-time ms - :res[content-length]',
     uploads: {},
 
-    ffmpegPath: './modules/music/server/services/readTag/ffmpeg/YOUR_OS/',
+    ffmpegExec: './modules/music/server/services/metaTag/ffmpeg/YOUR_OS/ffmpeg',
 
     seedDB: {
         haveToSeed: false,
