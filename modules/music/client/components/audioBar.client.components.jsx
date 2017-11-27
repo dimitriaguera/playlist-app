@@ -36,14 +36,14 @@ class AudioBar extends Component {
 
         this.socket.on('save:playlist', (data) => {
 
-            const { playingList, updatePlayingList } = _self.props;
+            const { pl, onPlayIndex, updatePlayingList } = _self.props;
 
             // If playlist is playing, check if we need to move item played.
-            if ( playingList.pl && playingList.pl.title === data.title ) {
+            if ( pl && pl.title === data.title ) {
 
-                const oldTracks = playingList.pl.tracks;
+                const oldTracks = pl.tracks;
                 const newTracks = data.tracks;
-                let newIndex = playingList.onPlayIndex;
+                let newIndex = onPlayIndex;
 
                 // If item playing moved, get his index.
                 if( oldTracks[newIndex]._id !== newTracks[newIndex]._id ) {
@@ -70,10 +70,8 @@ class AudioBar extends Component {
      */
     onEndedHandler(e) {
 
-        const { nextTracks, playingList, mode } = this.props;
-        const { callback } = getActiveMode(mode);
-
-        const callback = (mode === 'Playlist') ? playOnPlaylist : playOnAlbum;
+        const { nextTracks, pl, onPlayIndex, mode } = this.props;
+        const callback = getActiveMode(mode);
 
         // Test if playlist or album context.
         if ( pl !== null ) {
@@ -109,8 +107,8 @@ class AudioBar extends Component {
 
     // Play next tracks on album/playlist list.
     onNextHandler(e) {
-        const { playingList, albumList } = this.props;
-        const { onPlayIndex, pl, callback } = getActiveMode(playingList, albumList);
+        const { pl, onPlayIndex, mode } = this.props;
+        const callback = getActiveMode(mode);
 
         this.props.nextTracks({
             onPlayIndex: onPlayIndex + 1,
@@ -120,8 +118,8 @@ class AudioBar extends Component {
 
     // Play previous tracks on album/playlist list.
     onPrevHandler(e) {
-        const { playingList, albumList } = this.props;
-        const { onPlayIndex, pl, callback } = getActiveMode(playingList, albumList);
+        const { pl, onPlayIndex, mode } = this.props;
+        const callback = getActiveMode(mode);
 
         this.props.nextTracks({
             onPlayIndex: onPlayIndex - 1,
@@ -131,8 +129,7 @@ class AudioBar extends Component {
 
     render(){
 
-        const { onPlay, isPaused, playingList, albumList } = this.props;
-        const { onPlayIndex, pl, mode } = getActiveMode(playingList, albumList);
+        const { onPlay, isPaused, pl, onPlayIndex, mode } = this.props;
         const { audioReady } = this.state;
 
         let audioEl = null;
@@ -806,6 +803,7 @@ class MetaInfoPlaylist extends Component {
 
             let title = pl.title;
             let path = `/${mode.toLowerCase()}`;
+            let modeLabel = mode;
 
             // If pl is album, use folder path to construct link path.
             if ( pl.path ) {
@@ -816,6 +814,7 @@ class MetaInfoPlaylist extends Component {
             else if (pl.defaultPlaylist) {
                 title = title.replace('__def', '');
                 path = '/queue';
+                modeLabel = 'queue';
             }
 
             // Else, pl is playlist, just construct link path with title.
@@ -828,7 +827,7 @@ class MetaInfoPlaylist extends Component {
                     <Link as='span' to={path}>
                         <span className='audioBar-info-playlist-name'>{title}</span><br/>
                         <Label size='large' color='teal'>
-                            {mode}
+                            {modeLabel}
                             <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
                         </Label>
                     </Link>
@@ -878,46 +877,22 @@ function getFormatedTime( time ) {
 
 function getActiveMode( mode ) {
 
+    let callback = null;
+
     switch (mode) {
         case 'playlist':
-
+            callback = playOnPlaylist;
             break;
-        case 'album':
 
+        case 'album':
+            callback = playOnAlbum;
             break;
 
         default:
-
+            callback = playOnPlaylist;
             break;
     }
-
-    if ( playingList && playingList.pl !== null ) {
-        const { onPlayIndex, pl } = playingList;
-
-        return {
-            pl: pl,
-            onPlayIndex: onPlayIndex,
-            mode: pl.defaultPlaylist ? 'Queue' : 'Playlist',
-            callback: playOnPlaylist,
-        }
-    }
-
-    if ( albumList && albumList.pl !== null ) {
-        const { onPlayIndex, pl } = albumList;
-        return {
-            pl: pl,
-            onPlayIndex: onPlayIndex,
-            mode: 'Album',
-            callback: playOnAlbum,
-        }
-    }
-
-    return {
-        pl: null,
-        onPlayIndex: 0,
-        mode: 'Free',
-        callback: playOnPlaylist,
-    }
+    return callback;
 }
 
 function getTrackIndexById( id, array ) {

@@ -171,7 +171,7 @@ exports.allPlaylist = function (req, res, next) {
     // Search all playlist, without defaults playlists.
     Playlist.find({defaultPlaylist: false})
         .populate('author', 'username -_id')
-        .select('title length author')
+        .select('-tracks -_id')
         .exec(function(err, pls){
         if (err) {
             res.status(422);
@@ -222,7 +222,7 @@ exports.ownedPlaylist = function (req, res, next) {
     if ( user ) {
         return Playlist.find({ defaultPlaylist: false, author: user._id })
             .populate('author', 'username -_id')
-            .select('title length author')
+            .select('-tracks -_id')
             .exec(function(err, pls) {
 
                 if (err) {
@@ -393,7 +393,7 @@ function getDefaultPlaylist( user, done ) {
     Playlist.findOne({ title: __def })
         // .populate('tracks')
         .populate('author', 'username -_id')
-        .select('title length author')
+        .select('-tracks -_id')
         .exec(function(err, pls){
             if (err) {
                 return done(err);

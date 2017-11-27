@@ -24,7 +24,7 @@ module.exports = function(app){
 
     // Index all Nodes into elastisearch folder index.
     app.route('/api/elastic/build')
-        .post(elastic.index)
+        .get(elastic.index)
         .put(elastic.update)
         .delete(elastic.delete);
 

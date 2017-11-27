@@ -49,7 +49,7 @@ module.exports.checkConfig = function() {
       }
     }
 
-    fs.access(process.env.FFMPEG_PATH + 'ffmpeg.exe', fs.constants.F_OK , (err) => {
+    fs.access(process.env.FFMPEG_PATH, fs.constants.X_OK , (err) => {
       console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'ffmpeg ok for reading music tag!'));
     });
 
@@ -218,7 +218,6 @@ module.exports.startApp = function() {
     this.initErrorRoutes(app);
 
     const serve = this.socketConnect(app);
-
 
     serve.on('error', (e) => {
       if (e.code === 'EADDRINUSE') {
