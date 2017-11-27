@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, put, del } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
+import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks.client.components'
 import { Divider, Label, Button } from 'semantic-ui-react'
@@ -35,6 +36,8 @@ class Playlist extends Component {
         const title = _self.props.match.params.title;
         const { history } = _self.props;
 
+        // On mounting component, exact playlist title from url.
+        // And fetch it to server.
         this.props.getPlaylist(title)
             .then( (data) => {
                 if ( !data.success ) {
@@ -46,18 +49,22 @@ class Playlist extends Component {
                 })
             });
 
+        // Listen save playlist event.
+        // If updated playlist match to current displayed playlist, update it.
         this.socket.on('save:playlist', (data) => {
-            if( this.state.playlist.title === data.title ) {
+            if( mustUpdate(this.state.playlist, data) ) {
                 _self.setState({ playlist: data })
             }
         });
     }
 
+    // Unmount and delete socket.
     componentWillUnmount() {
         this.socket.disconnect();
         console.log("Disconnecting Socket as component will unmount");
     }
 
+    // Play a track in playlist.
     handlerReadFile( key ) {
 
         const { playlist } = this.state;
@@ -72,6 +79,7 @@ class Playlist extends Component {
         }
     }
 
+    // Delete a track in playlist.
     handlerDeleteTrack( key ) {
 
         const title = this.props.match.params.title;
@@ -91,6 +99,7 @@ class Playlist extends Component {
         }
     }
 
+    // Delete all tracks in playlist.
     handlerClearPlaylist() {
 
         const { savePlaylist } = this.props;
@@ -100,6 +109,7 @@ class Playlist extends Component {
         return savePlaylist( playlist.title, [] );
     }
 
+    // Move a track in playlist.
     handlerMoveItem( prevItems, nextItems, _drag ) {
 
         const { savePlaylist } = this.props;
@@ -108,6 +118,7 @@ class Playlist extends Component {
         // Saving updated playlist.
         return savePlaylist( playlist.title, nextItems )
             .then( (data) => {
+                // If playlist not updated server side, return to previous ordered list.
                 if(!data.success) {
                     _drag.setState({
                         items: prevItems,
@@ -116,6 +127,7 @@ class Playlist extends Component {
             });
     }
 
+    // Delete a playlist.
     handlerDeletePlaylist() {
 
         const { playlist } = this.state;
@@ -135,7 +147,7 @@ class Playlist extends Component {
         const { playlist } = this.state;
         const { playingList, isPaused, user, history } = this.props;
         const { onPlayIndex, pl } = playingList;
-        const isActivePlaylist = pl && (pl.title === playlist.title);
+        const isActivePlaylist = mustUpdate(pl, playlist);
         const isAuthor = user && (playlist.author.username === user.username);
 
             let label_mode = 'Playlist';
@@ -148,7 +160,7 @@ class Playlist extends Component {
                 {isAuthor &&
                 <div>
                     {/*Add tracks button.*/}
-                    <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
+                    <Button onClick={() => history.push(`/indexMusic?pl=${playlist.title}`)} icon basic inverted>
                         Add tracks
                     </Button>
 

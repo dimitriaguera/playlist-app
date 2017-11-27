@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import config from 'env/config.client'
 import { get, post } from 'core/client/services/core.api.services'
 import ReactAudioPlayer from 'react-audio-player'
-import socketServices from 'core/client/services/core.socket.services'
 import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import ps from 'folder/client/services/path.client.services'
 import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
@@ -16,8 +15,6 @@ class AudioBar extends Component {
     constructor( props ) {
 
         super( props );
-
-        this.socket = socketServices.getPublicSocket();
 
         this.onEndedHandler = this.onEndedHandler.bind(this);
         this.onPauseHandler = this.onPauseHandler.bind(this);
@@ -31,43 +28,11 @@ class AudioBar extends Component {
         }
     }
 
-    componentWillMount() {
-        const _self = this;
-
-        this.socket.on('save:playlist', (data) => {
-
-            const { pl, onPlayIndex, updatePlayingList } = _self.props;
-
-            // If playlist is playing, check if we need to move item played.
-            if ( pl && pl.title === data.title ) {
-
-                const oldTracks = pl.tracks;
-                const newTracks = data.tracks;
-                let newIndex = onPlayIndex;
-
-                // If item playing moved, get his index.
-                if( oldTracks[newIndex]._id !== newTracks[newIndex]._id ) {
-                    newIndex = getTrackIndexById( oldTracks[newIndex]._id, newTracks );
-                }
-
-                // Update playing playlist and playIndex.
-                updatePlayingList({
-                    pl: data,
-                    onPlayIndex: newIndex
-                });
-            }
-        });
-    }
-
-    componentWillUnmount() {
-        this.socket.disconnect();
-        console.log("Disconnecting Socket as component will unmount");
-    }
-
     /**
      * Switch to next Track on current playing track ends.
      * @param e
      */
+
     onEndedHandler(e) {
 
         const { nextTracks, pl, onPlayIndex, mode } = this.props;
@@ -893,14 +858,6 @@ function getActiveMode( mode ) {
             break;
     }
     return callback;
-}
-
-function getTrackIndexById( id, array ) {
-    let l = array.length;
-    for( let i=0; i < l; i++ ) {
-        if( array[i]._id == id ) return i;
-    }
-    return null;
 }
 
 function clamp(n, min, max) {

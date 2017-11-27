@@ -415,13 +415,13 @@ const mapDispatchToProps = dispatch => {
         addPlaylistItems: ( title, items ) => dispatch(
             post( `playlist/${title}`, {
                 data: items,
-                types: {
-                    HOOK_TYPE: ( data ) => {
-                        return dispatch => {
-                            dispatch(updateActivePlaylist(data.msg))
-                        }
-                    },
-                }
+                // types: {
+                //     HOOK_TYPE: ( data ) => {
+                //         return dispatch => {
+                //             dispatch(updateActivePlaylist(data.msg))
+                //         }
+                //     },
+                // }
             } )
         ),
 
