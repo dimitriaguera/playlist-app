@@ -78,3 +78,4 @@ typings/
 
 # Working dir
 /marcW/
+/modules/music/server/services/readTag/ffmpeg/
