@@ -10,4 +10,7 @@ export const menuItems = [
     {
         component: () => <Menu.Item as={Link} to='/'>Playlists</Menu.Item>,
     },
+    {
+        component: () => <Menu.Item as={Link} to='/music'>Music</Menu.Item>,
+    },
 ];

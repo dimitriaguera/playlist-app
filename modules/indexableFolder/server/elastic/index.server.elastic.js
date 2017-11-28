@@ -39,11 +39,32 @@ function indexBulk( client ) {
             })
             .catch((err) => {
                 callback(err);
-        });
+            });
+
     }
 }
 
 exports.indexBulk = indexBulk;
+
+/**
+ * Create elasticsearch index.
+ * @param client
+ * @returns {function(*=, *)}
+ */
+function indexCreate( client ) {
+    return (param, callback) => {
+
+        const index = param.index;
+        const body = param.body;
+
+        client.indices.create({index:index, body:body}, (err, data) => {
+
+            callback(err, data);
+        });
+    }
+}
+
+exports.indexCreate = indexCreate;
 
 /**
  * Delete elasticsearch index.
@@ -52,11 +73,32 @@ exports.indexBulk = indexBulk;
  */
 function indexDelete( client ) {
     return ( index, callback ) => {
-        client.indices.delete({
-            index: index
-        },
+        client.indices.exists({index: index}, (err, resp) => {
+
+            if(err) return callback(err);
+
+            if (resp) {
+                return client.indices.delete({
+                        index: index
+                    },
+                    callback
+                );
+            }
+            callback(null);
+        });
+    }
+}
+exports.indexDelete = indexDelete;
+
+
+function putTemplate( client ) {
+    return ( params, callback ) => {
+        client.indices.putTemplate({
+                params: params
+            },
             callback
         );
     }
 }
-exports.indexDelete = indexDelete;
+
+exports.putTemplate = putTemplate;

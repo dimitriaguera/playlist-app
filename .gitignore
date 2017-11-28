@@ -76,3 +76,6 @@ typings/
 
 # Working dir
 /marcW/
+
+# ffmpeg executables binaries
+/modules/music/server/services/metaTag/ffmpeg/
