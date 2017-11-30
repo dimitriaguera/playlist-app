@@ -10,9 +10,7 @@ class SearchMusicBar extends Component {
     constructor() {
         super();
         this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleTrackOnly = this.handleTrackOnly.bind(this);
         this.state = {
-            check1: false,
             inputText: '',
         };
     }
@@ -20,14 +18,15 @@ class SearchMusicBar extends Component {
     componentDidMount() {
 
         const _self = this;
+        const { indexName, startLimit = 3 } = this.props;
 
         const searchApi = (term) => {
-            return _self.props.search(`album?q=${term}&fi=name`);
+            return _self.props.search(`${indexName}?q=${term}&fi=name`);
         };
 
         const obs = Rx.Observable.fromEvent(this.inputText, 'keyup')
             .pluck('target', 'value')
-            .filter(text => text.length > 1 )
+            .filter(text => text.length >= startLimit )
             .debounce(500 /* ms */)
             .distinctUntilChanged()
             .flatMapLatest(searchApi)
@@ -57,32 +56,11 @@ class SearchMusicBar extends Component {
         });
     }
 
-    // Check tracks only change.
-    handleTrackOnly(e) {
-
-        this.handleInputChange(e);
-
-        const { inputText } = this.state;
-        const value = e.target.checked;
-        const _self = this;
-
-        this.props.search(`${inputText}&ot=${value}`)
-            .then((data) => {
-                if( data.success ) {
-                    const nodes = data.msg.hits.hits.map((item) => item._source);
-                    _self.props.handlerResult(nodes);
-                }
-            });
-    }
-
-
     render(){
 
         return (
             <div style={this.props.style} className='search-bar'>
                 <input ref={(element) => this.inputText=element } onChange={this.handleInputChange} type='text' name='inputText' placeholder='Search...' className='search-input'/>
-                <label htmlFor='check1'>Tracks only</label>
-                <input ref={(element) => this.check1=element } onChange={this.handleTrackOnly} type='checkbox' name='check1' id='check1' className='search-checkbox'/>
             </div>
         );
     }

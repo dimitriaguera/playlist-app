@@ -3,6 +3,14 @@
  */
 const sanitize = require("sanitize-filename");
 
+// Remove last element of path string.
+exports.removeLast = function(path) {
+    const regex = new RegExp('[^\/]+\/?$', 'i');
+    const result = path.replace(regex, '');
+
+    return result;
+};
+
 /**
  * Return an array of path folders.
  * @param str {String}

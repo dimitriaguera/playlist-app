@@ -7,7 +7,7 @@ import Tracks from './tracks.client.components'
 import { Divider, Label, Button, Segment } from 'semantic-ui-react'
 
 
-class Music extends Component {
+class Albums extends Component {
 
     constructor( props ) {
 
@@ -18,8 +18,16 @@ class Music extends Component {
         }
     }
 
-    componentWillMount() {
-
+    componentDidMount() {
+        const _self = this;
+        this.props.search(`album?q=`)
+            .then((data) => {
+                if(data.success){
+                    const docs = data.msg.hits.hits;
+                    const nodes = docs.map((item) => item._source);
+                    _self.setState({nodes:nodes});
+                }
+            })
     }
 
     // Unmount and delete socket.
@@ -34,8 +42,8 @@ class Music extends Component {
 
         return (
             <div>
-                <h1>Music</h1>
-                <SearchMusicBar indexName='album'  handlerResult={result => this.setState({nodes: result})} />
+                <h1>Albums</h1>
+                <SearchMusicBar indexName='album'  startLimit={0} handlerResult={result => this.setState({nodes: result})} />
 
                 {
                     nodes.map((item, i) => {
@@ -59,15 +67,15 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        readFile: ( item ) => dispatch(
-            playOnPlaylist( item )
+        search: ( query ) => dispatch(
+            get(`search/${query}`)
         ),
     }
 };
 
-const MusicContainer = connect(
+const AlbumsContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Music);
+)(Albums);
 
-export default MusicContainer
+export default AlbumsContainer
