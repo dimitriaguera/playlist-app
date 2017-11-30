@@ -15,28 +15,171 @@ const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasti
 
 exports.index = function (req, res, next) {
 
-    Node.find({}).select('-_id name path meta isFile publicName').lean().exec((err, data) => {
+    Node.find({isFile: true}).select('-_id path meta').lean().exec((err, data) => {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-        es.indexDelete('folder', (err, resp) => {
+        const albums = [];
+        const artists = [];
+
+        const alKeys = {};
+        const arKeys = {};
+
+        data.map((item, i) => {
+
+            let album = item.meta.album || item.meta.ALBUM || '';
+            let date = item.meta.date || item.meta.DATE || '';
+            let artist = item.meta.artist || item.meta.ARTIST || '';
+            let disc = item.meta.disc || item.meta.DISC || '';
+            let genre = item.meta.genre || item.meta.GENRE || '';
+
+            let albumID = album + disc;
+
+            if( !alKeys[albumID] ) {
+
+                albums.push({
+                    name: album,
+                    artist: artist,
+                    date: date,
+                    disc: disc,
+                    genre: genre,
+                    path: ps.removeLast(item.path),
+                });
+                alKeys[albumID] = albums.length;
+
+            }
+            else if(albums[alKeys[albumID] - 1].artist !== artist){
+                albums[alKeys[albumID] - 1].artist += `, ${artist}`
+            }
+
+            if( !arKeys[artist] ) {
+                arKeys[artist] = true;
+                artists.push({
+                    name: artist,
+                });
+            }
+        });
+
+        es.indexDelete(['album', 'artist', 'tracks'], (err, resp) => {
+
             if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-            const param = {
-                index:'folder',
-                type:'album',
+            const  bodyAlbum = {
+                "mapping": {
+                    "album": {
+                        "properties": {
+                            "name": {
+                                "type": "text"
+                            },
+                            "artist": {
+                                "type": "text"
+                            },
+                            "date": {
+                                "type": "text"
+                            },
+                            "disc": {
+                                "type": "text"
+                            },
+                            "genre": {
+                                "type": "text"
+                            },
+                        }
+                    },
+                }
             };
 
-            es.indexBulk(data, param, (err, data) => {
+            const  bodyArtist = {
+                "mapping": {
+                    "album": {
+                        "properties": {
+                            "name": {
+                                "type": "text"
+                            },
+                        }
+                    },
+                }
+            };
+
+            // Create album index.
+            es.indexCreate({index:'album', body:bodyAlbum}, () => {
                 if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-                res.json({
-                    success: true,
-                    msg: data,
+                let param = {
+                    index:'album',
+                    type:'album',
+                };
+
+                // Index all albums.
+                es.indexBulk(albums, param, (err, respAlb) => {
+                    if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                    // Create artist index.
+                    es.indexCreate({index:'artist', body:bodyArtist}, () => {
+                        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                        let param = {
+                            index:'artist',
+                            type:'artist',
+                        };
+
+                        // Index all artists.
+                        es.indexBulk(artists, param, (err, respArt) => {
+                            if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                            // Create tracks index.
+                            es.indexCreate({index:'tracks', body:bodyArtist}, () => {
+                                if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                                let param = {
+                                    index:'tracks',
+                                    type:'tracks',
+                                };
+
+                                // Index all tracks.
+                                es.indexBulk(data, param, (err, respTrack) => {
+                                    if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                                    res.json({
+                                        success: true,
+                                        msg: {
+                                            albums: {errors: respAlb.errors},
+                                            artists: {errors: respArt.errors},
+                                            tracks: {errors: respTrack.errors},
+                                        },
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
     });
 };
+
+// exports.index = function (req, res, next) {
+//
+//     Node.find({}).select('-_id name path meta isFile publicName').lean().exec((err, data) => {
+//         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+//
+//         es.indexDelete('folder', (err, resp) => {
+//             if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+//
+//             const param = {
+//                 index:'folder',
+//                 type:'album',
+//             };
+//
+//             es.indexBulk(data, param, (err, data) => {
+//                 if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+//
+//                 res.json({
+//                     success: true,
+//                     msg: data,
+//                 });
+//             });
+//         });
+//     });
+// };
 
 exports.update = function(req, res, next) {
 
@@ -48,23 +191,29 @@ exports.delete = function(req, res, next) {
 
 exports.search = function (req, res, next) {
 
-    const NOT_SECURE_STRING_SEARCH = req.query.search;
-    const NOT_SECURE_STRING_OT = req.query.ot;
-    const type = ps.clean(req.params.type);
+    const NOT_SECURE_STRING_SEARCH = req.query.q;
+    const NOT_SECURE_STRING_FI = req.query.fi;
+
+    // const NOT_SECURE_STRING_TI = req.query.ti;
+    // const NOT_SECURE_STRING_AR = req.query.ar;
+    // const NOT_SECURE_STRING_AL = req.query.al;
+    // const NOT_SECURE_STRING_DA = req.query.da;
+
+    const index = ps.clean(req.params.type);
     const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
-    const ot = ps.clean(NOT_SECURE_STRING_OT);
+    const field = NOT_SECURE_STRING_FI ? ps.clean(NOT_SECURE_STRING_FI) : 'name';
 
     const base_query = {
         query_string: {
             query: `${terms}*`,
-            fields: ['name'],
+            fields: [field],
             default_operator: 'AND'
         }
     };
 
     const params = {
-        index: 'folder',
-        type: type,
+        index: index,
+        type: index,
         body: {
             size: 3000,
             from: 0,
@@ -72,16 +221,16 @@ exports.search = function (req, res, next) {
         }
     };
 
-    if (ot === 'true') {
-        params.body.query = {
-            bool: {
-                must: base_query,
-                filter: {
-                    term: {isFile: true}
-                }
-            }
-        }
-    }
+    // if (ot === 'true') {
+    //     params.body.query = {
+    //         bool: {
+    //             must: base_query,
+    //             filter: {
+    //                 term: {isFile: true}
+    //             }
+    //         }
+    //     }
+    // }
 
     es.search( params, (err, data) => {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);

@@ -31,7 +31,7 @@ class Album extends Component {
     componentWillMount() {
 
         const _self = this;
-        const { history, fetchFiles, albumList } = _self.props;
+        const { history, fetchFiles, playingList } = _self.props;
 
         // Build folder path from url path.
         let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
@@ -39,10 +39,10 @@ class Album extends Component {
 
         // Test if album is already playing.
         // If album playing, mount data from store.
-        if( albumList.pl && albumList.pl.path === path ) {
+        if( playingList.pl && playingList.pl.path === path ) {
             _self.setState({
                 isActive: true,
-                albumOfUrl: albumList,
+                albumOfUrl: playingList,
             })
         }
         // Else, query data from DB.
@@ -76,7 +76,7 @@ class Album extends Component {
     componentWillReceiveProps(nextProps) {
 
         const _self = this;
-        const { albumList, fetchFiles, history } = nextProps;
+        const { playingList, fetchFiles, history } = nextProps;
         const { albumOfUrl } = this.state;
 
         // Force re-rendering on props location change.
@@ -88,10 +88,10 @@ class Album extends Component {
             let path = ps.buildPath(pathArray);
 
             // If album playing, mount data from store.
-            if (albumList.pl && albumList.pl.path === path) {
+            if (playingList.pl && playingList.pl.path === path) {
                 return _self.setState({
                     isActive: true,
-                    albumOfUrl: albumList,
+                    albumOfUrl: playingList,
                 })
             }
             // Else, query data from DB.
@@ -122,15 +122,15 @@ class Album extends Component {
         }
 
         //Else. Props albumList comes from store, and isn't empty if album playing.
-        if ( albumList !== this.props.albumList ) {
+        if ( playingList !== this.props.playingList ) {
 
             // So checking if store's albumList is already current album in component's state.
-            const isActive = ( albumList.pl && albumList.pl.path === albumOfUrl.pl.path );
+            const isActive = ( playingList.pl && playingList.pl.path === albumOfUrl.pl.path );
 
             // If same album, copy changes in local state, and set isActive to true.
             this.setState({
                 isActive: isActive,
-                albumOfUrl: albumList,
+                albumOfUrl: playingList,
                 onPlayIndex: nextProps.onPlayIndex
             });
         }
@@ -154,7 +154,7 @@ class Album extends Component {
     handlerMoveItem( prevItems, nextItems ) {
 
         const { albumOfUrl } = this.state;
-        const { albumList } = this.props;
+        const { playingList } = this.props;
 
         const oldTracks = prevItems;
         const newTracks = nextItems;
@@ -162,8 +162,8 @@ class Album extends Component {
         let newIndex = albumOfUrl.onPlayIndex;
 
         // // If item playing moved, get his index.
-        if( oldTracks[newIndex].src !== newTracks[newIndex].src ) {
-            newIndex = getTrackIndexBySrc( oldTracks[newIndex].src, newTracks );
+        if( oldTracks[newIndex].path !== newTracks[newIndex].path ) {
+            newIndex = getTrackIndexBySrc( oldTracks[newIndex].path, newTracks );
         }
 
         // Build album object.
@@ -175,7 +175,7 @@ class Album extends Component {
         // Need to determine if changes must update playing album in state store,
         // or just update component state.
         // If this album mounted on component state is now playing, update via redux store.
-        if ( albumList.pl && albumList.pl.path === albumOfUrl.pl.path ) {
+        if ( playingList.pl && playingList.pl.path === albumOfUrl.pl.path ) {
             // Store updated album.
             return this.props.updateAlbumList( data );
         }
@@ -238,7 +238,7 @@ class Album extends Component {
 
 const mapStateToProps = state => {
     return {
-        albumList: state.playlistStore.albumList,
+        playingList: state.playlistStore.playingList,
         isPaused: state.playlistStore.pause,
         onPlay: state.playlistStore.onPlay,
         isAuthenticated: state.authenticationStore.isAuthenticated,
@@ -249,7 +249,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         fetchFiles: ( query ) => dispatch(
-            get( `files?path=${query || ''}` )
+            get( `nodes/q/files?path=${query || ''}` )
         ),
         updateAlbumList: ( item ) => dispatch(
             updateAlbumToPlay( item )
@@ -267,10 +267,10 @@ const AlbumContainer = connect(
 
 
 // HELPER
-function getTrackIndexBySrc( src, array ) {
+function getTrackIndexBySrc( path, array ) {
     let l = array.length;
     for( let i=0; i < l; i++ ) {
-        if( array[i].src == src ) return i;
+        if( array[i].path == path ) return i;
     }
     return null;
 }

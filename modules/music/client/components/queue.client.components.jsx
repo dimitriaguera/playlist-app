@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, put, del } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
+import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks.client.components'
 import AddPlaylist from './addPlaylist.client.components'
@@ -44,6 +45,7 @@ class Queue extends Component {
 
         const title = `__def${user.username}`;
 
+        // On mounting component, fetch user's queue.
         this.props.getPlaylist(title)
             .then( (data) => {
                 if ( !data.success ) {
@@ -55,13 +57,16 @@ class Queue extends Component {
                 })
             });
 
+        // Listen save playlist event.
+        // If updated playlist match to queue, update it.
         this.socket.on('save:playlist', (data) => {
-            if( this.state.playlist.title === data.title ) {
+            if( mustUpdate(this.state.playlist, data) ) {
                 _self.setState({ playlist: data })
             }
         });
     }
 
+    // Unmount and delete socket.
     componentWillUnmount() {
         this.socket.disconnect();
         console.log("Disconnecting Socket as component will unmount");
@@ -75,6 +80,7 @@ class Queue extends Component {
         this.setState({[name]: value});
     }
 
+    // Play a track in queue.
     handlerReadFile( key ) {
 
         const { playlist } = this.state;
@@ -89,6 +95,7 @@ class Queue extends Component {
         }
     }
 
+    // Delete a track in queue.
     handlerDeleteTrack( key ) {
 
         const { user } = this.props;
@@ -109,6 +116,7 @@ class Queue extends Component {
         }
     }
 
+    // Delete all tracks in queue.
     handlerClearPlaylist() {
 
         const { savePlaylist } = this.props;
@@ -118,6 +126,8 @@ class Queue extends Component {
         return savePlaylist( playlist.title, [] );
     }
 
+    // Save queue tracks into a new playlist.
+    // This action create a new playlist.
     handlerSavePlaylist() {
 
         const { clearAfterSave } = this.state;
@@ -128,7 +138,7 @@ class Queue extends Component {
         }
     }
 
-
+    // Move track in queue.
     handlerMoveItem( prevItems, nextItems, _drag ) {
 
         const { savePlaylist } = this.props;
@@ -137,6 +147,7 @@ class Queue extends Component {
         // Saving updated playlist.
         return savePlaylist( playlist.title, nextItems )
             .then( (data) => {
+                // If no update server side, return to previous queue order.
                 if(!data.success) {
                     _drag.setState({
                         items: prevItems,
@@ -150,7 +161,7 @@ class Queue extends Component {
         const { playlist } = this.state;
         const { playingList, isPaused, isAuthenticated, user, history } = this.props;
         const { onPlayIndex, pl } = playingList;
-        const isActivePlaylist = pl && (pl.title === playlist.title);
+        const isActivePlaylist = mustUpdate(pl, playlist);
 
         return (
             <div>
@@ -182,7 +193,7 @@ class Queue extends Component {
                         </Modal>
                     }
                     {/*Add tracks button.*/}
-                    <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
+                    <Button onClick={() => history.push(`/indexMusic?pl=${playlist.title}`)} icon basic inverted>
                         Add tracks
                     </Button>
 

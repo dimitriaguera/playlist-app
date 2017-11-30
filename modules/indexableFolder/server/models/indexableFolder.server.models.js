@@ -6,9 +6,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const path = require('path');
-//const config = require(path.resolve('./config/env/config.server'));
 const metaTag = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services.js'));
-//const socketsEvents = require('../../../../config/sockets/sockets.conf');
 
 /**
  * Node model.
@@ -69,42 +67,27 @@ NodeSchema.pre('remove', function(next) {
     next();
 });
 
-// /**
-//  * Handle before saving new user queue playlist.
-//  *
-//  */
-
+/**
+ * Handle before saving new node.
+ * If node is file, extract metadata.
+ *
+ */
 NodeSchema.pre('save', function (next) {
-    if ( ! this.isFile ) return next();
-
-    metaTag.read(this.uri, (err, data) => {
-      if (err) {
-        console.log('Error when reading meta for : ' + this.path);
+    if ( this.isFile ) {
+        metaTag.read(this.uri, (err, data) => {
+            if (err) {
+              console.log('Error when reading meta for : ' + this.path);
+              next();
+            }
+            this.meta = data;
+            next();
+        });
+    }
+    else {
         next();
-      }
-      this.meta = data;
-      next();
-    });
-
+    }
 });
 
-//
-// /**
-//  * Handle for sockets.
-//  *
-//  */
-// NodeSchema.post('save', function( doc ) {
-//     console.log('save post middleware called on Playlist Model');
-//     doc.populate({
-//         path: 'author',
-//         select: 'username -_id',
-//     }, (e, popDoc) => {
-//         if( e ) {
-//             return socketsEvents.emit( 'save:playlist', doc );
-//         }
-//         socketsEvents.emit( 'save:playlist', popDoc );
-//     });
-// });
 
 const Node = mongoose.model('Node', NodeSchema);
 module.exports = Node;

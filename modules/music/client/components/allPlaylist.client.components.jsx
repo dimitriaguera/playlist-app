@@ -111,14 +111,14 @@ class AllPlaylist extends Component {
                                 {title}
                             </Card.Header>
                             <Card.Meta>{author}</Card.Meta>
-                            {isAuthor && <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>}
+                            {isAuthor && <Link as='a' to={`/indexMusic?pl=${item.title}`}>+ add tracks</Link>}
                         </Card.Content>
                         <Card.Content extra>
                             <MenuPlay playlist={item} />
                         </Card.Content>
                         <Card.Content>
                             <Card.Meta>
-                                <Icon name='music'/> {item.tracks.length} tracks
+                                <Icon name='music'/> {item.length} tracks
                             </Card.Meta>
                         </Card.Content>
                     </Card>
