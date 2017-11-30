@@ -42,6 +42,7 @@ exports.index = function (req, res, next) {
                     date: date,
                     disc: disc,
                     genre: genre,
+                    path: ps.removeLast(item.path),
                 });
                 alKeys[albumID] = albums.length;
 
@@ -58,7 +59,7 @@ exports.index = function (req, res, next) {
             }
         });
 
-        es.indexDelete(['album', 'artist'], (err, resp) => {
+        es.indexDelete(['album', 'artist', 'tracks'], (err, resp) => {
 
             if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
@@ -98,6 +99,7 @@ exports.index = function (req, res, next) {
                 }
             };
 
+            // Create album index.
             es.indexCreate({index:'album', body:bodyAlbum}, () => {
                 if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
@@ -106,9 +108,11 @@ exports.index = function (req, res, next) {
                     type:'album',
                 };
 
+                // Index all albums.
                 es.indexBulk(albums, param, (err, respAlb) => {
                     if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
+                    // Create artist index.
                     es.indexCreate({index:'artist', body:bodyArtist}, () => {
                         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
@@ -117,15 +121,32 @@ exports.index = function (req, res, next) {
                             type:'artist',
                         };
 
+                        // Index all artists.
                         es.indexBulk(artists, param, (err, respArt) => {
                             if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-                            res.json({
-                                success: true,
-                                msg: {
-                                    albums: {errors: respAlb.errors},
-                                    artists: {errors: respArt.errors},
-                                },
+                            // Create tracks index.
+                            es.indexCreate({index:'tracks', body:bodyArtist}, () => {
+                                if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                                let param = {
+                                    index:'tracks',
+                                    type:'tracks',
+                                };
+
+                                // Index all tracks.
+                                es.indexBulk(data, param, (err, respTrack) => {
+                                    if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+                                    res.json({
+                                        success: true,
+                                        msg: {
+                                            albums: {errors: respAlb.errors},
+                                            artists: {errors: respArt.errors},
+                                            tracks: {errors: respTrack.errors},
+                                        },
+                                    });
+                                });
                             });
                         });
                     });
@@ -180,7 +201,7 @@ exports.search = function (req, res, next) {
 
     const index = ps.clean(req.params.type);
     const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
-    const field = ps.clean(NOT_SECURE_STRING_FI);
+    const field = NOT_SECURE_STRING_FI ? ps.clean(NOT_SECURE_STRING_FI) : 'name';
 
     const base_query = {
         query_string: {
