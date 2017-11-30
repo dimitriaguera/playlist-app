@@ -8,14 +8,10 @@ PLAY_TRACK_ON_PLAYLIST, PLAY_TRACK_ON_ALBUM} from '../actions'
 let initialState = {
     onPlay: {
         name: null,
-        src: null,
+        path: null,
+        meta: [],
     },
     playingList: {
-        pl: null,
-        onPlayIndex: 0,
-        currentTime: 0,
-    },
-    albumList: {
         pl: null,
         onPlayIndex: 0,
         currentTime: 0,
@@ -23,6 +19,7 @@ let initialState = {
     playingHistory: {
         tracks: [],
     },
+    mode: null,
     activePlaylist: null,
     pause: false,
 };
@@ -52,21 +49,21 @@ export const playlistStore = (state = initialState, action) => {
         case ADD_ALBUM_TO_PLAY:
             return {
                 ...state,
-                playingList: { pl: null, onPlayIndex: 0 ,currentTime: 0 },
-                albumList: Object.assign({}, state.albumList, action.item),
+                mode: 'album',
+                playingList: Object.assign({onPlayIndex: 0, currentTime: 0}, action.item),
             };
 
         case ADD_PLAYLIST_TO_PLAY:
             return {
                 ...state,
-                albumList: { pl: null, onPlayIndex: 0, currentTime: 0 },
-                playingList: Object.assign({}, state.playingList, action.item),
+                mode: 'playlist',
+                playingList: Object.assign({onPlayIndex: 0, currentTime: 0}, action.item),
             };
 
         case UPDATE_ALBUM_TO_PLAY:
             return {
                 ...state,
-                albumList: Object.assign({}, state.albumList, action.item),
+                playingList: Object.assign({}, state.playingList, action.item),
             };
 
         case UPDATE_PLAYLIST_TO_PLAY:
@@ -97,8 +94,8 @@ export const playlistStore = (state = initialState, action) => {
         case PLAY_TRACK_ON_ALBUM:
             return {
                 ...state,
-                playingList: { pl: null, onPlayIndex: 0 ,currentTime: 0 },
-                albumList: Object.assign({}, state.albumList, action.item),
+                mode: 'album',
+                playingList: Object.assign({}, state.playingList, action.item),
                 pause: false,
                 onPlay: action.item.pl.tracks[action.item.onPlayIndex]
             };
@@ -106,7 +103,7 @@ export const playlistStore = (state = initialState, action) => {
         case PLAY_TRACK_ON_PLAYLIST:
             return {
                 ...state,
-                albumList: { pl: null, onPlayIndex: 0, currentTime: 0 },
+                mode: 'playlist',
                 playingList: Object.assign({}, state.playingList, action.item),
                 pause: false,
                 onPlay: action.item.pl.tracks[action.item.onPlayIndex]

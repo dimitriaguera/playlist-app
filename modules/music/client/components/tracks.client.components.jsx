@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Icon, Button } from 'semantic-ui-react'
-import InfoPath from 'music/client/components/infopath'
+import InfoPath from 'music/client/components/infopath.client.components'
 
 import style from './style/tracks.scss'
 
@@ -28,6 +28,7 @@ class Tracks extends Component {
 
         const active = isActivePlaylist && ( index === onPlayIndex );
         const iconName = isPaused ? 'pause' : 'play';
+        const title = item.meta.title || item.meta.TITLE;
 
         let classes = ['pli-tracks'];
         if ( active ) classes.push('active');
@@ -38,8 +39,8 @@ class Tracks extends Component {
                 <a className='pli-inner' onClick={onPlay(index)} href='#'>
                     <span className='pli-number'>{index + 1}.</span>
                     <span className='pli-info'>
-                        <span className={'pli-title'}>{item.name}</span>
-                        <InfoPath path={item.src}/>
+                        <span className={'pli-title'}>{title || item.name}</span>
+                        <InfoPath meta={item.meta}/>
                     </span>
                 </a>
                 {(onDelete && canEdit) &&

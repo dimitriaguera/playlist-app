@@ -18,15 +18,24 @@ class PlayingControls extends Component {
     }
 
     onPlayHandler(e) {
+        const _self = this;
         const pl = this.props.playlist;
+
         if ( this.props.playingList.pl === pl ) {
             this.props.play();
         }
         else {
-            this.props.onPlay({
-                pl: pl,
-                onPlayIndex: 0,
-            });
+
+            this.props.getPlaylist(pl.title)
+                .then((data) => {
+                    if(data.success){
+                        _self.props.onPlay({
+                            pl: data.msg,
+                            onPlayIndex: 0,
+                        });
+                    }
+                });
+
         }
     }
 
@@ -61,7 +70,7 @@ class PlayingControls extends Component {
 
         // Test if menu linked with active playlist.
         const isActive = pl && (pl.title === playlist.title);
-        const disable = ( !playlist.tracks.length );
+        const disable = ( !playlist.length );
 
         const playPauseBtn = () => {
             // If active playlist and on play, display Pause button.
@@ -92,7 +101,7 @@ class PlayingControls extends Component {
 
         const rightBtn = () => {
             if ( isActive ) {
-                const disabled = ( onPlayIndex + 1 === playlist.tracks.length );
+                const disabled = ( onPlayIndex + 1 === playlist.length );
                 return (
                     <Menu.Item disabled={disabled} onClick={this.onNextHandler}>
                         <Icon disabled={disabled} name='right chevron'/>
@@ -126,6 +135,9 @@ const mapDispatchToProps = dispatch => {
         ),
         play: () => dispatch(
             playState()
+        ),
+        getPlaylist: ( title ) => dispatch(
+            get(`playlist/${title}`)
         ),
         onPlay: ( item ) => dispatch(
             playOnPlaylist( item )

@@ -49,7 +49,7 @@ class MenuEditPlaylist extends Component {
 
         return (
             <Menu>
-                <Menu.Item onClick={(e) => history.push(`/music?pl=${target.title}`)}>
+                <Menu.Item onClick={(e) => history.push(`/indexMusic?pl=${target.title}`)}>
                     <Icon name='plus' color='teal'/>Add Tracks
                 </Menu.Item>
                 <Menu.Menu position='right'>

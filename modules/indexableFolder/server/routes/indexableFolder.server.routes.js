@@ -3,9 +3,16 @@
  */
 
 const nodes = require('../controllers/nodes.server.controllers.js');
+const files = require('../controllers/files.server.controllers.js');
 const elastic = require('../controllers/elastic.server.controllers.js');
 
 module.exports = function(app){
+
+    // Extract and create jpg cover from meta.
+    app.route('/api/files/cover').get(files.createCoverFromTrack);
+
+    // Test, copy, extract all covers.
+    app.route('/api/files/covers').get(files.createCoversFromAlbum);
 
     // Update or delete a Node.
     app.route('/api/nodes/:id')
@@ -24,7 +31,7 @@ module.exports = function(app){
 
     // Index all Nodes into elastisearch folder index.
     app.route('/api/elastic/build')
-        .post(elastic.index)
+        .get(elastic.index)
         .put(elastic.update)
         .delete(elastic.delete);
 

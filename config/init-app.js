@@ -48,6 +48,7 @@ module.exports.checkConfig = function() {
         process.env.FFMPEG_PATH = 'ffmpeg';
       }
     }
+
     fs.access(process.env.FFMPEG_PATH, fs.constants.X_OK , (err) => {
       console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'ffmpeg ok for reading music tag!'));
     });
