@@ -19,14 +19,6 @@ const Node = require(path.resolve('./modules/indexableFolder/server/models/index
  */
 exports.index = function (req, res, next) {
 
-    const DRIVE = config.folder_base_url;
-    const path = '';
-    const context = {
-        firstParent: true,
-        indexCount: 0,
-        rootPath: DRIVE,
-    };
-
     // Delete all Nodes in Nodes collection.
     Node.collection.drop((err) => {
 
@@ -34,15 +26,16 @@ exports.index = function (req, res, next) {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
         // Start deep async indexing on root file.
-        console.log(`Successful drop Node collection.`);
-        walkAsync( context, path, null, null, null, false, (err) => {
+        console.log('Successful drop Node collection.');
+
+        walkAsyncWrap(function done(err) {
             if(err){
                 res.status(404);
                 return errorHandler.errorMessageHandler(err, req, res, next, 'File not found.');
             }
             res.json({
                 success: true,
-                msg: 'Starting indexation.',
+                msg: 'Finish indexation.',
             });
         });
     });
@@ -263,6 +256,7 @@ const walk = function( id, done ) {
 
     let files = [];
 
+
     if ( !id._id ) {
         Node.findById(id).exec(nodeSearch);
     }
@@ -302,132 +296,163 @@ const walk = function( id, done ) {
  * Recursive search of all files inside an item.
  * Item can be a file or a folder.
  * All files/folders are saved in db as Node document.
- *
- * @param context Object - object passed through all async iterations. Must have: {firstParent:true, indexCount:0}
- * @param path String - item path.
- * @param name String - item name
- * @param callback Function - func called when item's Node document is saved. Call with args: callback( err, Node._id )
- * @param parentId _id - item's parent Node id.
- * @param isFile Boolean - false if item is folder, true if item is file.
- * @param done Function - func called after first search iteration.
- * @returns {*}
  */
-function walkAsync( context, path, name, callback, parentId, isFile, done ) {
+const walkAsyncWrap = function (doneWrap) {
 
-    const regexFile = config.fileSystem.fileAudioTypes;
-    const regexSecure = config.security.secureFile;
-    const uri = `${context.rootPath}${path}`;
+  const regexFile = config.fileSystem.fileAudioTypes;
+  const regexSecure = config.security.secureFile;
+  const mongoose = require('mongoose');
 
-    // Create item's Node document.
-    let node = new Node({
-        name: name || 'root',
-        path: path,
-        uri: uri,
-        parent: parentId || null,
-        isFile: isFile,
-    });
 
-    // If item is file.
-    if( isFile ) {
+  console.log('Starting indexation');
 
-        // Test if authorized file.
-        if ( !(regexSecure.test(name) && regexFile.test(name)) ) {
-            return callback( null, null );
-        }
+  // Call it the first time
+  walkAsync(null, null, null, null,
+    (err) => {
+      if (err) {
+        console.error('Indexation Problem');
+        return doneWrap(err);
+      }
+      console.log('Indexation finished');
+      doneWrap();
+    }
+  );
 
-        // Clear name file.
-        node.publicName = name.replace(regexFile, '');
+  /**
+  * @param path String - item path.
+  * @param name String - item name
+  * @param id  - mongoose Id
+  * @param parentId - item's parent Node id.
+  * @param done Function - func called after first search iteration.
+  * @returns {*}
+  */
+  function walkAsync(path, name, id, parentId, done) {
 
-        // If test ok, save node.
-        return node.save((err) => {
-            if (err) {
-                return errorHandler.logsError(err);
-            }
-            context.indexCount++;
-            console.log(`Successful indexed ${context.indexCount} files`);
-            callback( err, node._id );
-        });
+    let uri;
+    let childIdArr = [];
+
+    // If not root dir
+    if (path) {
+      uri = config.folder_base_url + '/' + path;
+    } else {
+      id = mongoose.Types.ObjectId();
+      uri = config.folder_base_url;
+      name = 'root';
     }
 
-    // If item is folder, read it.
-    fs.readdir(uri, (err, dir) => {
+    // Read old item in dir
+    fs.readdir(uri, (err, items) => {
+      if (err) return done(err);
 
-        if (err) {
-            // If error on first iteration, call done callback with error. That stop process, log err and send resp.
-            if(context.firstParent){
-                context.firstParent = false;
-                return done(err);
-            }
-            // If error during process, just log current error.
-            return console.error(`Error on indexing dir file ${path}.`);
-        }
+      // If item is file save it.
+      // If item is dir walk inside.
+      async.forEachOf(
+        items,
+        (item, key, next) => {
 
-        // Once read ok, save Node document.
-        node.save((err) => {
+          let itemUri = uri + '/' + item;
 
-            // Call callback, that give current Node id to parent Node.
-            if (callback) callback(err, node._id);
+          // Check file or dir.
+          fs.stat(itemUri,
+            (err, itemStats) => {
 
-            // If err, stop current task and log.
-            if (err) {
-                return errorHandler.logsError(err);
-            }
+              // On error next file
+              if (err) {
+                console.error(err);
+                return next();
+              }
 
-            // Read item's content.
-            async.map(dir, function iterator(item, innerCallback) {
+              // isFile
+              // check it & save it.
+              if (itemStats.isFile()) {
 
-                // Build current item's child path.
-                let nodePath = `${path}/${item}`;
-                let nodeUri = `${uri}/${item}`;
-
-                // Read item's child.
-                fs.lstat(nodeUri, (err, stats) => {
-
-                    if (err) {
-                        return console.error(`Error on indexing file ${nodePath}.`);
-                    }
-
-                    const isFile =  stats.isFile();
-
-                    // Start item's child indexation.
-                    walkAsync(context, nodePath, item, innerCallback, node._id, isFile);
-                });
-
-            },
-            // Async.map callback. Called with an array of children Node's id.
-            // Save on items children's id on item Node.
-            function (err, nodesChildrenId) {
-
-                // If err, stop current process.
-                // At this state, item's Node is created on DB, but children's Nodes id are not saved in this Node.
-                if (err) {
-                    // @TODO what's happen if error during children indexation => seems that node children can be saved without parent's node register their Id's... phantom nodes....
-                    // @TODO Current node is already saved, some child can have Node created (walkAsync started on all child nodes)
-                    // @TODO So, children Node can have been created, but error here stop children ID update on current Node.
-                    return console.error(`Error on indexing children files on ${node.path}.`);
+                // Test if authorized file.
+                if (!(regexSecure.test(item) && regexFile.test(item))) {
+                  return next();
                 }
 
-                // Filter Nodes id to delete null values.
-                // null values correspond on children files that not pass RegEx test.)
-                node.children = nodesChildrenId.filter(id => id !== null);
-
-                // Save children's Nodes id on current Node.
-                // That end item's indexation process.
-                node.save((err) => {
-                    if(err) {
-                        return errorHandler.logsError(err);
-                    }
-                    context.indexCount++;
-                    console.log(`Successful indexed ${context.indexCount} files`);
+                // Create File Node
+                let fileNode = new Node({
+                  id: mongoose.Types.ObjectId(),
+                  name: item,
+                  publicName: item.replace(regexFile, ''),
+                  path: path,
+                  uri: itemUri,
+                  parent: parentId,
+                  isFile: true,
                 });
-            });
-        });
 
-        // If read ok on first iteration, call done callback with success.
-        if(context.firstParent){
-            context.firstParent = false;
-            done();
+                // Save File Node
+                fileNode.save((err) => {
+                  if (!err) {
+                    childIdArr.push(fileNode.id);
+                    return next();
+                  }
+                  console.error(err);
+                  next();
+                });
+
+                // isDir
+                // check it & save it.
+              } else if (itemStats.isDirectory()) {
+
+                let dirPath;
+                if (path) {
+                  dirPath = path + '/' + item;
+                } else {
+                  dirPath = item;
+                }
+
+                let dirId = mongoose.Types.ObjectId();
+                childIdArr.push(dirId);
+
+                walkAsync(dirPath, item,  dirId, parentId, (err) => {
+                  if (!err) {
+                    console.log('Succefully index directory : ' + dirPath);
+                    return next();
+                  }
+                  console.error(err);
+                  next();
+                } );
+
+
+                // Nor file nor dir next
+              } else {
+                return next();
+              }
+
+            }
+          )
+
+
+        },
+        (err) => {
+
+          // Create Parent Node & save it
+          let parentNode = new Node({
+            id: id,
+            name: name,
+            path: path,
+            uri: uri,
+            parent: parentId,
+            isFile: false,
+            children: childIdArr
+          });
+
+          parentNode.save((err) => {
+            if (err) return done(err);
+          });
+
+
+          if (err) return done(err);
+
+          done();
         }
-    });
-}
+      )
 
+    });
+
+  }
+
+
+};
