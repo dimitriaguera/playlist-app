@@ -45,7 +45,7 @@ module.exports.checkConfig = function() {
       if ( config.ffmpegExec ) {
         process.env.FFMPEG_PATH = config.ffmpegExec;
       } else {
-        process.env.FFMPEG_PATH = '';
+        process.env.FFMPEG_PATH = 'ffmpeg';
       }
     }
     fs.access(process.env.FFMPEG_PATH, fs.constants.X_OK , (err) => {
