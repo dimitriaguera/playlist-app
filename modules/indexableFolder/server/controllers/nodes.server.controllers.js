@@ -331,14 +331,14 @@ const walkAsyncWrap = function (doneWrap) {
     let uri;
     let childIdArr = [];
 
-    // If not root dir
-    if (path) {
-      uri = config.folder_base_url + '/' + path;
-    } else {
+    // If root dir
+    if (!path) {
+      path = '';
       id = mongoose.Types.ObjectId();
-      uri = config.folder_base_url;
       name = 'root';
+      parentId = mongoose.Types.ObjectId();
     }
+    uri = config.folder_base_url + path;
 
     // Read old item in dir
     fs.readdir(uri, (err, items) => {
@@ -351,7 +351,7 @@ const walkAsyncWrap = function (doneWrap) {
         (item, key, next) => {
 
           let itemUri = uri + '/' + item;
-
+          let itemPath = path + '/' + item;
           // Check file or dir.
           fs.stat(itemUri,
             (err, itemStats) => {
@@ -373,10 +373,10 @@ const walkAsyncWrap = function (doneWrap) {
 
                 // Create File Node
                 let fileNode = new Node({
-                  id: mongoose.Types.ObjectId(),
+                  _id: mongoose.Types.ObjectId(),
                   name: item,
                   publicName: item.replace(regexFile, ''),
-                  path: path,
+                  path: itemPath,
                   uri: itemUri,
                   parent: parentId,
                   isFile: true,
@@ -396,19 +396,12 @@ const walkAsyncWrap = function (doneWrap) {
                 // check it & save it.
               } else if (itemStats.isDirectory()) {
 
-                let dirPath;
-                if (path) {
-                  dirPath = path + '/' + item;
-                } else {
-                  dirPath = item;
-                }
-
                 let dirId = mongoose.Types.ObjectId();
                 childIdArr.push(dirId);
 
-                walkAsync(dirPath, item,  dirId, parentId, (err) => {
+                walkAsync(itemPath, item,  dirId, parentId, (err) => {
                   if (!err) {
-                    console.log('Succefully index directory : ' + dirPath);
+                    console.log('Succefully index directory : ' + itemPath);
                     return next();
                   }
                   console.error(err);
@@ -430,7 +423,7 @@ const walkAsyncWrap = function (doneWrap) {
 
           // Create Parent Node & save it
           let parentNode = new Node({
-            id: id,
+            _id: id,
             name: name,
             path: path,
             uri: uri,
