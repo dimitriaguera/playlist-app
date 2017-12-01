@@ -7,7 +7,6 @@
 const path = require('path');
 
 // Plugins
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -68,7 +67,6 @@ module.exports = {
         ],
     },
     plugins: [
-        new CleanWebpackPlugin(['public/dist']),
         new HtmlWebpackPlugin({
             filename: 'views/index.server.views.html',
             template: 'modules/core/server/views/index.server.views.html',
