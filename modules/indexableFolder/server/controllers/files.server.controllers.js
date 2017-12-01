@@ -296,6 +296,9 @@ function getImgArgs(src, dest) {
     return [
         "-i",
         src,
+        "-an",
+        "-vcodec",
+        "copy",
         dest,
         "-n" // Force no rewrite if file exist.
     ];
