@@ -103,7 +103,7 @@ function runAlbumCoverCreate(album, callback){
 
     const base_query = {
         query_string: {
-            query: album,
+            query: `"${album}"`,
             fields: fields,
             default_operator: 'AND'
         }
@@ -119,9 +119,11 @@ function runAlbumCoverCreate(album, callback){
         }
     };
 
-    // Elasticsearch album.
+    // Elasticsearch album tracks.
     es.search( params, (err, data) => {
-        if(err) return callback();
+        if(err) {
+            return callback(null, `error on album tracks search - index: ${index}, type:${index}, fields: ${fields}, value: ${album}`);
+        }
 
         // Get tracks path.
         const tracks = data.hits.hits.map((item) => DRIVE + item._source.path);
@@ -193,8 +195,8 @@ function testFiles(path, files, callback) {
 function createCoverFile(src, callback) {
 
     // Get album folder path.
-    const folder = ps.removeLast(src);
-    const cover = folder + 'cover.jpg';
+    const folder = path.dirname(src);
+    const cover = folder + '/cover.jpg';
 
     // Wrap fs.rename callback to match with pattern callback(err, done);
     function callbackFs(err){
@@ -222,7 +224,9 @@ function createCoverFile(src, callback) {
             if (err) {
 
                 // Other files to test pattern.
-                const files = ['Cover.jpg', 'front.jpg', 'Front.jpg', 'frontal.jpg', 'Frontal.jpg', 'folder.jpg'];
+                const files = [
+                    'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg'
+                ];
 
                 // Start testing file pattern.
                 testFiles(folder, files, (file) => {
@@ -233,7 +237,7 @@ function createCoverFile(src, callback) {
                     // If no files in first level, test if folders exists.
                     else {
                         // First define folder name pattern.
-                        const folders = ['cover', 'Cover', 'covers', 'Covers'];
+                        const folders = ['cover', 'Cover', 'covers', 'Covers', 'Artwork'];
 
                         // Start testing child folder.
                         testFiles(folder, folders, (file) => {
