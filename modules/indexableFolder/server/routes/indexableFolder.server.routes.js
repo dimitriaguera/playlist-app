@@ -12,7 +12,10 @@ module.exports = function(app){
     app.route('/api/files/cover').get(files.createCoverFromTrack);
 
     // Test, copy, extract all covers.
-    app.route('/api/files/covers').get(files.createCoversFromAlbum);
+    app.route('/api/files/covers/album').get(files.createCoversFromAlbum);
+
+    // Test, copy, extract all covers.
+    app.route('/api/files/covers/artist').get(files.createCoversFromArtist);
 
     // Update or delete a Node.
     app.route('/api/nodes/:id')
