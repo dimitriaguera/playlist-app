@@ -228,6 +228,7 @@ function createCoverFile(src, callback) {
                     'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg'
                 ];
 
+
                 // Start testing file pattern.
                 testFiles(folder, files, (file) => {
 
@@ -300,6 +301,9 @@ function getImgArgs(src, dest) {
     return [
         "-i",
         src,
+        "-an",
+        "-vcodec",
+        "copy",
         dest,
         "-n" // Force no rewrite if file exist.
     ];
