@@ -6,10 +6,14 @@ import style from './style/folderItem.scss'
 const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, index }) => {
 
     const name = item.publicName || item.name;
-    const inputName = `input-${index}`;
 
     let classes = ['fol-item'];
-    if( !item.isFile ) classes.push('fol-item-isfolder');
+    let iconName = 'music';
+
+    if( !item.isFile ) {
+      classes.push('fol-item-isfolder');
+      iconName = 'folder';
+    }
 
     const ItemMenu = () => {
       if( !item.isFile ) {
@@ -46,13 +50,14 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
     return (
         <div className={classes.join(' ')}>
             <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
-                <Icon name={item.isFile?'music':'folder'} />
+                <Icon name={iconName} />
                 <span className='fol-item-title'>
                     {name}
                 </span>
             </a>
-            <input id={inputName} name='sub-menu-radio' type='radio'/>
-            <label htmlFor={inputName} className='fol-item-menu-label'><Icon color='teal' size='large' name='ellipsis vertical'></Icon></label>
+            {/*@todo change input for button for perf and add it for mobile */}
+            {/*<input id={inputName} name='sub-menu-radio' type='radio'/>*/}
+            {/*<Icon color='teal' size='large' name='ellipsis vertical'></Icon>*/}
             <ItemMenu/>
         </div>
     );

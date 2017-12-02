@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { List, Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
+import { Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
 import { get, put } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import FolderItem from './folderItem.client.components'
@@ -42,6 +42,7 @@ class Folder extends Component {
 
         this.state = {
             path: [],
+            query: null,
             folder: [],
             error: false,
             modal: {
@@ -63,7 +64,7 @@ class Folder extends Component {
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
         // Get folder's content.
-        fetchFolder( ps.urlEncode(path) ).then((data) => {
+        return fetchFolder( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
                 _self.setState({ error: true, params: params });
             }
@@ -72,6 +73,7 @@ class Folder extends Component {
                     error: false,
                     folder: data.msg,
                     params: params,
+                    query: path,
                     path: ps.splitPath(path),
                 });
             }
@@ -103,6 +105,7 @@ class Folder extends Component {
                 _self.setState({
                     error: false,
                     folder: data.msg,
+                    query: path,
                     path: ps.splitPath(path),
                 });
             }
@@ -159,7 +162,7 @@ class Folder extends Component {
         // Build path from array.
         // const strPath = ps.buildPath(path);
         // Update component via url update.
-        history.push(`/music${path}`);
+        history.push(`/folder${path}`);
         e.preventDefault();
     }
 
@@ -168,7 +171,7 @@ class Folder extends Component {
         const { history } = this.props;
 
         // Update component via url update.
-        history.push(`/music`);
+        history.push(`/folder`);
         e.preventDefault();
     }
 
@@ -177,7 +180,7 @@ class Folder extends Component {
         const { history } = this.props;
 
         // Go to album display mode.
-        history.push(`/album${item.path}`);
+        history.push(`/folder${item.path}`);
         e.preventDefault();
     }
 
@@ -185,10 +188,7 @@ class Folder extends Component {
     handlerReadFile(e, item) {
 
         // Build track item.
-        const play = {
-            name: item.name,
-            src: item.path,
-        };
+        const play = item;
 
         // Change global state to start playing track.
         this.props.readFile( play );
@@ -258,6 +258,8 @@ class Folder extends Component {
 
     render(){
 
+        console.log('render folder');
+
         const { folder, path, error, params, modal } = this.state;
         const { activePlaylist, user } = this.props;
 
@@ -275,28 +277,6 @@ class Folder extends Component {
             }
         }
 
-        const folderList = folder.map( ( item, i )=> {
-
-            // If item phantom, no render and next entry.
-            if ( item === null ) return null;
-
-            const arrayPath = path.slice(0);
-            arrayPath.push(item.name);
-
-            return (
-                <FolderItem key={i}
-                            index={i}
-                            item={item}
-                            user={user}
-                            onClick={this.handlerClickOnFile}
-                            onGetFiles={this.handlerGetAllFiles}
-                            onAddItem={this.handlerAddItem}
-                            onPlayAlbum={this.handlerPlayAlbum}
-                            onListTracks={this.onListTracks}
-                />
-            );
-        });
-
         return (
             <div>
                 <h1>Music Folders</h1>
@@ -313,9 +293,26 @@ class Folder extends Component {
 
                 <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
 
-                <List divided relaxed='very' size='large' verticalAlign='middle'>
-                    {!error ? folderList : `Can't read ${this.state.path[this.state.path.length - 1] || 'root folder.'}`}
-                </List>
+                  {(!error) &&
+                  folder.map((item, i) => {
+
+                    if ( item === null ) return null;
+
+                    return (
+                      <FolderItem
+                        key={i}
+                        item={item}
+                        user={user}
+                        onClick={this.handlerClickOnFile}
+                        onGetFiles={this.handlerGetAllFiles}
+                        onAddItem={this.handlerAddItem}
+                        onPlayAlbum={this.handlerPlayAlbum}
+                        onListTracks={this.onListTracks}
+                      />
+                    )
+                  })
+                  }
+
 
                 <Modal
                     open={ modal.open }
@@ -398,8 +395,6 @@ function Bread({ path, handlerOpenFolder, handlerRootFolder }) {
 
     const stepWidth = `calc(${100/path.length}% - ${(70 / path.length)}px)`;
 
-    if( !path.length )
-
     return(
         <Step.Group size='mini' unstackable>
             <Step link onClick={handlerRootFolder} style={{maxWidth:'70px'}}>
@@ -418,7 +413,7 @@ function Bread({ path, handlerOpenFolder, handlerRootFolder }) {
             })}
         </Step.Group>
     )
-};
+}
 
 // HELPER
 // Return Array to feed Breadcrumb Semantic UI React Component.

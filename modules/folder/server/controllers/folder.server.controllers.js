@@ -49,6 +49,9 @@ exports.open = function (req, res) {
                                 isFile: true,
                                 name: item,
                                 publicName: item.replace(regexFile, ''),
+                                path: `${query}/${item}`,
+                                uri: `${path}/${item}`,
+                                meta: {}
                             };
                         }
                     }
@@ -58,6 +61,8 @@ exports.open = function (req, res) {
                             authorized: true,
                             isFile: false,
                             name: item,
+                            path: `${query}/${item}`,
+                            uri: `${path}/${item}`
                         };
                     }
                 }
@@ -84,6 +89,14 @@ exports.open = function (req, res) {
     });
 };
 
+/**
+ * Recursive search files through Folder and his sub.
+ * Return list of all files.
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.searchSyncFiles = function(req, res, next) {
 
     const DRIVE = config.folder_base_url;
@@ -93,16 +106,16 @@ exports.searchSyncFiles = function(req, res, next) {
     const path = `${DRIVE}${query}`;
 
     // Call recursive search.
-    walk( path, function(err, results) {
+    walk( path, (err, results) => {
 
         if ( err ) {
-
             res.status(401);
             return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
         }
 
         return res.json({
             success: true,
+            count: results.length,
             msg: results,
         });
     }, query);
@@ -149,7 +162,17 @@ const walk = function(dir, done, p) {
                     }, relPath);
                 } else {
                     if ( regexSecure.test(name) && regexFile.test(name) ){
-                        results.push({src: relPath, name: name.replace(regexFile, '')});
+                        results.push(
+                          {
+                            authorized: true,
+                            isFile: true,
+                            name: name,
+                            publicName: name.replace(regexFile, ''),
+                            path: relPath,
+                            uri: file,
+                            meta: {}
+                          }
+                        );
                     }
                     next();
                 }
