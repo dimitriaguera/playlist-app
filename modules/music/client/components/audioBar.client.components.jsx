@@ -320,8 +320,6 @@ class RangeVolume extends Component {
 
   render() {
 
-    console.log('RENDER AUDIO RANGE');
-
     const { position, isPressed } = this.state;
     const classes = ['pr-control-element'];
 
@@ -373,7 +371,9 @@ class RangeSlider extends Component {
         const { audioEl } = this.props;
 
         // Initialise duration track, and launch setInterval timer.
-        this.setState({duration: audioEl.duration});
+        if (audioEl.duration) {
+          this.setState({duration: audioEl.duration});
+        }
         this.setProgressInterval();
 
         // On play event, start interval callback.
@@ -527,7 +527,7 @@ class RangeSlider extends Component {
 
     render() {
 
-        console.log('RENDER RANGE');
+        //console.log('RENDER RANGE');
 
         const { position, buffer, currentTime, duration, isPressed } = this.state;
         const classes = ['pr-control-element'];
