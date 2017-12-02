@@ -59,3 +59,10 @@ exports.cleanPath = function( path ) {
     }
     return clean;
 };
+
+// Encode url.
+// Encode reserved caracters.
+// No encode '[' or ']' according to RFC3986 norm.
+exports.urlEncode = function( url ) {
+    return encodeURIComponent(url).replace(/%5B/g, '[').replace(/%5D/g, ']');
+};
