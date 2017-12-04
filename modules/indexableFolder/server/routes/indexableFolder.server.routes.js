@@ -31,7 +31,6 @@ module.exports = function(app){
     // Get deeply all Nodes files from querying Node.
     app.route('/api/nodes/:query/files').get(nodes.getFilesNode);
 
-
     // Index all Nodes into elastisearch folder index.
     app.route('/api/elastic/build')
         .get(elastic.index)

@@ -3,7 +3,15 @@ import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/folderItem.scss'
 
-const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, index }) => {
+const FolderItem = (
+  { onClick,
+    //onGetFiles,
+    onPlayAlbum,
+    onListTracks,
+    item,
+    user,
+    //onAddItem,
+  }) => {
 
     const name = item.publicName || item.name;
 
@@ -26,9 +34,9 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
                     <Button onClick={(e) => onListTracks(e, item)} icon basic color="teal">
                         <Icon name='list' />
                     </Button>
-                    <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">
-                        <Icon name='plus' />
-                    </Button>
+                    {/*<Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">*/}
+                        {/*<Icon name='plus' />*/}
+                    {/*</Button>*/}
                 </span>
             </span>
           );
@@ -38,9 +46,9 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
           return (
               <span className='fol-item-menu'>
                 <span className='fol-item-menu-inner'>
-                    <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">
-                        <Icon name='plus' />
-                    </Button>
+                    {/*<Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">*/}
+                        {/*<Icon name='plus' />*/}
+                    {/*</Button>*/}
                 </span>
             </span>
           );
