@@ -191,17 +191,11 @@ exports.delete = function(req, res, next) {
 
 exports.search = function (req, res, next) {
 
-    const NOT_SECURE_STRING_SEARCH = req.query.q;
-    const NOT_SECURE_STRING_FI = req.query.fi;
-
-    // const NOT_SECURE_STRING_TI = req.query.ti;
-    // const NOT_SECURE_STRING_AR = req.query.ar;
-    // const NOT_SECURE_STRING_AL = req.query.al;
-    // const NOT_SECURE_STRING_DA = req.query.da;
-
     const index = ps.clean(req.params.type);
-    const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
-    const field = NOT_SECURE_STRING_FI ? ps.clean(NOT_SECURE_STRING_FI) : 'name';
+    const terms = ps.clean(req.query.q);
+    const from = req.query.from ? ps.clean(req.query.from) : 0;
+    const size = req.query.size ? ps.clean(req.query.size) : 1000;
+    const field = req.query.fi ? ps.clean(req.query.fi) : 'name';
 
     const base_query = {
         query_string: {
@@ -215,8 +209,9 @@ exports.search = function (req, res, next) {
         index: index,
         type: index,
         body: {
-            size: 3000,
-            from: 0,
+            //scroll: '1m',
+            from: from,
+            size: size,
             query: base_query,
         }
     };

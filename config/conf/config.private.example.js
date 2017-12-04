@@ -6,6 +6,7 @@
 module.exports = {
 
     folder_base_url: 'D:/Musique',
+    public_base_url: 'pictures',
 
     port: process.env.PORT || '3000',
     host: process.env.HOST || 'localhost',

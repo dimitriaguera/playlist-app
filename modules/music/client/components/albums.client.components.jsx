@@ -1,55 +1,72 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get } from 'core/client/services/core.api.services'
-import { playOnPlaylist } from 'music/client/redux/actions'
+import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
-import Tracks from './tracks.client.components'
-import { Divider, Label, Button, Segment } from 'semantic-ui-react'
+import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
+import ps from 'folder/client/services/path.client.services'
+import { Divider, Icon } from 'semantic-ui-react'
 
+import style from './style/albums.scss'
 
 class Albums extends Component {
 
-    constructor( props ) {
-
+    constructor (props) {
         super(props);
-
-        this.state = {
-            nodes: [],
-        }
+        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
     }
 
     componentDidMount() {
+        this.props.search(`album?fi=name&q=`);
+    }
+
+    // Handler to add recursively all tracks on playlist.
+    handlerPlayAlbum( e, item ) {
+
         const _self = this;
-        this.props.search(`album?q=`)
-            .then((data) => {
-                if(data.success){
-                    const docs = data.msg.hits.hits;
-                    const nodes = docs.map((item) => item._source);
-                    _self.setState({nodes:nodes});
-                }
-            })
+        const {fetchFiles, addAlbumToPlay} = this.props;
+
+
+        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
+            if ( !data.success ) {
+                _self.setState({ error: true });
+            }
+            else {
+                const album = {
+                    pl: {
+                        title: item.name,
+                        path: item.path,
+                        tracks: data.msg,
+                    }
+                };
+                addAlbumToPlay( album );
+            }
+        });
     }
-
-    // Unmount and delete socket.
-    componentWillUnmount() {
-
-    }
-
 
     render(){
 
-        const { nodes } = this.state;
+        //const { nodes } = this.state;
 
         return (
             <div>
                 <h1>Albums</h1>
-                <SearchMusicBar indexName='album'  startLimit={0} handlerResult={result => this.setState({nodes: result})} />
+                <SearchMusicBar indexName='album'  startLimit={0} searchAction={this.props.search} />
+                <Divider/>
 
                 {
-                    nodes.map((item, i) => {
+                    this.props.data.map((item, i) => {
                         return (
-                            <div key={i}>
-                                {item.name}
+                            <div className='albums-item-album' key={i}>
+                                <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
+                                    <img title="Album Cover" src={'pictures' + item.path + 'cover.jpg'} width="150" height="150"></img>
+                                    <Icon color='teal' circular inverted name='play'/>
+                                </div>
+                                <div className='albums-item-info'>
+                                    <div className='name'>{item.name}</div>
+                                    <div className='date'>{item.date}</div>
+                                    <div className='artist'><span>{item.artist}</span></div>
+                                </div>
                             </div>
                         );
                     })
@@ -58,6 +75,17 @@ class Albums extends Component {
         );
     }
 }
+
+const fetchActions = (props) => {
+    return {
+        search: props.search
+    };
+};
+
+const AlbumsSplitFetchWrapped = splitFetchHOC(
+    {size: 50, offset: 200},
+    fetchActions
+)(Albums);
 
 const mapStateToProps = state => {
     return {
@@ -70,12 +98,24 @@ const mapDispatchToProps = dispatch => {
         search: ( query ) => dispatch(
             get(`search/${query}`)
         ),
+        fetchFiles: ( query ) => dispatch(
+            get( `nodes/q/files?path=${query || ''}` )
+        ),
+        addAlbumToPlay: ( item ) => {
+            // Search first track on list.
+            const track = item.pl.tracks[0];
+            // Add album to store.
+            dispatch(addAlbumToPlay(item));
+            // If track, play it.
+            if( track ) dispatch(playItem( track ));
+        },
     }
 };
 
 const AlbumsContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Albums);
+)(AlbumsSplitFetchWrapped);
+
 
 export default AlbumsContainer
