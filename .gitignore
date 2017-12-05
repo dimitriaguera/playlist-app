@@ -79,3 +79,4 @@ typings/
 
 # ffmpeg executables binaries
 /modules/music/server/services/metaTag/ffmpeg/
+/pictures/
