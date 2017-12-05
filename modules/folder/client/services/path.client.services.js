@@ -19,9 +19,8 @@ exports.buildPath = function( array ){
 exports.removeRoute = function( str, route ) {
 
     const regex = new RegExp('^(\\' + route + ')', 'i');
-    const result = str.replace(regex, '');
 
-    return result;
+    return str.replace(regex, '');
 };
 
 // Return Array path from String path.

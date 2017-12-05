@@ -25,7 +25,7 @@ client.ping({
   requestTimeout: 3000
 }, function (error) {
   if (error) {
-    console.trace(chalk.bgRed('elasticsearch cluster is down!'));
+    console.error(chalk.bgRed('elasticsearch cluster is down!'));
   } else {
     console.log(chalk.green('elasticsearch ok'));
   }

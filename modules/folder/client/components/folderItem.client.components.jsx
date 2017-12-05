@@ -3,13 +3,25 @@ import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/folderItem.scss'
 
-const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem, index }) => {
+const FolderItem = (
+  { onClick,
+    //onGetFiles,
+    onPlayAlbum,
+    onListTracks,
+    item,
+    user,
+    //onAddItem,
+  }) => {
 
     const name = item.publicName || item.name;
-    const inputName = `input-${index}`;
 
     let classes = ['fol-item'];
-    if( !item.isFile ) classes.push('fol-item-isfolder');
+    let iconName = 'music';
+
+    if( !item.isFile ) {
+      classes.push('fol-item-isfolder');
+      iconName = 'folder';
+    }
 
     const ItemMenu = () => {
       if( !item.isFile ) {
@@ -22,9 +34,9 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
                     <Button onClick={(e) => onListTracks(e, item)} icon basic color="teal">
                         <Icon name='list' />
                     </Button>
-                    <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">
-                        <Icon name='plus' />
-                    </Button>
+                    {/*<Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">*/}
+                        {/*<Icon name='plus' />*/}
+                    {/*</Button>*/}
                 </span>
             </span>
           );
@@ -34,9 +46,9 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
           return (
               <span className='fol-item-menu'>
                 <span className='fol-item-menu-inner'>
-                    <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">
-                        <Icon name='plus' />
-                    </Button>
+                    {/*<Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">*/}
+                        {/*<Icon name='plus' />*/}
+                    {/*</Button>*/}
                 </span>
             </span>
           );
@@ -46,13 +58,14 @@ const FolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user
     return (
         <div className={classes.join(' ')}>
             <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
-                <Icon name={item.isFile?'music':'folder'} />
+                <Icon name={iconName} />
                 <span className='fol-item-title'>
                     {name}
                 </span>
             </a>
-            <input id={inputName} name='sub-menu-radio' type='radio'/>
-            <label htmlFor={inputName} className='fol-item-menu-label'><Icon color='teal' size='large' name='ellipsis vertical'></Icon></label>
+            {/*@todo change input for button for perf and add it for mobile */}
+            {/*<input id={inputName} name='sub-menu-radio' type='radio'/>*/}
+            {/*<Icon color='teal' size='large' name='ellipsis vertical'></Icon>*/}
             <ItemMenu/>
         </div>
     );
