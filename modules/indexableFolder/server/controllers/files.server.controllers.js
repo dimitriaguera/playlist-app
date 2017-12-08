@@ -42,39 +42,23 @@ exports.createCoversFromAlbum = function (req, res, next) {
     const NOT_SECURE_STRING_SEARCH = req.query.q;
     const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
 
-    runAlbumCoverCreate(terms, () => {
+    runAlbumCoverCreate(terms, (err, msg) => {
+
+        // Send error.
+        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        // Send response with message.
         res.json({
             success: true,
-            msg: '',
+            msg: msg,
         });
     });
 };
 
 exports.createCoversFromArtist = function (req, res, next) {
 
-    const NOT_SECURE_STRING_SEARCH = req.query.q;
-
-    const index = 'album';
-    const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
-    const fields = ['artist'];
-
-    const base_query = {
-        query_string: {
-            query: `${terms}*`,
-            fields: fields,
-            default_operator: 'AND'
-        }
-    };
-
-    const params = {
-        index: index,
-        type: index,
-        body: {
-            size: 3000,
-            from: 0,
-            query: base_query,
-        }
-    };
+    const terms = ps.clean(req.query.q);
+    const params = queryFactory('album', ['artist'], terms);
 
     // Elasticsearch albums.
     es.search( params, (err, data) => {
@@ -97,31 +81,19 @@ exports.createCoversFromArtist = function (req, res, next) {
 
 function runAlbumCoverCreate(album, callback){
 
-    const index = 'tracks';
-    const fields = ['meta.album', 'meta.ALBUM'];
-
-    const base_query = {
-        query_string: {
-            query: `"${album}"`,
-            fields: fields,
-            default_operator: 'AND'
-        }
-    };
-
-    const params = {
-        index: index,
-        type: index,
-        body: {
-            size: 3000,
-            from: 0,
-            query: base_query,
-        }
-    };
+    const params = queryFactory('tracks', ['meta.album', 'meta.ALBUM'], album, true);
 
     // Elasticsearch album tracks.
     es.search( params, (err, data) => {
+
+        // test if error in elastic query.
         if(err) {
             return callback(null, `error on album tracks search - index: ${index}, type:${index}, fields: ${fields}, value: ${album}`);
+        }
+
+        // Test if result.
+        if(data.hits.total === 0) {
+            return callback(null, `Album not found. Try with the exact name.`);
         }
 
         // Get tracks path.
@@ -210,26 +182,27 @@ function createCoverFile(src, callback) {
         callback(null, true);
     }
 
-    // // Test if album folder exist...
-    // fs.access( folder, (err) => {
-    //
-    //     // If parent folder no exist, stop current process.
-    //     if(err){
-    //         console.warn(`TRACK TEST FAIL - no exist folder ${folder}`);
-    //         return callback(null, false);
-    //     }
 
-        // Test if cover.jps file exist in folder.
-        fs.access(cover, (err) => {
+    // Test if cover.jps file exist in folder.
+    fs.access(cover, (err) => {
 
-            // If no cover.jpg file.
-            if (err) {
+        // If no cover.jpg file.
+        if (err) {
 
-                // Create public destination folers.
-                fs.mkdirs( destination, err => {
+            // Test if source folder exist...
+            fs.access( folder, (err) => {
+
+                // If source folder no exist, stop current process.
+                if (err) {
+                    console.warn(`TRACK TEST FAIL - no exist folder ${folder}`);
+                    return callback(null, false);
+                }
+
+                // Create public destination folders.
+                fs.mkdirs(destination, err => {
 
                     // If can't create folder, abord.
-                    if(err) return callback(null, false);
+                    if (err) return callback(null, false);
 
                     // @TODO ajouter les noms avec majuscule ?
                     // Other files to test pattern.
@@ -272,14 +245,14 @@ function createCoverFile(src, callback) {
                         }
                     });
                 });
-            }
-            // If cover.jpg file, do something.
-            else {
-                console.log(`TRACK TEST OK - cover.jpg already exist in ${destination}`);
-                callback(null, true);
-            }
-        });
-    // });
+            });
+        }
+        // If cover.jpg file, do something.
+        else {
+            console.log(`TRACK TEST OK - cover.jpg already exist in ${destination}`);
+            callback(null, true);
+        }
+    });
 }
 
 function getCoverFromMeta(src, dest, callback) {
@@ -314,4 +287,34 @@ function getImgArgs(src, dest) {
         dest,
         "-n" // Force no rewrite if file exist.
     ];
+}
+
+/**
+ * Return object formatted for elasticsearch params query.
+ * @param index
+ * @param fields
+ * @param terms
+ * @returns {{index: *, type: *, body: {size: number, from: number, query: {query_string: {query: string, fields: *, default_operator: string}}}}}
+ */
+function queryFactory(index, fields, terms, exact) {
+
+    terms = exact ? `"${terms}"` : terms + '*';
+
+    const base_query = {
+        query_string: {
+            query: `${terms}`,
+            fields: fields,
+            default_operator: 'AND'
+        }
+    };
+
+    return {
+        index: index,
+        type: index,
+        body: {
+            size: 3000,
+            from: 0,
+            query: base_query,
+        }
+    };
 }

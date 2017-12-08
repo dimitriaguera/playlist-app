@@ -6,16 +6,21 @@
 
   .albums-item-img {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 150px;
     height: 150px;
     cursor: pointer;
 
-    .icon {
+    img {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%);
+      top: 0;
+      left: 0;
+    }
+
+    .icon {
+      position: relative;
       opacity: 0;
     }
   }
@@ -34,17 +39,16 @@
 
   .albums-item-info {
     vertical-align: top;
-    margin-left: 20px;
+    padding: 20px;
     position: relative;
     display: inline-block;
-    width: calc(100% - 170px);
+    width: calc(100% - 150px);
     color: white;
     white-space: nowrap;
     overflow: hidden;
     line-height: 1;
 
     .name {
-      margin-top: 20px;
       font-size: 1.5rem;
     }
 

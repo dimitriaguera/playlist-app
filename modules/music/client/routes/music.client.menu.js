@@ -16,4 +16,7 @@ export const menuItems = [
     {
         component: () => <Menu.Item as={Link} to='/albums'>Albums</Menu.Item>,
     },
+    {
+        component: () => <Menu.Item as={Link} to='/tracks'>Tracks</Menu.Item>,
+    },
 ];

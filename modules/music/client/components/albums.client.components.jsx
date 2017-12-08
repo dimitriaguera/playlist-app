@@ -4,6 +4,7 @@ import { get } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
+import AlbumTracks from 'music/client/components/albumTracks.client.components'
 import ps from 'folder/client/services/path.client.services'
 import { Divider, Icon } from 'semantic-ui-react'
 
@@ -57,16 +58,16 @@ class Albums extends Component {
                 {
                     this.props.data.map((item, i) => {
                         return (
-                            <div className='albums-item-album' key={i}>
+                            <div className='albums-item-album' key={item.path + i}>
                                 <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
                                     <img title="Album Cover" src={'pictures' + item.path + 'cover.jpg'} width="150" height="150"></img>
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
-                                <div className='albums-item-info'>
+                                <AlbumTracks album={item.name} className='albums-item-info'>
                                     <div className='name'>{item.name}</div>
                                     <div className='date'>{item.date}</div>
                                     <div className='artist'><span>{item.artist}</span></div>
-                                </div>
+                                </AlbumTracks>
                             </div>
                         );
                     })

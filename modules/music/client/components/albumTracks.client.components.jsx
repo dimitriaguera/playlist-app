@@ -2,22 +2,23 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get } from 'core/client/services/core.api.services'
 import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
-import SearchMusicBar from './searchMusicBar.client.components'
-import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import ps from 'folder/client/services/path.client.services'
 import { Divider, Icon } from 'semantic-ui-react'
 
-import style from './style/albums.scss'
+import style from './style/albumTracks.scss'
 
-class Albums extends Component {
+class AlbumTracks extends Component {
 
-    constructor (props) {
+    constructor(props){
         super(props);
-        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
-    }
 
-    componentDidMount() {
-        this.props.search(`album?fi=name&q=`);
+        this.handlerOpenAlbum = this.handlerOpenAlbum.bind(this);
+
+        this.state = {
+            album: props.album,
+            tracks: [],
+            open: false,
+        };
     }
 
     // Handler to add recursively all tracks on playlist.
@@ -44,52 +45,44 @@ class Albums extends Component {
         });
     }
 
+    handlerOpenAlbum(e) {
+
+        const _self = this;
+        const { search, album } = this.props;
+
+        search(`tracks?fi=meta.album&q="${album}"&exact=true`)
+            .then((data) => {
+                if(data.success){
+                    const docs = data.msg.hits.hits;
+                    const tracks = docs.map((item) => item._source);
+                    _self.setState({tracks:tracks, open:true});
+                }
+            });
+    }
+
     render(){
 
-        //const { nodes } = this.state;
+        const { className } = this.props;
+        const { tracks } = this.state;
 
         return (
-            <div>
-                <h1>Albums</h1>
-                <SearchMusicBar indexName='album'  startLimit={0} searchAction={this.props.search} />
-                <Divider/>
-
+            <div className={className} onClick={this.handlerOpenAlbum}>
+                {this.props.children}
+                <div className='album-tracks'>
                 {
-                    this.props.data.map((item, i) => {
-                        return (
-                            <div className='albums-item-album' key={i}>
-                                <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
-                                    <img title="Album Cover" src={'pictures' + item.path + 'cover.jpg'} width="150" height="150"></img>
-                                    <Icon color='teal' circular inverted name='play'/>
-                                </div>
-                                <div className='albums-item-info'>
-                                    <div className='name'>{item.name}</div>
-                                    <div className='date'>{item.date}</div>
-                                    <div className='artist'><span>{item.artist}</span></div>
-                                </div>
-                            </div>
-                        );
+                    tracks.map((item, i) => {
+                        return <div key={i}>{item.meta.title}</div>
                     })
                 }
+                </div>
             </div>
         );
     }
 }
 
-const fetchActions = (props) => {
-    return {
-        search: props.search
-    };
-};
-
-const AlbumsSplitFetchWrapped = splitFetchHOC(
-    {size: 50, offset: 200},
-    fetchActions
-)(Albums);
-
 const mapStateToProps = state => {
     return {
-        user: state.authenticationStore._user,
+
     }
 };
 
@@ -97,9 +90,6 @@ const mapDispatchToProps = dispatch => {
     return {
         search: ( query ) => dispatch(
             get(`search/${query}`)
-        ),
-        fetchFiles: ( query ) => dispatch(
-            get( `nodes/q/files?path=${query || ''}` )
         ),
         addAlbumToPlay: ( item ) => {
             // Search first track on list.
@@ -112,10 +102,10 @@ const mapDispatchToProps = dispatch => {
     }
 };
 
-const AlbumsContainer = connect(
-    mapStateToProps,
+const AlbumTracksContainer = connect(
+    null,
     mapDispatchToProps
-)(AlbumsSplitFetchWrapped);
+)(AlbumTracks);
 
 
-export default AlbumsContainer
+export default AlbumTracksContainer

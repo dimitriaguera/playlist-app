@@ -1,47 +1,33 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get } from 'core/client/services/core.api.services'
-import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
+import { playItem } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'indexableFolder/client/services/path.client.services'
 import { Divider, Icon } from 'semantic-ui-react'
 
-import style from './style/albums.scss'
+import style from './style/allTracks.scss'
 
-class Albums extends Component {
+class AllTracks extends Component {
 
     constructor (props) {
         super(props);
-        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
+        this.handlerPlayTracks = this.handlerPlayTracks.bind(this);
     }
 
     componentDidMount() {
-        this.props.search(`album?fi=name&q=`);
+        this.props.search(`tracks?fi="meta.title"&q=`);
     }
 
     // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum( e, item ) {
+    handlerPlayTracks( e, item ) {
+        // Build track item.
+        const play = item;
 
-        const _self = this;
-        const {fetchFiles, addAlbumToPlay} = this.props;
-
-
-        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
-            if ( !data.success ) {
-                _self.setState({ error: true });
-            }
-            else {
-                const album = {
-                    pl: {
-                        title: item.name,
-                        path: item.path,
-                        tracks: data.msg,
-                    }
-                };
-                addAlbumToPlay( album );
-            }
-        });
+        // Change global state to start playing track.
+        this.props.readFile( play );
+        e.preventDefault();
     }
 
     render(){
@@ -50,22 +36,22 @@ class Albums extends Component {
 
         return (
             <div>
-                <h1>Albums</h1>
-                <SearchMusicBar indexName='album'  startLimit={0} searchAction={this.props.search} />
+                <h1>Tracks</h1>
+                <SearchMusicBar indexName='tracks' field={'meta.title'} startLimit={0} searchAction={this.props.search} />
                 <Divider/>
 
                 {
                     this.props.data.map((item, i) => {
                         return (
-                            <div className='albums-item-album' key={i}>
-                                <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
-                                    <img title="Album Cover" src={'pictures' + item.path + 'cover.jpg'} width="150" height="150"></img>
+                            <div className='alltracks-item-album' key={i}>
+                                <div className='tracks-item-img' onClick={(e) => this.handlerPlayTracks(e, item)}>
+                                    <img title="Album Cover" src={'pictures' + ps.removeLast(item.path) + 'cover.jpg'} width="50" height="50"></img>
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
-                                <div className='albums-item-info'>
-                                    <div className='name'>{item.name}</div>
-                                    <div className='date'>{item.date}</div>
-                                    <div className='artist'><span>{item.artist}</span></div>
+                                <div className='tracks-item-info'>
+                                    <div className='name'>{item.meta.title}</div>
+                                    <span className='artist'><span>{item.meta.artist}</span></span>
+                                    <span className='date'>{item.meta.date}</span>
                                 </div>
                             </div>
                         );
@@ -82,10 +68,10 @@ const fetchActions = (props) => {
     };
 };
 
-const AlbumsSplitFetchWrapped = splitFetchHOC(
-    {size: 50, offset: 200},
+const AllTracksSplitFetchWrapped = splitFetchHOC(
+    {size: 100, offset: 200},
     fetchActions
-)(Albums);
+)(AllTracks);
 
 const mapStateToProps = state => {
     return {
@@ -98,24 +84,16 @@ const mapDispatchToProps = dispatch => {
         search: ( query ) => dispatch(
             get(`search/${query}`)
         ),
-        fetchFiles: ( query ) => dispatch(
-            get( `nodes/q/files?path=${query || ''}` )
+        readFile: ( item ) => dispatch(
+            playItem( item )
         ),
-        addAlbumToPlay: ( item ) => {
-            // Search first track on list.
-            const track = item.pl.tracks[0];
-            // Add album to store.
-            dispatch(addAlbumToPlay(item));
-            // If track, play it.
-            if( track ) dispatch(playItem( track ));
-        },
     }
 };
 
-const AlbumsContainer = connect(
+const AllTracksContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(AlbumsSplitFetchWrapped);
+)(AllTracksSplitFetchWrapped);
 
 
-export default AlbumsContainer
+export default AllTracksContainer

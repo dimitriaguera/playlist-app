@@ -1,61 +1,65 @@
-.albums-item-album {
+.alltracks-item-album {
   margin-top: 1px;
   //padding: 10px 0;
   background-color: rgba(0, 0, 0, 0.7);
   line-height: 0;
 
-  .albums-item-img {
+  .tracks-item-img {
     position: relative;
-    display: inline-block;
-    width: 150px;
-    height: 150px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
     cursor: pointer;
 
-    .icon {
+    img {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%);
+      top: 0;
+      left: 0;
+    }
+
+    .icon {
       opacity: 0;
     }
   }
 
   &:hover {
-    .albums-item-img {
+    .tracks-item-img {
       img {
         opacity: 0.4;
       }
 
       .icon {
+        position: relative;
         opacity: 1;
       }
     }
   }
 
-  .albums-item-info {
+  .tracks-item-info {
     vertical-align: top;
-    margin-left: 20px;
+    margin-left: 10px;
     position: relative;
     display: inline-block;
-    width: calc(100% - 170px);
+    width: calc(100% - 60px);
     color: white;
     white-space: nowrap;
     overflow: hidden;
-    line-height: 1;
+    line-height: 1.5;
 
     .name {
-      margin-top: 20px;
-      font-size: 1.5rem;
+      font-size: 1rem;
     }
 
     .date {
-      font-size: 1rem;
+      font-size: 0.8rem;
     }
 
     .artist {
-      margin-top: 10px;
+      margin-right: 10px;
       width: 200px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       white-space: nowrap;
       overflow: hidden;
 
