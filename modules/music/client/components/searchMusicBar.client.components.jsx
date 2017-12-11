@@ -2,56 +2,49 @@ import React, { Component } from 'react'
 import Rx from 'rx'
 import ps from 'folder/client/services/path.client.services'
 import { forgeResquest } from 'core/client/services/core.api.services'
+import { Icon } from 'semantic-ui-react'
 
 import style from './style/searchBar.scss'
+
+const KEY = {
+    ESC: 27,
+    UP: 38,
+    DOWN: 40,
+};
 
 class SearchMusicBar extends Component {
 
     constructor() {
         super();
-        this.handleInputChange = this.handleInputChange.bind(this);
+
+        this.handlerInputChange = this.handlerInputChange.bind(this);
+        this.handlerKeyup = this.handlerKeyup.bind(this);
+        this.handlerRadioChange = this.handlerRadioChange.bind(this);
         this.handlerAddFilter = this.handlerAddFilter.bind(this);
-        this.handleClearInput = this.handleClearInput.bind(this);
+        this.handlerClearFilters = this.handlerClearFilters.bind(this);
         this.handlerRemoveFilter = this.handlerRemoveFilter.bind(this);
+
+        this.radio = {};
+        this.termsID = [];
 
         this.state = {
             inputText: '',
+            inputFilter: '',
             suggestMode: true,
             suggestList: [],
             filters: [],
-            filter: 'artist',
+            filter: '',
+            selected: {},
         };
     }
-
-    // componentDidMount() {
-    //
-    //     const _self = this;
-    //     const { indexName, searchAction, field = 'name', startLimit = 3 } = this.props;
-    //
-    //     const searchApi = (term) => {
-    //         return searchAction(`${indexName}?q=${term}&fi=${field}`);
-    //     };
-    //
-    //     const obs = Rx.Observable.fromEvent(this.input, 'keyup')
-    //         .pluck('target', 'value')
-    //         .filter(text => text.length >= startLimit )
-    //         .debounce(500 /* ms */)
-    //         .distinctUntilChanged()
-    //         .flatMapLatest(searchApi);
-    //
-    //     obs.subscribe(
-    //         error => {
-    //             _self.setState({error: error});
-    //         });
-    //
-    // }
 
     componentDidMount() {
 
         const _self = this;
         const { searchAction, indexName, field = 'name', startLimit = 3 } = this.props;
 
-        this.radioArtist.checked = true;
+        window.addEventListener('click', this.handlerClearFilters);
+        window.addEventListener('keyup', this.handlerKeyup);
 
         const apiSuggest = (term) => {
             const { filter } = _self.state;
@@ -78,18 +71,33 @@ class SearchMusicBar extends Component {
             .distinctUntilChanged()
             .flatMapLatest(apiSuggest);
 
+        this.subscribeOnSuggest();
+        this.subscribeOnSearch();
+    }
+
+    componentWillUnmount() {
+       window.removeEventListener('click', this.handlerClearFilters);
+       window.removeEventListener('keyup', this.handlerKeyup);
+    }
+
+    subscribeOnSuggest() {
+        const _self = this;
         this.subscriberSuggest = this.observerSuggest.subscribe(
             data => {
                 data.json().then(data => {
                     const list = data.msg.suggest.testSuggest[0].options;
-                    _self.setState({suggestList: list});
+                    const text = data.msg.suggest.testSuggest[0].text;
+                    _self.setState({suggestList: list, inputFilter: text});
                 });
             },
             error => {
                 _self.setState({error: error});
             }
         );
+    }
 
+    subscribeOnSearch() {
+        const _self = this;
         this.subscriberSearch = this.observerSearch.subscribe(
             error => {
                 _self.setState({error: error});
@@ -97,23 +105,64 @@ class SearchMusicBar extends Component {
         );
     }
 
+    // Keyborad control.
+    // Escape : clear filter panel.
+    handlerKeyup(e) {
+
+        // Escape key.
+        if (e.keyCode === KEY.ESC) {
+            return this.handlerClearFilters(e);
+        }
+
+        // Arrow Up key.
+        if (e.keyCode === KEY.UP) {
+            return this.selectPrevElement(e);
+        }
+
+        // Arrow Down key.
+        if (e.keyCode === KEY.DOWN) {
+            return this.selectNextElement(e);
+        }
+    }
+
+    selectPrevElement(e){
+        const { selected = {}, suggestList } = this.state;
+
+        if(suggestList.length < 1) return;
+
+        let index = suggestList.indexOf(selected);
+
+        index = index <= 0 ? suggestList.length - 1 : index - 1;
+
+        this.setState({selected: suggestList[index]});
+    }
+
+    selectNextElement(e){
+        const { selected = {}, suggestList } = this.state;
+
+        if(suggestList.length < 1) return;
+
+        let index = suggestList.indexOf(selected);
+
+        index = suggestList.length > index + 1 ? index + 1 : 0;
+
+        this.setState({selected: suggestList[index]});
+    }
+
     // Handler that apply filter on click on suggestion.
     handlerAddFilter(e, item) {
         const { filters, inputText } = this.state;
         const { searchAction, indexName, field = 'name' } = this.props;
 
-        const newFilters = filters.concat([{
-            type: item._type,
-            value: item.text,
-        }]);
+        const newFilters = filters.concat([item]);
 
         this.setState({
-            //suggestList: [],
             filters: newFilters,
         });
 
+        this.termsID.push(item._id);
+
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
-        e.preventDefault();
     }
 
     // Handler to remove a filter token.
@@ -126,94 +175,152 @@ class SearchMusicBar extends Component {
         });
 
         this.setState({
-            //suggestList: [],
             filters: newFilters,
         });
 
+        this.termsID.splice(this.termsID.indexOf(item._id), 1);
+
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
-        e.preventDefault();
     }
 
-    // Handler for blur event.
-    handleClearInput(e) {
+    // Make Form input controlled.
+    handlerInputChange(e) {
 
         const target = e.target;
+        const value = target.value;
         const name = target.name;
-        if(target.type === 'checkbox'){
-            target.checked = false;
-        }
-        else {
-            target.value = '';
-        }
 
         this.setState({
-            [name]: '',
+            inputFilter: '',
+            suggestList: [],
+            [name]: value
         });
     }
 
     // Make Form input controlled.
-    handleInputChange(e) {
+    handlerRadioChange(e) {
 
         const target = e.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const value = target.value;
         const name = target.name;
 
-        if(target.name === 'filter'){
-            this.inputFilter.value = '';
-            this.setState({
-                inputFilter: '',
-                suggestList: [],
-                [name]: value,
-            });
-            this.inputFilter.focus();
-        }
-        else {
-            this.setState({
-                [name]: value
-            });
+        this.inputFilter.value = '';
+        this.inputFilter.focus();
+
+        this.setState({
+            inputFilter: '',
+            suggestList: [],
+            [name]: value
+        });
+
+        if(this.subscriberSuggest.isStopped) {
+            this.subscribeOnSuggest();
         }
     }
 
+    // Clear suggestion list, and filter input values.
+    // Uncheck radio buttons.
+    // Unsubscribe filter input observer.
+    handlerClearFilters(e) {
+
+        this.subscriberSuggest.dispose();
+        this.inputFilter.value = '';
+
+        for(let elmt in this.radio){
+            this.radio[elmt].checked = false;
+        }
+
+        this.setState({
+            filter: '',
+            inputFilter: '',
+            suggestList: [],
+        });
+    }
+
+
     render(){
-        const { filters, filter } = this.state;
+
+        const { filters, filter, inputFilter, selected } = this.state;
+
         return (
-            <div style={this.props.style} className='search-bar'>
+            <div onClick={(e) => e.stopPropagation()} style={this.props.style} className='search-bar'>
                 <div>
-                    <input ref={(element) => this.radioArtist=element} type="radio" id="filter1" onChange={this.handleInputChange}
+                    <input ref={(element) => this.radio.artist=element} type="radio" id="filter1" onChange={this.handlerRadioChange}
                            name="filter" value="artist" />
 
-                    <input type="radio" id="filter2" onChange={this.handleInputChange}
+                    <input ref={(element) => this.radio.genre=element} type="radio" id="filter2" onChange={this.handlerRadioChange}
                            name="filter" value="genre"/>
 
-                    <input type="radio" id="filter3" onChange={this.handleInputChange}
-                           name="filter" value="date"/>
+                    <input ref={(element) => this.radio.date=element} type="radio" id="filter3" onChange={this.handlerRadioChange}
+                           name="filter" value="date" disabled/>
 
                     <div className='sb-filter-panel'>
-                        <ul className='sb-filter'>
-                            {
-                                filters.map((item, i) => <li className='sb-filter-token' onClick={(e) => this.handlerRemoveFilter(e, item)} key={i}>{item.value}<br/><span>{item.type}</span></li> )
-                            }
-                        </ul>
-                        <input ref={(element) => this.inputFilter=element } onChange={this.handleInputChange} type='text' name='inputFilter' placeholder={filter + '...'} className='search-input'/>
-                        <div className='sb-filter-menu'>
-                            <label htmlFor="filter1">Art</label>
-                            <label htmlFor="filter2">Gen</label>
-                            <label htmlFor="filter3">Dat</label>
-                        </div>
-                        <input ref={(element) => this.input=element } onChange={this.handleInputChange} type='text' name='inputText' placeholder='Album...' className='search-input'/>
-                    </div>
 
-                    <div>{this.state.suggestList.map((item) => {
-                        return (
-                            <div key={item._id}>
-                                <a onClick={(e) => this.handlerAddFilter(e, item)}>{item.text} - <span>{item._type}</span></a>
-                            </div>
-                        );
-                    })}</div>
+                        <ul className='sb-filter'>
+                            {filters.map((item) =>
+                                <li className='sb-filter-token' onClick={(e) => this.handlerRemoveFilter(e, item)} key={item._id}>
+                                    <span>
+                                        {item.text}<br/>
+                                        <span>{item._type}</span>
+                                    </span>
+                                    <Icon name='remove'/>
+                                </li>
+                            )}
+                        </ul>
+
+                        <div className='sb-filter-input'>
+                            <input ref={(element) => this.inputFilter=element }
+                                   type='text'
+                                   name='inputFilter'
+                                   placeholder={filter + '...'}
+                                   onChange={this.handlerInputChange}
+                            />
+                            {this.state.suggestList.length > 0 &&
+                            <ul>
+                            {this.state.suggestList.map((item) => {
+                                if(this.termsID.indexOf(item._id) !== -1) return null;
+                                return (
+                                    <li className={selected._id === item._id ? 'selected' : ''} key={item._id} onClick={(e) => this.handlerAddFilter(e, item)}>
+                                        <b>{testOccurence(item.text, inputFilter)}</b>{removeFirstOccurence(item.text, inputFilter)}
+                                    </li>
+                                );
+                            })}
+                            </ul>}
+                        </div>
+
+                        <div className='sb-filter-menu'>
+                            <span><Icon name='filter' /></span>
+                            <label htmlFor="filter1">Artist</label>
+                            <label htmlFor="filter2">Genre</label>
+                            <label htmlFor="filter3">Date</label>
+                        </div>
+
+                        <input ref={(element) => this.input=element }
+                               onChange={this.handlerInputChange}
+                               onFocus={this.handlerClearFilters}
+                               type='text'
+                               name='inputText'
+                               placeholder='search album...'
+                               className='search-input'
+                        />
+                    </div>
                 </div>
             </div>
         );
     }
+}
+
+function removeFirstOccurence( str, exp ) {
+    const reg = new RegExp('^(' + exp + ')', 'i');
+    return str.replace(reg, '');
+}
+
+function testOccurence( str, exp ) {
+    const reg = new RegExp('^(' + exp + ')', 'i');
+    if(reg.test(str)) {
+        return exp;
+    }
+    return '';
 }
 
 function buildFiltersRequest(filters){
@@ -222,11 +329,11 @@ function buildFiltersRequest(filters){
     let query = '';
 
     for(let i = 0, l = filters.length; i < l; i++){
-        if(f[filters[i].type]){
-            f[filters[i].type] += '+' + filters[i].value;
+        if(f[filters[i]._type]){
+            f[filters[i]._type] += '+' + filters[i].text;
             continue;
         }
-        f[filters[i].type] = filters[i].value;
+        f[filters[i]._type] = filters[i].text;
     }
 
     for(let s in f){
