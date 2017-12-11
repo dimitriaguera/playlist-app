@@ -17,7 +17,7 @@ const BASE_URL = config.api_base_url;
  * @param data
  * @returns {function()}
  */
-function forgeResquest( method, endpoint, data = {} ) {
+export const forgeResquest = ( method, endpoint, data = {} ) => {
 
     // Build request url.
     let url = BASE_URL + endpoint;
@@ -63,7 +63,7 @@ function forgeResquest( method, endpoint, data = {} ) {
         // Build fetch.
         return fetch(url, params);
     }
-}
+};
 
 /**
  *

@@ -39,6 +39,7 @@ module.exports = function(app){
 
     // Get searching nodes from elastisearch query.
     app.route('/api/search/:type').get(elastic.search);
+    app.route('/api/suggest/:type').get(elastic.suggest);
 
     // Get a Node and attach it to req.
     app.param('id', nodes.getNodeById);

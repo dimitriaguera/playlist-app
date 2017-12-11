@@ -50,6 +50,7 @@
     "express": "^4.16.2",
     "ffmetadata": "^1.4.0",
     "file-type": "^6.2.0",
+    "fs-extra": "^4.0.2",
     "helmet": "^3.9.0",
     "immutability-helper": "^2.4.0",
     "jsonwebtoken": "^8.1.0",

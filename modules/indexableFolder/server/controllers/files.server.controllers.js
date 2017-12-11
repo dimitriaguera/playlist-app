@@ -3,15 +3,16 @@ const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
-const spawn = require("child_process").spawn;
+const spawn = require('child_process').spawn;
 const async = require('async');
 const ffmpeg = spawn.bind(null, process.env.FFMPEG_PATH || "ffmpeg");
-const fs = require("fs");
+const fs = require("fs-extra");
+
+const DRIVE = config.folder_base_url;
+const PUBLIC_FILE = path.isAbsolute(config.public_base_url)?config.public_base_url:path.join(path.dirname(require.main.filename || process.mainModule.filename), config.public_base_url);
 
 exports.createCoverFromTrack = function (req, res, next) {
 
-
-    const DRIVE = config.folder_base_url;
     const NOT_SECURE_STRING_PATH = req.query.q;
     const path = DRIVE + ps.cleanPath(NOT_SECURE_STRING_PATH);
 
@@ -41,39 +42,23 @@ exports.createCoversFromAlbum = function (req, res, next) {
     const NOT_SECURE_STRING_SEARCH = req.query.q;
     const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
 
-    runAlbumCoverCreate(terms, () => {
+    runAlbumCoverCreate(terms, (err, msg) => {
+
+        // Send error.
+        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        // Send response with message.
         res.json({
             success: true,
-            msg: '',
+            msg: msg,
         });
     });
 };
 
 exports.createCoversFromArtist = function (req, res, next) {
 
-    const NOT_SECURE_STRING_SEARCH = req.query.q;
-
-    const index = 'album';
-    const terms = ps.clean(NOT_SECURE_STRING_SEARCH);
-    const fields = ['artist'];
-
-    const base_query = {
-        query_string: {
-            query: `${terms}*`,
-            fields: fields,
-            default_operator: 'AND'
-        }
-    };
-
-    const params = {
-        index: index,
-        type: index,
-        body: {
-            size: 3000,
-            from: 0,
-            query: base_query,
-        }
-    };
+    const terms = ps.clean(req.query.q);
+    const params = queryFactory('album', ['artist'], terms);
 
     // Elasticsearch albums.
     es.search( params, (err, data) => {
@@ -96,37 +81,23 @@ exports.createCoversFromArtist = function (req, res, next) {
 
 function runAlbumCoverCreate(album, callback){
 
-    const DRIVE = config.folder_base_url;
-
-    const index = 'tracks';
-    const fields = ['meta.album', 'meta.ALBUM'];
-
-    const base_query = {
-        query_string: {
-            query: `"${album}"`,
-            fields: fields,
-            default_operator: 'AND'
-        }
-    };
-
-    const params = {
-        index: index,
-        type: index,
-        body: {
-            size: 3000,
-            from: 0,
-            query: base_query,
-        }
-    };
+    const params = queryFactory('tracks', ['meta.album', 'meta.ALBUM'], album, true);
 
     // Elasticsearch album tracks.
     es.search( params, (err, data) => {
+
+        // test if error in elastic query.
         if(err) {
             return callback(null, `error on album tracks search - index: ${index}, type:${index}, fields: ${fields}, value: ${album}`);
         }
 
+        // Test if result.
+        if(data.hits.total === 0) {
+            return callback(null, `Album not found. Try with the exact name.`);
+        }
+
         // Get tracks path.
-        const tracks = data.hits.hits.map((item) => DRIVE + item._source.path);
+        const tracks = data.hits.hits.map((item) => item._source.path);
 
         // Run Algorythm that search and create cover.jpg
         runTracksAlbumCoverCreate(tracks, callback, album);
@@ -195,83 +166,92 @@ function testFiles(path, files, callback) {
 function createCoverFile(src, callback) {
 
     // Get album folder path.
-    const folder = path.dirname(src);
-    const cover = folder + '/cover.jpg';
+    const dirname = path.dirname(src);
+    const folder = DRIVE + dirname + '/';
+    // const cover = folder + 'cover.jpg';
+    const destination = PUBLIC_FILE + dirname + '/';
+    const cover = destination + 'cover.jpg';
 
-    // Wrap fs.rename callback to match with pattern callback(err, done);
+    // Wrap fs.copy callback to match with pattern callback(err, done);
     function callbackFs(err){
         if (err) {
-            console.error(`TRACK TEST FAIL - error on fs.rename cover.jpg`);
+            console.error(`TRACK TEST FAIL - error on fs.copy cover.jpg`);
             return callback(null, false);
         }
         console.log(`TRACK TEST OK - rename jpg file on cover.jpg`);
         callback(null, true);
     }
 
-    // Test if album folder exist...
-    fs.access( folder, (err) => {
 
-        // If parent folder no exist, stop current process.
-        if(err){
-            console.warn(`TRACK TEST FAIL - no exist folder ${folder}`);
-            return callback(null, false);
-        }
+    // Test if cover.jps file exist in folder.
+    fs.access(cover, (err) => {
 
-        // Test if cover.jps file exist in folder.
-        fs.access(cover, (err) => {
+        // If no cover.jpg file.
+        if (err) {
 
-            // If no cover.jpg file.
-            if (err) {
+            // Test if source folder exist...
+            fs.access( folder, (err) => {
 
-                // Other files to test pattern.
-                const files = [
-                    'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg'
-                ];
+                // If source folder no exist, stop current process.
+                if (err) {
+                    console.warn(`TRACK TEST FAIL - no exist folder ${folder}`);
+                    return callback(null, false);
+                }
 
+                // Create public destination folders.
+                fs.mkdirs(destination, err => {
 
-                // Start testing file pattern.
-                testFiles(folder, files, (file) => {
+                    // If can't create folder, abord.
+                    if (err) return callback(null, false);
 
-                    // If matching pattern file found, rename cover.jpg on folder.
-                    if (file) return fs.rename(file, cover, callbackFs);
+                    // @TODO ajouter les noms avec majuscule ?
+                    // Other files to test pattern.
+                    const files = [
+                        'cover.jpg', 'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg'
+                    ];
 
-                    // If no files in first level, test if folders exists.
-                    else {
-                        // First define folder name pattern.
-                        const folders = ['cover', 'Cover', 'covers', 'Covers', 'Artwork'];
+                    // Start testing file pattern.
+                    testFiles(folder, files, (file) => {
 
-                        // Start testing child folder.
-                        testFiles(folder, folders, (file) => {
+                        // If matching pattern file found, rename cover.jpg on folder.
+                        if (file) return fs.copy(file, cover, callbackFs);
 
-                            // If matching pattern folder, test files inside the folder.
-                            if (file) {
+                        // If no files in first level, test if folders exists.
+                        else {
+                            // @TODO ajouter les noms avec majuscule ?
+                            // First define folder name pattern.
+                            const folders = ['cover', 'covers', 'artwork'];
 
-                                //add cover.jpg to testing pattern.
-                                files.unshift('cover.jpg');
+                            // Start testing child folder.
+                            testFiles(folder, folders, (file) => {
 
-                                // Start testing file pattern inside child folder.
-                                testFiles(folder, files, (file) => {
+                                // If matching pattern folder, test files inside the folder.
+                                if (file) {
 
-                                    // If matching pattern file found, rename cover.jpg on folder.
-                                    if (file) return fs.rename(file, cover, callbackFs);
+                                    // Start testing file pattern inside child folder.
+                                    testFiles(folder, files, (file) => {
 
-                                    // If no file match, it's time to try to extract jpg from track binaries.
-                                    else return getCoverFromMeta(src, cover, callback);
-                                });
-                            } else {
-                                // If no child folder match, it's time to try to extract jpg from track binaries.
-                                return getCoverFromMeta(src, cover, callback);
-                            }
-                        });
-                    }
+                                        // If matching pattern file found, rename cover.jpg on folder.
+                                        if (file) return fs.copy(file, cover, callbackFs);
+
+                                        // If no file match, it's time to try to extract jpg from track binaries.
+                                        else return getCoverFromMeta(src, cover, callback);
+                                    });
+                                } else {
+                                    // If no child folder match, it's time to try to extract jpg from track binaries.
+                                    return getCoverFromMeta(src, cover, callback);
+                                }
+                            });
+                        }
+                    });
                 });
-            }
-            // If cover.jpg file, do something.
-            else {
-                console.log(`TRACK TEST OK - cover.jpg already exist in ${folder}`);
-                callback(null, true);
-            }
-        });
+            });
+        }
+        // If cover.jpg file, do something.
+        else {
+            console.log(`TRACK TEST OK - cover.jpg already exist in ${destination}`);
+            callback(null, true);
+        }
     });
 }
 
@@ -307,4 +287,34 @@ function getImgArgs(src, dest) {
         dest,
         "-n" // Force no rewrite if file exist.
     ];
+}
+
+/**
+ * Return object formatted for elasticsearch params query.
+ * @param index
+ * @param fields
+ * @param terms
+ * @returns {{index: *, type: *, body: {size: number, from: number, query: {query_string: {query: string, fields: *, default_operator: string}}}}}
+ */
+function queryFactory(index, fields, terms, exact) {
+
+    terms = exact ? `"${terms}"` : terms + '*';
+
+    const base_query = {
+        query_string: {
+            query: `${terms}`,
+            fields: fields,
+            default_operator: 'AND'
+        }
+    };
+
+    return {
+        index: index,
+        type: index,
+        body: {
+            size: 3000,
+            from: 0,
+            query: base_query,
+        }
+    };
 }
