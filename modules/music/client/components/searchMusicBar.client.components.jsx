@@ -22,6 +22,7 @@ class SearchMusicBar extends Component {
         this.handlerKeyup = this.handlerKeyup.bind(this);
         this.handlerRadioChange = this.handlerRadioChange.bind(this);
         this.handlerAddFilter = this.handlerAddFilter.bind(this);
+        this.handlerAddDateFilter = this.handlerAddDateFilter.bind(this);
         this.handlerClearFilters = this.handlerClearFilters.bind(this);
         this.handlerRemoveFilter = this.handlerRemoveFilter.bind(this);
 
@@ -31,6 +32,8 @@ class SearchMusicBar extends Component {
         this.state = {
             inputText: '',
             inputFilter: '',
+            inputDateFrom: '',
+            inputDateTo: '',
             suggestMode: true,
             suggestList: [],
             filters: [],
@@ -58,7 +61,7 @@ class SearchMusicBar extends Component {
         // Search request on elasticsearch endpoint.
         const apiSearch = (term) => {
             const { filters } = _self.state;
-            const filterQuery = buildFiltersRequest(filters);
+            const filterQuery = buildFiltersRequest(filters) + '&date=' + ps.urlEncode('1996to1998+2005to2008');
             // Use request given by properties.
             return searchAction(`${indexName}?q=${term}&fi=${field}${filterQuery}`);
         };
@@ -131,6 +134,9 @@ class SearchMusicBar extends Component {
         if (e.keyCode === KEY.ENTER) {
             if(this.state.selected._id && this.state.suggestList.length > 0) {
                 return this.handlerAddFilter(e, this.state.selected);
+            }
+            if(this.state.filter === 'date') {
+                return this.handlerAddDateFilter(e);
             }
             return null;
         }
@@ -232,6 +238,27 @@ class SearchMusicBar extends Component {
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
     }
 
+    // handler to add date range filter.
+    handlerAddDateFilter(e) {
+        const { inputDateFrom, inputDateTo } = this.state;
+
+        if( !inputDateFrom ) return null;
+
+        let value, tag;
+
+        if( !inputDateTo || inputDateFrom === inputDateTo ){
+            value = `${inputDateFrom}to${inputDateFrom}`;
+            tag = `${inputDateFrom}`;
+        } else {
+            value = `${inputDateFrom}to${inputDateTo}`;
+            tag = `${inputDateFrom} - ${inputDateTo}`;
+        }
+
+        if( this.filtersID.indexOf(value) !== -1 ) return null;
+
+        this.handlerAddFilter(e, { _id: value, _type: 'date', text: value, tag: tag});
+    }
+
     // Handler to remove a filter token.
     handlerRemoveFilter(e, item) {
         const { filters, inputText } = this.state;
@@ -270,10 +297,19 @@ class SearchMusicBar extends Component {
         const name = e.target.name;
 
         this.inputFilter.value = '';
-        this.inputFilter.focus();
+        this.inputDateFrom.value = '';
+        this.inputDateTo.value = '';
+
+        if( value === 'date' ){
+            this.inputDateFrom.focus();
+        } else {
+            this.inputFilter.focus();
+        }
 
         this.setState({
             inputFilter: '',
+            inputDateFrom: '',
+            inputDateTo: '',
             suggestList: [],
             [name]: value
         });
@@ -290,6 +326,8 @@ class SearchMusicBar extends Component {
 
         this.subscriberSuggest.dispose();
         this.inputFilter.value = '';
+        this.inputDateFrom.value = '';
+        this.inputDateTo.value = '';
 
         for(let elmt in this.radio){
             this.radio[elmt].checked = false;
@@ -298,6 +336,8 @@ class SearchMusicBar extends Component {
         this.setState({
             filter: '',
             inputFilter: '',
+            inputDateFrom: '',
+            inputDateTo: '',
             suggestList: [],
         });
     }
@@ -317,7 +357,7 @@ class SearchMusicBar extends Component {
                            name="filter" value="genre"/>
 
                     <input ref={(element) => this.radio.date=element} type="radio" id="filter3" onChange={this.handlerRadioChange}
-                           name="filter" value="date" disabled/>
+                           name="filter" value="date"/>
 
                     <div className='sb-filter-panel'>
 
@@ -325,7 +365,7 @@ class SearchMusicBar extends Component {
                             {filters.map((item) =>
                                 <li className='sb-filter-token' onClick={(e) => this.handlerRemoveFilter(e, item)} key={item._id}>
                                     <span>
-                                        {item.text}<br/>
+                                        {item.tag || item.text}<br/>
                                         <span>{item._type}</span>
                                     </span>
                                     <Icon name='remove'/>
@@ -335,11 +375,25 @@ class SearchMusicBar extends Component {
 
                         <div className='sb-filter-input'>
                             <input ref={(element) => this.inputFilter=element }
+                                   onChange={this.handlerInputChange}
                                    type='text'
                                    name='inputFilter'
                                    placeholder={filter + '...'}
-                                   onChange={this.handlerInputChange}
                             />
+                            <input ref={(element) => this.inputDateFrom=element }
+                                   onChange={this.handlerInputChange}
+                                   type='number'
+                                   name='inputDateFrom'
+                                   placeholder='(ex: 1998)'
+                            />
+                            <span className='input-date-prefix'>to</span>
+                            <input ref={(element) => this.inputDateTo=element }
+                                   onChange={this.handlerInputChange}
+                                   type='number'
+                                   name='inputDateTo'
+                                   placeholder='(ex: 2002)'
+                            />
+                            <button onClick={this.handlerAddDateFilter}><b>Add</b></button>
                             {this.state.suggestList.length > 0 &&
                             <ul>
                             {this.state.suggestList.map((item) => {

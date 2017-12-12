@@ -175,7 +175,9 @@ exports.index = function (req, res, next) {
                                 "type": "keyword"
                             },
                             "date": {
-                                "type": "keyword"
+                                "type":   "date",
+                                "format": "yyyy||yyyy-MM-dd",
+                                "ignore_malformed": "true"
                             },
                             "disc": {
                                 "type": "keyword"
@@ -232,7 +234,9 @@ exports.index = function (req, res, next) {
                                     "type": "keyword"
                                 },
                                 "date": {
-                                    "type": "keyword"
+                                    "type":   "date",
+                                    "format": "yyyy||yyyy-MM-dd",
+                                    "ignore_malformed": "true"
                                 },
                                 "disc": {
                                     "type": "keyword"
@@ -381,6 +385,26 @@ function getFilterValues(key, query){
     return r;
 }
 
+function getFilterRangeValues(key, query){
+    const r = [];
+    if(query) {
+        const ranges = query.split('+');
+        for(let i = 0, l = ranges.length; i < l; i++){
+            const range = ranges[i].split('to');
+            r.push({
+                range:{
+                    [key]:{
+                        gte: range[0],
+                        lte: range[1] || range[0],
+                        format: 'yyyy'
+                    }
+                }
+            });
+        }
+    }
+    return r;
+}
+
 exports.search = function (req, res, next) {
 
     const index = ps.clean(req.params.type);
@@ -391,6 +415,7 @@ exports.search = function (req, res, next) {
 
     const artist = getFilterValues( 'artist', req.query.artist);
     const genre = getFilterValues( 'genre', req.query.genre);
+    const date = getFilterRangeValues( 'date', req.query.date);
 
     let terms = ps.clean(req.query.q);
     terms = exact ? `"${terms}"` : terms + '*';
@@ -415,13 +440,13 @@ exports.search = function (req, res, next) {
     }
 
     // Build context query part.
-    if(artist.length || genre.length) {
+    if(artist.length || genre.length || date.length) {
         base_query = {
             bool: {
                 must: query_query,
                 filter: {
                     bool: {
-                        should: [].concat(artist, genre),
+                        should: [].concat(artist, genre, date),
                     },
                 },
             },
@@ -456,10 +481,6 @@ exports.search = function (req, res, next) {
 exports.suggest = function (req, res, next) {
 
     const index = ps.clean(req.params.type);
-    const exact = req.query.exact;
-    const from = req.query.from ? ps.clean(req.query.from) : 0;
-    const size = req.query.size ? ps.clean(req.query.size) : 1000;
-    const field = req.query.fi ? ps.clean(req.query.fi) : 'name';
     let terms = ps.clean(req.query.q);
 
     const base_query = {
@@ -469,7 +490,7 @@ exports.suggest = function (req, res, next) {
                 prefix : terms,
                 completion : {
                     field : 'suggest',
-                    size: 6,
+                    size: 10,
                     // contexts: {
                     //     artist: [ "", "Radiohead" ]
                     // }
@@ -477,7 +498,6 @@ exports.suggest = function (req, res, next) {
             }
         }
     };
-
 
     const params = {
         index: index,
