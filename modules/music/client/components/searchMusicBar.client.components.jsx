@@ -8,6 +8,7 @@ import style from './style/searchBar.scss'
 
 const KEY = {
     ESC: 27,
+    ENTER: 13,
     UP: 38,
     DOWN: 40,
 };
@@ -25,7 +26,7 @@ class SearchMusicBar extends Component {
         this.handlerRemoveFilter = this.handlerRemoveFilter.bind(this);
 
         this.radio = {};
-        this.termsID = [];
+        this.filtersID = [];
 
         this.state = {
             inputText: '',
@@ -46,17 +47,23 @@ class SearchMusicBar extends Component {
         window.addEventListener('click', this.handlerClearFilters);
         window.addEventListener('keyup', this.handlerKeyup);
 
+        // Suggest request on elasticsearch endpoint.
         const apiSuggest = (term) => {
             const { filter } = _self.state;
+            // Use forgeRequest method to avoid call API system that spread request state on redux store.
+            // Need to be fast, with direct fetch call.
             return forgeResquest( 'GET', `suggest/${filter}?q=${term}`, null )();
         };
 
+        // Search request on elasticsearch endpoint.
         const apiSearch = (term) => {
             const { filters } = _self.state;
             const filterQuery = buildFiltersRequest(filters);
+            // Use request given by properties.
             return searchAction(`${indexName}?q=${term}&fi=${field}${filterQuery}`);
         };
 
+        // Create search input observer.
         this.observerSearch = Rx.Observable.fromEvent(this.input, 'keyup')
             .pluck('target', 'value')
             .filter(text => text.length >= startLimit )
@@ -64,6 +71,7 @@ class SearchMusicBar extends Component {
             .distinctUntilChanged()
             .flatMapLatest(apiSearch);
 
+        // Create suggest input observer.
         this.observerSuggest = Rx.Observable.fromEvent(this.inputFilter, 'keyup')
             .pluck('target', 'value')
             .filter(text => text.length >= startLimit )
@@ -71,15 +79,19 @@ class SearchMusicBar extends Component {
             .distinctUntilChanged()
             .flatMapLatest(apiSuggest);
 
+        // Make subscriptions.
         this.subscribeOnSuggest();
         this.subscribeOnSearch();
     }
 
+    // Clear listeners.
+    // @TODO need to clear observers ?
     componentWillUnmount() {
        window.removeEventListener('click', this.handlerClearFilters);
        window.removeEventListener('keyup', this.handlerKeyup);
     }
 
+    // Subscribe on suggest observer.
     subscribeOnSuggest() {
         const _self = this;
         this.subscriberSuggest = this.observerSuggest.subscribe(
@@ -96,6 +108,7 @@ class SearchMusicBar extends Component {
         );
     }
 
+    // Subscribe on search observer.
     subscribeOnSearch() {
         const _self = this;
         this.subscriberSearch = this.observerSearch.subscribe(
@@ -114,6 +127,14 @@ class SearchMusicBar extends Component {
             return this.handlerClearFilters(e);
         }
 
+        // Enter key.
+        if (e.keyCode === KEY.ENTER) {
+            if(this.state.selected._id && this.state.suggestList.length > 0) {
+                return this.handlerAddFilter(e, this.state.selected);
+            }
+            return null;
+        }
+
         // Arrow Up key.
         if (e.keyCode === KEY.UP) {
             return this.selectPrevElement(e);
@@ -125,42 +146,88 @@ class SearchMusicBar extends Component {
         }
     }
 
+    // Select next suggestList element.
     selectPrevElement(e){
+
         const { selected = {}, suggestList } = this.state;
+        const l = suggestList.length;
 
-        if(suggestList.length < 1) return;
+        // If suggestList empty, return.
+        if(l < 1) return;
 
-        let index = suggestList.indexOf(selected);
+        // Initialise loop count.
+        let count = 0;
+        const filtersID = this.filtersID;
 
-        index = index <= 0 ? suggestList.length - 1 : index - 1;
+        // Define select loop func.
+        function select(index) {
+            let i = index <= 0 ? l - 1 : index - 1;
+            if ( filtersID.indexOf(suggestList[i]._id) !== -1 ) {
+                if( count < l ) {
+                    count++;
+                    return select(i);
+                }
+                return null;
+            }
+            return i;
+        }
 
-        this.setState({selected: suggestList[index]});
+        // Get next selected filter id.
+        let index = select(suggestList.indexOf(selected));
+
+        // Store selected filter.
+        if(index !== null){
+            this.setState({selected: suggestList[index]});
+        }
     }
 
+    // Select previous suggest list element.
     selectNextElement(e){
         const { selected = {}, suggestList } = this.state;
+        const l = suggestList.length;
 
-        if(suggestList.length < 1) return;
+        // If suggestList empty, return.
+        if(l < 1) return;
 
-        let index = suggestList.indexOf(selected);
+        // Initialise loop count.
+        let count = 0;
+        const filtersID = this.filtersID;
 
-        index = suggestList.length > index + 1 ? index + 1 : 0;
+        // Define select loop func.
+        function select(index) {
+            let i = l > index + 1 ? index + 1 : 0;
+            if ( filtersID.indexOf(suggestList[i]._id) !== -1 ) {
+                if( count < l ) {
+                    count++;
+                    return select(i);
+                }
+                return null;
+            }
+            return i;
+        }
 
-        this.setState({selected: suggestList[index]});
+        // Get next selected filter id.
+        let index = select(suggestList.indexOf(selected));
+
+        // Store selected filter.
+        if(index !== null) {
+            this.setState({selected: suggestList[index]});
+        }
     }
 
     // Handler that apply filter on click on suggestion.
     handlerAddFilter(e, item) {
-        const { filters, inputText } = this.state;
+        const { filters, inputText, selected } = this.state;
         const { searchAction, indexName, field = 'name' } = this.props;
 
         const newFilters = filters.concat([item]);
 
         this.setState({
             filters: newFilters,
+            selected: selected._id === item._id ? {} : selected,
         });
 
-        this.termsID.push(item._id);
+        this.filtersID.push(item._id);
 
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
     }
@@ -171,14 +238,14 @@ class SearchMusicBar extends Component {
         const { searchAction, indexName, field = 'name' } = this.props;
 
         const newFilters = filters.filter(function(i) {
-            return i.value !== item.value;
+            return i._id !== item._id;
         });
 
         this.setState({
             filters: newFilters,
         });
 
-        this.termsID.splice(this.termsID.indexOf(item._id), 1);
+        this.filtersID.splice(this.filtersID.indexOf(item._id), 1);
 
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
     }
@@ -186,9 +253,8 @@ class SearchMusicBar extends Component {
     // Make Form input controlled.
     handlerInputChange(e) {
 
-        const target = e.target;
-        const value = target.value;
-        const name = target.name;
+        const value = e.target.value;
+        const name = e.target.name;
 
         this.setState({
             inputFilter: '',
@@ -200,9 +266,8 @@ class SearchMusicBar extends Component {
     // Make Form input controlled.
     handlerRadioChange(e) {
 
-        const target = e.target;
-        const value = target.value;
-        const name = target.name;
+        const value = e.target.value;
+        const name = e.target.name;
 
         this.inputFilter.value = '';
         this.inputFilter.focus();
@@ -278,7 +343,7 @@ class SearchMusicBar extends Component {
                             {this.state.suggestList.length > 0 &&
                             <ul>
                             {this.state.suggestList.map((item) => {
-                                if(this.termsID.indexOf(item._id) !== -1) return null;
+                                if(this.filtersID.indexOf(item._id) !== -1) return null;
                                 return (
                                     <li className={selected._id === item._id ? 'selected' : ''} key={item._id} onClick={(e) => this.handlerAddFilter(e, item)}>
                                         <b>{testOccurence(item.text, inputFilter)}</b>{removeFirstOccurence(item.text, inputFilter)}
