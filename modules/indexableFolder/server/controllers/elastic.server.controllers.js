@@ -12,12 +12,13 @@ const errorHandler = require(path.resolve('./modules/core/server/services/error.
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
+const { bodyGenre, bodyArtist, bodyTracks, bodyAlbum } = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
 
 
 
 exports.index = function (req, res, next) {
 
-    Node.find({isFile: true}).select('path meta').lean().exec((err, data) => {
+    Node.find({isFile: true}).select('path meta name publicName').lean().exec((err, data) => {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
         const tracks = [];
@@ -43,16 +44,13 @@ exports.index = function (req, res, next) {
             //artist = artist.split(/\s*[,]\s*/);
 
             const meta = {
-                suggest: {
-                    input: title,
-                },
                 title: title,
                 album: album,
                 artist: artist,
                 date: date,
                 disc: disc,
                 genre: genre,
-                path: ps.removeLast(item.path),
+                //path: ps.removeLast(item.path),
             };
 
             tracks.push({
@@ -61,6 +59,8 @@ exports.index = function (req, res, next) {
                 },
                 tracksId: item._id,
                 path: item.path,
+                name: item.name,
+                publicName: item.publicName,
                 meta: meta,
             });
 
@@ -142,155 +142,6 @@ exports.index = function (req, res, next) {
         es.indexDelete(['album', 'artist', 'tracks', 'genre'], (err, resp) => {
 
             if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-            const bodyAlbum = {
-                // "settings": {
-                //     "index.mapping.ignore_malformed": true,
-                // },
-                "mappings": {
-                    "album": {
-                        "properties": {
-                            "suggest" : {
-                                "type" : "completion",
-                                "contexts": [
-                                    {
-                                        "name": "genre",
-                                        "type": "category",
-                                        "path": "genre"
-                                    },
-                                    {
-                                        "name": "artist",
-                                        "type": "category",
-                                        "path": "artist"
-                                    }
-                                ],
-                            },
-                            "name": {
-                                "type": "text"
-                            },
-                            "keyName": {
-                                "type": "keyword"
-                            },
-                            "artist": {
-                                "type": "keyword"
-                            },
-                            "date": {
-                                "type":   "date",
-                                "format": "yyyy||yyyy-MM-dd",
-                                "ignore_malformed": "true"
-                            },
-                            "disc": {
-                                "type": "keyword"
-                            },
-                            "genre": {
-                                "type": "keyword"
-                            },
-                        }
-                    },
-                }
-            };
-
-            const bodyTracks = {
-                // "settings": {
-                //     "index.mapping.ignore_malformed": true,
-                // },
-                "mappings": {
-                    "tracks": {
-                        "properties": {
-                            "suggest" : {
-                                "type" : "completion",
-                                "contexts": [
-                                    {
-                                        "name": "genre",
-                                        "type": "category",
-                                        "path": "meta.genre"
-                                    },
-                                    {
-                                        "name": "artist",
-                                        "type": "category",
-                                        "path": "meta.artist"
-                                    },
-                                    {
-                                        "name": "album",
-                                        "type": "category",
-                                        "path": "meta.album"
-                                    },
-                                ],
-                            },
-                            "tracksId": {
-                                "type": "keyword"
-                            },
-                            "path": {
-                                "type": "keyword"
-                            },
-                            "meta": {
-                                "title": {
-                                    "type": "text"
-                                },
-                                "album": {
-                                    "type": "keyword"
-                                },
-                                "artist": {
-                                    "type": "keyword"
-                                },
-                                "date": {
-                                    "type":   "date",
-                                    "format": "yyyy||yyyy-MM-dd",
-                                    "ignore_malformed": "true"
-                                },
-                                "disc": {
-                                    "type": "keyword"
-                                },
-                                "genre": {
-                                    "type": "keyword"
-                                },
-                            }
-                        }
-                    },
-                }
-            };
-
-            const bodyArtist = {
-                // "settings": {
-                //     "index.mapping.ignore_malformed": true,
-                // },
-                "mappings": {
-                    "artist": {
-                        "properties": {
-                            "suggest" : {
-                                "type" : "completion"
-                            },
-                            "name": {
-                                "type": "text"
-                            },
-                            "keyName": {
-                                "type": "keyword"
-                            },
-                        }
-                    },
-                }
-            };
-
-            const bodyGenre = {
-                // "settings": {
-                //     "index.mapping.ignore_malformed": true,
-                // },
-                "mappings": {
-                    "genre": {
-                        "properties": {
-                            "suggest" : {
-                                "type" : "completion"
-                            },
-                            "name": {
-                                "type": "text"
-                            },
-                            "keyName": {
-                                "type": "keyword"
-                            },
-                        }
-                    },
-                }
-            };
 
             // Create album index.
             es.indexCreate({index:'album', body:bodyAlbum}, () => {
@@ -464,6 +315,9 @@ exports.search = function (req, res, next) {
             from: from,
             size: size,
             query: base_query,
+            _source: {
+                excludes: ['suggest'],
+            },
         }
     };
 

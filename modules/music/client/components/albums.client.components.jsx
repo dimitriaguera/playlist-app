@@ -63,7 +63,7 @@ class Albums extends Component {
                                     <img title="Album Cover" src={'pictures' + item.path + 'cover.jpg'} width="150" height="150"></img>
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
-                                <AlbumTracks album={item.name} className='albums-item-info'>
+                                <AlbumTracks album={item} className='albums-item-info'>
                                     <div className='name'>{item.name}</div>
                                     <div className='date'>{item.date}</div>
                                     <div className='artist'><span>{item.artist}</span></div>

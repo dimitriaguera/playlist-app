@@ -42,15 +42,20 @@ class SearchMusicBar extends Component {
         };
     }
 
+    // On mounting component:
+    // - Apply and register window event listeners.
+    // - Create input observers.
+    // - Subscribe on input observers.
     componentDidMount() {
 
         const _self = this;
         const { searchAction, indexName, field = 'name', startLimit = 3 } = this.props;
 
+        // Apply window events listeners.
         window.addEventListener('click', this.handlerClearFilters);
         window.addEventListener('keyup', this.handlerKeyup);
 
-        // Suggest request on elasticsearch endpoint.
+        // Suggest request func on elasticsearch endpoint.
         const apiSuggest = (term) => {
             const { filter } = _self.state;
             // Use forgeRequest method to avoid call API system that spread request state on redux store.
@@ -58,7 +63,7 @@ class SearchMusicBar extends Component {
             return forgeResquest( 'GET', `suggest/${filter}?q=${term}`, null )();
         };
 
-        // Search request on elasticsearch endpoint.
+        // Search request func on elasticsearch endpoint.
         const apiSearch = (term) => {
             const { filters } = _self.state;
             const filterQuery = buildFiltersRequest(filters) + '&date=' + ps.urlEncode('1996to1998+2005to2008');
@@ -70,7 +75,7 @@ class SearchMusicBar extends Component {
         this.observerSearch = Rx.Observable.fromEvent(this.input, 'keyup')
             .pluck('target', 'value')
             .filter(text => text.length >= startLimit )
-            .debounce(500 /* ms */)
+            .debounce(500)
             .distinctUntilChanged()
             .flatMapLatest(apiSearch);
 
@@ -78,7 +83,7 @@ class SearchMusicBar extends Component {
         this.observerSuggest = Rx.Observable.fromEvent(this.inputFilter, 'keyup')
             .pluck('target', 'value')
             .filter(text => text.length >= startLimit )
-            .debounce(10 /* ms */)
+            .debounce(10)
             .distinctUntilChanged()
             .flatMapLatest(apiSuggest);
 
@@ -87,12 +92,14 @@ class SearchMusicBar extends Component {
         this.subscribeOnSearch();
     }
 
+
     // Clear listeners.
     // @TODO need to clear observers ?
     componentWillUnmount() {
        window.removeEventListener('click', this.handlerClearFilters);
        window.removeEventListener('keyup', this.handlerKeyup);
     }
+
 
     // Subscribe on suggest observer.
     subscribeOnSuggest() {
@@ -111,6 +118,7 @@ class SearchMusicBar extends Component {
         );
     }
 
+
     // Subscribe on search observer.
     subscribeOnSearch() {
         const _self = this;
@@ -120,6 +128,7 @@ class SearchMusicBar extends Component {
             }
         );
     }
+
 
     // Keyborad control.
     // Escape : clear filter panel.
@@ -132,9 +141,11 @@ class SearchMusicBar extends Component {
 
         // Enter key.
         if (e.keyCode === KEY.ENTER) {
+            // If suggest item selected, add it.
             if(this.state.selected._id && this.state.suggestList.length > 0) {
                 return this.handlerAddFilter(e, this.state.selected);
             }
+            // If date filter mode, add it.
             if(this.state.filter === 'date') {
                 return this.handlerAddDateFilter(e);
             }
@@ -151,6 +162,7 @@ class SearchMusicBar extends Component {
             return this.selectNextElement(e);
         }
     }
+
 
     // Select next suggestList element.
     selectPrevElement(e){
@@ -187,6 +199,7 @@ class SearchMusicBar extends Component {
         }
     }
 
+
     // Select previous suggest list element.
     selectNextElement(e){
         const { selected = {}, suggestList } = this.state;
@@ -221,11 +234,13 @@ class SearchMusicBar extends Component {
         }
     }
 
+
     // Handler that apply filter on click on suggestion.
     handlerAddFilter(e, item) {
         const { filters, inputText, selected } = this.state;
         const { searchAction, indexName, field = 'name' } = this.props;
 
+        // Add filter item to filters list.
         const newFilters = filters.concat([item]);
 
         this.setState({
@@ -233,19 +248,24 @@ class SearchMusicBar extends Component {
             selected: selected._id === item._id ? {} : selected,
         });
 
+        // Register filter ID on filtersID list.
         this.filtersID.push(item._id);
 
+        // Query data with new set of filters.
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
     }
+
 
     // handler to add date range filter.
     handlerAddDateFilter(e) {
         const { inputDateFrom, inputDateTo } = this.state;
 
+        // If no start date, exit.
         if( !inputDateFrom ) return null;
 
         let value, tag;
 
+        // Build data filter item.
         if( !inputDateTo || inputDateFrom === inputDateTo ){
             value = `${inputDateFrom}to${inputDateFrom}`;
             tag = `${inputDateFrom}`;
@@ -254,16 +274,20 @@ class SearchMusicBar extends Component {
             tag = `${inputDateFrom} - ${inputDateTo}`;
         }
 
+        // If this date filter already exist, exit.
         if( this.filtersID.indexOf(value) !== -1 ) return null;
 
+        // Query data with new set of filters.
         this.handlerAddFilter(e, { _id: value, _type: 'date', text: value, tag: tag});
     }
+
 
     // Handler to remove a filter token.
     handlerRemoveFilter(e, item) {
         const { filters, inputText } = this.state;
         const { searchAction, indexName, field = 'name' } = this.props;
 
+        // Remove from filters list.
         const newFilters = filters.filter(function(i) {
             return i._id !== item._id;
         });
@@ -272,10 +296,13 @@ class SearchMusicBar extends Component {
             filters: newFilters,
         });
 
+        // Remove from filtersID list.
         this.filtersID.splice(this.filtersID.indexOf(item._id), 1);
 
+        // Query data with new set of filters.
         searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
     }
+
 
     // Make Form input controlled.
     handlerInputChange(e) {
@@ -289,6 +316,7 @@ class SearchMusicBar extends Component {
             [name]: value
         });
     }
+
 
     // Make Form input controlled.
     handlerRadioChange(e) {
@@ -318,6 +346,7 @@ class SearchMusicBar extends Component {
             this.subscribeOnSuggest();
         }
     }
+
 
     // Clear suggestion list, and filter input values.
     // Uncheck radio buttons.
