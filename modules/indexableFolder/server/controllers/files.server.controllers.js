@@ -88,7 +88,7 @@ function runAlbumCoverCreate(album, callback){
 
         // test if error in elastic query.
         if(err) {
-            return callback(null, `error on album tracks search - index: ${index}, type:${index}, fields: ${fields}, value: ${album}`);
+          return callback(null, `error on album tracks search - value: ${album}`);
         }
 
         // Test if result.
