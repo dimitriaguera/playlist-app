@@ -89,5 +89,10 @@ NodeSchema.pre('save', function (next) {
 });
 
 
+NodeSchema.post('save', function() {
+  console.log('Save : ' + this.path);
+});
+
+
 const Node = mongoose.model('Node', NodeSchema);
 module.exports = Node;
