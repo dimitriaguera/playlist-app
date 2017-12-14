@@ -33,13 +33,20 @@ exports.album_body = {
                 "artist": {
                     "type": "keyword"
                 },
-                "date": {
+                "year": {
                     "type":   "date",
                     "format": "yyyy||yyyy-MM-dd",
                     "ignore_malformed": "true"
                 },
-                "disc": {
-                    "type": "keyword"
+                "disk": {
+                    "properties": {
+                        "no": {
+                            "type": "keyword"
+                        },
+                        "of": {
+                            "type": "keyword"
+                        },
+                    }
                 },
                 "genre": {
                     "type": "keyword"
@@ -62,17 +69,17 @@ exports.tracks_body = {
                         {
                             "name": "genre",
                             "type": "category",
-                            "path": "meta.genre"
+                            "path": "meta.genre",
                         },
                         {
                             "name": "artist",
                             "type": "category",
-                            "path": "meta.artist"
+                            "path": "meta.artist",
                         },
                         {
                             "name": "album",
                             "type": "category",
-                            "path": "meta.album"
+                            "path": "meta.album",
                         },
                     ],
                 },
@@ -94,24 +101,31 @@ exports.tracks_body = {
                 "meta": {
                     "properties": {
                         "title": {
-                            "type": "text"
+                            "type": "text",
                         },
                         "album": {
-                            "type": "keyword"
+                            "type": "keyword",
                         },
                         "artist": {
-                            "type": "keyword"
+                            "type": "keyword",
                         },
-                        "date": {
+                        "year": {
                             "type": "date",
                             "format": "yyyy||yyyy-MM-dd",
-                            "ignore_malformed": "true"
+                            "ignore_malformed": "true",
                         },
-                        "disc": {
-                            "type": "keyword"
+                        "disk": {
+                            "properties": {
+                                "no": {
+                                    "type": "keyword"
+                                },
+                                "of": {
+                                    "type": "keyword"
+                                },
+                            }
                         },
                         "genre": {
-                            "type": "keyword"
+                            "type": "keyword",
                         },
                     }
                 }

@@ -59,17 +59,17 @@ function readWithTagLib2(filePath , cb) {
 
     let cleanMeta = {};
 
-    cleanMeta.title = metadata.title  || '';
-    cleanMeta.artist = metadata.artist  || '';
-    cleanMeta.album = metadata.album  || '';
+    cleanMeta.title = metadata.title  || null;
+    cleanMeta.artist = metadata.artist  || null;
+    cleanMeta.album = metadata.album  || null;
 
     cleanMeta.year = metadata.year;
-    cleanMeta.year = cleanMeta.year + '';
+    cleanMeta.year = cleanMeta.year ? (cleanMeta.year + '') : null;
 
-    cleanMeta.time = metadata.time || '';
+    cleanMeta.time = metadata.time || null;
 
-    cleanMeta.genre = metadata.genre || '';
-    cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
+    cleanMeta.genre = metadata.genre;
+    cleanMeta.genre = cleanMeta.genre ? cleanMeta.genre.split(/\s*[,;\/]\s*/) : [];
 
     if (metadata.albumartist) cleanMeta.albumartist = metadata.albumartist;
     if (metadata.composer) cleanMeta.composer = metadata.composer;
@@ -126,19 +126,19 @@ function musicTiretMetaData(track, cb) {
 
         let cleanMeta = {};
 
-        cleanMeta.title = metadata.common.title  || '';
-        cleanMeta.artist = metadata.common.artist  || '';
-        cleanMeta.album = metadata.common.album  || '';
+        cleanMeta.title = metadata.common.title  || null;
+        cleanMeta.artist = metadata.common.artist  || null;
+        cleanMeta.album = metadata.common.album  || null;
 
-        cleanMeta.year = metadata.year || '';
-        cleanMeta.year = cleanMeta.year + '';
+        cleanMeta.year = metadata.year || null;
+        cleanMeta.year = cleanMeta.year ? (cleanMeta.year + '') : null;
 
-        cleanMeta.time = metadata.format.duration || '';
+        cleanMeta.time = metadata.format.duration || null;
         if (cleanMeta.time) cleanMeta.time = new Date(cleanMeta.time * 1000).toISOString().substr(11, 8);
         if (cleanMeta.time.substr(0,2) == '00') cleanMeta.time = cleanMeta.time.substr(3, 6);
 
-        cleanMeta.genre = metadata.common.genre || [];
-        cleanMeta.genre = cleanMeta.genre.join(', ').split(/\s*[,;\/]\s*/);
+        cleanMeta.genre = metadata.common.genre;
+        cleanMeta.genre = cleanMeta.genre ? cleanMeta.genre.join(', ').split(/\s*[,;\/]\s*/) : [];
 
         if (metadata.albumartist) {
           cleanMeta.albumartist = metadata.common.albumartist;
@@ -203,22 +203,23 @@ function readWithFFmetaData (filePath, cb) {
 
         let cleanMeta = {};
 
-        cleanMeta.title = metadata.title || metadata.title || '';
-        cleanMeta.artist = metadata.artist || metadata.ARTIST || '';
-        cleanMeta.album = metadata.album || metadata.ALBUM || '';
+        cleanMeta.title = metadata.title || metadata.title || null;
+        cleanMeta.artist = metadata.artist || metadata.ARTIST || null;
+        cleanMeta.album = metadata.album || metadata.ALBUM || null;
 
-        cleanMeta.year = metadata.date || metadata.DATE || metadata.year || metadata['WM/Year'] || '';
-        cleanMeta.year = cleanMeta.year + '';
+        cleanMeta.year = metadata.date || metadata.DATE || metadata.year || metadata['WM/Year'] || null;
+        cleanMeta.year = cleanMeta.year ? (cleanMeta.year + '') : null;
 
-        cleanMeta.time = metadata.time || '';
+        cleanMeta.time = metadata.time || null;
+        cleanMeta.time =(cleanMeta.time + '') || null;
 
-        cleanMeta.genre = metadata.genre || metadata.GENRE || '';
-        cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
+        cleanMeta.genre = metadata.genre || metadata.GENRE;
+        cleanMeta.genre = cleanMeta.genre ? cleanMeta.genre.split(/\s*[,;\/]\s*/) : [];
 
-        cleanMeta.albumartist = metadata.albumartist || metadata.ALBUMARTIST || metadata.album_artist || metadata.ALBUM_ARTIST || '';
+        cleanMeta.albumartist = metadata.albumartist || metadata.ALBUMARTIST || metadata.album_artist || metadata.ALBUM_ARTIST || null;
         if (!cleanMeta.albumartist) delete cleanMeta.albumartist;
 
-        cleanMeta.composer = metadata.composer || metadata.COMPOSER || '';
+        cleanMeta.composer = metadata.composer || metadata.COMPOSER || null;
         if (!cleanMeta.composer) delete cleanMeta.composer;
 
 

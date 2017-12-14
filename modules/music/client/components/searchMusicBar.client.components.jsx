@@ -66,7 +66,7 @@ class SearchMusicBar extends Component {
         // Search request func on elasticsearch endpoint.
         const apiSearch = (term) => {
             const { filters } = _self.state;
-            const filterQuery = buildFiltersRequest(filters) + '&date=' + ps.urlEncode('1996to1998+2005to2008');
+            const filterQuery = buildFiltersRequest(filters);
             // Use request given by properties.
             return searchAction(`${indexName}?q=${term}&fi=${field}${filterQuery}`);
         };

@@ -40,6 +40,8 @@ exports.index = function (req, res, next) {
         // Parse albums, artists, and genres from all tracks metadata.
         const bulk_data = extractDataFromMeta(data);
 
+        //return res.json({yo: bulk_data.tracks});
+
         // Set params for index we need to create.
         const indices = [
             {
@@ -115,25 +117,23 @@ function extractDataFromMeta(data){
 
     data.map((item, i) => {
 
-        let title = item.meta.title || item.meta.TITLE || '';
-        let album = item.meta.album || item.meta.ALBUM || '';
-        let date = item.meta.date || item.meta.DATE || '';
-        let artist = item.meta.artist || item.meta.ARTIST || '';
-        let disc = item.meta.disc || item.meta.DISC || '';
-        let genre = item.meta.genre || item.meta.GENRE || '';
+        /************* Core ***************/
+        let { title, album, year, artist, genre, track, disk } = item.meta;
 
-        // Split genre and artist field in array.
-        genre = genre.split(/\s*[,;\/]\s*/);
-        //artist = artist.split(/\s*[,]\s*/);
+        /*********** Facultatif *************/
+        let { composer, albumartist } = item.meta;
+
+        // Meta.field must not be null or empty, because of elasticsearch tracks mapping.
+        // If no value, give file name for default value.
+        title = title ? title : item.publicName;
 
         const meta = {
             title: title,
             album: album,
             artist: artist,
-            date: date,
-            disc: disc,
+            year: year,
+            disk: disk,
             genre: genre,
-            //path: ps.removeLast(item.path),
         };
 
         tracks.push({
@@ -149,7 +149,7 @@ function extractDataFromMeta(data){
 
         // Here start test to filter albums and artists.
         // Test key string.
-        let albumID = album + disc;
+        let albumID = album + disk.no;
 
         // If album tracks not yet created,
         // Create and pusht it in albums array.
@@ -161,8 +161,8 @@ function extractDataFromMeta(data){
                 name: album,
                 keyName: album,
                 artist: [artist],
-                date: date,
-                disc: disc,
+                year: year,
+                disk: disk,
                 genre: genre,
                 path: ps.removeLast(item.path),
             });
@@ -278,7 +278,7 @@ exports.search = function (req, res, next) {
 
     const artist = getFilterValues( 'artist', req.query.artist);
     const genre = getFilterValues( 'genre', req.query.genre);
-    const date = getFilterRangeValues( 'date', req.query.date);
+    const date = getFilterRangeValues( 'year', req.query.date);
 
     let terms = ps.clean(req.query.q);
     terms = exact ? `"${terms}"` : terms + '*';
