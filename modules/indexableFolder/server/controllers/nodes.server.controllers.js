@@ -419,7 +419,7 @@ const walkAsyncWrap = function (doneWrap) {
 
 
         },
-        (err) => {
+        (e) => {
 
           // Create Parent Node & save it
           let parentNode = new Node({
@@ -433,6 +433,7 @@ const walkAsyncWrap = function (doneWrap) {
           });
 
           parentNode.save((err) => {
+            if (e) return done(e);
             if (err) return done(err);
           });
 
