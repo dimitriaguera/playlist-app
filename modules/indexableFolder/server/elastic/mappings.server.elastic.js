@@ -2,7 +2,7 @@
  * Created by Dimitri on 13/12/2017.
  */
 
-exports.bodyAlbum = {
+exports.album_body = {
     // "settings": {
     //     "index.mapping.ignore_malformed": true,
     // },
@@ -49,7 +49,7 @@ exports.bodyAlbum = {
     }
 };
 
-exports.bodyTracks = {
+exports.tracks_body = {
     // "settings": {
     //     "index.mapping.ignore_malformed": true,
     // },
@@ -92,33 +92,35 @@ exports.bodyTracks = {
                     "index": "false",
                 },
                 "meta": {
-                    "title": {
-                        "type": "text"
-                    },
-                    "album": {
-                        "type": "keyword"
-                    },
-                    "artist": {
-                        "type": "keyword"
-                    },
-                    "date": {
-                        "type":   "date",
-                        "format": "yyyy||yyyy-MM-dd",
-                        "ignore_malformed": "true"
-                    },
-                    "disc": {
-                        "type": "keyword"
-                    },
-                    "genre": {
-                        "type": "keyword"
-                    },
+                    "properties": {
+                        "title": {
+                            "type": "text"
+                        },
+                        "album": {
+                            "type": "keyword"
+                        },
+                        "artist": {
+                            "type": "keyword"
+                        },
+                        "date": {
+                            "type": "date",
+                            "format": "yyyy||yyyy-MM-dd",
+                            "ignore_malformed": "true"
+                        },
+                        "disc": {
+                            "type": "keyword"
+                        },
+                        "genre": {
+                            "type": "keyword"
+                        },
+                    }
                 }
             }
         },
     }
 };
 
-exports.bodyArtist = {
+exports.artist_body = {
     // "settings": {
     //     "index.mapping.ignore_malformed": true,
     // },
@@ -139,7 +141,7 @@ exports.bodyArtist = {
     }
 };
 
-exports.bodyGenre = {
+exports.genre_body = {
     // "settings": {
     //     "index.mapping.ignore_malformed": true,
     // },

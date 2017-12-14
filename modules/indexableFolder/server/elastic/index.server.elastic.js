@@ -84,7 +84,7 @@ function indexDelete( client ) {
                     callback
                 );
             }
-            callback(null);
+            callback(null, `${index} index not found.`);
         });
     }
 }
