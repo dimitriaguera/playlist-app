@@ -60,20 +60,22 @@ module.exports.defaultErrorHandler = function( err, req, res, next ) {
  */
 module.exports.errorMessageHandler = function ( err, req, res, next, msg ) {
 
+    const e = err || {};
+
     // Log error.
-    console.error(err.stack);
+    console.error(e.stack);
 
     // If flux, let express close connexion.
     if (res.headersSent) {
-        return next(err);
+        return next(e);
     }
 
     // Response.
     return res
-        .status( setDefaultStatus(res.statusCode, 500, err) )
+        .status( setDefaultStatus(res.statusCode, 500, e) )
         .json({
             success: false,
-            msg: msg || err.message || err.name || err.code
+            msg: msg || e.message || e.name || e.code
         });
 };
 

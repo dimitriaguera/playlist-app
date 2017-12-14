@@ -8,213 +8,225 @@ const url = require('url');
 const _ = require('lodash');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
-const { bodyGenre, bodyArtist, bodyTracks, bodyAlbum } = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
+const indices_body = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
 
 
-
+/**
+ * Start general indexation in elasticsearch from all tracks in nodes collection.
+ * Album, artists and genre are extracted from all tracks metadata...
+ * Create 4 index :
+ * - album
+ * - artist
+ * - tracks
+ * - genre
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.index = function (req, res, next) {
 
+    // Get all files nodes.
     Node.find({isFile: true}).select('path meta name publicName').lean().exec((err, data) => {
+
+        // Return if error.
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-        const tracks = [];
-        const albums = [];
-        const artists = [];
-        const genres = [];
+        const logs = {};
 
-        const alKeys = {};
-        const arKeys = {};
-        const geKeys = {};
+        // Parse albums, artists, and genres from all tracks metadata.
+        const bulk_data = extractDataFromMeta(data);
 
-        data.map((item, i) => {
+        // Set params for index we need to create.
+        const indices = [
+            {
+                index: 'album',
+                data: bulk_data.albums,
+                body: indices_body.album_body
+            },
+            {
+                index: 'artist',
+                data: bulk_data.artists,
+                body: indices_body.artist_body
+            },
+            {
+                index: 'tracks',
+                data: bulk_data.tracks,
+                body: indices_body.tracks_body
+            },
+            {
+                index: 'genre',
+                data: bulk_data.genres,
+                body: indices_body.genre_body
+            },
+        ];
 
-            let title = item.meta.title || item.meta.TITLE || '';
-            let album = item.meta.album || item.meta.ALBUM || '';
-            let date = item.meta.date || item.meta.DATE || '';
-            let artist = item.meta.artist || item.meta.ARTIST || '';
-            let disc = item.meta.disc || item.meta.DISC || '';
-            let genre = item.meta.genre || item.meta.GENRE || '';
-
-            // Split genre and artist field in array.
-            genre = genre.split(/\s*[,;\/]\s*/);
-            //artist = artist.split(/\s*[,]\s*/);
-
-            const meta = {
-                title: title,
-                album: album,
-                artist: artist,
-                date: date,
-                disc: disc,
-                genre: genre,
-                //path: ps.removeLast(item.path),
-            };
-
-            tracks.push({
-                suggest: {
-                    input: title,
-                },
-                tracksId: item._id,
-                path: item.path,
-                name: item.name,
-                publicName: item.publicName,
-                meta: meta,
-            });
-
-            // Here start test to filter albums and artists.
-            // Test key string.
-            let albumID = album + disc;
-
-            // If album tracks not yet created,
-            // Create and pusht it in albums array.
-            if( !alKeys[albumID] ) {
-                albums.push({
-                    suggest: {
-                        input: album,
-                    },
-                    name: album,
-                    keyName: album,
-                    artist: [artist],
-                    date: date,
-                    disc: disc,
-                    genre: genre,
-                    path: ps.removeLast(item.path),
+        // Build index creation sequence.
+        let func = indices.map( ({index, data, body}) => [
+            function(cb){
+                es.indexDelete([index], (e, r) => {
+                    cb(e, `index ${index} deleted at ${itIsNow()}`);
                 });
-                alKeys[albumID] = albums.length;
-            }
-
-            // If album tracks already in album array.
-            else {
-                // Get the already registered album.
-                const currentAlbum = albums[alKeys[albumID] - 1];
-
-                // Add and tracks genre on album.
-                currentAlbum.genre.concat(genre);
-                // Remove clones.
-                _.uniq(currentAlbum.genre);
-
-                // // Add and artist.
-                // currentAlbum.artist.concat(artist);
-                // // Remove clones.
-                // _.uniq(currentAlbum.artist);
-
-
-                // Test if current tracks artist is already in album artist field.
-                if(currentAlbum.artist.indexOf(artist) === -1){
-                    // Add tracks artist on album.
-                    currentAlbum.artist.push(artist);
-                }
-            }
-
-            // Proceed artists list.
-            if( !arKeys[artist] ) {
-                arKeys[artist] = true;
-                artists.push({
-                    suggest: {
-                        input: artist,
-                    },
-                    name: artist,
-                    keyName: artist,
+            },
+            function(cb){
+                es.indexCreate({index:index, body:body}, (e, r) => {
+                    cb(e, `index ${index} created at ${itIsNow()}`);
                 });
-            }
-
-            // Proceed genre list.
-            for(let i = 0; i < genre.length; i++) {
-                const gen = genre[i];
-                if( !geKeys[gen] ) {
-                    geKeys[gen] = true;
-                    genres.push({
-                        suggest: {
-                            input: gen,
-                        },
-                        name: gen,
-                        keyName: gen,
-                    });
-                }
-            }
-        });
-
-        //return res.json({genre: genres});
-
-        es.indexDelete(['album', 'artist', 'tracks', 'genre'], (err, resp) => {
-
-            if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-            // Create album index.
-            es.indexCreate({index:'album', body:bodyAlbum}, () => {
-                if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                let param = {
-                    index:'album',
-                    type:'album',
-                };
-
-                // Index all albums.
-                es.indexBulk(albums, param, (err, respAlb) => {
-                    if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                    // Create artist index.
-                    es.indexCreate({index:'artist', body:bodyArtist}, () => {
-                        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                        let param = {
-                            index:'artist',
-                            type:'artist',
-                        };
-
-                        // Index all artists.
-                        es.indexBulk(artists, param, (err, respArt) => {
-                            if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                            // Create tracks index.
-                            es.indexCreate({index:'tracks', body:bodyTracks}, () => {
-                                if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                                let param = {
-                                    index:'tracks',
-                                    type:'tracks',
-                                };
-
-                                // Index all tracks.
-                                es.indexBulk(tracks, param, (err, respTrack) => {
-                                    if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                                    // Create genre index.
-                                    es.indexCreate({index:'genre', body:bodyGenre}, () => {
-                                        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                                        let param = {
-                                            index:'genre',
-                                            type:'genre',
-                                        };
-
-                                        // Index all genres.
-                                        es.indexBulk(genres, param, (err, respGen) => {
-                                            if(err) return errorHandler.errorMessageHandler(err, req, res, next);
-
-                                            res.json({
-                                                success: true,
-                                                msg: {
-                                                    album: getIndexLogError(respAlb),
-                                                    artist: getIndexLogError(respArt),
-                                                    tracks: getIndexLogError(respTrack),
-                                                    genre: getIndexLogError(respGen),
-                                                },
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
+            },
+            function(cb){
+                es.indexBulk(data, {index:index,type:index}, (e, r) => {
+                    logs[index] = getIndexLogError(r);
+                    cb(e, `index ${index} data added at ${itIsNow()} - ${logs[index].index_count} documents successful indexed - ${logs[index].error_count} document rejected`);
                 });
+            },
+        ]);
+        func = _.flatten(func);
+
+        // Start indexation.
+        async.series(func, (e, result) => {
+            if(e) return errorHandler.errorMessageHandler(e, req, res, next);
+            res.json({
+                success: true,
+                msg: {steps:result, details:logs},
             });
         });
     });
 };
+
+function itIsNow(){
+    const now = new Date();
+    return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+}
+
+
+function extractDataFromMeta(data){
+
+    const tracks = [];
+    const albums = [];
+    const artists = [];
+    const genres = [];
+
+    const alKeys = {};
+    const arKeys = {};
+    const geKeys = {};
+
+    data.map((item, i) => {
+
+        let title = item.meta.title || item.meta.TITLE || '';
+        let album = item.meta.album || item.meta.ALBUM || '';
+        let date = item.meta.date || item.meta.DATE || '';
+        let artist = item.meta.artist || item.meta.ARTIST || '';
+        let disc = item.meta.disc || item.meta.DISC || '';
+        let genre = item.meta.genre || item.meta.GENRE || '';
+
+        // Split genre and artist field in array.
+        genre = genre.split(/\s*[,;\/]\s*/);
+        //artist = artist.split(/\s*[,]\s*/);
+
+        const meta = {
+            title: title,
+            album: album,
+            artist: artist,
+            date: date,
+            disc: disc,
+            genre: genre,
+            //path: ps.removeLast(item.path),
+        };
+
+        tracks.push({
+            suggest: {
+                input: title,
+            },
+            tracksId: item._id,
+            path: item.path,
+            name: item.name,
+            publicName: item.publicName,
+            meta: meta,
+        });
+
+        // Here start test to filter albums and artists.
+        // Test key string.
+        let albumID = album + disc;
+
+        // If album tracks not yet created,
+        // Create and pusht it in albums array.
+        if( !alKeys[albumID] ) {
+            albums.push({
+                suggest: {
+                    input: album,
+                },
+                name: album,
+                keyName: album,
+                artist: [artist],
+                date: date,
+                disc: disc,
+                genre: genre,
+                path: ps.removeLast(item.path),
+            });
+            alKeys[albumID] = albums.length;
+        }
+
+        // If album tracks already in album array.
+        else {
+            // Get the already registered album.
+            const currentAlbum = albums[alKeys[albumID] - 1];
+
+            // Add and tracks genre on album.
+            currentAlbum.genre.concat(genre);
+            // Remove clones.
+            _.uniq(currentAlbum.genre);
+
+            // // Add and artist.
+            // currentAlbum.artist.concat(artist);
+            // // Remove clones.
+            // _.uniq(currentAlbum.artist);
+
+
+            // Test if current tracks artist is already in album artist field.
+            if(currentAlbum.artist.indexOf(artist) === -1){
+                // Add tracks artist on album.
+                currentAlbum.artist.push(artist);
+            }
+        }
+
+        // Proceed artists list.
+        if( !arKeys[artist] ) {
+            arKeys[artist] = true;
+            artists.push({
+                suggest: {
+                    input: artist,
+                },
+                name: artist,
+                keyName: artist,
+            });
+        }
+
+        // Proceed genre list.
+        for(let i = 0; i < genre.length; i++) {
+            const gen = genre[i];
+            if( !geKeys[gen] ) {
+                geKeys[gen] = true;
+                genres.push({
+                    suggest: {
+                        input: gen,
+                    },
+                    name: gen,
+                    keyName: gen,
+                });
+            }
+        }
+    });
+
+    return {
+        tracks,
+        albums,
+        artists,
+        genres,
+    }
+}
 
 
 exports.update = function(req, res, next) {
