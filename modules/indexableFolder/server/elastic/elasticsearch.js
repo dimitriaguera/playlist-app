@@ -20,16 +20,17 @@ if (process.env.NODE_ENV === 'production'){
   });
 }
 
-client.ping({
-  // ping usually has a 3000ms timeout
-  requestTimeout: 3000
-}, function (error) {
-  if (error) {
-    console.error(chalk.bgRed('elasticsearch cluster is down!'));
-  } else {
-    console.log(chalk.green('elasticsearch ok'));
-  }
-});
+// @todo test if it's call more than once
+// client.ping({
+//   // ping usually has a 3000ms timeout
+//   requestTimeout: 3000
+// }, function (error) {
+//   if (error) {
+//     console.error(chalk.bgRed('elasticsearch cluster is down!'));
+//   } else {
+//     console.log(chalk.green('elasticsearch ok'));
+//   }
+// });
 
 
 exports.indexBulk = index.indexBulk(client);
