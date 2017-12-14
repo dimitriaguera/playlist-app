@@ -6,6 +6,7 @@
 let taglib2, mm, ffmetadata, fs;
 
 try {
+
   // Js wrap for taglib
   taglib2 = require('taglib2');
   exports.read = readWithTagLib2;
@@ -13,6 +14,7 @@ try {
 } catch(e) {
 
   try {
+
     // Pure Js MusicMeta
     mm = require('music-metadata');
     exports.read = musicTiretMetaData;
@@ -61,48 +63,58 @@ function readWithTagLib2(filePath , cb) {
 
     let cleanMeta = {};
 
-    cleanMeta.title = metadata.title  || null;
-    cleanMeta.artist = metadata.artist  || null;
-    cleanMeta.album = metadata.album  || null;
+    cleanMeta.title = metadata.title || null;
+    cleanMeta.artist = metadata.artist || null;
+    cleanMeta.album = metadata.album || null;
 
-    cleanMeta.year = metadata.year;
-    cleanMeta.year = cleanMeta.year ? (cleanMeta.year + '') : null;
+    // Change date to string
+    cleanMeta.year = metadata.year ? (metadata.year + '') : null;
 
     cleanMeta.time = metadata.time || null;
 
-    cleanMeta.genre = metadata.genre;
-    cleanMeta.genre = cleanMeta.genre ? cleanMeta.genre.split(/\s*[,;\/]\s*/) : [];
+    // Convert Genre in tab and split it
+    // [ 'pop', 'rock', 'jazz']
+    cleanMeta.genre = metadata.genre ? metadata.genre.split(/\s*[,;\/]\s*/) : [];
 
+    // cleanMeta.albumartist composer doesn't exist if null empty
     if (metadata.albumartist) cleanMeta.albumartist = metadata.albumartist;
     if (metadata.composer) cleanMeta.composer = metadata.composer;
 
-    let trackNb = metadata.tracknumber || metadata.track || '0';
-    trackNb = trackNb + '';
-    trackNb = trackNb.split('/');
-    if (trackNb){
+    // Convert track number to string and split in no and of and
+    // remove leading 0
+    let trackNb = metadata.tracknumber || metadata.track;
+    if (trackNb) {
+      trackNb = (trackNb + '').split('/');
       cleanMeta.track = {
         'no': (trackNb[0]) ? trackNb[0].replace(/^0+(?=\d)/, '') : '0',
         'of': (trackNb[1]) ? trackNb[1].replace(/^0+(?=\d)/, '') : '0',
       }
+    } else {
+      cleanMeta.track = {no: '0', of: '0'};
     }
 
-    let diskNb = metadata.discnumber || metadata.disc || '0';
-    diskNb = diskNb + '';
-    diskNb = diskNb.split('/');
-    if (diskNb){
+    // Convert disk number to string and split in no and of and
+    // remove leading 0
+    let diskNb = metadata.discnumber || metadata.discnumber;
+    if (diskNb) {
+      diskNb = (diskNb + '').split('/');
       cleanMeta.disk = {
         'no': (diskNb[0]) ? diskNb[0].replace(/^0+(?=\d)/, '') : '0',
         'of': (diskNb[1]) ? diskNb[1].replace(/^0+(?=\d)/, '') : '0',
       }
+    } else {
+      cleanMeta.disk = {no: '0', of: '0'};
     }
 
-    // Trim Obj
+
+    // Trim Obj key and value
     cleanMeta = trimObj(cleanMeta);
 
     cb( null , cleanMeta );
 
   } catch (e) {
-    console.error('Error when reading/cleaning tag with taglib2');
+    console.log('Error when reading/cleaning tag with taglib2');
+    console.trace(e);
     cb( e );
   }
 }
@@ -132,55 +144,73 @@ function musicTiretMetaData(track, cb) {
         cleanMeta.artist = metadata.common.artist  || null;
         cleanMeta.album = metadata.common.album  || null;
 
-        cleanMeta.year = metadata.year || null;
-        cleanMeta.year = cleanMeta.year ? (cleanMeta.year + '') : null;
+        // Change date to string
+        cleanMeta.year = metadata.common.year ? (metadata.common.year + '') : null;
 
-        cleanMeta.time = metadata.format.duration || null;
-        if (cleanMeta.time) cleanMeta.time = new Date(cleanMeta.time * 1000).toISOString().substr(11, 8);
-        if (cleanMeta.time.substr(0,2) == '00') cleanMeta.time = cleanMeta.time.substr(3, 6);
+        // Change time to ms in MM:SS and convert it to string
+        if (metadata.format.duration) {
+          cleanMeta.time = new Date(metadata.format.duration * 1000).toISOString().substr(11, 8);
+          if (cleanMeta.time.substr(0,2) === '00') cleanMeta.time = cleanMeta.time.substr(3, 6);
+        } else {
+          cleanMeta.time = null;
+        }
 
-        cleanMeta.genre = metadata.common.genre;
-        cleanMeta.genre = cleanMeta.genre ? cleanMeta.genre.join(', ').split(/\s*[,;\/]\s*/) : [];
+        // Convert Genre in tab and split well for exemple this case
+        // [ 'pop,rock' , 'jazz' ] => [ 'pop', 'rock', 'jazz']
+        cleanMeta.genre = metadata.common.genre ? metadata.common.genre.join(', ').split(/\s*[,;\/]\s*/) : [];
 
-        if (metadata.albumartist) {
+        // cleanMeta.albumartist doesn't exist if null empty
+        if (metadata.common.albumartist) {
           cleanMeta.albumartist = metadata.common.albumartist;
         }
 
-        if (metadata.common.composer && metadata.common.composer.join('/')) {
+        // cleanMeta.composer doesn't exist if null empty
+        if (metadata.common.composer) {
           cleanMeta.composer = metadata.common.composer.join('/');
         }
 
-        cleanMeta.track = metadata.common.track || {'no': '0', 'of': '0'};
-        if (cleanMeta.track.no === null) {
-          cleanMeta.track.no = '0';
+        // Forge track field
+        if (metadata.common.track) {
+          cleanMeta.track = {};
+          if (metadata.common.track.no === null) {
+            cleanMeta.track.no = '0';
+          } else {
+            cleanMeta.track.no = (metadata.common.track.no + '').replace(/^0+(?=\d)/, '');
+          }
+          if (metadata.common.track.of === null) {
+            cleanMeta.track.of = '0';
+          } else {
+            cleanMeta.track.of = (metadata.common.track.of + '').replace(/^0+(?=\d)/, '');
+          }
         } else {
-          cleanMeta.track.no = (cleanMeta.track.no + '').replace(/^0+(?=\d)/, '');
-        }
-        if (cleanMeta.track.of === null) {
-          cleanMeta.track.of = '0';
-        } else {
-          cleanMeta.track.of = (cleanMeta.track.of + '').replace(/^0+(?=\d)/, '');
-        }
-
-        cleanMeta.disk = metadata.common.disk || {'no': '0', 'of': '0'};
-        if (cleanMeta.disk.no === null) {
-          cleanMeta.disk.no = '0';
-        } else {
-          cleanMeta.disk.no = (cleanMeta.disk.no + '').replace(/^0+(?=\d)/, '');
-        }
-        if (cleanMeta.disk.of === null) {
-          cleanMeta.disk.of = '0';
-        } else {
-          cleanMeta.disk.of = (cleanMeta.disk.of + '').replace(/^0+(?=\d)/, '');
+          cleanMeta.track = {no: '0', of: '0'};
         }
 
-        // Trim Obj NOT NECESSARY LIB DO THAT
-        // cleanMeta = trimObj(cleanMeta);
+        // Forge Disk field
+        if (metadata.common.disk) {
+          cleanMeta.disk = {};
+          if (metadata.common.disk.no === null) {
+            cleanMeta.disk.no = '0';
+          } else {
+            cleanMeta.disk.no = (metadata.common.disk.no + '').replace(/^0+(?=\d)/, '');
+          }
+          if (metadata.common.disk.of === null) {
+            cleanMeta.disk.of = '0';
+          } else {
+            cleanMeta.disk.of = (metadata.common.disk.of + '').replace(/^0+(?=\d)/, '');
+          }
+        } else {
+          cleanMeta.disk = {no: '0', of: '0'};
+        }
+
+
+        // NOT Trim Obj beacause mm already does that
 
         cb( null , cleanMeta );
 
       } catch (e) {
-        console.error('Error when cleaning tag with mm');
+        console.log('Error when reading/cleaning tag with mm');
+        console.trace(e);
         cb( e );
       }
 
@@ -212,45 +242,42 @@ function readWithFFmetaData (filePath, cb) {
         cleanMeta.year = metadata.date || metadata.DATE || metadata.year || metadata['WM/Year'] || null;
         cleanMeta.year = cleanMeta.year ? (cleanMeta.year + '') : null;
 
-        cleanMeta.time = metadata.time || null;
-        cleanMeta.time =(cleanMeta.time + '') || null;
+        // Convert time to string
+        // @todo format detection and conversion
+        cleanMeta.time = metadata.time ? (cleanMeta.time + '') : null;
 
+        // Convert Genre to array
         cleanMeta.genre = metadata.genre || metadata.GENRE;
         cleanMeta.genre = cleanMeta.genre ? cleanMeta.genre.split(/\s*[,;\/]\s*/) : [];
 
-        cleanMeta.albumartist = metadata.albumartist || metadata.ALBUMARTIST || metadata.album_artist || metadata.ALBUM_ARTIST || null;
+        cleanMeta.albumartist = metadata.albumartist || metadata.ALBUMARTIST || metadata.album_artist || metadata.ALBUM_ARTIST;
         if (!cleanMeta.albumartist) delete cleanMeta.albumartist;
 
-        cleanMeta.composer = metadata.composer || metadata.COMPOSER || null;
+        cleanMeta.composer = metadata.composer || metadata.COMPOSER;
         if (!cleanMeta.composer) delete cleanMeta.composer;
 
 
+        // Convert track number and TRACKTOTAL or TOTALTRACK to string and split in no and of and
+        // remove leading 0
         let trackNb = metadata.track || metadata.TRACK || metadata.tracknumber || metadata.TRACKNUMBER || '0' ;
+        trackNb = (trackNb + '').split('/');
         let trackOf = metadata.TRACKTOTAL || metadata.tracktotal || metadata.TOTALTRACK || metadata.totaltrack || '0';
-        trackOf = trackOf + '';
-        trackOf = trackOf.replace(/^0+(?=\d)/, '');
-        trackNb = trackNb + '';
-        trackNb = trackNb.split('/');
-        if (trackNb){
-          cleanMeta.track = {
+        trackOf = (trackOf + '').replace(/^0+(?=\d)/, '');
+        cleanMeta.track = {
             'no': (trackNb[0]) ? trackNb[0].replace(/^0+(?=\d)/, '') : '0',
             'of': (trackNb[1]) ? trackNb[1].replace(/^0+(?=\d)/, '') : trackOf
-          }
-        }
+        };
 
-
+        // Convert disc number to string and split in no and of and
+        // remove leading 0
         let diskNb = metadata.disc || metadata.DISC || metadata.discnumber || metadata.DISCNUMBER || '0' ;
+        diskNb = (diskNb + '').split('/');
         let diskOf = metadata.discTOTAL || metadata.disctotal || metadata.TOTALdisc || metadata.totaldisc || '0';
-        diskOf = diskOf + '';
-        diskOf = diskOf.replace(/^0+(?=\d)/, '');
-        diskNb = diskNb + '';
-        diskNb = diskNb.split('/');
-        if (diskNb){
-          cleanMeta.disk = {
+        diskOf = (diskOf + '').replace(/^0+(?=\d)/, '');
+        cleanMeta.disk = {
             'no': (diskNb[0]) ? diskNb[0].replace(/^0+(?=\d)/, '') : '0',
             'of': (diskNb[1]) ? diskNb[1].replace(/^0+(?=\d)/, '') : diskOf
-          }
-        }
+        };
 
         cleanMeta = trimObj(cleanMeta);
 
