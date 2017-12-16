@@ -466,9 +466,8 @@ exports.walkAsync = function (req, res, next) {
 
       const dirsToSave = [];
 
-      async.forEachOfLimit(
+      async.eachOfSeries(
         dirs,
-        30,
         (dir, key, nextDir ) => {
 
             const dirInfo = path.parse(key);
@@ -552,7 +551,6 @@ exports.walkAsync = function (req, res, next) {
     }
 
     bulkTraitement();
-
   }
 
 
