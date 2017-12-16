@@ -10,6 +10,9 @@ const errorHandler = require(path.resolve('./modules/core/server/services/error.
 const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 
+const mongoose = require('mongoose');
+const metaTag = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services.js'));
+
 /**
  * Create Node collection reflection deep folder structure from root folder.
  *
@@ -310,6 +313,290 @@ const walk = function( node, done ) {
         }
     }
 };
+
+
+/**
+ * Clock helper
+ * @param start
+ * @returns {*}
+ */
+function clock(start) {
+  if ( !start ) return process.hrtime();
+  let end = process.hrtime(start);
+  return Math.round((end[0]*1000) + (end[1]/1000000));
+}
+
+
+exports.walkSync = function (req, res) {
+
+  // const read = (dir) =>
+  //   fs.readdirSync(dir)
+  //     .reduce((files, file) =>
+  //         fs.statSync(path.join(dir, file)).isDirectory() ?
+  //           files.concat(read(path.join(dir, file))) :
+  //           files.concat(path.join(dir, file)),
+  //       []);
+
+  const read = (dir) => {
+
+    try {
+      return fs.readdirSync(dir).reduce((files, file) =>
+              fs.statSync(path.join(dir, file)).isDirectory() ?
+                files.concat(read(path.join(dir, file))) :
+                files.concat(path.join(dir, file))
+              ,
+              []);
+    } catch(e) {
+      console.log(e);
+    }
+  };
+
+
+
+  let start = clock();
+  console.log('*******');
+  console.log('Starting test for WalkSync at : ' + start);
+
+  let files = read(config.folder_base_url);
+
+  console.log('Finished after : ' + clock(start));
+  console.log('Nb files :' + files.length);
+  console.log('*******');
+
+  res.json({
+    success: true,
+    msg: {
+      count: files.length,
+      duree: clock(start)
+      //files: files
+    },
+  });
+
+};
+
+exports.walkAsync = function (req, res, next) {
+
+  const regexFile = config.fileSystem.fileAudioTypes;
+  const regexSecure = config.security.secureFile;
+
+  let files = [];
+  let nbFiles = 0;
+  let dirs = {};
+
+  // Read old item in dir return an array of files
+  const read = (uri, done) => {
+
+    // Generate Mongod id for dir
+    dirs[uri] = mongoose.Types.ObjectId();
+
+    fs.readdir(uri, (err, items) => {
+      if (err) return done(err);
+
+      // If item is file save it.
+      // If item is dir walk inside.
+      async.forEachOf(
+        items,
+        (item, key, next) => {
+
+          let itemUri = uri + '/' + item;
+
+          // Check file or dir.
+          fs.stat(itemUri,
+            (err, itemStats) => {
+
+              if (err) {
+                console.error(err);
+                return next();
+              }
+
+              if (itemStats.isFile()) {
+                // Test type of file
+                // Test if authorized file.
+                if (!(regexSecure.test(item) && regexFile.test(item))) {
+                  return next();
+                }
+
+                files.push(itemUri);
+                return next();
+
+              } else if (itemStats.isDirectory()) {
+                read(itemUri, (err) => {
+                  if (err) console.error(err);
+                  return next();
+                });
+              }
+            }
+          );
+        },
+        (err) => {
+          if (err) done(err);
+          done();
+        }
+      );
+
+    });
+  };
+
+
+
+  // Find All meta of files and Save it in Mongo
+  // Do that by bulk off 10 files
+  function findMetaAndSave(files, cbfindMetaAndSave){
+
+
+    // Giving an array split it and return the rest
+    function splitTab(files, nbToSplit) {
+      let tabOnWork;
+      nbToSplit = (files.length > nbToSplit) ? nbToSplit : files.length;
+
+      tabOnWork = files.slice(0, nbToSplit);
+      files.splice(0, nbToSplit);
+      return tabOnWork;
+    }
+
+
+    function saveInDb(files, cb){
+      Node.insertMany(files, (err) => {
+        if (err) return cb(err);
+        cb();
+      });
+    }
+
+    function saveDirInDb(dirs, cb){
+
+      const dirsToSave = [];
+
+      async.forEachOf(
+        dirs,
+        (dir, key, nextDir ) => {
+
+            const dirInfo = path.parse(key);
+            const pathDir = path.relative(config.folder_base_url, key);
+            dirsToSave.push( {
+              _id: dir,
+              name: (pathDir) ? dirInfo.base : 'root',
+              path: path.relative(config.folder_base_url, key),
+              uri: key,
+              parent: dirs[dirInfo.dir],
+              isFile: false,
+            });
+
+            nextDir();
+        },
+        (err) => {
+
+          if (err) return cb(err);
+          saveInDb(dirsToSave, (err) => {
+            if (err) return cb(err);
+            cb();
+          })
+        }
+      );
+
+    }
+
+
+    function bulkTraitement() {
+      let tabOnWork = splitTab(files, 10);
+
+      async.map(
+        tabOnWork,
+        (filePath, nextFile ) => {
+          metaTag.read(filePath, (err, data) => {
+
+            if (err) {
+              console.log('Error when reading meta for : ' + filePath);
+            }
+
+            let file = path.parse(filePath);
+            nextFile( null, {
+              name: file.base,
+              publicName: file.name,
+              path: path.relative(config.folder_base_url, filePath),
+              uri: filePath,
+              parent: dirs[file.dir],
+              isFile: true,
+              meta: data || {}
+            });
+
+          });
+        },
+
+        (err, res) => {
+
+          if (err) return cbfindMetaAndSave(err);
+
+          console.log('End read bulk metaTag');
+
+          saveInDb(res,
+            (err) => {
+              if (err) return cbfindMetaAndSave(err);
+
+              console.log('End of writing bulk in Db');
+              console.log('NB fichier restant : ' + files.length );
+              console.log('-------------------------------------');
+              if (files.length) return bulkTraitement();
+
+              console.log('Starting of writing dir in Db');
+              saveDirInDb(dirs, (err) => {
+                if (err) return cbfindMetaAndSave(err);
+                console.log('End of writing dir in Db');
+                cbfindMetaAndSave();
+              })
+
+            }
+          );
+        }
+      );
+    }
+
+    bulkTraitement();
+
+  }
+
+
+  function sendResult(err){
+
+    if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+    console.log('Finished after : ' + clock(start));
+    console.log('Nb files :' + nbFiles);
+    console.log('*******');
+
+    res.json({
+      success: true,
+      msg: {
+        count: nbFiles,
+        duree: clock(start),
+      },
+    });
+  }
+
+  let start = clock();
+  console.log('*******');
+  console.log('Starting test for WalkAsync at : ' + start);
+
+  Node.collection.drop(
+    (err) => {
+      if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+      console.log('Node collection drop OK');
+      read(config.folder_base_url, (err) => {
+        if (err) return next(err);
+        nbFiles = files.length;
+        findMetaAndSave( files, sendResult);
+
+      });
+    }
+  );
+
+
+
+
+
+
+};
+
 
 /**
  * Recursive search of all files inside an item.

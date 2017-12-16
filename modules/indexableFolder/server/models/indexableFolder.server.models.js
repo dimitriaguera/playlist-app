@@ -5,8 +5,8 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const path = require('path');
-const metaTag = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services.js'));
+
+
 
 /**
  * Node model.
@@ -66,21 +66,21 @@ NodeSchema.pre('remove', function(next) {
  * If node is file, extract metadata.
  *
  */
-NodeSchema.pre('save', function (next) {
-    if ( this.isFile ) {
-        metaTag.read(this.uri, (err, data) => {
-            if (err) {
-              console.log('Error when reading meta for : ' + this.path);
-              next();
-            }
-            this.meta = data;
-            next();
-        });
-    }
-    else {
-        next();
-    }
-});
+// NodeSchema.pre('save', function (next) {
+//     if ( this.isFile ) {
+//         metaTag.read(this.uri, (err, data) => {
+//             if (err) {
+//               console.log('Error when reading meta for : ' + this.path);
+//               next();
+//             }
+//             this.meta = data;
+//             next();
+//         });
+//     }
+//     else {
+//         next();
+//     }
+// });
 
 
 NodeSchema.post('save', function() {
