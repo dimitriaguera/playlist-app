@@ -466,8 +466,9 @@ exports.walkAsync = function (req, res, next) {
 
       const dirsToSave = [];
 
-      async.forEachOf(
+      async.forEachOfLimit(
         dirs,
+        30,
         (dir, key, nextDir ) => {
 
             const dirInfo = path.parse(key);
