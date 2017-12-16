@@ -17,6 +17,7 @@ const passport = require('passport');
 const moduleUser = require('../modules/users/server/config/passport.strategy');
 const seedDB = require('./seeds/seeds');
 const errorHandler = require('../modules/core/server/services/error.server.services');
+const { metaLibName } = require('../modules/music/server/services/metaTag/metaTag.server.services');
 const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
@@ -50,7 +51,7 @@ module.exports.checkConfig = function() {
     }
 
     fs.access(process.env.FFMPEG_PATH, fs.constants.X_OK , (err) => {
-      console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'ffmpeg ok for reading music tag!'));
+      console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'system ok for reading music tag! - Lib used : ' + metaLibName));
     });
 
 };

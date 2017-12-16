@@ -9,7 +9,9 @@ try {
 
   // Js wrap for taglib
   taglib2 = require('taglib2');
+  //console.log('Meta music lib used: taglib2');
   exports.read = readWithTagLib2;
+  exports.metaLibName = 'taglib2';
 
 } catch(e) {
 
@@ -17,14 +19,18 @@ try {
 
     // Pure Js MusicMeta
     mm = require('music-metadata');
+    // console.log('Meta music lib used: music-metadata');
     exports.read = musicTiretMetaData;
+    exports.metaLibName = 'music-metadata';
 
   } catch(e) {
 
     try {
       // ffmetadata = ffmpeg
       ffmetadata = require('ffmetadata');
+      //console.log('Meta music lib used: ffmetadata');
       exports.read = readWithFFmetaData;
+      exports.metaLibName = 'ffmetadata';
     } catch(e) {
       console.error('No lib for reading meta');
     }

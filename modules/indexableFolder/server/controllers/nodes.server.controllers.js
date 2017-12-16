@@ -69,7 +69,6 @@ exports.update = function (req, res, next) {
             // Update old parent.
             Node.update(
                 { _id: parentId },
-                { $pull: { children : node._id } },
                 { safe: true },
                 (err) => {
 
@@ -86,7 +85,6 @@ exports.update = function (req, res, next) {
             // Update old parent.
             Node.update(
                 { _id: newParentId },
-                { $push: { children : node._id } },
                 { safe: true },
                 (err) => {
 
@@ -124,7 +122,6 @@ exports.delete = function (req, res, next) {
         // If node removed, update parent Node.
         Node.update(
             { _id: node.parent },
-            { $pull: { children : node._id } },
             { safe: true },
             (err) => {
 
@@ -152,11 +149,37 @@ exports.openNode = function (req, res, next) {
 
     const node = req.fileNode;
 
-    res.json({
-        success: true,
-        msg: node.children,
+    getChildrenNodes(node._id, (err, nodes) =>
+    {
+        if ( err ) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        if ( !nodes ) {
+            res.status(404);
+            return res.json({
+                success: false,
+                msg: `File not found.`,
+            });
+        }
+
+        res.json({
+            success: true,
+            msg: nodes,
+        });
     });
 };
+
+function getChildrenNodes(parentId, callback){
+    Node.find({parent:parentId})
+        .lean()
+        .exec((err, nodes) => {
+
+            if ( err ) {
+                return callback( err );
+            }
+
+            callback(null, nodes);
+        });
+}
 
 /**
  * Recursive search files through Node and his children.
@@ -209,7 +232,6 @@ exports.getNodeFromQuery = function(req, res, next) {
     // Exec query.
     query
         .lean()
-        .populate('children')
         .exec((err, node) => {
 
             if ( err ) {
@@ -252,37 +274,34 @@ exports.getNodeById = function(req, res, next, id) {
     });
 };
 
-const walk = function( id, done ) {
+const walk = function( node, done ) {
 
     let files = [];
 
-
-    if ( !id._id ) {
-        Node.findById(id).exec(nodeSearch);
-    }
-    else {
-        nodeSearch(null, id);
-    }
+    nodeSearch(null, node);
 
     function nodeSearch(err, node) {
-
         if(err) return done(err);
 
         if (!node.isFile) {
-            async.map(
-                node.children,
-                (id, callback) => {
-                    walk(id, (err, res) => {
+            getChildrenNodes(node._id, (err, nodes) => {
+                if(err) return done(err);
+
+                async.map(
+                    nodes,
+                    (id, callback) => {
+                        walk(id, (err, res) => {
+                            if(err) return done(err);
+                            files = files.concat(res);
+                            callback(null, files);
+                        });
+                    },
+                    (err, result) => {
                         if(err) return done(err);
-                        files = files.concat(res);
-                        callback(null, files);
-                    });
-                },
-                (err, result) => {
-                    if(err) return done(err);
-                    done(null, files);
-                }
-            );
+                        done(null, files);
+                    }
+                );
+            });
         }
 
         else {

@@ -30,12 +30,6 @@ const NodeSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Node'
     },
-    children: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Node'
-        }
-    ],
     isFile: {
         type: Boolean,
         default: false,
