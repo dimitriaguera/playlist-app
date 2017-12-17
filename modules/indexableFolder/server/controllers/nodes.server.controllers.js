@@ -215,7 +215,7 @@ exports.getNodeFromQuery = function(req, res, next) {
     // If query Node file by path.
     // Test on undefined permit query on empty path (root folder)
     if(req.query.path !== undefined) {
-        NOT_SECURE_STRING = req.query.path;
+        NOT_SECURE_STRING = req.query.path || '/';
         queryString = `${ps.cleanPath(NOT_SECURE_STRING)}`;
         query = Node.findOne({ path:queryString });
     }
@@ -466,9 +466,8 @@ exports.walkAsync = function (req, res, next) {
 
       const dirsToSave = [];
 
-      async.forEachOfLimit(
+      async.forEachOfSeries(
         dirs,
-        30,
         (dir, key, nextDir ) => {
 
             const dirInfo = path.parse(key);
@@ -498,7 +497,7 @@ exports.walkAsync = function (req, res, next) {
 
 
     function bulkTraitement() {
-      let tabOnWork = splitTab(files, 10);
+      let tabOnWork = splitTab(files, 50);
 
       async.map(
         tabOnWork,
@@ -544,7 +543,6 @@ exports.walkAsync = function (req, res, next) {
                 console.log('End of writing dir in Db');
                 cbfindMetaAndSave();
               })
-
             }
           );
         }

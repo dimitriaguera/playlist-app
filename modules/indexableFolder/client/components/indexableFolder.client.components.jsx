@@ -144,6 +144,8 @@ class IndexableFolder extends Component {
         // Extract folder's path form url.
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
+        console.log('PATH: ', path);
+
         if( path !== this.state.query ) {
             // Query folder content, and set new state.
             // This start re-render component with folder content.
