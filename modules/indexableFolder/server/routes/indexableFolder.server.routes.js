@@ -17,11 +17,6 @@ module.exports = function(app){
     // Test, copy, extract all covers.
     app.route('/api/files/covers/artist').get(files.createCoversFromArtist);
 
-    // @todo delete test root
-    app.route('/api/nodes/walkSync').get(nodes.walkSync);
-
-    app.route('/api/nodes/walkAsync').get(nodes.walkAsync);
-
     // Update or delete a Node.
     app.route('/api/nodes/:id')
         .put(nodes.update)

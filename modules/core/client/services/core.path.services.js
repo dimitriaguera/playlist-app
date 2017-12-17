@@ -77,3 +77,23 @@ exports.cleanPath = function( path ) {
 exports.urlEncode = function( url ) {
     return encodeURIComponent(url).replace(/%5B/g, '[').replace(/%5D/g, ']');
 };
+
+function changeSlashToAnti(path) {
+  return path.replace(/\//g,'\\');
+}
+function changeAntiToSlash(path) {
+  return path.replace(/\\/g,'/');
+}
+
+exports.conformPathToOs = function (myPath) {
+  let isWin = /^win/.test(process.platform);
+  if (isWin) {
+    return changeSlashToAnti(myPath);
+  } else {
+    return changeAntiToSlash(myPath);
+  }
+};
+
+exports.toPosixPath = function (myPath) {
+  return changeAntiToSlash(myPath)
+};
