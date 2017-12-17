@@ -32,6 +32,7 @@ exports.index = function (req, res, next) {
   let start;
   let files = [];
   let nbFiles = 0;
+  let nbDirs = 0;
   let dirs = {};
 
   // Read all items recursively in dir an fill files and dirs var
@@ -178,7 +179,7 @@ exports.index = function (req, res, next) {
               if (err) return cbfindMetaAndSave(err);
 
               console.log('End of writing bulk in Db');
-              console.log('NB fichier restant : ' + files.length );
+              console.log('Remaining files : ' + files.length );
               console.log('-------------------------------------');
               if (files.length) return bulkTraitement();
 
@@ -209,14 +210,16 @@ exports.index = function (req, res, next) {
     console.log('***********************');
     console.log('Indexation is Finished at : ' + end.end);
     console.log('It takes (s) : ' + end.duration);
-    console.log('Nb of traited files : ' + nbFiles);
+    console.log('Nb file : ' + nbFiles);
+    console.log('Nb dir : ' + nbDirs);
     console.log('***********************');
 
     res.json({
       success: true,
       msg: {
-        count: nbFiles,
-        duree: clock(start),
+        nbFiles: nbFiles,
+        nbDir: nbDirs,
+        duration: end.end,
       },
     });
   }
@@ -242,6 +245,7 @@ exports.index = function (req, res, next) {
         read(rootOK, (err) => {
           if (err) return next(err);
           nbFiles = files.length;
+          nbDirs = Object.keys(dirs).length;
           findMetaAndSave( files, sendResult);
         });
       }
