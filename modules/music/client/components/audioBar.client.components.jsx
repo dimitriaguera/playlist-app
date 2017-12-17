@@ -653,7 +653,7 @@ class MetaNameTracks extends Component {
                     return (
                     <Popup
                         key={i}
-                        trigger={<span className='metaOnPlayInfo-link'><Link to={`/indexMusic${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
+                        trigger={<span className='metaOnPlayInfo-link'><Link to={`/indexMusic/${item.path}`} style={{maxWidth:width}}>{item.content}</Link><Icon name='angle right'/></span>}
                         content={item.content}
                         inverted
                     />
@@ -815,7 +815,7 @@ class MetaInfoPlaylistMini extends Component {
 
         if (pl) {
             return (
-                    <Link as='span'  to={`/${mode.toLowerCase()}/${pl.title}`}>
+                    <Link as='span' to={`/${mode.toLowerCase()}/${pl.title}`}>
                         <Label color='teal'>
                             {`${mode}`}
                             <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>

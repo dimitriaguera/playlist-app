@@ -13,6 +13,16 @@ const Node = require(path.resolve('./modules/indexableFolder/server/models/index
 const mongoose = require('mongoose');
 const metaTag = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services.js'));
 
+// @todo put this when export conf
+function changeSlashToAnti(path) {
+    return path.replace(/\//g,'\\');
+}
+function changeAntiToSlash(path) {
+    return path.replace(/\\/g,'/');
+}
+
+const rootOK = changeSlashToAnti(config.folder_base_url);
+
 /**
  * Create Node collection reflection deep folder structure from root folder.
  *
@@ -215,7 +225,7 @@ exports.getNodeFromQuery = function(req, res, next) {
     // If query Node file by path.
     // Test on undefined permit query on empty path (root folder)
     if(req.query.path !== undefined) {
-        NOT_SECURE_STRING = req.query.path || '/';
+        NOT_SECURE_STRING = req.query.path;
         queryString = `${ps.cleanPath(NOT_SECURE_STRING)}`;
         query = Node.findOne({ path:queryString });
     }
@@ -472,7 +482,7 @@ exports.walkAsync = function (req, res, next) {
         (dir, key, nextDir ) => {
 
             const dirInfo = path.parse(key);
-            const pathDir = path.posix.relative(config.folder_base_url, key);
+            const pathDir = changeAntiToSlash(path.relative(rootOK, key));
             dirsToSave.push( {
               _id: dir,
               name: (pathDir) ? dirInfo.base : 'root',
@@ -513,7 +523,7 @@ exports.walkAsync = function (req, res, next) {
             nextFile( null, {
               name: file.base,
               publicName: file.name,
-              path: path.posix.relative(config.folder_base_url, filePath),
+              path: changeAntiToSlash(path.relative(rootOK, filePath)),
               uri: filePath,
               parent: dirs[file.dir],
               isFile: true,
@@ -580,7 +590,7 @@ exports.walkAsync = function (req, res, next) {
       if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
       console.log('Node collection drop OK');
-      read(config.folder_base_url, (err) => {
+      read(rootOK, (err) => {
         if (err) return next(err);
         nbFiles = files.length;
         findMetaAndSave( files, sendResult);

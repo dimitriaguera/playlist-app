@@ -55,11 +55,21 @@ exports.splitPath = function( str ){
     return result;
 };
 
+/**
+ * Just clean string.
+ * @param str {String}
+ */
+exports.clean = function( str ) {
+    return sanitize(str);
+};
+
+
 // Clean path String entry.
 exports.cleanPath = function( path ) {
     const pArr = this.splitPath( path );
     return this.buildPath( pArr );
 };
+
 
 // Encode url.
 // Encode reserved caracters.
