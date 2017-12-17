@@ -1,22 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import {
-  Divider,
-  // Button,
-  // Modal,
-  Icon,
-  Step,
-  // Header
-} from 'semantic-ui-react'
+import { Divider, Icon, Step } from 'semantic-ui-react'
 import { get } from 'core/client/services/core.api.services'
-import {
-  playItem,
-  addAlbumToPlay,
-  //updateActivePlaylist
-} from 'music/client/redux/actions'
+import { playItem, addAlbumToPlay } from 'music/client/redux/actions'
 import FolderItem from './folderItem.client.components'
-//import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 
 
 /**

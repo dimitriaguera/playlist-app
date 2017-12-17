@@ -5,11 +5,16 @@ const sanitize = require("sanitize-filename");
 
 // Build path from array.
 exports.buildPath = function( array ){
+
     let path = '';
-    for ( let i = 0; i < array.length; i++ ) {
-        const brin = sanitize(array[i]);
-        if( brin === '' ) continue;
-        path += `/${brin}`;
+
+    if(array[0]) {
+        path = sanitize(array[0]);
+        for (let i = 1; i < array.length; i++) {
+            const brin = sanitize(array[i]);
+            if (brin === '') continue;
+            path += `/${brin}`;
+        }
     }
 
     return path;

@@ -8,7 +8,7 @@ import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 
 /**
  * Folder is the file explorator component.
@@ -218,7 +218,7 @@ class IndexableFolder extends Component {
         const { history } = this.props;
 
         // Update component via url update.
-        history.push(`/indexMusic${path}`);
+        history.push(`/indexMusic/${path}`);
         e.preventDefault();
     }
 

@@ -5,7 +5,7 @@ import config from 'env/config.client'
 import { get, post } from 'core/client/services/core.api.services'
 import ReactAudioPlayer from 'react-audio-player'
 import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
 
 import style from './style/audio.scss'

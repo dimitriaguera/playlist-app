@@ -2,8 +2,6 @@
  * Created by Dimitri on 26/10/2017.
  */
 import React, { Component } from 'react'
-import { Icon } from 'semantic-ui-react'
-import pathService from 'folder/client/services/path.client.services'
 
 import style from './style/infopath.scss'
 

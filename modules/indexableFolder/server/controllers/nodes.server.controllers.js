@@ -7,7 +7,7 @@ const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
-const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
+const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 
 const mongoose = require('mongoose');

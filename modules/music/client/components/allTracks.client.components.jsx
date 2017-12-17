@@ -4,7 +4,7 @@ import { get } from 'core/client/services/core.api.services'
 import { playItem } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
-import ps from 'indexableFolder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 import { Divider, Icon } from 'semantic-ui-react'
 
 import style from './style/allTracks.scss'

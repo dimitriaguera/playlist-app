@@ -9,7 +9,7 @@ const _ = require('lodash');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
-const ps = require(path.resolve('./modules/indexableFolder/server/services/path.server.services'));
+const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
 const indices_body = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
 

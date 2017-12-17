@@ -5,7 +5,7 @@ import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/red
 import Tracks from 'music/client/components/tracks.client.components'
 import AddPlaylist from './addPlaylist.client.components'
 import { Divider, Label, Button, Modal, Header, Icon } from 'semantic-ui-react'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 
 import DraggableList from 'draggable/client/components/draggableList'
 

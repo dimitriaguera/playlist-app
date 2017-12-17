@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/albumTracks.scss'

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Rx from 'rx'
-import ps from 'folder/client/services/path.client.services'
+import ps from 'core/client/services/core.path.services'
 import { forgeResquest } from 'core/client/services/core.api.services'
 import { Icon } from 'semantic-ui-react'
 
