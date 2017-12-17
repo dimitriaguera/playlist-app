@@ -398,7 +398,7 @@ exports.walkAsync = function (req, res, next) {
         items,
         (item, key, next) => {
 
-          let itemUri = uri + '/' + item;
+          let itemUri = path.join(uri,item);
 
           // Check file or dir.
           fs.stat(itemUri,
@@ -472,11 +472,11 @@ exports.walkAsync = function (req, res, next) {
         (dir, key, nextDir ) => {
 
             const dirInfo = path.parse(key);
-            const pathDir = path.relative(config.folder_base_url, key);
+            const pathDir = path.posix.relative(config.folder_base_url, key);
             dirsToSave.push( {
               _id: dir,
               name: (pathDir) ? dirInfo.base : 'root',
-              path: path.relative(config.folder_base_url, key),
+              path: pathDir,
               uri: key,
               parent: dirs[dirInfo.dir],
               isFile: false,
@@ -513,7 +513,7 @@ exports.walkAsync = function (req, res, next) {
             nextFile( null, {
               name: file.base,
               publicName: file.name,
-              path: path.relative(config.folder_base_url, filePath),
+              path: path.posix.relative(config.folder_base_url, filePath),
               uri: filePath,
               parent: dirs[file.dir],
               isFile: true,
