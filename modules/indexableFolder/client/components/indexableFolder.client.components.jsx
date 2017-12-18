@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
 import { get, post } from 'core/client/services/core.api.services'
-import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
+import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
@@ -37,7 +37,7 @@ class IndexableFolder extends Component {
         this.handlerRootFolder = this.handlerRootFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         this.handlerAddItem = this.handlerAddItem.bind(this);
-        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
+        this.handlerPlayFolder = this.handlerPlayFolder.bind(this);
         this.onListTracks = this.onListTracks.bind(this);
         this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
 
@@ -144,8 +144,6 @@ class IndexableFolder extends Component {
         // Extract folder's path form url.
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
-        console.log('PATH: ', path);
-
         if( path !== this.state.query ) {
             // Query folder content, and set new state.
             // This start re-render component with folder content.
@@ -237,7 +235,7 @@ class IndexableFolder extends Component {
         const { history } = this.props;
 
         // Go to album display mode.
-        history.push(`/album${item.path}`);
+        history.push(`/list/folder/${item.path}`);
         e.preventDefault();
     }
 
@@ -278,10 +276,10 @@ class IndexableFolder extends Component {
     }
 
     // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum( e, item ) {
+    handlerPlayFolder( e, item ) {
 
         const _self = this;
-        const {fetchFiles, addAlbumToPlay} = this.props;
+        const {fetchFiles, addFolderToPlay} = this.props;
 
 
         fetchFiles( ps.urlEncode(item.path) ).then((data) => {
@@ -289,14 +287,14 @@ class IndexableFolder extends Component {
                 _self.setState({ error: true });
             }
             else {
-                const album = {
+                const folder = {
                     pl: {
                         title: item.name,
                         path: item.path,
                         tracks: data.msg,
                     }
                 };
-                addAlbumToPlay( album );
+                addFolderToPlay( folder );
             }
         });
     }
@@ -361,7 +359,7 @@ class IndexableFolder extends Component {
                                 onClick={this.handlerClickOnFile}
                                 onGetFiles={this.handlerGetAllFiles}
                                 onAddItem={this.handlerAddItem}
-                                onPlayAlbum={this.handlerPlayAlbum}
+                                onPlayFolder={this.handlerPlayFolder}
                                 onListTracks={this.onListTracks}
                             />
                         )
@@ -427,11 +425,11 @@ const mapDispatchToProps = dispatch => {
             } )
         ),
 
-        addAlbumToPlay: ( item ) => {
+        addFolderToPlay: ( item ) => {
             // Search first track on list.
             const track = item.pl.tracks[0];
             // Add album to store.
-            dispatch(addAlbumToPlay(item));
+            dispatch(addFolderToPlay(item));
             // If track, play it.
             if( track ) dispatch(playItem( track ));
         },

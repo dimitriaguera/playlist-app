@@ -51,16 +51,20 @@ class Albums extends Component {
 
         return (
             <div>
-                <h1>Albums</h1>
-                <SearchMusicBar indexName='album'  startLimit={0} searchAction={this.props.search} />
+                <h1>Albums</h1><span>{this.props.total} albums on result</span>
+                <SearchMusicBar indexName='album'
+                                startLimit={0}
+                                searchAction={this.props.search}
+                                filtersMapping={{artist:'artist', genre:'genre', date:'date'}}
+                                placeholder='search album...'
+                />
                 <Divider/>
-
                 {
                     this.props.data.map((item, i) => {
                         return (
                             <div className='albums-item-album' key={item.path + i}>
                                 <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
-                                    <img title="Album Cover" src={'pictures' + item.path + 'cover.jpg'} width="150" height="150"></img>
+                                    <img title="Album Cover" src={'pictures/' + item.path + 'cover.jpg'} width="150" height="150"></img>
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
                                 <AlbumTracks album={item} className='albums-item-info'>

@@ -81,7 +81,7 @@ function splitFetchHOC(params, fetchActions) {
                         if(result.success){
 
                             const all = (size >= result.msg.hits.total);
-
+                            const total = result.msg.hits.total;
                             const docs = result.msg.hits.hits;
                             const nodes = docs.map((item) => item._source);
 
@@ -89,6 +89,7 @@ function splitFetchHOC(params, fetchActions) {
                                 from: size,
                                 data: nodes,
                                 all: all,
+                                total: total,
                                 query: query,
                                 fetch: fetch,
                             });
@@ -126,6 +127,7 @@ function splitFetchHOC(params, fetchActions) {
 
                 const newProps = {
                     data: this.state.data,
+                    total: this.state.total,
                     ...this.fetchActions
                 };
 

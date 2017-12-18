@@ -79,9 +79,59 @@ exports.createCoversFromArtist = function (req, res, next) {
     });
 };
 
+exports.createAllCovers = function (req, res, next) {
+
+    const params = queryFactory('album', null, '');
+
+    // Elasticsearch albums.
+    es.search( params, (err, data) => {
+        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+        // Get tracks path.
+        const albums = data.hits.hits.map((item) => item._source.name);
+
+        // Declare chunk outside off closure for memory consideration.
+        let chunk = [];
+        let info = [];
+
+        // Declare function inside controller closure to avoid pass big array args, and save memory.
+        function proceedOnChunk() {
+            // Get chunk.
+            chunk = splitTab(albums, 20);
+            // Async handle chunk.
+            async.map( chunk, runAlbumCoverCreate, (err, data) => {
+                // Save chunk proceeding info.
+                info = info.concat(data);
+                // Log chunk process info.
+                console.log('Rest ' + albums.length + ' albums to proceed.');
+                console.log('--------------------------');
+                // If other chunk to handle, do this.
+                if(albums.length) return proceedOnChunk();
+                // If no more chunk, send res with handling info.
+                res.json({
+                    success: true,
+                    msg: info,
+                })}
+            );
+        }
+        // Start process.
+        proceedOnChunk();
+    });
+};
+
+// Giving an array split it and return the rest
+function splitTab(array, nbToSplit) {
+    let tabOnWork;
+    nbToSplit = (array.length > nbToSplit) ? nbToSplit : array.length;
+
+    tabOnWork = array.slice(0, nbToSplit);
+    array.splice(0, nbToSplit);
+    return tabOnWork;
+}
+
 function runAlbumCoverCreate(album, callback){
 
-    const params = queryFactory('tracks', ['meta.album', 'meta.ALBUM'], album, true);
+    const params = queryFactory('tracks', ['meta.album'], album, true);
 
     // Elasticsearch album tracks.
     es.search( params, (err, data) => {
@@ -167,18 +217,18 @@ function createCoverFile(src, callback) {
 
     // Get album folder path.
     const dirname = path.dirname(src);
-    const folder = DRIVE + dirname + '/';
+    const folder = DRIVE + '/' + dirname + '/';
     // const cover = folder + 'cover.jpg';
-    const destination = PUBLIC_FILE + dirname + '/';
+    const destination = PUBLIC_FILE + '/' + dirname + '/';
     const cover = destination + 'cover.jpg';
 
     // Wrap fs.copy callback to match with pattern callback(err, done);
     function callbackFs(err){
         if (err) {
-            console.error(`TRACK TEST FAIL - error on fs.copy cover.jpg`);
+            // console.error(`TRACK TEST FAIL - error on fs.copy cover.jpg`);
             return callback(null, false);
         }
-        console.log(`TRACK TEST OK - rename jpg file on cover.jpg`);
+        // console.log(`TRACK TEST OK - rename jpg file on cover.jpg`);
         callback(null, true);
     }
 
@@ -194,7 +244,7 @@ function createCoverFile(src, callback) {
 
                 // If source folder no exist, stop current process.
                 if (err) {
-                    console.warn(`TRACK TEST FAIL - no exist folder ${folder}`);
+                    // console.warn(`TRACK TEST FAIL - no exist folder ${folder}`);
                     return callback(null, false);
                 }
 
@@ -249,7 +299,7 @@ function createCoverFile(src, callback) {
         }
         // If cover.jpg file, do something.
         else {
-            console.log(`TRACK TEST OK - cover.jpg already exist in ${destination}`);
+            // console.log(`TRACK TEST OK - cover.jpg already exist in ${destination}`);
             callback(null, true);
         }
     });
@@ -263,11 +313,11 @@ function getCoverFromMeta(src, dest, callback) {
     proc.on("error", callback);
     proc.on("close", (code) => {
         if (code === 0) {
-            console.log(`TRACK TEST OK - extracted cover.jpg from ${src}`);
+            // console.log(`TRACK TEST OK - extracted cover.jpg from ${src}`);
             callback(null, true);
         }
         else {
-            console.warn(`TRACK TEST FAIL - ffmpeg can't extract jpg from ${src}. Exit with code ${code}`);
+            // console.warn(`TRACK TEST FAIL - ffmpeg can't extract jpg from ${src}. Exit with code ${code}`);
             callback(null, false);
         }
     });
@@ -298,22 +348,27 @@ function getImgArgs(src, dest) {
  */
 function queryFactory(index, fields, terms, exact) {
 
-    terms = exact ? `"${terms}"` : terms + '*';
+    let base_query = {};
 
-    const base_query = {
-        query_string: {
+    if(terms) {
+        terms = exact ? `"${terms}"` : terms + '*';
+        base_query.query_string = {
             query: `${terms}`,
             fields: fields,
             default_operator: 'AND'
-        }
-    };
+        };
+    }
+    else {
+        base_query = {
+            'match_all': {}
+        };
+    }
 
     return {
         index: index,
         type: index,
+        size: 10000,
         body: {
-            size: 3000,
-            from: 0,
             query: base_query,
         }
     };

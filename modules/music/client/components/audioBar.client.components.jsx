@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import config from 'env/config.client'
 import { get, post } from 'core/client/services/core.api.services'
 import ReactAudioPlayer from 'react-audio-player'
-import { playOnPlaylist, playOnAlbum, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
+import { playOnPlaylist, playOnAlbum, playOnFolder, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import ps from 'core/client/services/core.path.services'
 import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
 
@@ -616,28 +616,22 @@ class MetaNameTracks extends Component {
 
     splitStr(str, handler) {
 
-        const regex = /(\/([^\/]*))/ig;
-
         let path = '';
-        let result = [];
-        let m;
 
-        while ((m = regex.exec(str)) !== null) {
-            // This is necessary to avoid infinite loops with zero-width matches
-            if (m.index === regex.lastIndex) {
-                regex.lastIndex++;
-            }
-            path += m[0];
+        return ps.splitPath(str).map( (shard, i, array) => {
 
-            result.push({
-                content: m[2],
+            // If last part of path, no path needed.
+            if(i === array.length - 1) return {content: shard};
+
+            // Build path.
+            path = i ? `${path}/${shard}` : shard;
+
+            // Return object useful for bread build.
+            return {
+                content: shard,
                 path: path,
-            });
-        }
-
-        result[result.length - 1].path = null;
-
-        return result;
+            }
+        });
     }
 
     render() {
@@ -767,12 +761,12 @@ class MetaInfoPlaylist extends Component {
         if (pl) {
 
             let title = pl.title;
-            let path = `/${mode.toLowerCase()}`;
-            let modeLabel = mode;
+            let path = getActiveModePath(mode);
+            let modeLabel = 'folder' === mode ? 'folder tracks' : mode;
 
             // If pl is album, use folder path to construct link path.
             if ( pl.path ) {
-                path += pl.path;
+                path += `/${pl.path}`;
             }
 
             // Else if pl is Queue.
@@ -815,7 +809,7 @@ class MetaInfoPlaylistMini extends Component {
 
         if (pl) {
             return (
-                    <Link as='span' to={`/${mode.toLowerCase()}/${pl.title}`}>
+                    <Link as='span' to={`${getActiveModePath(mode)}/${pl.title}`}>
                         <Label color='teal'>
                             {`${mode}`}
                             <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
@@ -849,6 +843,10 @@ function getActiveMode( mode ) {
             callback = playOnPlaylist;
             break;
 
+        case 'folder':
+            callback = playOnFolder;
+            break;
+
         case 'album':
             callback = playOnAlbum;
             break;
@@ -858,6 +856,23 @@ function getActiveMode( mode ) {
             break;
     }
     return callback;
+}
+
+function getActiveModePath( mode ) {
+
+    switch (mode) {
+        case 'playlist':
+            return '/playlist';
+
+        case 'folder':
+            return '/list/folder';
+
+        case 'album':
+            return '/album';
+
+        default:
+            return '/playlist';
+    }
 }
 
 function clamp(n, min, max) {

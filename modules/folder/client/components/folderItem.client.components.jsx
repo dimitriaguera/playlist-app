@@ -6,7 +6,7 @@ import style from './style/folderItem.scss'
 const FolderItem = (
   { onClick,
     //onGetFiles,
-    onPlayAlbum,
+    onPlayFolder,
     onListTracks,
     item,
     user,
@@ -28,7 +28,7 @@ const FolderItem = (
           return (
               <span className='fol-item-menu'>
                 <span className='fol-item-menu-inner'>
-                    <Button onClick={(e) => onPlayAlbum(e, item)} icon basic color="teal">
+                    <Button onClick={(e) => onPlayFolder(e, item)} icon basic color="teal">
                         <Icon name='play' />
                     </Button>
                     <Button onClick={(e) => onListTracks(e, item)} icon basic color="teal">

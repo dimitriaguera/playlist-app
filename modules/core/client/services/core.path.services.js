@@ -23,18 +23,13 @@ exports.buildPath = function( array ){
 // Remove last element of path string.
 exports.removeLast = function(path) {
   const regex = new RegExp('[^\/]+\/?$', 'i');
-  const result = path.replace(regex, '');
-
-  return result;
+  return path.replace(regex, '');
 };
 
 // Remove route pattern from str String.
 exports.removeRoute = function( str, route ) {
-
     const regex = new RegExp('^(\\' + route + ')', 'i');
-    const result = str.replace(regex, '');
-
-    return result;
+    return str.replace(regex, '');
 };
 
 // Return Array path from String path.

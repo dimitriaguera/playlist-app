@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Divider, Icon, Step } from 'semantic-ui-react'
 import { get } from 'core/client/services/core.api.services'
-import { playItem, addAlbumToPlay } from 'music/client/redux/actions'
+import { playItem, addFolderToPlay } from 'music/client/redux/actions'
 import FolderItem from './folderItem.client.components'
 import ps from 'core/client/services/core.path.services'
 
@@ -34,7 +34,7 @@ class Folder extends Component {
         this.handlerRootFolder = this.handlerRootFolder.bind(this);
         this.handlerReadFile = this.handlerReadFile.bind(this);
         //this.handlerAddItem = this.handlerAddItem.bind(this);
-        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
+        this.handlerPlayFolder = this.handlerPlayFolder.bind(this);
         this.onListTracks = this.onListTracks.bind(this);
         this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
 
@@ -224,7 +224,7 @@ class Folder extends Component {
     // }
 
     // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum(e, item) {
+    handlerPlayFolder(e, item) {
 
         const _self = this;
         const {fetchFiles, addAlbumToPlay} = this.props;
@@ -245,7 +245,7 @@ class Folder extends Component {
                       tracks: data.msg,
                     }
                   };
-                  addAlbumToPlay( album );
+                  addFolderToPlay( album );
                 }
 
             }
@@ -319,7 +319,7 @@ class Folder extends Component {
                         onClick={this.handlerClickOnFile}
                         //onGetFiles={this.handlerGetAllFiles}
                         //onAddItem={this.handlerAddItem}
-                        onPlayAlbum={this.handlerPlayAlbum}
+                        onPlayFolder={this.handlerPlayFolder}
                         onListTracks={this.onListTracks}
                       />
                     )
@@ -377,11 +377,11 @@ const mapDispatchToProps = dispatch => {
         // ),
 
 
-        addAlbumToPlay: ( item ) => {
+        addFolderToPlay: ( item ) => {
             // Search first track on list.
             const track = item.pl.tracks[0];
             // Add album to store.
-            dispatch(addAlbumToPlay(item));
+            dispatch(addFolderToPlay(item));
             // If track, play it.
             if( track ) dispatch(playItem( track ));
         },
