@@ -491,7 +491,7 @@ function buildFiltersRequest(filters, mappings){
     }
 
     for(let s in f){
-        query += '&' + s + '=' + ps.urlEncode(f[s]);
+        query += '&filter.' + s + '=' + ps.urlEncode(f[s]);
     }
 
     return query;

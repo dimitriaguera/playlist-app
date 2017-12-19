@@ -36,10 +36,10 @@ class AllTracks extends Component {
 
         return (
             <div>
-                <h1>Tracks</h1>
+                <h1>Tracks</h1><span>{this.props.total} tracks on result</span>
                 <SearchMusicBar indexName='tracks'
                                 field={'meta.title'}
-                                filtersMapping={{artist:'meta.artist', genre:'meta.genre', date:'meta.year'}}
+                                filtersMapping={{artist:'meta.artist', genre:'meta.genre', date:'range.meta.year'}}
                                 startLimit={0}
                                 searchAction={this.props.search}
                                 placeholder='search tracks...'

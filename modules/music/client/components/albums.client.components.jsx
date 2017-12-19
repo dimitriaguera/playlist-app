@@ -55,7 +55,7 @@ class Albums extends Component {
                 <SearchMusicBar indexName='album'
                                 startLimit={0}
                                 searchAction={this.props.search}
-                                filtersMapping={{artist:'artist', genre:'genre', date:'date'}}
+                                filtersMapping={{artist:'artist', genre:'genre', date:'range.year'}}
                                 placeholder='search album...'
                 />
                 <Divider/>
