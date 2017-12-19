@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { get } from 'core/client/services/core.api.services'
 import { playItem } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
+import Img from 'music/client/components/image.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import ps from 'core/client/services/core.path.services'
 import { Divider, Icon } from 'semantic-ui-react'
@@ -39,7 +40,7 @@ class AllTracks extends Component {
                 <h1>Tracks</h1><span>{this.props.total} tracks on result</span>
                 <SearchMusicBar indexName='tracks'
                                 field={'meta.title'}
-                                filtersMapping={{artist:'meta.artist', genre:'meta.genre', date:'range.meta.year'}}
+                                filtersMapping={{artist:'meta.artist', genre:'meta.genre', date:'range.meta.year', album:'meta.album'}}
                                 startLimit={0}
                                 searchAction={this.props.search}
                                 placeholder='search tracks...'
@@ -51,7 +52,11 @@ class AllTracks extends Component {
                         return (
                             <div className='alltracks-item-album' key={i}>
                                 <div className='tracks-item-img' onClick={(e) => this.handlerPlayTracks(e, item)}>
-                                    <img title="Album Cover" src={'pictures/' + ps.removeLast(item.path) + 'cover.jpg'} width="50" height="50"></img>
+                                    <Img title="Album Cover"
+                                         src={'pictures/' + ps.removeLast(item.path) + 'cover.jpg'}
+                                         defaultSrc='static/images/default_cover.png'
+                                         width="50" height="50"
+                                    />
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
                                 <div className='tracks-item-info'>
@@ -88,7 +93,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         search: ( query ) => dispatch(
-            get(`search/${query}`)
+            get(`search/${query}&sort=meta.album`)
         ),
         readFile: ( item ) => dispatch(
             playItem( item )

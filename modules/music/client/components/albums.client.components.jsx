@@ -5,6 +5,7 @@ import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/red
 import SearchMusicBar from './searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import AlbumTracks from 'music/client/components/albumTracks.client.components'
+import Img from 'music/client/components/image.client.components'
 import ps from 'core/client/services/core.path.services'
 import { Divider, Icon } from 'semantic-ui-react'
 
@@ -18,7 +19,7 @@ class Albums extends Component {
     }
 
     componentDidMount() {
-        this.props.search(`album?fi=name&q=`);
+        this.props.search(`album?sort=keyName&fi=name&q=`);
     }
 
     // Handler to add recursively all tracks on playlist.
@@ -64,12 +65,16 @@ class Albums extends Component {
                         return (
                             <div className='albums-item-album' key={item.path + i}>
                                 <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
-                                    <img title="Album Cover" src={'pictures/' + item.path + 'cover.jpg'} width="150" height="150"></img>
+                                    <Img title="Album Cover"
+                                         src={'pictures/' + item.path + 'cover.jpg'}
+                                         defaultSrc='static/images/default_cover.png'
+                                         width="150" height="150"
+                                    />
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
                                 <AlbumTracks album={item} className='albums-item-info'>
                                     <div className='name'>{item.name}</div>
-                                    <div className='date'>{item.date}</div>
+                                    <div className='date'>{item.year}</div>
                                     <div className='artist'><span>{item.artist}</span></div>
                                 </AlbumTracks>
                             </div>

@@ -126,8 +126,7 @@
       border-radius: 65px 0 0 65px;
       left: 0;
 
-      label,
-      span {
+      label {
         display: inline-block;
         position: absolute;
         line-height: 40px;
@@ -137,19 +136,19 @@
         border-radius: 50%;
         color: white;
         background-color: rgb(116, 207, 204);
-      }
-
-      span {
-        top: 0;
-        right: -22px;
-      }
-
-      label {
         font-size: 10px;
-        cursor: pointer;
 
-        &:hover {
-          background-color: #00b5ad;
+        &:not(.no-click) {
+          cursor: pointer;
+
+          &:hover {
+            background-color: #00b5ad;
+          }
+        }
+
+        &:nth-child(1) {
+          top: 0;
+          right: -22px;
         }
 
         &:nth-child(2) {
@@ -178,6 +177,7 @@
     }
   }
 
+  input[id=filter0]:checked ~ .sb-filter-panel label[for=filter0],
   input[id=filter1]:checked ~ .sb-filter-panel label[for=filter1],
   input[id=filter2]:checked ~ .sb-filter-panel label[for=filter2],
   input[id=filter3]:checked ~ .sb-filter-panel label[for=filter3] {

@@ -7,7 +7,6 @@ import Album from 'music/client/components/album.client.components';
 import FolderList from 'music/client/components/folderList.client.components';
 import Albums from 'music/client/components/albums.client.components';
 import Queue from 'music/client/components/queue.client.components';
-import Music from 'music/client/components/music.client.components';
 import AllTracks from 'music/client/components/allTracks.client.components';
 
 export const routes = [
@@ -46,13 +45,6 @@ export const routes = [
         route: {
             path: '/list/folder',
             component: FolderList,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/music',
-            component: Music,
         },
     },
     {

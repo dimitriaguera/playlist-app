@@ -123,6 +123,10 @@ function extractDataFromMeta(data){
         /*********** Facultatif *************/
         let { composer, albumartist } = item.meta;
 
+        /*********** STRING NORMALIZATION ************/
+        artist = artist ? artist.toLowerCase() : null;
+        album = album ? album.toLowerCase() : 'NO-META-ALBUM';
+
         // Meta.field must not be null or empty, because of elasticsearch tracks mapping.
         // If no value, give file name for default value.
         title = title ? title : item.publicName;
@@ -149,6 +153,8 @@ function extractDataFromMeta(data){
 
         // Here start test to filter albums and artists.
         // Test key string.
+        // const albumTest = album ? album.toLowerCase() : 'NO-META-ALBUM';
+        // let albumID = albumTest + disk.no;
         let albumID = album + disk.no;
 
         // If album tracks not yet created,
@@ -192,9 +198,12 @@ function extractDataFromMeta(data){
             }
         }
 
+        // let artistTest = artist ? artist.toLowerCase() : null;
+        let artistTest = artist;
+
         // Proceed artists list.
-        if( !arKeys[artist] ) {
-            arKeys[artist] = true;
+        if( !arKeys[artistTest] ) {
+            arKeys[artistTest] = true;
             artists.push({
                 suggest: {
                     input: artist,
@@ -206,6 +215,7 @@ function extractDataFromMeta(data){
 
         // Proceed genre list.
         for(let i = 0; i < genre.length; i++) {
+            //const gen = genre[i] ? genre[i].toLowerCase() : null;
             const gen = genre[i];
             if( !geKeys[gen] ) {
                 geKeys[gen] = true;
@@ -236,6 +246,11 @@ exports.update = function(req, res, next) {
 exports.delete = function(req, res, next) {
 
 };
+
+function getSortValues(query){
+    if( !query ) return [];
+    return query.split('+');
+}
 
 function getFilterValues(key, query){
     const r = [];
@@ -270,17 +285,21 @@ function getFilterRangeValues(key, query){
 
 function getFiltersFromQuery(query){
 
-    const reg = /^(filter.)/g;
     let filters = [];
 
+    // Start loop query object checking.
     for(let key in query){
         if( query.hasOwnProperty( key ) ) {
-            const f = key.replace(reg, '');
+            const f = key.replace(/^(filter.)/g, '');
+            // Check if 'filter.' key in query.
             if (f !== key) {
                 const rf = f.replace(/^(range.)/g, '');
+                // Check if 'filter.range.' key in query.
                 if (rf !== f) {
+                    // Build filter range type array.
                     filters = filters.concat(getFilterRangeValues(rf, query[key]));
                 } else {
+                    // Build filter text type array.
                     filters = filters.concat(getFilterValues(f, query[key]));
                 }
             }
@@ -298,6 +317,7 @@ exports.search = function (req, res, next) {
     const size = req.query.size ? ps.clean(req.query.size) : 1000;
     const field = req.query.fi ? ps.clean(req.query.fi) : 'name';
 
+    const sort = getSortValues(req.query.sort);
     const filters = getFiltersFromQuery(req.query);
 
     let terms = ps.clean(req.query.q);
@@ -342,7 +362,7 @@ exports.search = function (req, res, next) {
     const params = {
         index: index,
         type: index,
-        //sort: 'keyName:asc',
+        sort: sort,
         body: {
             from: from,
             size: size,

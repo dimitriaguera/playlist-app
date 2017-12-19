@@ -380,22 +380,28 @@ class SearchMusicBar extends Component {
         return (
             <div onClick={(e) => e.stopPropagation()} style={this.props.style} className='search-bar'>
                 <div>
+                    {filtersMapping.album &&
+                    <input ref={(element) => this.radio.album=element} type="radio" id="filter0"
+                           onChange={this.handlerRadioChange}
+                           name="filter" value="album" />
+                    }
                     {filtersMapping.artist &&
-                        <input ref={(element) => this.radio.artist=element} type="radio" id="filter1" onChange={this.handlerRadioChange}
+                    <input ref={(element) => this.radio.artist=element} type="radio" id="filter1"
+                           onChange={this.handlerRadioChange}
                            name="filter" value="artist" />
                     }
                     {filtersMapping.genre &&
-                        <input ref={(element) => this.radio.genre = element} type="radio" id="filter2"
-                               onChange={this.handlerRadioChange}
-                               name="filter" value="genre"/>
+                    <input ref={(element) => this.radio.genre = element} type="radio" id="filter2"
+                           onChange={this.handlerRadioChange}
+                           name="filter" value="genre"/>
                     }
                     {filtersMapping.date &&
-                        <input ref={(element) => this.radio.date = element} type="radio" id="filter3"
-                               onChange={this.handlerRadioChange}
-                               name="filter" value="date"/>
+                    <input ref={(element) => this.radio.date = element} type="radio" id="filter3"
+                           onChange={this.handlerRadioChange}
+                           name="filter" value="date"/>
                     }
-                    <div className='sb-filter-panel'>
 
+                    <div className='sb-filter-panel'>
                         <ul className='sb-filter'>
                             {filters.map((item) =>
                                 <li className='sb-filter-token' onClick={(e) => this.handlerRemoveFilter(e, item)} key={item._id}>
@@ -415,19 +421,25 @@ class SearchMusicBar extends Component {
                                    name='inputFilter'
                                    placeholder={filter + '...'}
                             />
-                            <input ref={(element) => this.inputDateFrom=element }
+                            {filtersMapping.date &&
+                            <input ref={(element) => this.inputDateFrom = element }
                                    onChange={this.handlerInputChange}
                                    type='number'
                                    name='inputDateFrom'
                                    placeholder='(ex: 1998)'
                             />
-                            <span className='input-date-prefix'>to</span>
-                            <input ref={(element) => this.inputDateTo=element }
-                                   onChange={this.handlerInputChange}
-                                   type='number'
-                                   name='inputDateTo'
-                                   placeholder='(ex: 2002)'
-                            />
+                            }
+                            {filtersMapping.date &&
+                            < span className='input-date-prefix'>to</span>
+                            }
+                            {filtersMapping.date &&
+                            < input ref={(element) => this.inputDateTo=element }
+                                onChange={this.handlerInputChange}
+                                type='number'
+                                name='inputDateTo'
+                                placeholder='(ex: 2002)'
+                                />
+                            }
                             <button onClick={this.handlerAddDateFilter}><b>Add</b></button>
                             {this.state.suggestList.length > 0 &&
                             <ul>
@@ -443,10 +455,20 @@ class SearchMusicBar extends Component {
                         </div>
 
                         <div className='sb-filter-menu'>
-                            <span><Icon name='filter' /></span>
+                            {filtersMapping.album ?
+                            <label htmlFor="filter0">Album</label>
+                                :
+                            <label className="no-click"><Icon name='filter' /></label>
+                            }
+                            {filtersMapping.artist &&
                             <label htmlFor="filter1">Artist</label>
+                            }
+                            {filtersMapping.genre &&
                             <label htmlFor="filter2">Genre</label>
+                            }
+                            {filtersMapping.date &&
                             <label htmlFor="filter3">Date</label>
+                            }
                         </div>
 
                         <input ref={(element) => this.input=element }
