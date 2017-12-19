@@ -3,6 +3,8 @@ const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
+const { readPictAndSave } = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services'));
+const { saveToJpeg } = require(path.resolve('./modules/music/server/services/picture.server.services'));
 const spawn = require('child_process').spawn;
 const async = require('async');
 const ffmpeg = spawn.bind(null, process.env.FFMPEG_PATH || "ffmpeg");
@@ -257,7 +259,7 @@ function createCoverFile(src, callback) {
                     // @TODO ajouter les noms avec majuscule ?
                     // Other files to test pattern.
                     const files = [
-                        'cover.jpg', 'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg'
+                        'cover.jpg', 'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg', 'frontcover.jpg'
                     ];
 
                     // Start testing file pattern.
@@ -268,30 +270,47 @@ function createCoverFile(src, callback) {
 
                         // If no files in first level, test if folders exists.
                         else {
-                            // @TODO ajouter les noms avec majuscule ?
-                            // First define folder name pattern.
-                            const folders = ['cover', 'covers', 'artwork'];
 
-                            // Start testing child folder.
-                            testFiles(folder, folders, (file) => {
+                            const wrongfiles = [
+                                'cover.png', 'covers.png', 'front.png', 'frontal.png', 'folder.png',
+                                'cover.gif', 'covers.gif', 'front.gif', 'frontal.gif', 'folder.gif',
+                                'cover.bmp', 'covers.bmp', 'front.bmp', 'frontal.bmp', 'folder.bmp',
+                                'cover.jpeg', 'covers.jpeg', 'front.jpeg', 'frontal.jpeg', 'folder.jpeg',
+                            ];
 
-                                // If matching pattern folder, test files inside the folder.
-                                if (file) {
+                            // Start testing other file format.
+                            testFiles(folder, wrongfiles, (file) => {
 
-                                    // Start testing file pattern inside child folder.
-                                    testFiles(folder, files, (file) => {
+                                // If matching pattern file found, convert cover file in jpg.
+                                if (file) return saveToJpeg(file, cover, callback);
 
-                                        // If matching pattern file found, rename cover.jpg on folder.
-                                        if (file) return fs.copy(file, cover, callbackFs);
+                                else {
+                                    // @TODO ajouter les noms avec majuscule ?
+                                    // First define folder name pattern.
+                                    const folders = ['cover', 'covers', 'artwork'];
 
-                                        // If no file match, it's time to try to extract jpg from track binaries.
-                                        else return getCoverFromMeta(src, cover, callback);
+                                    // Start testing child folder.
+                                    testFiles(folder, folders, (file) => {
+
+                                        // If matching pattern folder, test files inside the folder.
+                                        if (file) {
+
+                                            // Start testing file pattern inside child folder.
+                                            testFiles(folder, files, (file) => {
+
+                                                // If matching pattern file found, rename cover.jpg on folder.
+                                                if (file) return fs.copy(file, cover, callbackFs);
+
+                                                // If no file match, it's time to try to extract jpg from track binaries.
+                                                else return readPictAndSave(src, cover, callback);
+                                            });
+                                        } else {
+                                            // If no child folder match, it's time to try to extract jpg from track binaries.
+                                            return readPictAndSave(src, cover, callback);
+                                        }
                                     });
-                                } else {
-                                    // If no child folder match, it's time to try to extract jpg from track binaries.
-                                    return getCoverFromMeta(src, cover, callback);
                                 }
-                            });
+                            })
                         }
                     });
                 });
@@ -305,39 +324,39 @@ function createCoverFile(src, callback) {
     });
 }
 
-function getCoverFromMeta(src, dest, callback) {
-
-    const args = getImgArgs(src, dest);
-    const proc = spawnRead(args);
-
-    proc.on("error", callback);
-    proc.on("close", (code) => {
-        if (code === 0) {
-            // console.log(`TRACK TEST OK - extracted cover.jpg from ${src}`);
-            callback(null, true);
-        }
-        else {
-            // console.warn(`TRACK TEST FAIL - ffmpeg can't extract jpg from ${src}. Exit with code ${code}`);
-            callback(null, false);
-        }
-    });
-}
-
-function spawnRead(args) {
-    return ffmpeg(args, { detached: true, encoding: "binary" });
-}
-
-function getImgArgs(src, dest) {
-    return [
-        "-i",
-        src,
-        "-an",
-        "-vcodec",
-        "copy",
-        dest,
-        "-n" // Force no rewrite if file exist.
-    ];
-}
+// function getCoverFromMeta(src, dest, callback) {
+//
+//     const args = getImgArgs(src, dest);
+//     const proc = spawnRead(args);
+//
+//     proc.on("error", callback);
+//     proc.on("close", (code) => {
+//         if (code === 0) {
+//             // console.log(`TRACK TEST OK - extracted cover.jpg from ${src}`);
+//             callback(null, true);
+//         }
+//         else {
+//             // console.warn(`TRACK TEST FAIL - ffmpeg can't extract jpg from ${src}. Exit with code ${code}`);
+//             callback(null, false);
+//         }
+//     });
+// }
+//
+// function spawnRead(args) {
+//     return ffmpeg(args, { detached: true, encoding: "binary" });
+// }
+//
+// function getImgArgs(src, dest) {
+//     return [
+//         "-i",
+//         src,
+//         "-an",
+//         "-vcodec",
+//         "copy",
+//         dest,
+//         "-n" // Force no rewrite if file exist.
+//     ];
+// }
 
 /**
  * Return object formatted for elasticsearch params query.
