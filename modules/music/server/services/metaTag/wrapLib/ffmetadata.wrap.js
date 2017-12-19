@@ -2,7 +2,8 @@
  * Created by Marc Foletto on 18/12/2017.
  */
 
-let ffmetadata = require('ffmetadata');
+const ffmetadata = require('ffmetadata');
+const trimObj = require('../../../../../core/server/services/obj.server.services');
 
 /**
  * Read Tag with FFmpeg
@@ -61,7 +62,7 @@ exports.read = function read (filePath, cb) {
         'of': (diskNb[1]) ? diskNb[1].replace(/^0+(?=\d)/, '') : diskOf
       };
 
-      cleanMeta = trimObj(cleanMeta);
+      cleanMeta = trimObj.trimObj(cleanMeta);
 
       cb( null, cleanMeta );
 

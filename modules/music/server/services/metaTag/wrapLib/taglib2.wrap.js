@@ -3,6 +3,7 @@
  */
 
 const taglib2 = require('taglib2');
+const trimObj = require('../../../../../core/server/services/obj.server.services');
 
 /**
  * Read Tag With TagLib2
@@ -60,7 +61,7 @@ exports.read = function read(filePath, cb) {
 
 
     // Trim Obj key and value
-    cleanMeta = trimObj(cleanMeta);
+    cleanMeta = trimObj.trimObj(cleanMeta);
 
     cb( null , cleanMeta );
 
