@@ -36,8 +36,14 @@ class AllTracks extends Component {
 
         return (
             <div>
-                <h1>Tracks</h1>
-                <SearchMusicBar indexName='tracks' field={'meta.title'} startLimit={0} searchAction={this.props.search} />
+                <h1>Tracks</h1><span>{this.props.total} tracks on result</span>
+                <SearchMusicBar indexName='tracks'
+                                field={'meta.title'}
+                                filtersMapping={{artist:'meta.artist', genre:'meta.genre', date:'range.meta.year'}}
+                                startLimit={0}
+                                searchAction={this.props.search}
+                                placeholder='search tracks...'
+                />
                 <Divider/>
 
                 {
@@ -45,7 +51,7 @@ class AllTracks extends Component {
                         return (
                             <div className='alltracks-item-album' key={i}>
                                 <div className='tracks-item-img' onClick={(e) => this.handlerPlayTracks(e, item)}>
-                                    <img title="Album Cover" src={'pictures' + ps.removeLast(item.path) + 'cover.jpg'} width="50" height="50"></img>
+                                    <img title="Album Cover" src={'pictures/' + ps.removeLast(item.path) + 'cover.jpg'} width="50" height="50"></img>
                                     <Icon color='teal' circular inverted name='play'/>
                                 </div>
                                 <div className='tracks-item-info'>

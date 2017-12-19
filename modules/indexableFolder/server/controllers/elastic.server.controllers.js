@@ -268,6 +268,28 @@ function getFilterRangeValues(key, query){
     return r;
 }
 
+function getFiltersFromQuery(query){
+
+    const reg = /^(filter.)/g;
+    let filters = [];
+
+    for(let key in query){
+        if( query.hasOwnProperty( key ) ) {
+            const f = key.replace(reg, '');
+            if (f !== key) {
+                const rf = f.replace(/^(range.)/g, '');
+                if (rf !== f) {
+                    filters = filters.concat(getFilterRangeValues(rf, query[key]));
+                } else {
+                    filters = filters.concat(getFilterValues(f, query[key]));
+                }
+            }
+        }
+    }
+
+    return filters;
+}
+
 exports.search = function (req, res, next) {
 
     const index = ps.clean(req.params.type);
@@ -276,9 +298,7 @@ exports.search = function (req, res, next) {
     const size = req.query.size ? ps.clean(req.query.size) : 1000;
     const field = req.query.fi ? ps.clean(req.query.fi) : 'name';
 
-    const artist = getFilterValues( 'artist', req.query.artist);
-    const genre = getFilterValues( 'genre', req.query.genre);
-    const date = getFilterRangeValues( 'year', req.query.date);
+    const filters = getFiltersFromQuery(req.query);
 
     let terms = ps.clean(req.query.q);
     terms = exact ? `"${terms}"` : terms + '*';
@@ -303,13 +323,13 @@ exports.search = function (req, res, next) {
     }
 
     // Build context query part.
-    if(artist.length || genre.length || date.length) {
+    if(filters.length) {
         base_query = {
             bool: {
                 must: query_query,
                 filter: {
                     bool: {
-                        should: [].concat(artist, genre, date),
+                        should: filters,
                     },
                 },
             },

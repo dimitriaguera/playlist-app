@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Button, Icon } from 'semantic-ui-react'
 import DropZone from './dropZone.client.components'
 
-const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, item, user, onAddItem }) => {
+const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, item, user, onAddItem }) => {
 
     const name = item.publicName || item.name;
 
@@ -19,7 +19,7 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
           return (
               <span className='fol-item-menu'>
                   <span className='fol-item-menu-inner'>
-                      <Button onClick={(e) => onPlayAlbum(e, item)} icon basic color="teal">
+                      <Button onClick={(e) => onPlayFolder(e, item)} icon basic color="teal">
                           <Icon name='play' />
                       </Button>
                       <Button onClick={(e) => onListTracks(e, item)} icon basic color="teal">
@@ -62,25 +62,5 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayAlbum, onListTracks, i
         </DropZone>
     );
 };
-
-// class IndexableFolderItem extends Component {
-//
-//     render() {
-//
-//         const { item } = this.props;
-//         const iconName = item.isFile?'music':'folder';
-//
-//         return (
-//             <div className='ifol-item'>
-//                 <a href='#' className='ifol-item-inner'>
-//                     <Icon name={iconName} />
-//                     <span className='ifol-item-title'>
-//                         {item.name}
-//                     </span>
-//                 </a>
-//             </div>
-//         );
-//     }
-// }
 
 export default IndexableFolderItem

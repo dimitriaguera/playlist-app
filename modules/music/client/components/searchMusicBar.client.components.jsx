@@ -49,7 +49,7 @@ class SearchMusicBar extends Component {
     componentDidMount() {
 
         const _self = this;
-        const { searchAction, indexName, field = 'name', startLimit = 3 } = this.props;
+        const { searchAction, filtersMapping, indexName, field = 'name', startLimit = 3 } = this.props;
 
         // Apply window events listeners.
         window.addEventListener('click', this.handlerClearFilters);
@@ -66,7 +66,7 @@ class SearchMusicBar extends Component {
         // Search request func on elasticsearch endpoint.
         const apiSearch = (term) => {
             const { filters } = _self.state;
-            const filterQuery = buildFiltersRequest(filters);
+            const filterQuery = buildFiltersRequest(filters, filtersMapping);
             // Use request given by properties.
             return searchAction(`${indexName}?q=${term}&fi=${field}${filterQuery}`);
         };
@@ -238,7 +238,7 @@ class SearchMusicBar extends Component {
     // Handler that apply filter on click on suggestion.
     handlerAddFilter(e, item) {
         const { filters, inputText, selected } = this.state;
-        const { searchAction, indexName, field = 'name' } = this.props;
+        const { searchAction, filtersMapping, indexName, field = 'name' } = this.props;
 
         // Add filter item to filters list.
         const newFilters = filters.concat([item]);
@@ -252,7 +252,7 @@ class SearchMusicBar extends Component {
         this.filtersID.push(item._id);
 
         // Query data with new set of filters.
-        searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
+        searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters, filtersMapping)}`);
     }
 
 
@@ -285,7 +285,7 @@ class SearchMusicBar extends Component {
     // Handler to remove a filter token.
     handlerRemoveFilter(e, item) {
         const { filters, inputText } = this.state;
-        const { searchAction, indexName, field = 'name' } = this.props;
+        const { searchAction, filtersMapping, indexName, field = 'name' } = this.props;
 
         // Remove from filters list.
         const newFilters = filters.filter(function(i) {
@@ -300,7 +300,7 @@ class SearchMusicBar extends Component {
         this.filtersID.splice(this.filtersID.indexOf(item._id), 1);
 
         // Query data with new set of filters.
-        searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters)}`);
+        searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters, filtersMapping)}`);
     }
 
 
@@ -375,19 +375,25 @@ class SearchMusicBar extends Component {
     render(){
 
         const { filters, filter, inputFilter, selected } = this.state;
+        const { filtersMapping } = this.props;
 
         return (
             <div onClick={(e) => e.stopPropagation()} style={this.props.style} className='search-bar'>
                 <div>
-                    <input ref={(element) => this.radio.artist=element} type="radio" id="filter1" onChange={this.handlerRadioChange}
+                    {filtersMapping.artist &&
+                        <input ref={(element) => this.radio.artist=element} type="radio" id="filter1" onChange={this.handlerRadioChange}
                            name="filter" value="artist" />
-
-                    <input ref={(element) => this.radio.genre=element} type="radio" id="filter2" onChange={this.handlerRadioChange}
-                           name="filter" value="genre"/>
-
-                    <input ref={(element) => this.radio.date=element} type="radio" id="filter3" onChange={this.handlerRadioChange}
-                           name="filter" value="date"/>
-
+                    }
+                    {filtersMapping.genre &&
+                        <input ref={(element) => this.radio.genre = element} type="radio" id="filter2"
+                               onChange={this.handlerRadioChange}
+                               name="filter" value="genre"/>
+                    }
+                    {filtersMapping.date &&
+                        <input ref={(element) => this.radio.date = element} type="radio" id="filter3"
+                               onChange={this.handlerRadioChange}
+                               name="filter" value="date"/>
+                    }
                     <div className='sb-filter-panel'>
 
                         <ul className='sb-filter'>
@@ -448,7 +454,7 @@ class SearchMusicBar extends Component {
                                onFocus={this.handlerClearFilters}
                                type='text'
                                name='inputText'
-                               placeholder='search album...'
+                               placeholder={this.props.placeholder}
                                className='search-input'
                         />
                     </div>
@@ -471,21 +477,21 @@ function testOccurence( str, exp ) {
     return '';
 }
 
-function buildFiltersRequest(filters){
+function buildFiltersRequest(filters, mappings){
 
     const f = {};
     let query = '';
 
     for(let i = 0, l = filters.length; i < l; i++){
-        if(f[filters[i]._type]){
-            f[filters[i]._type] += '+' + filters[i].text;
+        if(f[mappings[filters[i]._type]]){
+            f[mappings[filters[i]._type]] += '+' + filters[i].text;
             continue;
         }
-        f[filters[i]._type] = filters[i].text;
+        f[mappings[filters[i]._type]] = filters[i].text;
     }
 
     for(let s in f){
-        query += '&' + s + '=' + ps.urlEncode(f[s]);
+        query += '&filter.' + s + '=' + ps.urlEncode(f[s]);
     }
 
     return query;

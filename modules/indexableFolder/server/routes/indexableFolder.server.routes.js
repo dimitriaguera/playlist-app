@@ -8,8 +8,11 @@ const elastic = require('../controllers/elastic.server.controllers.js');
 
 module.exports = function(app){
 
+    // Extract all covers from folders or meta.
+    app.route('/api/files/cover/all').get(files.createAllCovers);
+
     // Extract and create jpg cover from meta.
-    app.route('/api/files/cover').get(files.createCoverFromTrack);
+    //app.route('/api/files/cover').get(files.createCoverFromTrack);
 
     // Test, copy, extract all covers.
     app.route('/api/files/covers/album').get(files.createCoversFromAlbum);

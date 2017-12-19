@@ -10,15 +10,12 @@ class InfoPath extends Component {
     render() {
 
         const { meta } = this.props;
-        const artist = meta.artist || meta.ARTIST;
-        const album = meta.album || meta.ALBUM;
-        const date = meta.date || meta.DATE;
-        const track = meta.track || meta.TRACK;
+        const { artist, album, year, track, time, genre, disk } = meta;
 
         return (
             <span className='ip-container'>
                 <span className='ip-item'>
-                {artist} | {album} | {date} | track {track}
+                {artist} | {album} | {year} | track {track.no}
                 </span>
             </span>
         );
