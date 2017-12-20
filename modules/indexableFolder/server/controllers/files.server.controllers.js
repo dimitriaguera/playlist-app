@@ -91,7 +91,7 @@ exports.createAllCovers = function (req, res, next) {
         if(err) return errorHandler.errorMessageHandler(err, req, res, next);
 
         // Get tracks path.
-        const albums = data.hits.hits.map((item) => item._source.name);
+        const albums = data.hits.hits.map((item) => {return {name: item._source.name, cover:item._source.cover}});
 
         // Declare chunk outside off closure for memory consideration.
         let chunk = [];
@@ -125,14 +125,14 @@ exports.createAllCovers = function (req, res, next) {
 
 function runAlbumCoverCreate(album, callback){
 
-    const params = queryFactory('tracks', ['meta.album'], album, true);
+    const params = queryFactory('tracks', ['meta.album'], album.name, true);
 
     // Elasticsearch album tracks.
     es.search( params, (err, data) => {
 
         // test if error in elastic query.
         if(err) {
-          return callback(null, `error on album tracks search - value: ${album}`);
+          return callback(null, `error on album tracks search - value: ${album.name}`);
         }
 
         // Test if result.
@@ -141,7 +141,7 @@ function runAlbumCoverCreate(album, callback){
         }
 
         // Get tracks path.
-        const tracks = data.hits.hits.map((item) => item._source);
+        const tracks = data.hits.hits.map((item) => item._source.path);
 
         // Run Algorythm that search and create cover.jpg
         runTracksAlbumCoverCreate(tracks, callback, album);
@@ -150,6 +150,8 @@ function runAlbumCoverCreate(album, callback){
 }
 
 function runTracksAlbumCoverCreate(tracks, callback, context){
+
+    let coverPath = context.cover;
 
     // Try to get cover.jpg from each path.
     // First match and create stop loop and send resp server.
@@ -164,12 +166,12 @@ function runTracksAlbumCoverCreate(tracks, callback, context){
         //     return callback(flag);
         // }
         // No flag up because of cover generation failed for all tracks.
-        callback(null, context + ' - cannot find, create or extract cover.jpg file.');
+        callback(null, context.name + ' - cannot find, create or extract cover.jpg file.');
     });
 
     // Wrap iterate arg to stop eachSeries loop at first match.
-    function iterate(track, callback){
-        createCoverFile(track, (err, done) => {
+    function iterate(path, callback){
+        createCoverFile(path, coverPath, (err, done) => {
             // If cover.jpg created or exist, or loop ended, done. Stop loop.
             if(done) return callback(done);
             // If error, stop loop and pass error on callback.
@@ -207,21 +209,14 @@ function testFiles(path, files, callback) {
     async.each( files, iteration, (filePath) => callback(filePath));
 }
 
-function createCoverFile(track, callback) {
+function createCoverFile(src, coverPath, callback) {
 
     // Get album folder path.
-    const src = track.path;
-
     const dirname = path.dirname(src);
     const folder = DRIVE + '/' + dirname + '/';
-    // const cover = folder + 'cover.jpg';
-    const destination = PUBLIC_FILE + '/' + dirname + '/';
+    const destination = PUBLIC_FILE + '/' + coverPath + '/';
     const cover = destination + 'cover.jpg';
 
-    /**** TEST ****/
-    // const cover = PUBLIC_FILE + '/' + track.meta.album + '/cover.jpg';
-    // console.log(cover);
-    /*****************/
 
     // Wrap fs.copy callback to match with pattern callback(err, done);
     function callbackFs(err){
@@ -322,40 +317,6 @@ function createCoverFile(track, callback) {
         }
     });
 }
-
-// function getCoverFromMeta(src, dest, callback) {
-//
-//     const args = getImgArgs(src, dest);
-//     const proc = spawnRead(args);
-//
-//     proc.on("error", callback);
-//     proc.on("close", (code) => {
-//         if (code === 0) {
-//             // console.log(`TRACK TEST OK - extracted cover.jpg from ${src}`);
-//             callback(null, true);
-//         }
-//         else {
-//             // console.warn(`TRACK TEST FAIL - ffmpeg can't extract jpg from ${src}. Exit with code ${code}`);
-//             callback(null, false);
-//         }
-//     });
-// }
-//
-// function spawnRead(args) {
-//     return ffmpeg(args, { detached: true, encoding: "binary" });
-// }
-//
-// function getImgArgs(src, dest) {
-//     return [
-//         "-i",
-//         src,
-//         "-an",
-//         "-vcodec",
-//         "copy",
-//         dest,
-//         "-n" // Force no rewrite if file exist.
-//     ];
-// }
 
 /**
  * Return object formatted for elasticsearch params query.

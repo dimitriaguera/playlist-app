@@ -161,7 +161,7 @@ class Folder extends Component {
         // Build path from array.
         // const strPath = ps.buildPath(path);
         // Update component via url update.
-        history.push(`/folder${path}`);
+        history.push(`/folder/${path}`);
         e.preventDefault();
     }
 
@@ -179,7 +179,7 @@ class Folder extends Component {
         const { history } = this.props;
 
         // Go to album display mode.
-        history.push(`/folder${item.path}`);
+        history.push(`/folder/${item.path}`);
         e.preventDefault();
     }
 
@@ -227,7 +227,7 @@ class Folder extends Component {
     handlerPlayFolder(e, item) {
 
         const _self = this;
-        const {fetchFiles, addAlbumToPlay} = this.props;
+        const {fetchFiles, addFolderToPlay} = this.props;
 
         fetchFiles( ps.urlEncode(item.path) ).then((data) => {
             if ( !data.success ) {
@@ -238,14 +238,14 @@ class Folder extends Component {
                 // @todo move it to audiobar control beacause here the user
                 // don't know what's happen
                 if (data.msg.length) {
-                  const album = {
+                  const folder = {
                     pl: {
                       title: item.name,
                       path: item.path,
                       tracks: data.msg,
                     }
                   };
-                  addFolderToPlay( album );
+                  addFolderToPlay( folder );
                 }
 
             }

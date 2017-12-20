@@ -40,7 +40,7 @@ exports.index = function (req, res, next) {
         // Parse albums, artists, and genres from all tracks metadata.
         const bulk_data = extractDataFromMeta(data);
 
-        return res.json({yo: bulk_data});
+        // return res.json({yo: bulk_data.albums});
 
         // Set params for index we need to create.
         const indices = [
@@ -125,6 +125,7 @@ function extractDataFromMeta(data){
 
         /*********** STRING NORMALIZATION ************/
         artist = artist ? artist.toLowerCase() : null;
+        albumartist = albumartist ? albumartist.toLowerCase() : null;
         album = album ? album.toLowerCase() : 'NO-META-ALBUM';
 
         // Meta.field must not be null or empty, because of elasticsearch tracks mapping.
@@ -135,6 +136,7 @@ function extractDataFromMeta(data){
             title: title,
             album: album,
             artist: artist,
+            albumartist: albumartist,
             year: year,
             disk: disk,
             genre: genre,
@@ -154,12 +156,12 @@ function extractDataFromMeta(data){
         // Here start test to filter albums and artists.
         // Test key string.
         // const albumTest = album ? album.toLowerCase() : 'NO-META-ALBUM';
-        // let albumID = albumTest + disk.no;
-        let albumID = album + disk.no;
+        let artistKEY = albumartist || artist;
+        let albumKEY = artistKEY + '/' + album + '/' + disk.no;
 
         // If album tracks not yet created,
         // Create and pusht it in albums array.
-        if( !alKeys[albumID] ) {
+        if( !alKeys[albumKEY] ) {
             albums.push({
                 suggest: {
                     input: album,
@@ -167,18 +169,20 @@ function extractDataFromMeta(data){
                 name: album,
                 keyName: album,
                 artist: [artist],
+                albumartist: albumartist,
                 year: year,
                 disk: disk,
                 genre: genre,
                 path: ps.removeLast(item.path),
+                cover: ps.cleanPath(albumKEY),
             });
-            alKeys[albumID] = albums.length;
+            alKeys[albumKEY] = albums.length;
         }
 
         // If album tracks already in album array.
         else {
             // Get the already registered album.
-            const currentAlbum = albums[alKeys[albumID] - 1];
+            const currentAlbum = albums[alKeys[albumKEY] - 1];
 
             // Add and tracks genre on album.
             currentAlbum.genre.concat(genre);

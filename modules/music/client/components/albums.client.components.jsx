@@ -75,11 +75,12 @@ class Albums extends Component {
                 <Divider/>
                 {
                     this.props.data.map((item, i) => {
+
                         return (
-                            <div className='albums-item-album' key={item.path + i}>
+                            <div className='albums-item-album' key={item.cover}>
                                 <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
                                     <Img title="Album Cover"
-                                         src={'pictures/' + item.path + 'cover.jpg'}
+                                         src={'pictures/' + item.cover + '/cover.jpg'}
                                          defaultSrc='static/images/default_cover.png'
                                          width="150" height="150"
                                     />

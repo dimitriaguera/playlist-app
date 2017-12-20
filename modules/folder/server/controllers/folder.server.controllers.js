@@ -6,7 +6,7 @@ const async = require('async');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-const ps = require(path.resolve('./modules/folder/server/services/path.server.services'));
+const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 
 exports.open = function (req, res) {
 
@@ -14,7 +14,7 @@ exports.open = function (req, res) {
     const NOT_SECURE_STRING = req.query.path;
 
     const query = ps.cleanPath(NOT_SECURE_STRING);
-    const path = `${DRIVE}${query}`;
+    const path = `${DRIVE}/${query}`;
 
     const regexFile = config.fileSystem.fileAudioTypes;
     const regexSecure = config.security.secureFile;
@@ -103,7 +103,7 @@ exports.searchSyncFiles = function(req, res, next) {
     const NOT_SECURE_STRING = req.query.path;
 
     const query = ps.cleanPath(NOT_SECURE_STRING);
-    const path = `${DRIVE}${query}`;
+    const path = `${DRIVE}/${query}`;
 
     // Call recursive search.
     walk( path, (err, results) => {

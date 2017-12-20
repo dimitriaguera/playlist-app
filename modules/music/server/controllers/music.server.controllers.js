@@ -9,7 +9,7 @@ const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const usersServices = require(path.resolve('./modules/users/server/services/users.server.services'));
-const ps = require(path.resolve('./modules/folder/server/services/path.server.services'));
+const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 
 exports.read = function (req, res, next) {
 
