@@ -99,7 +99,7 @@ exports.createAllCovers = function (req, res, next) {
         // Declare function inside controller closure to avoid pass big array args, and save memory.
         function proceedOnChunk() {
             // Get chunk.
-            chunk = splitTab(albums, 20);
+            chunk = splitTab(albums, 1);
             // Async handle chunk.
             async.map( chunk, runAlbumCoverCreate, (err, data) => {
                 // Save chunk proceeding info.
@@ -149,7 +149,7 @@ function runAlbumCoverCreate(album, callback){
         }
 
         // Get tracks path.
-        const tracks = data.hits.hits.map((item) => item._source.path);
+        const tracks = data.hits.hits.map((item) => item._source);
 
         // Run Algorythm that search and create cover.jpg
         runTracksAlbumCoverCreate(tracks, callback, album);
@@ -176,8 +176,8 @@ function runTracksAlbumCoverCreate(tracks, callback, context){
     });
 
     // Wrap iterate arg to stop eachSeries loop at first match.
-    function iterate(path, callback){
-        createCoverFile(path, (err, done) => {
+    function iterate(track, callback){
+        createCoverFile(track, (err, done) => {
             // If cover.jpg created or exist, or loop ended, done. Stop loop.
             if(done) return callback(done);
             // If error, stop loop and pass error on callback.
@@ -215,14 +215,21 @@ function testFiles(path, files, callback) {
     async.each( files, iteration, (filePath) => callback(filePath));
 }
 
-function createCoverFile(src, callback) {
+function createCoverFile(track, callback) {
 
     // Get album folder path.
+    const src = track.path;
+
     const dirname = path.dirname(src);
     const folder = DRIVE + '/' + dirname + '/';
     // const cover = folder + 'cover.jpg';
     const destination = PUBLIC_FILE + '/' + dirname + '/';
     const cover = destination + 'cover.jpg';
+
+    /**** TEST ****/
+    // const cover = PUBLIC_FILE + '/' + track.meta.album + '/cover.jpg';
+    // console.log(cover);
+    /*****************/
 
     // Wrap fs.copy callback to match with pattern callback(err, done);
     function callbackFs(err){

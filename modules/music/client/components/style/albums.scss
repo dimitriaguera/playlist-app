@@ -7,6 +7,7 @@
   line-height: 0;
   width: 150px;
   display: inline-block;
+  vertical-align: top;
 
   .albums-item-img {
     position: relative;
@@ -54,6 +55,7 @@
     //white-space: nowrap;
     overflow: hidden;
     line-height: 1;
+    transition: height 0.5s;
 
     .name {
       font-size: 1rem;
@@ -73,6 +75,14 @@
       span {
         text-overflow: ellipsis;
       }
+    }
+  }
+}
+
+.album-open {
+  .albums-item-album:nth-child(10) {
+    .albums-item-info {
+      height: 300px;
     }
   }
 }

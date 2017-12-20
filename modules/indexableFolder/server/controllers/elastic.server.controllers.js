@@ -40,7 +40,7 @@ exports.index = function (req, res, next) {
         // Parse albums, artists, and genres from all tracks metadata.
         const bulk_data = extractDataFromMeta(data);
 
-        //return res.json({yo: bulk_data.tracks});
+        return res.json({yo: bulk_data});
 
         // Set params for index we need to create.
         const indices = [

@@ -15,11 +15,21 @@ class Albums extends Component {
 
     constructor (props) {
         super(props);
+        this.state = {
+          open: false,
+        };
         this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
+        this.handleOnClick = this.handleOnClick.bind(this);
     }
 
     componentDidMount() {
         this.props.search(`album?sort=keyName&fi=name&q=`);
+    }
+
+    handleOnClick(e) {
+        const { open } = this.state;
+        console.log(!open);
+        this.setState({open: !open});
     }
 
     // Handler to add recursively all tracks on playlist.
@@ -48,11 +58,14 @@ class Albums extends Component {
 
     render(){
 
-        //const { nodes } = this.state;
+        const { open } = this.state;
+        let classes = '';
+
+        if(open) classes = 'album-open';
 
         return (
-            <div>
-                <h1>Albums</h1><span>{this.props.total} albums on result</span>
+            <div className={classes}>
+                <h1 onClick={(e) => this.handleOnClick()}>Albums</h1><span>{this.props.total} albums on result</span>
                 <SearchMusicBar indexName='album'
                                 startLimit={0}
                                 searchAction={this.props.search}
