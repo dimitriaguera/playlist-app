@@ -40,6 +40,12 @@ module.exports = {
 
     ffmpegExec: './modules/music/server/services/metaTag/ffmpeg/YOUR_OS/ffmpeg',
 
+    index: {
+      sizeChunkNode: 20,
+      sizeChunKCover: 20,
+      sizeChunkElastic: 20,
+    },
+
     seedDB: {
         haveToSeed: false,
         collections: [{

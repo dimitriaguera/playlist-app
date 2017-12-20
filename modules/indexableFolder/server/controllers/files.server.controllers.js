@@ -3,8 +3,9 @@ const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
-const { readPictAndSave } = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services'));
+const { readPictAndSave } = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
 const { saveToJpeg } = require(path.resolve('./modules/music/server/services/picture.server.services'));
+const { splitTab } = require(path.resolve('./modules/core/server/services/obj.server.services'));
 const spawn = require('child_process').spawn;
 const async = require('async');
 const ffmpeg = spawn.bind(null, process.env.FFMPEG_PATH || "ffmpeg");
@@ -99,7 +100,8 @@ exports.createAllCovers = function (req, res, next) {
         // Declare function inside controller closure to avoid pass big array args, and save memory.
         function proceedOnChunk() {
             // Get chunk.
-            chunk = splitTab(albums, 1);
+            chunk = splitTab(albums, config.index.sizeChunKCover);
+
             // Async handle chunk.
             async.map( chunk, runAlbumCoverCreate, (err, data) => {
                 // Save chunk proceeding info.
@@ -120,16 +122,6 @@ exports.createAllCovers = function (req, res, next) {
         proceedOnChunk();
     });
 };
-
-// Giving an array split it and return the rest
-function splitTab(array, nbToSplit) {
-    let tabOnWork;
-    nbToSplit = (array.length > nbToSplit) ? nbToSplit : array.length;
-
-    tabOnWork = array.slice(0, nbToSplit);
-    array.splice(0, nbToSplit);
-    return tabOnWork;
-}
 
 function runAlbumCoverCreate(album, callback){
 

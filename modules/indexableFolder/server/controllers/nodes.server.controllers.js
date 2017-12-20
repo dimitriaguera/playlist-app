@@ -9,10 +9,14 @@ const errorHandler = require(path.resolve('./modules/core/server/services/error.
 const {clock} = require(path.resolve('./modules/core/server/services/time.server.services.js'));
 
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
-const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
+const { splitTab } = require(path.resolve('./modules/core/server/services/obj.server.services'));
 
+const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const mongoose = require('mongoose');
-const metaTag = require(path.resolve('./modules/music/server/services/metaTag/metaTag.server.services.js'));
+
+const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
+
+
 
 // @todo put this when export conf
 const rootOK = ps.conformPathToOs(config.folder_base_url);
@@ -93,15 +97,8 @@ exports.index = function (req, res, next) {
   // Do that by bulk off 10 files
   function findMetaAndSave(files, cbfindMetaAndSave){
 
-    // Giving an array split it and return the rest
-    function splitTab(files, nbToSplit) {
-      let tabOnWork;
-      nbToSplit = (files.length > nbToSplit) ? nbToSplit : files.length;
-
-      tabOnWork = files.slice(0, nbToSplit);
-      files.splice(0, nbToSplit);
-      return tabOnWork;
-    }
+    //@todo let it here ? Closure memory problem vs cpu
+    let tabOnWork;
 
     // Save many mongo docs in db
     function saveInDb(files, cb){
@@ -143,7 +140,7 @@ exports.index = function (req, res, next) {
     // Meta. When its finised call saveDirInDb for saving
     // Dir
     function bulkTraitement() {
-      let tabOnWork = splitTab(files, 50);
+      tabOnWork = splitTab(files, config.index.sizeChunkNode);
 
       async.map(
         tabOnWork,
