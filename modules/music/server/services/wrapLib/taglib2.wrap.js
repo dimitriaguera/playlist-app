@@ -3,7 +3,7 @@
  */
 
 const taglib2 = require('taglib2');
-const trimObj = require('../../../../../core/server/services/obj.server.services');
+const trimObj = require('../../../../core/server/services/obj.server.services');
 
 /**
  * Read Tag With TagLib2
@@ -97,7 +97,7 @@ exports.readPict = readPict;
 
 exports.readPictAndSave = function readPictAndSave(input, output, cb) {
 
-  const saveToJpeg = require('../../picture.server.services');
+  const saveToJpeg = require('../picture.server.services');
 
   readPict(input, (err, data) => {
       if (err) return cb(err);

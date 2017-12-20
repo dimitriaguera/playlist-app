@@ -3,7 +3,7 @@
  */
 
 const ffmetadata = require('ffmetadata');
-const trimObj = require('../../../../../core/server/services/obj.server.services');
+const trimObj = require('../../../../core/server/services/obj.server.services');
 
 /**
  * Read Tag with FFmpeg

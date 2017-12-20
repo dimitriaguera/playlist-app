@@ -136,7 +136,7 @@ exports.readPict = readPict;
 
 exports.readPictAndSave = function readPictAndSave(input, output, cb) {
 
-  const saveToJpeg = require('../../picture.server.services');
+  const saveToJpeg = require('../picture.server.services');
 
   readPict(input, (err, data) => {
       if (err) return cb(err);
