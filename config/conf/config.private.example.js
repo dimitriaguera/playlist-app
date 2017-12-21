@@ -38,8 +38,6 @@ module.exports = {
     logger: ':method :url :status :response-time ms - :res[content-length]',
     uploads: {},
 
-    ffmpegExec: 'ffmpeg',
-
     index: {
       sizeChunkNode: 20,
       sizeChunKCover: 20,

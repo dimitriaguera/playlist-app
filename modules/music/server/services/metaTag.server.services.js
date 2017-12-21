@@ -28,22 +28,8 @@ try {
 
   } catch(e) {
 
-    try {
-
-      // Ffmetadata use ffmpeg cli
-      const ffmetadataWrap = require('./wrapLib/ffmetadata.wrap');
-
-      exports.read = ffmetadataWrap.read;
-      exports.metaLibName = 'ffmetadata';
-
-      console.log('Meta music lib used: ffmetadata');
-
-    } catch(e) {
-
       console.error('No lib for reading meta');
       exports.metaLibName = null;
-    }
-
   }
 
 }

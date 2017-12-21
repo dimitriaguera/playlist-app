@@ -6,9 +6,7 @@ const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasti
 const { readPictAndSave } = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
 const { saveToJpeg } = require(path.resolve('./modules/music/server/services/picture.server.services'));
 const { splitTab } = require(path.resolve('./modules/core/server/services/obj.server.services'));
-const spawn = require('child_process').spawn;
 const async = require('async');
-const ffmpeg = spawn.bind(null, process.env.FFMPEG_PATH || "ffmpeg");
 const fs = require("fs-extra");
 
 const DRIVE = config.folder_base_url;
