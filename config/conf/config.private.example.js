@@ -38,7 +38,7 @@ module.exports = {
     logger: ':method :url :status :response-time ms - :res[content-length]',
     uploads: {},
 
-    ffmpegExec: './modules/music/server/services/metaTag/ffmpeg/YOUR_OS/ffmpeg',
+    ffmpegExec: 'ffmpeg',
 
     index: {
       sizeChunkNode: 20,

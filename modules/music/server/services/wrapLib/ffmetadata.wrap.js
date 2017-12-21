@@ -5,6 +5,20 @@
 const ffmetadata = require('ffmetadata');
 const trimObj = require('../../../../core/server/services/obj.server.services');
 
+const fs = require('fs');
+const config = require('../../../../../config/env/config.server');
+
+// Check ffmpeg
+if ( !process.env.FFMPEG_PATH ) {
+  if ( config.ffmpegExec ) {
+    process.env.FFMPEG_PATH = config.ffmpegExec;
+  } else {
+    process.env.FFMPEG_PATH = 'ffmpeg';
+  }
+}
+fs.accessSync(process.env.FFMPEG_PATH, fs.constants.X_OK);
+
+
 /**
  * Read Tag with FFmpeg
  * @var path = string
@@ -85,10 +99,10 @@ exports.read = function read (filePath, cb) {
  * @var cover path to jpeg file
  *
  */
-exports.write = function write(filePath, metadata, cover, cb){
-  ffmetadata.write(filePath, metadata, {attachements: cover}, function(err) {
-    if(err) return cb( err );
-
-    cb( null, metadata );
-  });
-};
+// exports.write = function write(filePath, metadata, cover, cb){
+//   ffmetadata.write(filePath, metadata, {attachements: cover}, function(err) {
+//     if(err) return cb( err );
+//
+//     cb( null, metadata );
+//   });
+// };
