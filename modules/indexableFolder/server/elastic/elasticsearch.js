@@ -7,11 +7,27 @@ const search = require('./search.server.elastic');
 const chalk = require('chalk');
 
 let client = null;
+
+
 // Instantiate ES client.
+// @todo check log level in prod
 if (process.env.NODE_ENV === 'production'){
   client = new elasticsearch.Client({
     host: 'localhost:9200',
-    log: ['error', 'trace']
+    log: [
+    {
+      type: 'stream',
+      level: 'error',
+      // config option specific to stream type loggers
+      stream: mySocket
+    },
+    // {
+    //   type: 'file',
+    //   level: 'trace',
+    //   // config options specific to file type loggers
+    //   path: '/var/log/elasticsearch.log'
+    // }
+  ]
   });
 } else {
   client = new elasticsearch.Client({
