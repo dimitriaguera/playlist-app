@@ -17,7 +17,6 @@ const mongoose = require('mongoose');
 const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
 
 
-
 // @todo put this when export conf
 const rootOK = ps.conformPathToOs(config.folder_base_url);
 
@@ -349,6 +348,89 @@ exports.delete = function (req, res, next) {
             });
     });
 };
+
+/**
+ * Update a Node, and if needed, his parent.
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.updateMeta = function (req, res, next) {
+
+  const node = req.fileNode;
+
+
+  // Check if empty field in oldNode and in new Node
+  let newMeta = req.body.meta;
+  newMeta = Object.keys(newMeta).reduce(
+    (acc, key) => {
+      if ( newMeta === '') {
+        if (node.meta.hasOwnProperty(key)) {
+          acc[key] = newMeta[key];
+        }
+        return acc;
+      }
+      acc[key] = newMeta[key];
+      return acc;
+    },
+    {}
+  );
+
+  // If update success, response with success.
+  return res.json({
+    success: true,
+    msg: newMeta,
+  });
+
+
+  node.meta = req.body.meta;
+
+  node.save((err) => {
+
+    if(err){
+      res.status(404);
+      return errorHandler.errorMessageHandler(err, req, res, next);
+    }
+
+    // If node move, update parents.
+    if( newParentId && parentId !== newParentId) {
+
+      // Update old parent.
+      Node.update(
+        { _id: parentId },
+        { safe: true },
+        (err) => {
+
+          // If error on update, stop process.
+          if ( err ) return errorHandler.errorMessageHandler(err, req, res, next);
+
+          // If update success, response with success.
+          res.json({
+            success: true,
+            msg: `Updated old parent Node ${parentId.name}`,
+          });
+        });
+
+      // Update old parent.
+      Node.update(
+        { _id: newParentId },
+        { safe: true },
+        (err) => {
+
+          // If error on update, stop process.
+          if ( err ) return errorHandler.errorMessageHandler(err, req, res, next);
+
+          // If update success, response with success.
+          res.json({
+            success: true,
+            msg: `Updated current parent Node ${newParentId.name}`,
+          });
+        });
+    }
+  });
+};
+
 
 /**
  * Return file's Node object.
