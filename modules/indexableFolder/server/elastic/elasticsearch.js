@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production'){
     host: 'localhost:9200',
     log: [
     {
-      type: 'stream',
+      type: 'stdio',
       level: 'error',
       // config option specific to stream type loggers
       stream: mySocket
