@@ -10,17 +10,15 @@ let client = null;
 
 
 // Instantiate ES client.
-// @todo check log level in prod
+// @t
 if (process.env.NODE_ENV === 'production'){
   client = new elasticsearch.Client({
     host: 'localhost:9200',
     log: [
-    {
-      type: 'stdio',
-      level: 'error',
-      // config option specific to stream type loggers
-      stream: mySocket
-    },
+      {
+        type: 'stdio', // default
+        level: 'error',
+      },
     // {
     //   type: 'file',
     //   level: 'trace',
