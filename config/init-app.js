@@ -157,7 +157,7 @@ module.exports.initRoutes = function(app) {
 
     // Virtual path for Static files
     app.use('/static', express.static(path.resolve('./public')));
-    app.use('/pictures', express.static(path.resolve('./pictures')));
+    app.use('/pictures', express.static(path.resolve(config.public_base_url)));
 
     // Modules routes
     require('../modules/users/server/routes/users.server.routes')(app);
