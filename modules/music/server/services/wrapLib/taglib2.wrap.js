@@ -10,7 +10,7 @@ const trimObj = require('../../../../core/server/services/obj.server.services');
  * @param filePath
  * @param cb
  */
-exports.read = function read(filePath, cb) {
+exports.read = function (filePath, cb) {
   try {
     const metadata = taglib2.readTagsSync(filePath);
 
@@ -73,7 +73,10 @@ exports.read = function read(filePath, cb) {
 };
 
 /**
- * Extract Picture from a track with taglib2
+ * Extract Picture from a track with taglib2 return a obj with picture
+ * buffer and extension of file
+ *
+ * @param input String path to a audio file
  */
 function readPict(filePath , cb) {
   try {
@@ -94,8 +97,14 @@ function readPict(filePath , cb) {
 }
 exports.readPict = readPict;
 
-
-exports.readPictAndSave = function readPictAndSave(input, output, cb) {
+/**
+ * Save cover from tag of an audio file to a jpg file
+ *
+ * @param input String path to a audio file
+ * @param output String path to extracted cover to a jpg file
+ * @param cb
+ */
+exports.readPictAndSave = function (input, output, cb) {
 
   const saveToJpeg = require('../picture.server.services');
 
@@ -104,5 +113,48 @@ exports.readPictAndSave = function readPictAndSave(input, output, cb) {
       saveToJpeg.saveToJpeg(data.pict, output, cb)
     }
   );
+};
 
+/**
+ * Write meta to a file
+ *
+ * You have to use tracknumber instead of track and discnumber instead of disc
+ *
+ * Exemple of meta
+ * meta = {
+ *  artist: 'Howlin\' Wolf',
+ *  title: 'Evil is goin\' on',
+ *  album: 'Smokestack Lightnin\'',
+ *  comment: 'Chess Master Series',
+ *  genre: 'blues',
+ *  year: 1951,
+ *  track: 3,
+ *  tracknumber: '1/1',
+ *  discnumber: '1/1',
+ *   pictures: [
+ *    {
+ *      "mimetype": mime('./cover.jpg'),
+ *      "picture": fs.readFileSync('./cover.jpg')
+ *     }
+ *   ],
+ * };
+ *
+ *
+ * @param audioFile String Path to audio file
+ * @param meta Object
+ * @param cb
+ */
+exports.saveMeta = function (audioFile, meta, cb) {
+  try {
+
+    function standardizeMeta(meta){
+      meta.tracknumber = meta.track.no + '/' + meta.track.of;
+      meta.discnumber = meta.disk.no + '/' + meta.disk.of;
+    }
+
+    taglib2.writeTagsSync(audioFile, standardizeMeta(meta));
+    cb(null, null);
+  } catch (e){
+    cb (e);
+  }
 };

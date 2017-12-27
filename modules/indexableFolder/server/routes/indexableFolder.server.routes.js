@@ -20,6 +20,10 @@ module.exports = function(app){
     // // Test, copy, extract all covers.
     // app.route('/api/files/covers/artist').get(files.createCoversFromArtist);
 
+    // Update Node Meta
+    app.route('/api/nodes/:id/meta')
+      .put(nodes.updateMeta);
+
     // Update or delete a Node.
     app.route('/api/nodes/:id')
         .put(nodes.update)
