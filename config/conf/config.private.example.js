@@ -44,6 +44,25 @@ module.exports = {
       sizeChunkElastic: 20,
     },
 
+    covers: {
+        // Files pattern where to search existing cover files into folders.
+        pattern: {
+            // Searching if files match those names.
+            files: [
+                'cover.jpg', 'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg', 'frontcover.jpg'
+            ],
+            // Testing other format.
+            no_jpg_files: [
+                'cover.png', 'covers.png', 'front.png', 'frontal.png', 'folder.png',
+                'cover.gif', 'covers.gif', 'front.gif', 'frontal.gif', 'folder.gif',
+                'cover.bmp', 'covers.bmp', 'front.bmp', 'frontal.bmp', 'folder.bmp',
+                'cover.jpeg', 'covers.jpeg', 'front.jpeg', 'frontal.jpeg', 'folder.jpeg',
+            ],
+            // Testing if sub-directory to run same tests above.
+            folders: ['cover/', 'covers/', 'artwork/'],
+        },
+    },
+
     seedDB: {
         haveToSeed: false,
         collections: [{
