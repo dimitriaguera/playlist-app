@@ -231,8 +231,15 @@ function testFiles(path, files, callback) {
 function createCoverFile(src, coverPath, visitedPath, callback) {
 
     // Get album folder path.
-    const dirname = path.dirname(src);
-    const folder = DRIVE + '/' + dirname + '/';
+    let dirname = path.dirname(src);
+    let folder;
+    if (dirname !== '.') {
+      folder = path.join(DRIVE, dirname) + '/';
+    } else {
+      folder = DRIVE + '/';
+    }
+    let audioFileSrc = path.join(folder,src);
+
     const destination = PUBLIC_FILE + '/' + coverPath + '/';
     const cover = destination + 'cover.jpg';
 
@@ -298,7 +305,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
         // Test if there are sub-folders that can contain covers files.
         function(next){
             testFiles(folder, PATTERN_FOLDERS, subFolder => {
-                let action = () => readPictAndSave(src, cover, callback);
+                let action = () => readPictAndSave(audioFileSrc, cover, callback);
                 if(subFolder) next( null, subFolder );  // Call next step with arg.
                 else next( action );                    // Stop process and call action.
             });
@@ -325,7 +332,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
     async.waterfall(func,
         action => {
             if(action) return action();
-            readPictAndSave(src, cover, callback);
+            readPictAndSave(audioFileSrc, cover, callback);
         }
      );
 
