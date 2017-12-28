@@ -44,7 +44,17 @@ chkdir db
 
 # Log in log File ce qui est pas bien pour le raspberry
 #mongod --dbpath db --logpath log/mongod.log &
-mongod --dbpath db < /dev/null &>/dev/null &
+#mongod --dbpath db < /dev/null &>/dev/null &
+botg "Starting Mongod"
+screen -d -m -S mongod mongod --dbpath db
+
+# Start Elastic
+botg "Starting Elastic"
+screen -d -m -S elastic marcW/elasticsearch-6.0.0/bin/./elasticsearch
 
 # Start server
-npm run start
+botg "Starting Server"
+#npm run start
+#screen -d -m -S npm run start
+screen -d -m -S playlist bash -c 'NODE_ENV=production node server'
+
