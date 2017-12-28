@@ -44,23 +44,32 @@ module.exports = {
       sizeChunkElastic: 20,
     },
 
+    // Uncomment lines with first letter Up for case sensitive system
     covers: {
-        // Files pattern where to search existing cover files into folders.
-        pattern: {
-            // Searching if files match those names.
-            files: [
-                'cover.jpg', 'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg', 'frontcover.jpg'
-            ],
-            // Testing other format.
-            no_jpg_files: [
-                'cover.png', 'covers.png', 'front.png', 'frontal.png', 'folder.png',
-                'cover.gif', 'covers.gif', 'front.gif', 'frontal.gif', 'folder.gif',
-                'cover.bmp', 'covers.bmp', 'front.bmp', 'frontal.bmp', 'folder.bmp',
-                'cover.jpeg', 'covers.jpeg', 'front.jpeg', 'frontal.jpeg', 'folder.jpeg',
-            ],
-            // Testing if sub-directory to run same tests above.
-            folders: ['cover/', 'covers/', 'artwork/'],
-        },
+      // Files pattern where to search existing cover files into folders.
+      pattern: {
+        // Searching if files match those names.
+        files: [
+          'cover.jpg', 'covers.jpg', 'front.jpg', 'frontal.jpg', 'folder.jpg', 'frontcover.jpg',
+          //'Cover.jpg', 'Covers.jpg', 'Front.jpg', 'Frontal.jpg', 'Folder.jpg', 'Frontcover.jpg',
+        ],
+        // Testing other format.
+        no_jpg_files: [
+          'cover.png', 'covers.png', 'front.png', 'frontal.png', 'folder.png',
+          'cover.gif', 'covers.gif', 'front.gif', 'frontal.gif', 'folder.gif',
+          'cover.bmp', 'covers.bmp', 'front.bmp', 'frontal.bmp', 'folder.bmp',
+          'cover.jpeg', 'covers.jpeg', 'front.jpeg', 'frontal.jpeg', 'folder.jpeg',
+          // 'Cover.png', 'Covers.png', 'Front.png', 'Frontal.png', 'Folder.png',
+          // 'Cover.gif', 'Covers.gif', 'Front.gif', 'Frontal.gif', 'Folder.gif',
+          // 'Cover.bmp', 'Covers.bmp', 'Front.bmp', 'Frontal.bmp', 'Folder.bmp',
+          // 'Cover.jpeg', 'Covers.jpeg', 'Front.jpeg', 'Frontal.jpeg', 'Folder.jpeg',
+        ],
+        // Testing if sub-directory to run same tests above.
+        folders: [
+          'cover/', 'covers/', 'artwork/',
+          //'Cover/', 'Covers/', 'Artwork/',
+        ],
+      },
     },
 
     seedDB: {
