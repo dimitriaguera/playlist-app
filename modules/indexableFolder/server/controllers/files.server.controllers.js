@@ -241,6 +241,8 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
     if( !visitedPath[dirname] ) {
         visitedPath[dirname] = true;
         mustTestCoverFiles = true;
+    } else{
+        const ok = true;
     }
 
     // Wrap fs.copy callback to match with pattern callback(err, done);
@@ -274,7 +276,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
         // Create destination folder.
         function(next){
             fs.mkdirs(destination, (e) => {
-                let action = callback.bind(null, null, false);
+                let action = () => callback(null, false);
                 if(e) next( action );                   // Stop process and call action.
                 else next( null );                      // Call next step.
             });
@@ -290,7 +292,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
         // Test if covers no jpg files pattern match, convert and and copy to destination if true.
         function(next){
             testFiles(folder, PATTERN_NO_JPG_FILES, file => {
-                let action = () => saveToJpeg(file, cover, callback);
+                let action = () => saveToJpeg(file, cover, callbackFs);
                 if(file) next( action );                // Stop process and call action.
                 else next( null );                      // Call next step.
             });
@@ -298,7 +300,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
         // Test if there are sub-folders that can contain covers files.
         function(next){
             testFiles(folder, PATTERN_FOLDERS, subFolder => {
-                let action = () => readPictAndSave(src, cover, callback);
+                let action = () => readPictAndSave(src, cover, callbackFs);
                 if(subFolder) next( null, subFolder );  // Call next step with arg.
                 else next( action );                    // Stop process and call action.
             });
@@ -314,7 +316,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
         // Test if covers no jpg files pattern match, convert and and copy to destination if true.
         function(subFolder, next){
             testFiles(subFolder, PATTERN_NO_JPG_FILES, file => {
-                let action = () => saveToJpeg(file, cover, callback);
+                let action = () => saveToJpeg(file, cover, callbackFs);
                 if(file) next( action );                // Stop process and call action.
                 else next( null );                      // Call next step.
             });

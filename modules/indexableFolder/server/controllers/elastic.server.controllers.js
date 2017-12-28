@@ -109,7 +109,7 @@ function runIndexElastic(onError, onStep, onDone) {
             onDone({steps:result, details:logs});
         });
     });
-};
+}
 
 function itIsNow(){
     const now = new Date();
