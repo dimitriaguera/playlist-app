@@ -21,7 +21,6 @@ const { metaLibName } = require('../modules/music/server/services/metaTag.server
 const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
-const fs = require('fs');
 
 /**
  * Check basics needs on config file.
@@ -41,18 +40,15 @@ module.exports.checkConfig = function() {
         console.log(chalk.red('Hey bro! You have to change security jwtSecret word on config.js file....'));
     }
 
-    // Check ffmpeg
-    if ( !process.env.FFMPEG_PATH ) {
-      if ( config.ffmpegExec ) {
-        process.env.FFMPEG_PATH = config.ffmpegExec;
-      } else {
-        process.env.FFMPEG_PATH = 'ffmpeg';
-      }
+    if (metaLibName === 'taglib2') {
+      console.log(chalk.blue('Using taglib2 lib for reading and writing meta tag'));
+    } else if (metaLibName === 'music-metadata') {
+      console.log(chalk.blue('Using music-metadata lib for reading meta tag'));
+      console.log(chalk.red('Note : you can\'t write meta tag with music-metadata lib'));
+    } else {
+      console.log(chalk.red('You can\'t read and write meta tag please install taglib2 or music-metadata'));
     }
 
-    fs.access(process.env.FFMPEG_PATH, fs.constants.X_OK , (err) => {
-      console.log(chalk.green(err ? 'Cannot execute ffmpeg for reading MusicTag' : 'system ok for reading music tag! - Lib used : ' + metaLibName));
-    });
 
 };
 
@@ -161,13 +157,14 @@ module.exports.initRoutes = function(app) {
 
     // Virtual path for Static files
     app.use('/static', express.static(path.resolve('./public')));
-    app.use('/pictures', express.static(path.resolve('./pictures')));
+    app.use('/pictures', express.static(path.resolve(config.public_base_url)));
 
     // Modules routes
     require('../modules/users/server/routes/users.server.routes')(app);
     require('../modules/folder/server/routes/folder.server.routes')(app);
     require('../modules/indexableFolder/server/routes/indexableFolder.server.routes')(app);
     require('../modules/music/server/routes/music.server.routes')(app);
+    require('../modules/task/server/routes/task.server.routes')(app);
 
     // Let it at the end
     require('../modules/core/server/routes/core.server.routes')(app);

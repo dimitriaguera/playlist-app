@@ -8,11 +8,27 @@ const url = require('url');
 const _ = require('lodash');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
+const taskRunner = require(path.resolve('./modules/task/server/services/task.server.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
 const indices_body = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
 
+
+exports.index = function(req, res, next){
+
+    // Create taskRunner instance.
+    const runTask = taskRunner.create(req, res, next);
+
+    // Start Task.
+    runTask(
+        {
+            name:'index elastic',
+            unique: true
+        },
+        runIndexElastic
+    );
+};
 
 /**
  * Start general indexation in elasticsearch from all tracks in nodes collection.
@@ -23,17 +39,14 @@ const indices_body = require(path.resolve('./modules/indexableFolder/server/elas
  * - tracks
  * - genre
  *
- * @param req
- * @param res
- * @param next
  */
-exports.index = function (req, res, next) {
+function runIndexElastic(onError, onStep, onDone) {
 
     // Get all files nodes.
     Node.find({isFile: true}).select('path meta name publicName').lean().exec((err, data) => {
 
         // Return if error.
-        if(err) return errorHandler.errorMessageHandler(err, req, res, next);
+        if(err) return onError(err);
 
         const logs = {};
 
@@ -69,16 +82,19 @@ exports.index = function (req, res, next) {
         // Build index creation sequence.
         let func = indices.map( ({index, data, body}) => [
             function(cb){
+                onStep(`deleting ${index} index...`);
                 es.indexDelete([index], (e, r) => {
                     cb(e, `index ${index} deleted at ${itIsNow()}`);
                 });
             },
             function(cb){
+                onStep(`creating ${index} index...`);
                 es.indexCreate({index:index, body:body}, (e, r) => {
                     cb(e, `index ${index} created at ${itIsNow()}`);
                 });
             },
             function(cb){
+                onStep(`populating ${index} index...`);
                 es.indexBulk(data, {index:index,type:index}, (e, r) => {
                     logs[index] = getIndexLogError(r);
                     cb(e, `index ${index} data added at ${itIsNow()} - ${logs[index].index_count} documents successful indexed - ${logs[index].error_count} document rejected`);
@@ -89,14 +105,11 @@ exports.index = function (req, res, next) {
 
         // Start indexation.
         async.series(func, (e, result) => {
-            if(e) return errorHandler.errorMessageHandler(e, req, res, next);
-            res.json({
-                success: true,
-                msg: {steps:result, details:logs},
-            });
+            if(e) return onError(e);
+            onDone({steps:result, details:logs});
         });
     });
-};
+}
 
 function itIsNow(){
     const now = new Date();
