@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
 import ps from 'core/client/services/core.path.services'
+import Img from 'music/client/components/image.client.components'
 import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/albumTracks.scss'
@@ -16,52 +17,57 @@ class AlbumTracks extends Component {
         this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
         this.handlerAddTracks = this.handlerAddTracks.bind(this);
 
-        this.state = {
-            album: props.album,
-            tracks: [],
-            open: false,
+        this.domElmt = {
+            card: null,
+            label: null,
         };
     }
 
+    getAlbumTracks(callback) {
+        const { search, album } = this.props;
+        return search(`tracks?fi=meta.album&q="${album.name}"&exact=true`)
+            .then((data) => {
+                if (!data.success) {
+                    return callback(data);
+                }
+
+                const albumWithTracks = Object.assign({}, album);
+                albumWithTracks.tracks = data.msg.hits.hits.map((item) => item._source);
+
+                callback(null, albumWithTracks);
+            });
+    }
 
     handlerOpenAlbum(e) {
 
         const _self = this;
-        const { tracks, open } = this.state;
-        const { search, album } = this.props;
+        const { album, createInfoTab } = this.props;
 
-        if(!open) {
-            if( tracks.length === 0 ) {
-                search(`tracks?fi=meta.album&q="${album.name}"&exact=true`)
-                    .then((data) => {
-                        if (data.success) {
-                            const docs = data.msg.hits.hits;
-                            const tracks = docs.map((item) => item._source);
-                            _self.setState({tracks: tracks, open: true});
-                        }
-                    });
-            }
-        }
-        else {
-            _self.setState({tracks: [], open: false});
-        }
+        const promise = new Promise((resolve, reject) => {
+            _self.getAlbumTracks( (err, album) => {
+                if(err) return reject(err);
+                resolve(album);
+            });
+        });
+
+        createInfoTab(_self.domElmt, album, promise);
     }
 
     handlerPlayAlbum(e, i) {
 
-        const { tracks } = this.state;
-        const { album, addAlbumToPlay } = this.props;
+        const { addAlbumToPlay } = this.props;
 
-        const data = {
-            onPlayIndex: i,
-            pl: {
-                title: album.name,
-                path: album.path,
-                tracks: tracks,
-            }
-        };
-
-        addAlbumToPlay( data );
+        this.getAlbumTracks( (err, album) => {
+            const data = {
+                onPlayIndex: i || 0,
+                pl: {
+                    title: album.name,
+                    path: album.path,
+                    tracks: album.tracks,
+                }
+            };
+            addAlbumToPlay( data );
+        });
     }
 
     handlerAddTracks(e, item) {
@@ -103,32 +109,24 @@ class AlbumTracks extends Component {
 
     render(){
 
-        const { className, user } = this.props;
-        const { tracks } = this.state;
+        const { style, album } = this.props;
 
         return (
-            <div className={className}>
-                <div onClick={this.handlerOpenAlbum}>
-                    {this.props.children}
+            <div ref={(r) => {this.domElmt.card = r}} style={style} className='albums-item-album'>
+
+                <div className='albums-item-img' onClick={this.handlerPlayAlbum}>
+                    <Img title={`${album.name} cover`}
+                         src={'pictures/' + album.cover + '/cover.jpg'}
+                         defaultSrc='static/images/default_cover.png'
+                         width="150" height="150"
+                    />
+                    <Icon color='teal' circular inverted name='play'/>
                 </div>
-                <div className='album-tracks'>
-                {
-                 tracks.map((item, i) => {
-                        return (
-                            <div key={i}>
-                                {item.meta.title}
-                                <span className='fol-item-menu-inner'>
-                                    <Button onClick={(e) => this.handlerPlayAlbum(e, i)} icon basic color="teal">
-                                      <Icon name='play' />
-                                    </Button>
-                                    <Button onClick={(e) => this.handlerAddTracks(e, item)} disabled={!user} icon basic color="teal">
-                                      <Icon name='plus' />
-                                    </Button>
-                                </span>
-                            </div>
-                        )
-                    })
-                }
+
+                <div ref={(r) => {this.domElmt.label = r}} className='albums-item-info' onClick={this.handlerOpenAlbum}>
+                    <div className='name'>{album.name}</div>
+                    <div className='date'>{album.year}</div>
+                    <div className='artist'><span>{album.artist}</span></div>
                 </div>
             </div>
         );
