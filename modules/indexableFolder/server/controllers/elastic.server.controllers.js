@@ -145,6 +145,13 @@ function extractDataFromMeta(data){
         // If no value, give file name for default value.
         title = title ? title : item.publicName;
 
+        // Here start test to filter albums and artists.
+        // Test key string.
+        // const albumTest = album ? album.toLowerCase() : 'NO-META-ALBUM';
+        let artistKEY = albumartist || artist;
+        let albumKEY = artistKEY + '_' + album + '_' + disk.no;
+        let albumCOVER = artistKEY + '/' + album + '/' + disk.no;
+
         const meta = {
             title: title,
             album: album,
@@ -164,13 +171,8 @@ function extractDataFromMeta(data){
             name: item.name,
             publicName: item.publicName,
             meta: meta,
+            albumKey: albumKEY,
         });
-
-        // Here start test to filter albums and artists.
-        // Test key string.
-        // const albumTest = album ? album.toLowerCase() : 'NO-META-ALBUM';
-        let artistKEY = albumartist || artist;
-        let albumKEY = artistKEY + '/' + album + '/' + disk.no;
 
         // If album tracks not yet created,
         // Create and pusht it in albums array.
@@ -187,7 +189,8 @@ function extractDataFromMeta(data){
                 disk: disk,
                 genre: genre,
                 path: ps.removeLast(item.path),
-                cover: ps.cleanPath(albumKEY),
+                key: albumKEY,
+                cover: ps.cleanPath(albumCOVER),
             });
             alKeys[albumKEY] = albums.length;
         }

@@ -25,7 +25,7 @@ class AlbumTracks extends Component {
 
     getAlbumTracks(callback) {
         const { search, album } = this.props;
-        return search(`tracks?fi=meta.album&q="${album.name}"&exact=true`)
+        return search(`tracks?fi=albumKey&q="${album.key}"&exact=true`)
             .then((data) => {
                 if (!data.success) {
                     return callback(data);
