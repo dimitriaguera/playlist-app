@@ -28,6 +28,8 @@ function splitFetchHOC(params, fetchActions) {
                     return wrapped;
                 };
 
+                console.log(WrappedComponent);
+
                 this.fetchActions = wrapFetchActions(fetchActions(props), this.onStartChunk);
 
                 this.onResizeHandle = this.onResizeHandle.bind(this);

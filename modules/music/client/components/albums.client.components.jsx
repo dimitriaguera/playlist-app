@@ -2,14 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import debounce from 'lodash/debounce'
 import { get } from 'core/client/services/core.api.services'
-import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
+import AlbumCard from 'music/client/components/albumCard.client.components'
 import AlbumTracks from 'music/client/components/albumTracks.client.components'
-import ps from 'core/client/services/core.path.services'
-import { Divider, Icon, Button } from 'semantic-ui-react'
-
-import style from './style/albums.scss'
+import { Divider } from 'semantic-ui-react'
 
 class Albums extends Component {
 
@@ -17,7 +14,8 @@ class Albums extends Component {
         super(props);
         this.state = {
             openTab: {
-                open: false
+                open: false,
+                style: {},
             },
             tab: {
                 lineHeight: 40,
@@ -33,8 +31,8 @@ class Albums extends Component {
         };
 
         this.onResizeHandle = this.onResizeHandle.bind(this);
-        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
         this.createInfoTab = this.createInfoTab.bind(this);
+        // this.search = this.search.bind(this);
 
         this.onResizeHandle = debounce(this.onResizeHandle, 200);
     }
@@ -43,6 +41,12 @@ class Albums extends Component {
         window.addEventListener('resize', this.onResizeHandle);
         this.props.search(`album?sort=keyName&fi=name&q=`);
         this.setGrid();
+    }
+
+    componentWillUpdate(nextProps) {
+        if( nextProps.data !== this.props.data ){
+            this.closeInfoTab();
+        }
     }
 
     componentWillUnmount() {
@@ -58,76 +62,67 @@ class Albums extends Component {
         const totalCardWidth = card.width+(card.margin*2);
         const nbPerRow = Math.floor(this.domElmt.getBoundingClientRect().width / totalCardWidth);
 
-        console.log(nbPerRow);
-
         this.setState({grid:{row:nbPerRow, width:nbPerRow*totalCardWidth}});
     }
 
     getRowNumber(index) {
-
         const rowLength = this.state.grid.row;
 
         return Math.ceil(index/rowLength);
     }
 
-    // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum( e, item ) {
+    // search(query) {
+    //     this.closeInfoTab();
+    //     this.props.search(query);
+    // }
 
-        const _self = this;
-        const {fetchFiles, addAlbumToPlay} = this.props;
+    closeInfoTab() {
+        const { openTab, card } = this.state;
 
-        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
-            if ( !data.success ) {
-                _self.setState({ error: true });
-            }
-            else {
-                const album = {
-                    pl: {
-                        title: item.name,
-                        path: item.path,
-                        tracks: data.msg,
-                    }
-                };
-                addAlbumToPlay( album );
-            }
-        });
+        if(openTab.open) {
+            closeCard(openTab.domElmt, card.height, true);
+            this.setState({
+                openTab: {domElmt: {card: null, label: null}, album: null, style: null, open: false}
+            });
+        }
     }
 
     createInfoTab(position, domElmt, album, promise) {
-
         const _self = this;
-        const { openTab, grid, card, tab } = this.state;
+        const { openTab, card, tab } = this.state;
 
-        // If tab already open, check if same album.
-        if(openTab.open && album.cover === openTab.album.cover) {
+        // If clicked tab already open, close it.
+        if(openTab.open && album.key === openTab.album.key) {
 
-            // If same album tab open, close it.
-            openTab.domElmt.card.style.height = card.height + 'px';
-            openTab.domElmt.label.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            closeCard(openTab.domElmt, card.height, true);
 
             return this.setState({
                 openTab: {domElmt: {card: null, label: null}, album: null, style: null, open: false}
-            })
+            });
         }
 
         // Open tab without server resp.
-        const rowNb = _self.getRowNumber(position);
+        const row = _self.getRowNumber(position);
+        // Check if same row, to add or cancel card height anim.
+        const transition = !( openTab.row && row === openTab.row );
+
+        // Style to apply to tracks tab.
         let style = {
             left: card.margin + 'px',
-            top: (rowNb * (card.height + card.margin * 2)) + card.margin + 'px',
-            width: (grid.width - (card.margin * 2)) + 'px',
+            top: (row * (card.height + card.margin * 2)) + card.margin + 'px',
         };
 
+        // Reset class an style to previous opened card.
         if(openTab.domElmt && openTab.domElmt.card) {
-            openTab.domElmt.card.style.height = card.height + 'px';
-            openTab.domElmt.label.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            closeCard(openTab.domElmt, card.height, transition);
         }
 
-        domElmt.card.style.height = ( tab.defaultHeight + card.height + (card.margin * 2)) + 'px';
-        domElmt.label.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        // Set class and style to opened card.
+        openCard(domElmt, tab.defaultHeight + card.height + (card.margin * 2), transition);
 
+        // Save new opened card in state.
         this.setState({
-            openTab: {domElmt, album, style, open: true}
+            openTab: {domElmt, album, style, row:row , open: true}
         });
 
         // When server rep, new traitment.
@@ -141,14 +136,20 @@ class Albums extends Component {
     }
 
     render(){
-        const { user } = this.props;
-        const { openTab, card } = this.state;
+        const { openTab, card, grid } = this.state;
 
-        const cardStyle = {
+        const cardDefaultStyle = {
             width: card.width + 'px',
             height: card.height + 'px',
             margin: card.margin + 'px',
         };
+
+        // No mutate openTab.
+        const tabProps = Object.assign({}, openTab);
+        // No mutate style.
+        tabProps.style = Object.assign({}, tabProps.style, {width: (grid.width - (card.margin * 2)) + 'px'});
+
+        console.log('RENDER ALL ALBUMS');
 
         return (
             <div ref={r => {this.domElmt = r}} style={{position:'relative'}}>
@@ -163,15 +164,15 @@ class Albums extends Component {
 
                 <div style={{position:'relative'}}>
                     {this.props.data.map((item, i) =>
-                        <AlbumTracks key={item.cover}
+                        <AlbumCard key={item.key}
                                      album={item}
-                                     style={cardStyle}
+                                     style={cardDefaultStyle}
                                      createInfoTab={this.createInfoTab.bind(null, (i+1))}
                         />)}
 
 
                     {openTab.open &&
-                        <TrackList {...openTab} user={user}/>
+                        <AlbumTracks {...tabProps}/>
                     }
                 </div>
             </div>
@@ -179,6 +180,22 @@ class Albums extends Component {
     }
 }
 
+// HELPER
+function closeCard( domElmt, height, transition ) {
+    domElmt.card.classList.remove('open');
+    domElmt.card.style.zIndex = '1';
+    domElmt.card.style.height = height + 'px';
+    domElmt.card.style.transition = transition ? 'height 0.3s' : '';
+}
+
+function openCard( domElmt, height, transition ) {
+    domElmt.card.classList.add('open');
+    domElmt.card.style.zIndex = '2';
+    domElmt.card.style.height = height + 'px';
+    domElmt.card.style.transition = transition ? 'height 0.3s' : '';
+}
+
+// SEARCH CONTAINER
 const fetchActions = (props) => {
     return {
         search: props.search
@@ -190,12 +207,7 @@ const AlbumsSplitFetchWrapped = splitFetchHOC(
     fetchActions
 )(Albums);
 
-const mapStateToProps = state => {
-    return {
-        user: state.authenticationStore._user,
-    }
-};
-
+// REDUX CONNECT
 const mapDispatchToProps = dispatch => {
     return {
         search: ( query ) => dispatch(
@@ -204,48 +216,13 @@ const mapDispatchToProps = dispatch => {
         fetchFiles: ( query ) => dispatch(
             get( `nodes/q/files?path=${query || ''}` )
         ),
-        addAlbumToPlay: ( item ) => {
-            // Search first track on list.
-            const track = item.pl.tracks[0];
-            // Add album to store.
-            dispatch(addAlbumToPlay(item));
-            // If track, play it.
-            if( track ) dispatch(playItem( track ));
-        },
     }
 };
 
 const AlbumsContainer = connect(
-    mapStateToProps,
+    null,
     mapDispatchToProps
 )(AlbumsSplitFetchWrapped);
 
 
 export default AlbumsContainer
-
-const TrackList = ({ album, style, user, handlerPlayAlbum, handlerAddTracks }) => {
-
-    return (
-        <div className='album-tracks' style={style}>
-            {
-                album.tracks && album.tracks.map((item, i) => {
-                    return (
-                        <div key={i}>
-                            <span className='fol-item-menu-inner'>
-                                <Button size='mini' onClick={(e) => handlerPlayAlbum(e, i)} icon basic color="teal">
-                                  <Icon name='play' />
-                                </Button>
-                                <Button size='mini' onClick={(e) => handlerAddTracks(e, item)} disabled={!user} icon basic color="teal">
-                                  <Icon name='plus' />
-                                </Button>
-                            </span>
-                            <span>
-                                {item.meta.title}
-                            </span>
-                        </div>
-                    )
-                })
-            }
-        </div>
-    );
-};

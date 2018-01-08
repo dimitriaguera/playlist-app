@@ -77,7 +77,7 @@ export const playlistStore = (state = initialState, action) => {
                 mode: 'album',
                 playingList: Object.assign({}, state.playingList, action.item),
                 pause: false,
-                onPlay: action.item.pl.tracks[action.item.onPlayIndex]
+                onPlay: action.item.pl ? action.item.pl.tracks[action.item.onPlayIndex] : state.playingList.pl.tracks[action.item.onPlayIndex],
             };
 
         case PLAY_TRACK_ON_FOLDER:
@@ -86,7 +86,7 @@ export const playlistStore = (state = initialState, action) => {
                 mode: 'folder',
                 playingList: Object.assign({}, state.playingList, action.item),
                 pause: false,
-                onPlay: action.item.pl.tracks[action.item.onPlayIndex]
+                onPlay: action.item.pl ? action.item.pl.tracks[action.item.onPlayIndex] : state.playingList.pl.tracks[action.item.onPlayIndex],
             };
 
         case PLAY_TRACK_ON_PLAYLIST:
@@ -95,7 +95,7 @@ export const playlistStore = (state = initialState, action) => {
                 mode: 'playlist',
                 playingList: Object.assign({}, state.playingList, action.item),
                 pause: false,
-                onPlay: action.item.pl.tracks[action.item.onPlayIndex]
+                onPlay: action.item.pl ? action.item.pl.tracks[action.item.onPlayIndex] : state.playingList.pl.tracks[action.item.onPlayIndex],
             };
 
         case UPDATE_ALBUM_TO_PLAY:

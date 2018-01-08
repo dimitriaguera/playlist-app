@@ -146,12 +146,12 @@ function extractDataFromMeta(data){
         title = title ? title : item.publicName;
 
         // Here start test to filter albums and artists.
-        // Test key string.
-        // const albumTest = album ? album.toLowerCase() : 'NO-META-ALBUM';
+        // Create unique key for artist.
         let artistKEY = albumartist || artist;
-        let albumKEY = artistKEY + '_' + album + '_' + disk.no;
-        let albumCOVER = artistKEY + '/' + album + '/' + disk.no;
+        // Create unique key for album.
+        let albumKEY = ps.buildSeparator([artistKEY, album, disk.no], '___');
 
+        // Create album meta.
         const meta = {
             title: title,
             album: album,
@@ -162,6 +162,7 @@ function extractDataFromMeta(data){
             genre: genre,
         };
 
+        // Add track.
         tracks.push({
             suggest: {
                 input: title,
@@ -190,7 +191,6 @@ function extractDataFromMeta(data){
                 genre: genre,
                 path: ps.removeLast(item.path),
                 key: albumKEY,
-                cover: ps.cleanPath(albumCOVER),
             });
             alKeys[albumKEY] = albums.length;
         }
@@ -250,6 +250,7 @@ function extractDataFromMeta(data){
         }
     });
 
+    // Return data to index.
     return {
         tracks,
         albums,
@@ -341,7 +342,9 @@ exports.search = function (req, res, next) {
     const filters = getFiltersFromQuery(req.query);
 
     let terms = ps.clean(req.query.q);
+
     terms = exact ? `"${terms}"` : terms + '*';
+    // terms = exact ? terms : terms + '*';
 
     let base_query;
     let query_query;

@@ -3,8 +3,8 @@
  */
 const sanitize = require("sanitize-filename");
 
-// Build path from array.
-exports.buildPath = function( array ){
+// Build path with special separator.
+exports.buildSeparator = function( array, separator ){
 
     let path = '';
 
@@ -13,11 +13,16 @@ exports.buildPath = function( array ){
         for (let i = 1; i < array.length; i++) {
             const brin = sanitize(array[i]);
             if (brin === '') continue;
-            path += `/${brin}`;
+            path += separator + brin;
         }
     }
 
     return path;
+};
+
+// Build path from array.
+exports.buildPath = function( array ){
+    return this.buildSeparator(array, '/');
 };
 
 // Remove last element of path string.
@@ -30,6 +35,12 @@ exports.removeLast = function(path) {
 exports.removeRoute = function( str, route ) {
     const regex = new RegExp('^(\\' + route + ')', 'i');
     return str.replace(regex, '');
+};
+
+// Change separator.
+exports.changeSeparator = function( str, old, now ) {
+    const regex = new RegExp('(' + old + ')', 'g');
+    return str.replace(regex, now);
 };
 
 // Return Array path from String path.
