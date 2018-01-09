@@ -32,21 +32,33 @@ class Albums extends Component {
 
         this.onResizeHandle = this.onResizeHandle.bind(this);
         this.createInfoTab = this.createInfoTab.bind(this);
-        // this.search = this.search.bind(this);
+        this.searchSizedTabOff = this.searchSizedTabOff.bind(this);
 
         this.onResizeHandle = debounce(this.onResizeHandle, 200);
     }
 
     componentDidMount() {
         window.addEventListener('resize', this.onResizeHandle);
-        this.props.search(`album?sort=keyName&fi=name&q=`);
+        this.props.searchSized(`album?sort=keyName&fi=name&q=`);
         this.setGrid();
     }
 
-    componentWillUpdate(nextProps) {
-        if( nextProps.data !== this.props.data ){
-            this.closeInfoTab();
-        }
+    // componentWillUpdate(nextProps) {
+    //     if( nextProps.data !== this.props.data ){
+    //         this.closeInfoTab();
+    //     }
+    // }
+
+    // Here, testing if component have to be updated is necessary
+    // because of HOC lazy component that call twice child component rendered.
+    shouldComponentUpdate(nextProps, nextState) {
+        return (
+            nextProps.data !== this.props.data ||
+            nextState.openTab !== this.state.openTab ||
+            nextState.tab !== this.state.tab ||
+            nextState.card !== this.state.card ||
+            nextState.grid !== this.state.grid
+        );
     }
 
     componentWillUnmount() {
@@ -71,10 +83,10 @@ class Albums extends Component {
         return Math.ceil(index/rowLength);
     }
 
-    // search(query) {
-    //     this.closeInfoTab();
-    //     this.props.search(query);
-    // }
+    searchSizedTabOff(query) {
+        this.closeInfoTab();
+        return this.props.searchSized(query);
+    }
 
     closeInfoTab() {
         const { openTab, card } = this.state;
@@ -94,7 +106,15 @@ class Albums extends Component {
         // If clicked tab already open, close it.
         if(openTab.open && album.key === openTab.album.key) {
 
+            // Close Tab.
             closeCard(openTab.domElmt, card.height, true);
+
+            // Call resize to HOC component after close animation time.
+            // TODO : bug to track - if expand tab, sroll bottom,
+            // TODO : load new album chunk, open other tab, the close tab,
+            // TODO : and sroll fast to bottom(faster than 3 sec), then no auto-load:
+            // TODO : need to re-scroll up and down to start next chunk load.
+            setTimeout(this.props.resizeHOC, 3000);
 
             return this.setState({
                 openTab: {domElmt: {card: null, label: null}, album: null, style: null, open: false}
@@ -130,7 +150,7 @@ class Albums extends Component {
             // const newHeight = Math.max( ((album.tracks.length * tab.lineHeight) + card.height + (tab.padding * 2)), (tab.defaultHeight + card.height) );
             // domElmt.card.style.height = newHeight + 'px';
             _self.setState({
-                openTab: Object.assign(_self.state.openTab, {album: album}),
+                openTab: Object.assign({}, _self.state.openTab, {album: album}),
             });
         });
     }
@@ -156,7 +176,7 @@ class Albums extends Component {
                 <h1>Albums</h1><span>{this.props.total} albums on result</span>
                 <SearchMusicBar indexName='album'
                                 startLimit={0}
-                                searchAction={this.props.search}
+                                searchAction={this.searchSizedTabOff}
                                 filtersMapping={{artist:'artist', genre:'genre', date:'range.year'}}
                                 placeholder='search album...'
                 />
@@ -198,7 +218,7 @@ function openCard( domElmt, height, transition ) {
 // SEARCH CONTAINER
 const fetchActions = (props) => {
     return {
-        search: props.search
+        searchSized: props.search
     };
 };
 

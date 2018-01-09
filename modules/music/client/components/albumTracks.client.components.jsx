@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
+import IconPlayAnim from 'music/client/components/iconPlayAnim.client.components'
 import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/albumTracks.scss'
@@ -15,10 +16,10 @@ class AlbumTracks extends Component {
 
     // Handler to add recursively all tracks on playlist.
     handlerPlayAlbum( e, i ) {
-        const {album, onPlay, addAlbumToPlay} = this.props;
+        const {album, mode, onPlay, addAlbumToPlay} = this.props;
 
         // If this album already playing.
-        if( onPlay.albumKey === album.key ) {
+        if( mode === 'album' && onPlay.albumKey === album.key ) {
             addAlbumToPlay({onPlayIndex: i});
         }
 
@@ -43,12 +44,8 @@ class AlbumTracks extends Component {
         // User must be connected to add tracks.
         if ( !user ) return history.push('/login');
 
-        const data = {
-            tracks: [tracksId],
-        };
-
         // Add tracks into activated Playlist.
-        addPlaylistItems( activePlaylist.title, data );
+        addPlaylistItems( activePlaylist.title, {tracks: [tracksId]} );
         if( e ) e.preventDefault();
     }
 
@@ -61,19 +58,28 @@ class AlbumTracks extends Component {
             <div className='album-tracks' style={style}>
                 {
                     album.tracks && album.tracks.map((item, i) => {
-                        const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i)) ? 'playing' : '';
+                        const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
+                        const trackClass = trackIsPlaying ? 'playing' : '';
                         return (
-                            <div key={i} className={trackIsPlaying}>
-                            <span className='fol-item-menu-inner'>
-                                <Button size='mini' onClick={(e) => this.handlerPlayAlbum(e, i)} icon basic color="teal">
-                                  <Icon name='play' />
-                                </Button>
-                                <Button size='mini' onClick={(e) => this.handlerAddTrack(e, item.tracksId)} disabled={!user} icon basic color="teal">
-                                  <Icon name='plus' />
-                                </Button>
-                            </span>
-                                <span>
-                                {item.meta.title}
+                            <div key={i} className={trackClass}>
+                                {trackIsPlaying &&
+                                    <IconPlayAnim iconStyle={{width:'30px', height:'30px', padding:'7px'}}/>
+                                }
+                                {!trackIsPlaying &&
+                                    <Button size='mini' onClick={(e) => this.handlerPlayAlbum(e, i)} icon basic
+                                            color="teal">
+                                        <Icon name='play'/>
+                                    </Button>
+                                }
+                                <span className='album-tracks-menu-inner'>
+                                    <Button size='mini' onClick={(e) => this.handlerAddTrack(e, item.tracksId)} disabled={!user} icon basic color="teal">
+                                      <Icon name='plus' />
+                                    </Button>
+                                </span>
+                                <span className='album-tracks-title'>
+                                {item.meta.track.no !== '0' &&
+                                <span>{item.meta.track.no} - </span>
+                                }{item.meta.title}
                             </span>
                             </div>
                         )
@@ -88,15 +94,15 @@ const mapStateToProps = state => {
     return {
         user: state.authenticationStore._user,
         onPlay: state.playlistStore.onPlay,
-        activePlaylist: state.playlistStore.activePlaylist,
         onPlayIndex: state.playlistStore.playingList.onPlayIndex,
+        mode: state.playlistStore.mode,
+        activePlaylist: state.playlistStore.activePlaylist,
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
         addAlbumToPlay: ( item ) => {
-            // Add album to store.
             dispatch(playOnAlbum(item));
         },
         addPlaylistItems: ( title, items ) => dispatch(

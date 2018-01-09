@@ -117,10 +117,20 @@ exports.tracks_body = {
                         "disk": {
                             "properties": {
                                 "no": {
-                                    "type": "keyword"
+                                    "type": "integer"
                                 },
                                 "of": {
-                                    "type": "keyword"
+                                    "type": "integer"
+                                },
+                            }
+                        },
+                        "track": {
+                            "properties": {
+                                "no": {
+                                    "type": "integer"
+                                },
+                                "of": {
+                                    "type": "integer"
                                 },
                             }
                         },

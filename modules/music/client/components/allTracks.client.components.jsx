@@ -34,6 +34,7 @@ class AllTracks extends Component {
     render(){
 
         //const { nodes } = this.state;
+        console.log('RENDER ALL TRACKS');
 
         return (
             <div>

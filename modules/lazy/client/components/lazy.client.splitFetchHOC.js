@@ -28,9 +28,7 @@ function splitFetchHOC(params, fetchActions) {
                     return wrapped;
                 };
 
-                console.log(WrappedComponent);
-
-                this.fetchActions = wrapFetchActions(fetchActions(props), this.onStartChunk);
+                this.fetchActions = wrapFetchActions(fetchActions(props));
 
                 this.onResizeHandle = this.onResizeHandle.bind(this);
                 this.onScrollHandle = this.onScrollHandle.bind(this);
@@ -130,6 +128,7 @@ function splitFetchHOC(params, fetchActions) {
                 const newProps = {
                     data: this.state.data,
                     total: this.state.total,
+                    resizeHOC: this.onResizeHandle,
                     ...this.fetchActions
                 };
 

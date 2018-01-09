@@ -151,7 +151,7 @@ function extractDataFromMeta(data){
         // Create unique key for album.
         let albumKEY = ps.buildSeparator([artistKEY, album, disk.no], '___');
 
-        // Create album meta.
+        // Create track meta.
         const meta = {
             title: title,
             album: album,
@@ -160,6 +160,7 @@ function extractDataFromMeta(data){
             year: year,
             disk: disk,
             genre: genre,
+            track: track,
         };
 
         // Add track.
