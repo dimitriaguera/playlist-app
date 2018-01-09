@@ -53,6 +53,11 @@ function splitFetchHOC(params, fetchActions) {
                 window.removeEventListener('scroll', this.onScrollHandle);
             }
 
+            // Avoid child wrapped component rendering out of data update.
+            shouldComponentUpdate(nextProps, nextState) {
+                return (nextState.data !== this.state.data);
+            }
+
             onResizeHandle() {
                 const height = this.container.getBoundingClientRect().height;
                 const screenY = window.innerHeight;

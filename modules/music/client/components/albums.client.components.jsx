@@ -43,24 +43,6 @@ class Albums extends Component {
         this.setGrid();
     }
 
-    // componentWillUpdate(nextProps) {
-    //     if( nextProps.data !== this.props.data ){
-    //         this.closeInfoTab();
-    //     }
-    // }
-
-    // Here, testing if component have to be updated is necessary
-    // because of HOC lazy component that call twice child component rendered.
-    shouldComponentUpdate(nextProps, nextState) {
-        return (
-            nextProps.data !== this.props.data ||
-            nextState.openTab !== this.state.openTab ||
-            nextState.tab !== this.state.tab ||
-            nextState.card !== this.state.card ||
-            nextState.grid !== this.state.grid
-        );
-    }
-
     componentWillUnmount() {
         window.removeEventListener('resize', this.onResizeHandle);
     }
