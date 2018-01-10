@@ -30,16 +30,6 @@
       }
     }
 
-    &.playing {
-      .icon {
-        display: none;
-      }
-
-      .icon-play-anim-container {
-        display: inline-flex;
-      }
-    }
-
     img {
       position: absolute;
       top: 0;
@@ -91,6 +81,18 @@
 
       span {
         text-overflow: ellipsis;
+      }
+    }
+  }
+
+  &.playing {
+    .albums-item-img {
+      .icon {
+        display: none;
+      }
+
+      .icon-play-anim-container {
+        display: inline-flex;
       }
     }
   }

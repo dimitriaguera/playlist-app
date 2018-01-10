@@ -24,6 +24,19 @@ class AlbumCard extends Component {
         };
     }
 
+    shouldComponentUpdate(nextProps) {
+        return false;
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.playingAlbumKey === this.props.album.key && nextProps.playingAlbumKey !== this.props.album.key){
+            this.domElmt.card.classList.remove('playing');
+        }
+        else if(this.props.album.key === nextProps.playingAlbumKey) {
+            this.domElmt.card.classList.add('playing');
+        }
+    }
+
     getAlbumTracks(callback) {
         const { search, album } = this.props;
         return search(`tracks?fi=albumKey&sort=meta.track.no&q=${album.key}&exact=true`)
@@ -98,14 +111,14 @@ class AlbumCard extends Component {
 
         const { style, album, playingAlbumKey } = this.props;
         const cover = ps.changeSeparator(album.key, '___', '/');
-        const playingClass = playingAlbumKey === album.key ? ' playing' : '';
+        //const playingClass = playingAlbumKey === album.key ? ' playing' : '';
 
         console.log('RENDER CARD');
 
         return (
             <div ref={(r) => {this.domElmt.card = r}} style={style} className={`albums-item-album`}>
 
-                <div className={`albums-item-img${playingClass}`} onClick={this.handlerPlayAlbum}>
+                <div className={`albums-item-img`} onClick={this.handlerPlayAlbum}>
                     <Img title={`${album.name} cover`}
                          src={'pictures/' + cover + '/cover.jpg'}
                          defaultSrc='static/images/default_cover.png'

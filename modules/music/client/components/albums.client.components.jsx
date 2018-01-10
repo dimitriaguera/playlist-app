@@ -47,10 +47,6 @@ class Albums extends Component {
         window.removeEventListener('resize', this.onResizeHandle);
     }
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     return (nextState.openTab === this.state.openTab);
-    // }
-
     onResizeHandle() {
         this.setGrid();
     }
@@ -93,14 +89,14 @@ class Albums extends Component {
         if(openTab.open && album.key === openTab.album.key) {
 
             // Close Tab.
-            closeCard(openTab.domElmt, card.height, true);
+            closeCard(openTab.domElmt, card.margin, true);
 
             // Call resize to HOC component after close animation time.
             // TODO : bug to track - if expand tab, sroll bottom,
             // TODO : load new album chunk, open other tab, the close tab,
-            // TODO : and sroll fast to bottom(faster than 3 sec), then no auto-load:
+            // TODO : and sroll fast to bottom(faster than 0.5 sec), then no auto-load:
             // TODO : need to re-scroll up and down to start next chunk load.
-            setTimeout(this.props.resizeHOC, 3000);
+            setTimeout(this.props.resizeHOC, 500);
 
             return this.setState({
                 openTab: {domElmt: {card: null, label: null}, album: null, style: null, open: false}
@@ -115,16 +111,16 @@ class Albums extends Component {
         // Style to apply to tracks tab.
         let style = {
             left: card.margin + 'px',
-            top: (row * (card.height + card.margin * 2)) + card.margin + 'px',
+            top: (row * (card.height + card.margin * 2)) + 'px',
         };
 
         // Reset class an style to previous opened card.
         if(openTab.domElmt && openTab.domElmt.card) {
-            closeCard(openTab.domElmt, card.height, transition);
+            closeCard(openTab.domElmt, card.margin, transition);
         }
 
         // Set class and style to opened card.
-        openCard(domElmt, tab.defaultHeight + card.height + (card.margin * 2), transition);
+        openCard(domElmt, tab.defaultHeight + (card.margin * 2), transition);
 
         // Save new opened card in state.
         this.setState({
@@ -135,9 +131,11 @@ class Albums extends Component {
         promise.then(album => {
             // const newHeight = Math.max( ((album.tracks.length * tab.lineHeight) + card.height + (tab.padding * 2)), (tab.defaultHeight + card.height) );
             // domElmt.card.style.height = newHeight + 'px';
-            _self.setState({
-                openTab: Object.assign({}, _self.state.openTab, {album: album}),
-            });
+            setTimeout(() => {
+                _self.setState({
+                    openTab: Object.assign({}, _self.state.openTab, {album: album}),
+                });
+            }, 300);
         });
     }
 
@@ -171,9 +169,9 @@ class Albums extends Component {
                 <div style={{position:'relative'}}>
                     {this.props.data.map((item, i) =>
                         <AlbumCard key={item.key}
-                                     album={item}
-                                     style={cardDefaultStyle}
-                                     createInfoTab={this.createInfoTab.bind(null, (i+1))}
+                                   album={item}
+                                   style={cardDefaultStyle}
+                                   createInfoTab={this.createInfoTab.bind(null, (i+1))}
                         />)}
 
 
@@ -190,15 +188,15 @@ class Albums extends Component {
 function closeCard( domElmt, height, transition ) {
     domElmt.card.classList.remove('open');
     domElmt.card.style.zIndex = '1';
-    domElmt.card.style.height = height + 'px';
-    domElmt.card.style.transition = transition ? 'height 0.3s' : '';
+    domElmt.card.style.marginBottom = height + 'px';
+    domElmt.card.style.transition = transition ? 'margin 0.3s' : '';
 }
 
 function openCard( domElmt, height, transition ) {
     domElmt.card.classList.add('open');
     domElmt.card.style.zIndex = '2';
-    domElmt.card.style.height = height + 'px';
-    domElmt.card.style.transition = transition ? 'height 0.3s' : '';
+    domElmt.card.style.marginBottom = height + 'px';
+    domElmt.card.style.transition = transition ? 'margin 0.3s' : '';
 }
 
 // SEARCH CONTAINER
