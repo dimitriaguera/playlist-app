@@ -47,6 +47,10 @@ class Albums extends Component {
         window.removeEventListener('resize', this.onResizeHandle);
     }
 
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     return (nextState.openTab === this.state.openTab);
+    // }
+
     onResizeHandle() {
         this.setGrid();
     }
