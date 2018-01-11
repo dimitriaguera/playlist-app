@@ -13,27 +13,25 @@ class Albums extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            openTab: {
-                open: false,
-                style: {},
-            },
-            tab: {
-                lineHeight: 40,
-                padding: 20,
-                defaultHeight: 500,
-            },
             card: {
                 width: 150,
                 height: 270,
                 margin: 1,
+                tabHeight: 500,
             },
             grid: {}
         };
 
-        this.onResizeHandle = this.onResizeHandle.bind(this);
-        this.createInfoTab = this.createInfoTab.bind(this);
-        this.searchSizedTabOff = this.searchSizedTabOff.bind(this);
+        // Hook open/close album Tabs.
+        this.closeLastTab = null;
+        this.row = null;
 
+        // Bind handler.
+        this.onResizeHandle = this.onResizeHandle.bind(this);
+        this.hookOpenTab = this.hookOpenTab.bind(this);
+        this.hookCloseTab = this.hookCloseTab.bind(this);
+
+        // Debounced hendlers.
         this.onResizeHandle = debounce(this.onResizeHandle, 200);
     }
 
@@ -59,99 +57,44 @@ class Albums extends Component {
         this.setState({grid:{row:nbPerRow, width:nbPerRow*totalCardWidth}});
     }
 
-    getRowNumber(index) {
-        const rowLength = this.state.grid.row;
+    hookOpenTab(func, row) {
+        const sameRow = this.row === row;
 
-        return Math.ceil(index/rowLength);
-    }
-
-    searchSizedTabOff(query) {
-        this.closeInfoTab();
-        return this.props.searchSized(query);
-    }
-
-    closeInfoTab() {
-        const { openTab, card } = this.state;
-
-        if(openTab.open) {
-            closeCard(openTab.domElmt, card.height, true);
-            this.setState({
-                openTab: {domElmt: {card: null, label: null}, album: null, style: null, open: false}
-            });
-        }
-    }
-
-    createInfoTab(position, domElmt, album, promise) {
-        const _self = this;
-        const { openTab, card, tab } = this.state;
-
-        // If clicked tab already open, close it.
-        if(openTab.open && album.key === openTab.album.key) {
-
-            // Close Tab.
-            closeCard(openTab.domElmt, card.margin, true);
-
-            // Call resize to HOC component after close animation time.
-            // TODO : bug to track - if expand tab, sroll bottom,
-            // TODO : load new album chunk, open other tab, the close tab,
-            // TODO : and sroll fast to bottom(faster than 0.5 sec), then no auto-load:
-            // TODO : need to re-scroll up and down to start next chunk load.
-            setTimeout(this.props.resizeHOC, 500);
-
-            return this.setState({
-                openTab: {domElmt: {card: null, label: null}, album: null, style: null, open: false}
-            });
+        if( typeof this.closeLastTab === 'function' ){
+            this.closeLastTab();
         }
 
-        // Open tab without server resp.
-        const row = _self.getRowNumber(position);
-        // Check if same row, to add or cancel card height anim.
-        const transition = !( openTab.row && row === openTab.row );
+        this.closeLastTab = func;
+        this.row = row;
 
-        // Style to apply to tracks tab.
-        let style = {
-            left: card.margin + 'px',
-            top: (row * (card.height + card.margin * 2)) + 'px',
-        };
+        return sameRow;
+    }
 
-        // Reset class an style to previous opened card.
-        if(openTab.domElmt && openTab.domElmt.card) {
-            closeCard(openTab.domElmt, card.margin, transition);
+    hookCloseTab() {
+        if( typeof this.closeLastTab === 'function' ){
+            this.closeLastTab();
         }
+        this.closeLastTab = null;
+        this.row = null;
 
-        // Set class and style to opened card.
-        openCard(domElmt, tab.defaultHeight + (card.margin * 2), transition);
-
-        // Save new opened card in state.
-        this.setState({
-            openTab: {domElmt, album, style, row:row , open: true}
-        });
-
-        // When server rep, new traitment.
-        promise.then(album => {
-            // const newHeight = Math.max( ((album.tracks.length * tab.lineHeight) + card.height + (tab.padding * 2)), (tab.defaultHeight + card.height) );
-            // domElmt.card.style.height = newHeight + 'px';
-            setTimeout(() => {
-                _self.setState({
-                    openTab: Object.assign({}, _self.state.openTab, {album: album}),
-                });
-            }, 300);
-        });
+        return false;
     }
 
     render(){
-        const { openTab, card, grid } = this.state;
+        const { card, grid } = this.state;
 
+        // Build default card style.
+        // Done here to avoid re-calculate this in each albumCard rendering.
         const cardDefaultStyle = {
             width: card.width + 'px',
-            height: card.height + 'px',
-            margin: card.margin + 'px',
+            padding: card.margin + 'px',
         };
 
-        // No mutate openTab.
-        const tabProps = Object.assign({}, openTab);
-        // No mutate style.
-        tabProps.style = Object.assign({}, tabProps.style, {width: (grid.width - (card.margin * 2)) + 'px'});
+        // Build inner Card styles.
+        // Done here to avoid re-calculate this in each albumCard rendering.
+        const innerWidth = (card.width - (card.margin * 2));
+        const innerStyle = {width: innerWidth, height: innerWidth};
+        const imageStyle = {width: innerWidth+'px', height: innerWidth+'px'};
 
         console.log('RENDER ALL ALBUMS');
 
@@ -160,7 +103,7 @@ class Albums extends Component {
                 <h1>Albums</h1><span>{this.props.total} albums on result</span>
                 <SearchMusicBar indexName='album'
                                 startLimit={0}
-                                searchAction={this.searchSizedTabOff}
+                                searchAction={this.props.searchSized}
                                 filtersMapping={{artist:'artist', genre:'genre', date:'range.year'}}
                                 placeholder='search album...'
                 />
@@ -169,34 +112,20 @@ class Albums extends Component {
                 <div style={{position:'relative'}}>
                     {this.props.data.map((item, i) =>
                         <AlbumCard key={item.key}
+                                   index={i}
                                    album={item}
-                                   style={cardDefaultStyle}
-                                   createInfoTab={this.createInfoTab.bind(null, (i+1))}
+                                   card={card}
+                                   grid={grid}
+                                   wrapperStyle={cardDefaultStyle}
+                                   innerStyle={innerStyle}
+                                   imageStyle={imageStyle}
+                                   hookOpenTab={this.hookOpenTab}
+                                   hookCloseTab={this.hookCloseTab}
                         />)}
-
-
-                    {openTab.open &&
-                        <AlbumTracks {...tabProps}/>
-                    }
                 </div>
             </div>
         );
     }
-}
-
-// HELPER
-function closeCard( domElmt, height, transition ) {
-    domElmt.card.classList.remove('open');
-    domElmt.card.style.zIndex = '1';
-    domElmt.card.style.marginBottom = height + 'px';
-    domElmt.card.style.transition = transition ? 'margin 0.3s' : '';
-}
-
-function openCard( domElmt, height, transition ) {
-    domElmt.card.classList.add('open');
-    domElmt.card.style.zIndex = '2';
-    domElmt.card.style.marginBottom = height + 'px';
-    domElmt.card.style.transition = transition ? 'margin 0.3s' : '';
 }
 
 // SEARCH CONTAINER

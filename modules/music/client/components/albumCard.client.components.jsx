@@ -4,37 +4,55 @@ import { get, post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
 import ps from 'core/client/services/core.path.services'
 import Img from 'music/client/components/image.client.components'
+import AlbumTracks from 'music/client/components/albumTracks.client.components'
 import IconPlayAnim from 'music/client/components/iconPlayAnim.client.components'
 import { Icon } from 'semantic-ui-react'
+
 
 import style from './style/albumCard.scss'
 
 class AlbumCard extends Component {
 
     constructor(props){
+
         super(props);
 
-        this.handlerOpenAlbum = this.handlerOpenAlbum.bind(this);
+        this.handlerOpenTab = this.handlerOpenTab.bind(this);
+        this.handlerCloseTab = this.handlerCloseTab.bind(this);
         this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
         this.handlerAddTracks = this.handlerAddTracks.bind(this);
+        this.getAlbumTracks = this.getAlbumTracks.bind(this);
 
-        this.domElmt = {
-            card: null,
-            label: null,
+        this.state = {
+            playing: false,
+            openTab: false,
+            row: null,
+            sameRow: false,
+            style: this.props.wrapperStyle,
         };
     }
 
-    shouldComponentUpdate(nextProps) {
-        return false;
+    shouldComponentUpdate(nextProps, nextState) {
+        return (
+            nextState.openTab !== this.state.openTab ||
+            nextProps.grid !== this.props.grid
+        );
     }
 
     componentWillReceiveProps(nextProps) {
+        // Check if album playing change, class 'playing' are add/remove directly on DOM element with classList method.
+        // This is to avoid render calculate or shouldComponentUpdate evaluation
+        // on hundreds of albums when album playing just change.
         if(this.props.playingAlbumKey === this.props.album.key && nextProps.playingAlbumKey !== this.props.album.key){
-            this.domElmt.card.classList.remove('playing');
+            this.domElmt.classList.remove('playing');
         }
         else if(this.props.album.key === nextProps.playingAlbumKey) {
-            this.domElmt.card.classList.add('playing');
+            this.domElmt.classList.add('playing');
         }
+    }
+
+    getRowNumber() {
+        return Math.ceil(this.props.index/this.props.grid.row);
     }
 
     getAlbumTracks(callback) {
@@ -55,19 +73,40 @@ class AlbumCard extends Component {
             });
     }
 
-    handlerOpenAlbum(e) {
+    handlerOpenTab(e) {
 
         const _self = this;
-        const { album, createInfoTab } = this.props;
+        const { openTab, style } = this.state;
+        const { hookOpenTab, hookCloseTab, card } = this.props;
 
-        const promise = new Promise((resolve, reject) => {
-            _self.getAlbumTracks( (err, album) => {
-                if(err) return reject(err);
-                resolve(album);
-            });
+        // If tab already open, close it.
+        if(openTab) {
+            return hookCloseTab();
+        }
+
+        // Get row number of this card.
+        const row = this.getRowNumber();
+
+        // Close last tab opened.
+        const sameRow = hookOpenTab(_self.handlerCloseTab, row);
+
+        this.setState({
+            openTab:true,
+            row: row,
+            sameRow: sameRow,
+            style: Object.assign({}, style, {
+                marginBottom: card.tabHeight + card.margin + 'px',
+                transition: sameRow ? '' : 'margin 0.3s',
+            })
         });
+    }
 
-        createInfoTab(_self.domElmt, album, promise);
+    handlerCloseTab(){
+        const { style } = this.state;
+        this.setState({
+            openTab: false,
+            style: Object.assign({}, style, {marginBottom: '0', transition: 'margin 0.3s'})
+        });
     }
 
     handlerPlayAlbum(e, i) {
@@ -109,31 +148,58 @@ class AlbumCard extends Component {
 
     render(){
 
-        const { style, album, playingAlbumKey } = this.props;
+        const { openTab, style, sameRow } = this.state;
+        const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey } = this.props;
         const cover = ps.changeSeparator(album.key, '___', '/');
-        //const playingClass = playingAlbumKey === album.key ? ' playing' : '';
+
+        // Start build classes.
+        const classes = ['albums-item-album'];
+
+        // Tab tracks open or not.
+        if(openTab) {
+            classes.push('open');
+        }
+
+        // For the first render, check if album is playing.
+        // Next, if album playing change, class 'playing' are add/remove directly on DOM element with classList method.
+        // This is to avoid render calculate or shouldComponentUpdate evaluation
+        // on hundreds of albums when album playing just change.
+        if(playingAlbumKey === album.key) {
+            classes.push('playing');
+        }
 
         console.log('RENDER CARD');
 
         return (
-            <div ref={(r) => {this.domElmt.card = r}} style={style} className={`albums-item-album`}>
+            <div ref={r => this.domElmt = r} style={style} className={classes.join(' ')}>
 
-                <div className={`albums-item-img`} onClick={this.handlerPlayAlbum}>
+                <div className={`albums-item-img`} style={innerStyle} onClick={this.handlerPlayAlbum}>
                     <Img title={`${album.name} cover`}
                          src={'pictures/' + cover + '/cover.jpg'}
                          defaultSrc='static/images/default_cover.png'
-                         width="150" height="150"
+                         style={imageStyle}
                     />
                     <IconPlayAnim wrapperStyle={{width:'100%', height:'100%'}}/>
                     <Icon color='teal' circular inverted name='play'/>
                     <Icon color='teal' circular inverted name='plus' onClick={this.handlerAddTracks}/>
                 </div>
 
-                <div ref={(r) => {this.domElmt.label = r}} className='albums-item-info' onClick={this.handlerOpenAlbum}>
+                <div className='albums-item-info' onClick={this.handlerOpenTab}>
                     <div className='name'>{album.name}</div>
                     <div className='date'>{album.year}</div>
                     <div className='artist'><span>{album.artist}</span></div>
                 </div>
+
+                {openTab &&
+                <AlbumTracks album={album}
+                             index={index}
+                             card={card}
+                             grid={grid}
+                             sameRow={sameRow}
+                             getAlbumTracks={this.getAlbumTracks}
+                />
+                }
+
             </div>
         );
     }

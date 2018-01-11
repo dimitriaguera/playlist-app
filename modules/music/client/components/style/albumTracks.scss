@@ -1,14 +1,13 @@
 .album-tracks {
   position: absolute;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  color: white;
   padding: 30px 20px;
   height: 500px;
   overflow-y: auto;
   z-index: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
 
-  div {
+  div div {
     height: 40px;
     overflow: hidden;
     padding: 5px 0;
