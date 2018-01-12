@@ -27,12 +27,14 @@ class AlbumCard extends Component {
             playing: false,
             openTab: false,
             row: null,
-            sameRow: false,
+            renderTracksNow: false,
             style: this.props.wrapperStyle,
         };
     }
 
     shouldComponentUpdate(nextProps, nextState) {
+        // Update component if tab open/close
+        // or if grid params change.
         return (
             nextState.openTab !== this.state.openTab ||
             nextProps.grid !== this.props.grid
@@ -52,18 +54,20 @@ class AlbumCard extends Component {
     }
 
     getRowNumber() {
-        return Math.ceil(this.props.index/this.props.grid.row);
+        // Return albumCard's row number.
+        return Math.ceil( (this.props.index + 1) / this.props.grid.row );
     }
 
     getAlbumTracks(callback) {
         const { search, album } = this.props;
+
+        // Start fetching album tracks.
         return search(`tracks?fi=albumKey&sort=meta.track.no&q=${album.key}&exact=true`)
             .then((data) => {
-
+                // If error, stop process.
                 if (!data.success) {
                     return callback(data);
                 }
-
                 // No-mutate album.
                 const albumWithTracks = Object.assign({}, album);
                 // Add tracks.
@@ -73,9 +77,8 @@ class AlbumCard extends Component {
             });
     }
 
-    handlerOpenTab(e) {
+    handlerOpenTab() {
 
-        const _self = this;
         const { openTab, style } = this.state;
         const { hookOpenTab, hookCloseTab, card } = this.props;
 
@@ -87,13 +90,18 @@ class AlbumCard extends Component {
         // Get row number of this card.
         const row = this.getRowNumber();
 
-        // Close last tab opened.
-        const sameRow = hookOpenTab(_self.handlerCloseTab, row);
+        // Register method to close this tab,
+        // close last tab opened,
+        // and check if new tab is in same row.
+        const sameRow = hookOpenTab(this.handlerCloseTab, row);
 
+        // Open tab, store row number,
+        // skip in mind if tracks have to be rendered now in tabs,
+        // define style to apply.
         this.setState({
             openTab:true,
             row: row,
-            sameRow: sameRow,
+            renderTracksNow: sameRow,
             style: Object.assign({}, style, {
                 marginBottom: card.tabHeight + card.margin + 'px',
                 transition: sameRow ? '' : 'margin 0.3s',
@@ -103,6 +111,7 @@ class AlbumCard extends Component {
 
     handlerCloseTab(){
         const { style } = this.state;
+        // Close tab, define style to apply.
         this.setState({
             openTab: false,
             style: Object.assign({}, style, {marginBottom: '0', transition: 'margin 0.3s'})
@@ -113,8 +122,10 @@ class AlbumCard extends Component {
 
         const { addAlbumToPlay } = this.props;
 
+        // Get album populated with tracks.
         this.getAlbumTracks( (err, album) => {
             if(!err) {
+                // Build data to store as playing album.
                 const data = {
                     onPlayIndex: i || 0,
                     pl: {
@@ -123,6 +134,7 @@ class AlbumCard extends Component {
                         tracks: album.tracks,
                     }
                 };
+                // Store playing album.
                 addAlbumToPlay(data);
             }
         });
@@ -135,6 +147,7 @@ class AlbumCard extends Component {
         // User must be connected to add tracks.
         if ( !user ) return history.push('/login');
 
+        // Get album populated with tracks.
         this.getAlbumTracks( (err, album) => {
             if(!err){
                 // Extract tracks id from album.
@@ -148,8 +161,10 @@ class AlbumCard extends Component {
 
     render(){
 
-        const { openTab, style, sameRow } = this.state;
+        const { openTab, style, renderTracksNow } = this.state;
         const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey } = this.props;
+
+        // Build cover path from album key.
         const cover = ps.changeSeparator(album.key, '___', '/');
 
         // Start build classes.
@@ -195,7 +210,7 @@ class AlbumCard extends Component {
                              index={index}
                              card={card}
                              grid={grid}
-                             sameRow={sameRow}
+                             renderTracksNow={renderTracksNow}
                              getAlbumTracks={this.getAlbumTracks}
                 />
                 }

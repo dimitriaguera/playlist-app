@@ -22,8 +22,8 @@ class AlbumTracks extends Component {
 
     componentDidMount() {
         const _self = this;
-        const { getAlbumTracks, sameRow } = this.props;
-        const delay = sameRow ? 0 : 300;
+        const { getAlbumTracks, renderTracksNow } = this.props;
+        const delay = renderTracksNow ? 0 : 300;
 
         // Start fetching album tracks, with minimal delay before call setState.
         // This delay is needed to avoid lag during albumCard open anim.
@@ -35,7 +35,7 @@ class AlbumTracks extends Component {
     }
 
     componentWillUnmount() {
-        // Clear delay.
+        // Clear timer.
         clearTimeout(this.timeoutID);
     }
 
@@ -55,12 +55,15 @@ class AlbumTracks extends Component {
             callback(err, data);
         }
 
-        // Start async function.
+        // Start async function with proceed as callback.
         fn(proceed);
 
         // Start timer.
         this.timeoutID = setTimeout(() => {
             timeout = true;
+            // If async fn already called proceed,
+            // call callback and result stored in close fn.
+            // Else, nothing to do.
             if(close) {
                 return close();
             }
@@ -73,11 +76,13 @@ class AlbumTracks extends Component {
 
         // If this album already playing.
         if( mode === 'album' && onPlay.albumKey === album.key ) {
+            // Just store index track in playing queue.
             addAlbumToPlay({onPlayIndex: i});
         }
 
         // Else, play this album.
         else {
+            // Build album data to store, and index to play.
             const albumToPlay = {
                 pl: {
                     title: album.name,
@@ -86,6 +91,7 @@ class AlbumTracks extends Component {
                 },
                 onPlayIndex: i,
             };
+            // Store new playing album.
             addAlbumToPlay(albumToPlay);
         }
     }
@@ -104,8 +110,14 @@ class AlbumTracks extends Component {
 
     getStyle() {
         const {index, grid, card} = this.props;
+
+        // Get Card position in his row.
+        // Needed to know left style value, to position tab according tab position.
         const pos = index % grid.row;
 
+        // Return style according to
+        // Card default style,
+        // and Card position in his row.
         return {
             width: ((grid.row * card.width) - (card.margin * 2)) + 'px',
             left: (-pos * card.width) + card.margin + 'px',
@@ -117,19 +129,27 @@ class AlbumTracks extends Component {
 
         const { album, user, onPlay, onPlayIndex } = this.props;
         const { tracks } = this.state;
+
+        // Does this album is now playing ?
         const albumIsPlaying = onPlay.albumKey === album.key;
+
+        // Get tab style.
         const style = this.getStyle();
 
         return (
             <div className='album-tracks' style={style}>
                 {!!tracks.length &&
-                <Motion defaultStyle={{o: 0}} style={{o: spring(1)}}>
-                    {s => <div style={{opacity: s.o}}>
+                <Motion defaultStyle={{o: 0, x: -20}} style={{o: spring(1), x: spring(0)}}>
+                    {({o, x}) =>
+                        <div style={{
+                            WebkitTransform: `translate3d(${x}px, 0, 0)`,
+                            transform: `translate3d(${x}px, 0, 0)`,
+                            opacity: o
+                        }}>
                         {tracks.map((item, i) => {
                             const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
-                            const trackClass = trackIsPlaying ? 'playing' : '';
                             return (
-                                <div key={i} className={trackClass}>
+                                <div key={i} className={trackIsPlaying ? 'playing' : ''}>
                                     {trackIsPlaying &&
                                     <IconPlayAnim iconStyle={{width: '30px', height: '30px', padding: '7px'}}/>
                                     }
@@ -146,9 +166,8 @@ class AlbumTracks extends Component {
                                         </Button>
                                     </span>
                                     <span className='album-tracks-title'>
-                                        {item.meta.track.no !== '0' &&
-                                        <span>{item.meta.track.no} - </span>
-                                        }{item.meta.title}
+                                        {item.meta.track.no !== '0' && <span>{item.meta.track.no} - </span>}
+                                        {item.meta.title}
                                     </span>
                                 </div>
                             )
