@@ -15,7 +15,8 @@ class EditMetaTag extends Component {
 
     this.state = {
       error: false,
-      message: '',
+      loading: false,
+      message: null,
       modalOpen: false
     }
   }
@@ -53,14 +54,20 @@ class EditMetaTag extends Component {
   }
 
   handleClose() {
-    this.setState({modalOpen: false});
+    this.setState({
+      modalOpen: false,
+      error: false,
+      loading: false,
+      message: null,
+    });
   }
-
 
   submitForm(e) {
 
     const _self = this;
     const { user, history, updateNode, redirect } = _self.props;
+
+    _self.setState({loading: true});
 
     // User need to be authenticated.
     // @todo uncomment this
@@ -84,19 +91,31 @@ class EditMetaTag extends Component {
       let obj= {}, i = 0;
 
       while (e.target[i].name) {
-        obj[e.target[i].name] = e.target[i].value;
+        obj[e.target[i].name] = (e.target[i].value === '') ? null : e.target[i].value;
         i++;
       }
 
+      // Transform disk and track in obj
       obj.track = {
         no: obj.trackno || '0',
         of: obj.trackof || '0',
       };
+      delete obj.trackno;
+      delete obj.trackof;
 
       obj.disk = {
         no: obj.diskno || '0',
         of: obj.diskof || '0',
       };
+      delete obj.diskno;
+      delete obj.diskof;
+
+      // Convert Genre in tab and split it
+      obj.genre = (obj.genre) ? obj.genre.split(/\s*[,;\/]\s*/) : [];
+
+      // cleanMeta.albumartist composer doesn't exist if null empty
+      if (obj.albumartist === null) delete obj.albumartist;
+      if (obj.composer === null) delete obj.composer;
 
       return obj;
     }
@@ -108,8 +127,11 @@ class EditMetaTag extends Component {
     // User authenticated on any role can create playlist.
     updateNode(newNode)
       .then( (data) => {
+
+        _self.setState({loading: false});
+
         if (!data.success) {
-          _self.setState({message: data.msg, error: true });
+          _self.setState({error: true, message: data.msg});
         } else {
           _self.setState({error: false, message: data.msg});
           if ( redirect ) {
@@ -133,8 +155,17 @@ class EditMetaTag extends Component {
         <Header content='Edit Metatag' />
         <Modal.Content>
 
-          <Form error={this.state.error}>
-            <Message error content={this.state.message}/>
+          <Form error success loading={this.state.loading} >
+
+            {this.state.error ? (
+              <Message error content={this.state.message}/>
+              )
+              :
+              (
+              <Message success content={this.state.message}/>
+              )
+            }
+
 
             <Form.Field inline>
               <Input label='Title' placeholder='Title' name='title' defaultValue={this.meta.title} />

@@ -398,75 +398,67 @@ exports.updateMeta = function (req, res, next) {
 
   const node = req.fileNode;
 
+  if (!node) {
+    return res.json({
+      success: false,
+      msg: 'Node doesn\'t exist !'
+    });
+  }
 
-  // Check if empty field in oldNode and in new Node
   let newMeta = req.body.meta;
-  newMeta = Object.keys(newMeta).reduce(
-    (acc, key) => {
-      if ( newMeta === '') {
-        if (node.meta.hasOwnProperty(key)) {
-          acc[key] = newMeta[key];
-        }
-        return acc;
-      }
-      acc[key] = newMeta[key];
-      return acc;
-    },
-    {}
-  );
 
-  // If update success, response with success.
-  return res.json({
-    success: true,
-    msg: newMeta,
-  });
+  // @todo remove this
+  // Check if empty field in newMeta and not in old one
+  // set it to null val
+  // newMeta = Object.keys(newMeta).reduce(
+  //   (acc, key) => {
+  //     if ( newMeta[key] === '') {
+  //       if (node.meta.hasOwnProperty(key)) {
+  //         acc[key] = null;
+  //       }
+  //       return acc;
+  //     }
+  //     acc[key] = newMeta[key];
+  //     return acc;
+  //   },
+  //   {}
+  // );
 
 
-  node.meta = req.body.meta;
+  for (let i = 0, keys = Object.keys(newMeta), l = keys.length ; i < l ; i ++) {
+    if (newMeta[i] === '') newMeta[i] = null;
+  }
+
+  // Convert Genre in tab and split it
+  if (typeof newMeta.genre === 'string' || newMeta.genre instanceof String) {
+    newMeta.genre = newMeta.genre.split(/\s*[,;\/]\s*/);
+  }
+
+  // Doesn't exist if null empty
+  if (newMeta.albumartist === null) delete newMeta.albumartist;
+  if (newMeta.composer === null) delete newMeta.composer;
+
+  // Add time
+  newMeta.time = node.meta.time;
+
+  node.meta = newMeta;
 
   node.save((err) => {
 
     if(err){
-      res.status(404);
-      return errorHandler.errorMessageHandler(err, req, res, next);
+      return res.json({
+        success: false,
+        msg: 'Cannot save node !'
+      });
     }
 
-    // If node move, update parents.
-    if( newParentId && parentId !== newParentId) {
+    return res.json({
+      success: true,
+      msg: 'Meta saved !'
+    });
 
-      // Update old parent.
-      Node.update(
-        { _id: parentId },
-        { safe: true },
-        (err) => {
-
-          // If error on update, stop process.
-          if ( err ) return errorHandler.errorMessageHandler(err, req, res, next);
-
-          // If update success, response with success.
-          res.json({
-            success: true,
-            msg: `Updated old parent Node ${parentId.name}`,
-          });
-        });
-
-      // Update old parent.
-      Node.update(
-        { _id: newParentId },
-        { safe: true },
-        (err) => {
-
-          // If error on update, stop process.
-          if ( err ) return errorHandler.errorMessageHandler(err, req, res, next);
-
-          // If update success, response with success.
-          res.json({
-            success: true,
-            msg: `Updated current parent Node ${newParentId.name}`,
-          });
-        });
-    }
   });
+
 };
 
 
