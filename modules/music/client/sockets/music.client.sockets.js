@@ -27,6 +27,11 @@ export const mountSocket = function(store) {
         checkAndUpdatePlaylistHandler(store, data);
     });
 
+    // Apply event when save meta
+    // @todo update store, playlist, onplay
+    // socket.on('save:meta', (data) => {
+    // });
+
     return socket;
 };
 

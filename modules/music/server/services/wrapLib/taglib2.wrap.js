@@ -118,7 +118,8 @@ exports.readPictAndSave = function (input, output, cb) {
 /**
  * Write meta to a file
  *
- * You have to use tracknumber instead of track and discnumber instead of disc
+ * You have to use tracknumber instead of track
+ * and discnumber instead of disc
  *
  * Exemple of meta
  * meta = {
@@ -145,16 +146,33 @@ exports.readPictAndSave = function (input, output, cb) {
  * @param cb
  */
 exports.saveMeta = function (audioFile, meta, cb) {
-  try {
 
-    function standardizeMeta(meta){
-      meta.tracknumber = meta.track.no + '/' + meta.track.of;
-      meta.discnumber = meta.disk.no + '/' + meta.disk.of;
+  function standardizeMeta(meta){
+
+    let newMeta = Object.assign({}, meta);
+
+    if (meta.track.no) {
+      newMeta.tracknumber = meta.track.no + '/' + meta.track.of;
+      delete newMeta.track;
     }
 
+    if (meta.disk.no) {
+      newMeta.discnumber = meta.disk.no + '/' + meta.disk.of;
+      delete newMeta.disk;
+    }
+
+    if (meta.genre) {
+      newMeta.genre = meta.genre.join(', ');
+    }
+
+    return newMeta;
+
+  }
+
+  try {
     taglib2.writeTagsSync(audioFile, standardizeMeta(meta));
-    cb(null, null);
+    cb(null);
   } catch (e){
-    cb (e);
+    cb(e);
   }
 };

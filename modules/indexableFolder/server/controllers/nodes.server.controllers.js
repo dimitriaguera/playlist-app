@@ -18,6 +18,8 @@ const mongoose = require('mongoose');
 const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
 
 
+const socketsEvents = require('../../../../config/sockets/sockets.conf');
+
 // @todo put this when export conf
 const rootOK = ps.conformPathToOs(config.folder_base_url);
 
@@ -302,7 +304,7 @@ exports.update = function (req, res, next) {
     const parentId = node.parent;
     const newParentId = req.body.node.parent;
 
-    Object.assign(node, req.body.node);
+    //Object.assign(node, req.body.node);
 
     node.save((err) => {
 
@@ -405,6 +407,27 @@ exports.updateMeta = function (req, res, next) {
     });
   }
 
+  if (!node.isFile){
+
+    // Load All children audio file ( recursively )
+    // Add Confirmation modal if to many files (client side or server side ?)
+
+    // Loop on every node
+
+      // Change Meta in Db
+
+      // Change Meta in file itself
+
+    // Emit socket Event
+
+    // Send res
+
+    return res.json({
+      success: true,
+      msg: 'HAVE TO DO THIS FUNC!'
+    });
+  }
+
   let newMeta = req.body.meta;
 
   // @todo remove this
@@ -443,7 +466,7 @@ exports.updateMeta = function (req, res, next) {
 
   node.meta = newMeta;
 
-  node.save((err) => {
+  node.save((err, node) => {
 
     if(err){
       return res.json({
@@ -452,10 +475,31 @@ exports.updateMeta = function (req, res, next) {
       });
     }
 
-    return res.json({
-      success: true,
-      msg: 'Meta saved !'
-    });
+    metaTag.saveMeta(
+      node.uri,
+      node.meta,
+      (err) => {
+
+        if (err) {
+          return res.json({
+            success: false,
+            msg: 'Cannot write tag in file !'
+          });
+        }
+
+        //@todo add elastic update here
+
+        // Emit socket event
+        socketsEvents.emit( 'save:meta', node._doc );
+
+        return res.json({
+          success: true,
+          msg: 'Meta saved !'
+        });
+      }
+    );
+
+
 
   });
 
