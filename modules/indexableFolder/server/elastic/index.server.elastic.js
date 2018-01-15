@@ -3,19 +3,19 @@
  */
 const chalk = require('chalk');
 
-function buildBulk( index, type, data ) {
+function buildBulk( data ) {
 
     const bulkBody = [];
 
-    data.forEach((item) => {
+    data.forEach(({action_type, _index, _type, _doc, _id}) => {
         bulkBody.push({
-            index: {
-                _index: index,
-                _type: type,
-                _id: item._id,
+            [action_type]: {
+                _index: _index,
+                _type: _type,
+                _id: _id,
             }
         });
-        bulkBody.push(item);
+        bulkBody.push(_doc);
     });
 
     return {body: bulkBody};
@@ -27,14 +27,11 @@ function buildBulk( index, type, data ) {
  * @returns {function(*=, *)}
  */
 function indexBulk( client ) {
-    return (data, param, callback) => {
+    return (data, callback) => {
 
-        const index = param.index || 'folder';
-        const type = param.type || 'album';
-
-        client.bulk(buildBulk(index, type, data))
+        client.bulk(buildBulk(data))
             .then( (resp) => {
-                console.log(chalk.cyan(`Elasticsearch: Creation ${index} index type ${type} OK. Took ${resp.took} ms.`));
+                console.log(chalk.cyan(`Elasticsearch: bulk index on ${data.length} documents OK. Took ${resp.took} ms.`));
                 callback(null, resp);
             })
             .catch((err) => {

@@ -41,7 +41,7 @@ module.exports = {
     index: {
       sizeChunkNode: 20,
       sizeChunKCover: 20,
-      sizeChunkElastic: 20,
+      sizeChunkElastic: 2000,
     },
 
     // Uncomment lines with first letter Up for case sensitive system
