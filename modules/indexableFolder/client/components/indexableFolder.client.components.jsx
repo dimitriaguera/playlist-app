@@ -243,10 +243,10 @@ class IndexableFolder extends Component {
     handlerReadFile( e, item ) {
 
         // Build track item.
-        const play = item;
+        //const play = item;
 
         // Change global state to start playing track.
-        this.props.readFile( play );
+        this.props.readFile( item );
         e.preventDefault();
     }
 
