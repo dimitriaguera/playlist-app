@@ -14,6 +14,7 @@ let client = null;
 if (process.env.NODE_ENV === 'production'){
   client = new elasticsearch.Client({
     host: 'localhost:9200',
+    requestTimeout: 60000,
     log: [
       {
         type: 'stdio', // default
