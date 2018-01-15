@@ -1,11 +1,10 @@
 /**
  * Created by Dimitri Aguera on 30/09/2017.
  */
-const fs = require('fs');
-const async = require('async');
+const co = require('co');
 const path = require('path');
-const url = require('url');
 const _ = require('lodash');
+const chalk = require('chalk');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const taskRunner = require(path.resolve('./modules/task/server/services/task.server.services'));
@@ -17,6 +16,9 @@ const indices_body = require(path.resolve('./modules/indexableFolder/server/elas
 
 exports.index = function(req, res, next){
 
+    // Get query params.
+    const fullLogs = req.query.logs;
+
     // Create taskRunner instance.
     const runTask = taskRunner.create(req, res, next);
 
@@ -26,7 +28,7 @@ exports.index = function(req, res, next){
             name:'index elastic',
             unique: true
         },
-        runIndexElastic
+        runIndexElastic(fullLogs)
     );
 };
 
@@ -40,224 +42,297 @@ exports.index = function(req, res, next){
  * - genre
  *
  */
-function runIndexElastic(onError, onStep, onDone) {
+function runIndexElastic( fullLogs ) {
 
-    // Get all files nodes.
-    Node.find({isFile: true}).select('path meta name publicName').lean().exec((err, data) => {
+    return function( onError, onStep, onDone ) {
 
-        // Return if error.
-        if(err) return onError(err);
+        const logs = [];
 
-        const logs = {};
+        // Node query to get all tracks.
+        const query = Node.find({isFile: true}).select('path meta name publicName _id');
 
-        // Parse albums, artists, and genres from all tracks metadata.
-        const bulk_data = extractDataFromMeta(data);
-
-        // return res.json({yo: bulk_data.albums});
-
-        // Set params for index we need to create.
-        const indices = [
-            {
-                index: 'album',
-                data: bulk_data.albums,
-                body: indices_body.album_body
-            },
-            {
-                index: 'artist',
-                data: bulk_data.artists,
-                body: indices_body.artist_body
-            },
-            {
-                index: 'tracks',
-                data: bulk_data.tracks,
-                body: indices_body.tracks_body
-            },
-            {
-                index: 'genre',
-                data: bulk_data.genres,
-                body: indices_body.genre_body
-            },
-        ];
-
-        // Build index creation sequence.
-        let func = indices.map( ({index, data, body}) => [
-            function(cb){
-                onStep(`deleting ${index} index...`);
-                es.indexDelete([index], (e, r) => {
-                    cb(e, `index ${index} deleted at ${itIsNow()}`);
-                });
-            },
-            function(cb){
-                onStep(`creating ${index} index...`);
-                es.indexCreate({index:index, body:body}, (e, r) => {
-                    cb(e, `index ${index} created at ${itIsNow()}`);
-                });
-            },
-            function(cb){
-                onStep(`populating ${index} index...`);
-                es.indexBulk(data, {index:index,type:index}, (e, r) => {
-                    logs[index] = getIndexLogError(r);
-                    cb(e, `index ${index} data added at ${itIsNow()} - ${logs[index].index_count} documents successful indexed - ${logs[index].error_count} document rejected`);
-                });
-            },
-        ]);
-        func = _.flatten(func);
-
-        // Start indexation.
-        async.series(func, (e, result) => {
-            if(e) return onError(e);
-            onDone({steps:result, details:logs});
-        });
-    });
-}
-
-function itIsNow(){
-    const now = new Date();
-    return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-}
-
-
-function extractDataFromMeta(data){
-
-    const tracks = [];
-    const albums = [];
-    const artists = [];
-    const genres = [];
-
-    const alKeys = {};
-    const arKeys = {};
-    const geKeys = {};
-
-    data.map((item, i) => {
-
-        /************* Core ***************/
-        let { title, album, year, artist, genre, track, disk } = item.meta;
-
-        /*********** Facultatif *************/
-        let { composer, albumartist } = item.meta;
-
-        /*********** STRING NORMALIZATION ************/
-        artist = artist ? artist.toLowerCase() : null;
-        albumartist = albumartist ? albumartist.toLowerCase() : null;
-        album = album ? album.toLowerCase() : 'NO-META-ALBUM';
-
-        // Meta.field must not be null or empty, because of elasticsearch tracks mapping.
-        // If no value, give file name for default value.
-        title = title ? title : item.publicName;
-
-        // Here start test to filter albums and artists.
-        // Create unique key for artist.
-        let artistKEY = albumartist || artist;
-        // Create unique key for album.
-        let albumKEY = ps.buildSeparator([artistKEY, album, disk.no], '___');
-
-        // Create track meta.
-        const meta = {
-            title: title,
-            album: album,
-            artist: artist,
-            albumartist: albumartist,
-            year: year,
-            disk: disk,
-            genre: genre,
-            track: track,
-        };
-
-        // Add track.
-        tracks.push({
-            suggest: {
-                input: title,
-            },
-            tracksId: item._id,
-            path: item.path,
-            name: item.name,
-            publicName: item.publicName,
-            meta: meta,
-            albumKey: albumKEY,
-        });
-
-        // If album tracks not yet created,
-        // Create and pusht it in albums array.
-        if( !alKeys[albumKEY] ) {
-            albums.push({
-                suggest: {
-                    input: album,
-                },
-                name: album,
-                keyName: album,
-                artist: [artist],
-                albumartist: albumartist,
-                year: year,
-                disk: disk,
-                genre: genre,
-                path: ps.removeLast(item.path),
-                key: albumKEY,
-            });
-            alKeys[albumKEY] = albums.length;
-        }
-
-        // If album tracks already in album array.
-        else {
-            // Get the already registered album.
-            const currentAlbum = albums[alKeys[albumKEY] - 1];
-
-            // Add and tracks genre on album.
-            currentAlbum.genre.concat(genre);
-            // Remove clones.
-            _.uniq(currentAlbum.genre);
-
-            // // Add and artist.
-            // currentAlbum.artist.concat(artist);
-            // // Remove clones.
-            // _.uniq(currentAlbum.artist);
-
-
-            // Test if current tracks artist is already in album artist field.
-            if(currentAlbum.artist.indexOf(artist) === -1){
-                // Add tracks artist on album.
-                currentAlbum.artist.push(artist);
+        // Start query, filter, index operations.
+        co(run).then(
+            // If success, call task runner with logs.
+            onDone,
+            // If error during process, call task runner with logs + error.
+            e => {
+                logs.push(e);
+                onError({logs: logs});
             }
-        }
+        );
 
-        // let artistTest = artist ? artist.toLowerCase() : null;
-        let artistTest = artist;
+        // Master generator function.
+        function* run() {
 
-        // Proceed artists list.
-        if( !arKeys[artistTest] ) {
-            arKeys[artistTest] = true;
-            artists.push({
-                suggest: {
-                    input: artist,
-                },
-                name: artist,
-                keyName: artist,
-            });
-        }
+            // Chunk array contain actions to pass to elastic bulk index/update method.
+            const chunk = [];
+            // Max number operations to bulk at same time.
+            const chunkMaxSize = config.index.sizeChunkElastic;
+            // Declare counter object returned at end of bulk index operations.
+            const counter = {};
+            // Declare keys vars that register all entities already filtered from tracks.
+            const keys = {alKeys: {}, arKeys: {}, geKeys: {}};
+            // Set mongoDB cursor.
+            const cursor = query.cursor();
+            // Init elastic log report.
+            const getIndexLog = initIndexLog(counter, fullLogs);
+            // Init bulk index operation number.
+            let chunkCount = 0;
 
-        // Proceed genre list.
-        for(let i = 0; i < genre.length; i++) {
-            //const gen = genre[i] ? genre[i].toLowerCase() : null;
-            const gen = genre[i];
-            if( !geKeys[gen] ) {
-                geKeys[gen] = true;
-                genres.push({
-                    suggest: {
-                        input: gen,
-                    },
-                    name: gen,
-                    keyName: gen,
-                });
+            // Start reset all index.
+            yield clearIndices(logs, ['album', 'artist', 'tracks', 'genre']);
+
+            // Start loop on mondoDB documents.
+            for (let node = yield cursor.next(); node != null; node = yield cursor.next()) {
+                // Create entities to index from each track node.
+                extractDataFromMeta(node, keys, chunk);
+                // Bulk index entities.
+                yield proceedChunks();
             }
-        }
-    });
 
-    // Return data to index.
-    return {
-        tracks,
-        albums,
-        artists,
-        genres,
+            // Function that test if chunk is big enought.
+            // And start elastic bulk index process.
+            function* proceedChunks() {
+
+                // Get number of operations in current chunk.
+                const chunkSize = chunk.length;
+
+                // If chunk is bigger enought, start indexation process.
+                if (chunkSize >= chunkMaxSize) {
+                    yield new Promise((resolve, reject) => {
+                        // Increment chunk index counter.
+                        chunkCount++;
+                        // Set task runner step.
+                        onStep(`Start bulk index ${chunkCount}. Indexing ${chunkSize} documents...`);
+                        // Start async bulk index process.
+                        es.indexBulk(chunk, (err, data) => {
+                            if (err) {
+                                return reject(err);
+                            }
+                            // Clear chunk array.
+                            chunk.splice(0, chunkSize);
+                            // Log result.
+                            logs.push({bulk_operation_number: chunkCount, bulk_size: chunkSize, ...getIndexLog(data)});
+                            // Exit.
+                            resolve();
+                        });
+                    });
+                }
+            }
+
+            // Return logs to report.
+            return {total_count: counter, logs: logs};
+        }
     }
+}
+
+// Function that clear and create index.
+function* clearIndices( logs, indices ) {
+
+    // Delete and re-build indexes.
+    for (let i = 0, l = indices.length; i < l; i++) {
+
+        const index = indices[i];
+        const body = indices_body[index + '_body'];
+
+        // Delete index.
+        yield new Promise((resolve, reject) => {
+            // Start async process.
+            es.indexDelete([index], err => {
+                if (err) {
+                    return reject(err);
+                }
+                const message = `index ${index} deleted`;
+                console.log(chalk.cyan(message));
+                logs.push(message);
+                resolve();
+            });
+        });
+
+        // Create index.
+        yield new Promise((resolve, reject) => {
+            // Start async process.
+            es.indexCreate({index: index, body: body}, err => {
+                if (err) {
+                    return reject(err);
+                }
+                const message = `index ${index} created`;
+                console.log(chalk.cyan(message));
+                logs.push(message);
+                resolve();
+            });
+        });
+    }
+}
+
+function extractDataFromMeta( node, keys, chunk ){
+
+    const { alKeys, arKeys, geKeys } = keys;
+
+    /************* Core ***************/
+    let { title, album, year, artist, genre, track, disk, albumartist, composer } = node.meta;
+
+    /*********** STRING NORMALIZATION ************/
+    artist = artist ? artist.toLowerCase() : null;
+    albumartist = albumartist ? albumartist.toLowerCase() : null;
+    album = album ? album.toLowerCase() : 'NO-META-ALBUM';
+
+    // Meta.field must not be null or empty, because of elasticsearch tracks mapping.
+    // If no value, give file name for default value.
+    title = title ? title : node.publicName;
+
+    // Here start test to filter albums and artists.
+    // Create unique key for artist.
+    let artistKEY = albumartist || artist;
+    // Create unique key for album.
+    let albumKEY = ps.buildSeparator([artistKEY, album, disk.no], '___');
+
+    // Create track meta.
+    const meta = {
+        title: title,
+        album: album,
+        artist: artist,
+        albumartist: albumartist,
+        year: year,
+        disk: disk,
+        genre: genre,
+        track: track,
+    };
+
+    // Add track record.
+    chunk.push(buildTracksToRecord( node, albumKEY, meta ));
+
+    // if(albumKEY == ''){
+    //     const ok = true;
+    // }
+
+    // If album tracks not yet created,
+    // Create and push it in albums array.
+    if( !alKeys[albumKEY] ) {
+        chunk.push(buildAlbumToRecord( meta, albumKEY ));
+        alKeys[albumKEY] = {
+            artist: [artist],
+            genre: genre
+        };
+    }
+
+    // If album tracks already in album array.
+    else {
+        // Get already registred album.
+        const currentAlbum = alKeys[albumKEY];
+        const addGenre = testMergeArray(currentAlbum.genre, genre);
+        const toUpdate = {};
+
+        // Test if have to add tracks artist to album artist pool.
+        if(currentAlbum.artist.indexOf(artist) === -1) {
+            currentAlbum.artist.push(artist);
+            toUpdate.artist = currentAlbum.artist;
+        }
+
+        // Test if have to add tracks genre to album genre.
+        if( addGenre ) {
+            currentAlbum.genre = addGenre;
+            toUpdate.genre = addGenre;
+        }
+
+        // If need to update, push it in chunk array.
+        if( toUpdate.artist || toUpdate.genre ){
+            chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, albumKEY ));
+        }
+    }
+
+    // let artistTest = artist ? artist.toLowerCase() : null;
+    let artistTest = artist;
+
+    // Proceed artists list.
+    if( !arKeys[artistTest] ) {
+        arKeys[artistTest] = true;
+        chunk.push(buildArtistToRecord(artist));
+    }
+
+    // Proceed genre list.
+    for(let i = 0; i < genre.length; i++) {
+        const gen = genre[i];
+        if( !geKeys[gen] ) {
+            geKeys[gen] = true;
+            chunk.push(buildGenreToRecord(gen));
+        }
+    }
+}
+
+function buildAlbumToRecord( meta, albumKEY ) {
+    const _doc = {
+        suggest: {
+            input: meta.album,
+        },
+        name: meta.album,
+        keyName: meta.album,
+        artist: [meta.artist],
+        albumartist: meta.albumartist,
+        year: meta.year,
+        disk: meta.disk,
+        genre: meta.genre,
+        key: albumKEY,
+    };
+    return buildBulkRecord( 'index', 'album', 'album', _doc, albumKEY );
+}
+
+function buildTracksToRecord( track, albumKEY, meta ) {
+    const _doc = {
+        suggest: {
+            input: meta.title,
+        },
+        tracksId: track._id,
+        path: track.path,
+        name: track.name,
+        publicName: track.publicName,
+        meta: meta,
+        albumKey: albumKEY,
+    };
+    return buildBulkRecord( 'index', 'tracks', 'tracks', _doc, track._id );
+}
+
+function buildArtistToRecord( artist ) {
+    const _doc = {
+        suggest: {
+            input: artist,
+        },
+        name: artist,
+        keyName: artist,
+    };
+    return buildBulkRecord( 'index', 'artist', 'artist', _doc );
+}
+
+function buildGenreToRecord( genre ) {
+    const _doc = {
+        suggest: {
+            input: genre,
+        },
+        name: genre,
+        keyName: genre,
+    };
+    return buildBulkRecord( 'index', 'genre', 'genre', _doc );
+}
+
+function buildBulkRecord( action, _index, _type, _doc, _id ) {
+    return {
+        action_type: action,
+        _index: _index,
+        _type: _type,
+        _id: _id,
+        _doc: _doc
+    };
+}
+
+function testMergeArray(arr1, arr2) {
+    // Concat arr1 and 2, remove clones
+    const newArray = _.uniq(arr1.concat(arr2));
+    // If more entry, return concat array.
+    if( newArray.length !== arr1.length ) {
+        return newArray;
+    }
+    return false;
 }
 
 
@@ -421,9 +496,6 @@ exports.suggest = function (req, res, next) {
                 completion : {
                     field : 'suggest',
                     size: 10,
-                    // contexts: {
-                    //     artist: [ "", "Radiohead" ]
-                    // }
                 }
             }
         }
@@ -431,8 +503,6 @@ exports.suggest = function (req, res, next) {
 
     const params = {
         index: index,
-        //type: index,
-        //_sourceInclude: ['suggest'],
         body: base_query
     };
 
@@ -447,25 +517,71 @@ exports.suggest = function (req, res, next) {
     });
 };
 
-function safeQuote(str){
-    //return `"${str}"`;
-    return str;
-}
 
-function getIndexLogError(data){
+function initIndexLog(counter, fullLog){
 
-    let count = 0;
-    let i_count = 0;
-    let array = [];
+    return function(data) {
 
-    for(let i = 0, l = data.items.length; i < l; i++){
-        if(data.items[i].index.error) {
-            count++;
-            array.push(data.items[i].index);
-            continue;
+        const index_error_array = [];
+        const update_error_array = [];
+
+        let index_error_count = 0;
+        let update_error_count = 0;
+        let index_success_count = 0;
+        let update_success_count = 0;
+
+        try {
+            for (let i = 0, l = data.items.length; i < l; i++) {
+                const item = data.items[i];
+                if (item.index) {
+
+                    if( !counter[item.index._index + '_success'] ) {
+                        counter[item.index._index + '_success'] = 0;
+                        counter[item.index._index + '_errors'] = 0;
+                    }
+
+                    if (item.index.error) {
+                        index_error_count++;
+                        counter[item.index._index + '_errors']++;
+                        if(fullLog) index_error_array.push(item.index);
+                        continue;
+                    }
+                    index_success_count++;
+                    counter[item.index._index + '_success']++;
+                }
+
+                else if (item.update) {
+                    if (item.update.error) {
+                        update_error_count++;
+                        if(fullLog) update_error_array.push(item.update);
+                        continue;
+                    }
+                    update_success_count++;
+                }
+            }
+
+            const logs = {
+                index: {
+                    success_count: index_success_count,
+                    errors_count: index_error_count,
+                    errors: index_error_array,
+                },
+                update: {
+                    success_count: update_success_count,
+                    errors_count: update_error_count,
+                    errors: update_error_array,
+                }
+            };
+
+            if(fullLog) {
+                logs.index.errors = index_error_array;
+                logs.update.errors = update_error_array;
+            }
+
+            return logs;
         }
-        i_count++;
+        catch (e) {
+            return `Bulk index OK. Building logs error : ${e.message}`;
+        }
     }
-
-    return {index_count: i_count, error_count: count, errors: array };
 }
