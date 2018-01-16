@@ -30,3 +30,18 @@ exports.splitTab = function(files, nbToSplit) {
   files.splice(0, nbToSplit);
   return tabOnWork;
 };
+
+/**
+ * Push an element on a Array only if
+ * doesn't exist
+ *
+ * @param newData
+ * @param Array
+ */
+exports.pushUniq = function(newData , Array){
+
+  if (Array.findIndex(elmt => elmt === newData) === -1 ){
+    Array.push(newData);
+  }
+
+};
