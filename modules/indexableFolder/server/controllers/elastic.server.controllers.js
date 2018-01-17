@@ -46,82 +46,21 @@ exports.index = function(req, res, next){
 
 
 
-exports.test = function(req, res, next){
 
-    const nodes = [
-        {_id: '1000415'},
-        {_id: '5a47790c59921b15c4b944db'},
-        {_id: '1000415'},
-        {_id: '5a47790c59921b15c4b944da'},
-        {_id: '1000415'},
-    ];
-
-    const params =
-        //{query: {match : {albumKey : `"${"sizzla___2004-speak of jah-retail cd___0"}"`}}};
-        //{query: {match : {albumKey : "prout____de__la__vie"}}};
-        {
-            _sourceInclude: ['meta.artist', 'meta.genre'],
-            //body: {query: {match : {albumKey : "sizzla___2004-speak of jah-retail cd___0"}}},
-            body: {query: {match : {albumKey : "kavinsky___1986___0"}}}
-            //body: {query: {match : {albumKey : "PROUTnsky___1986___0"}}}
-        };
-
-    const keys = [
-        "kavinsky___1986___0",
-        "kavinzefzaefrzefsky___1986___0",
-        "sizzla___2004-speak of jah-retail cd___0",
-        "kaviefzeffzefezfzefnsky___1986___0",
-        "kaviefzeffzefezfzefnsky___1986___0",
-    ];
-
-    const chunk = [];
-
-    function* run(){
-        // Get tracks elastic documents.
-        //return extractExistingDocs(
-            //return yield promiseSimpleSearch('tracks', params);
-            //return yield switchActionOnAlbumsWithTracks(keys);
-        //);
-
-        return yield switchActionOnAlbumsWithTracks(
-            keys,
-            // Callback with tracks.
-            (key, data) => {
-                const album = {genre: [], artist: []};
-                let toUpdate = {};
-                for(let j = 0, m = data.length; j < m; j++){
-                    testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
-                }
-                chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, key ));
-            },
-            // Callback without tracks
-            key => {
-                chunk.push(buildBulkRecord( 'delete', 'album', 'album', null, key ) );
-            }
-        );
-    }
+function runElasticUpdates( nodes, callback, fullLogs ) {
 
     // Start query, filter, index operations.
     co(run).then(
         // If success, call task runner with logs.
         //data => res.json(data),
-        data => res.json(chunk),
+        data => callback(null, data),
         // If error during process, call task runner with logs + error.
-        e => console.log(e),
+        err => callback(err),
     );
-};
-
-
-
-
-
-
-
-
-exports.runElasticUpdates = function( nodes, fullLogs ) {
 
     function* run(){
 
+        const logs = [];
         const chunk = [];
         const albumsToUpdate = [];
         const storage = {
@@ -130,13 +69,10 @@ exports.runElasticUpdates = function( nodes, fullLogs ) {
                 new: [],
             },
             genres: {
-                old: [],
-                new: [],
+                testToAdd: [],
+                testToDelete: [],
             },
-            artists: {
-                old: [],
-                new: [],
-            },
+            artistsToUpdate: [],
         };
 
         // Counter object.
@@ -151,7 +87,7 @@ exports.runElasticUpdates = function( nodes, fullLogs ) {
         );
 
         // Init test functions.
-        const runTestTrack = trackTestInit(chunk, );
+        const runTestTrack = trackTestInit(chunk, storage);
 
         // Loop for each node.
         for(let i = 0, l = nodes.length; i < l; i++) {
@@ -163,15 +99,21 @@ exports.runElasticUpdates = function( nodes, fullLogs ) {
             runTestTrack.test(node, meta, track, storage);
         }
 
+        // Need to make uniq the multiple keys of genre.
+        storage.genres.testToAdd = _.uniq(storage.genres.testToAdd);
+        storage.genres.testToDelete = _.uniq(storage.genres.testToDelete);
+
         // Switch action, if album is already indexed or not in elasticsearch.
-        switchActionOnDocsExist(
-            // Get albums from updated keys.
-            yield promiseMultiDocFromNodes('album', storage.album.new),
-            // If album already indexed, push in update list.
-            albumKey => albumsToUpdate.push(albumKey),
-            // If album no indexed, push in chunk.
-            albumKey => chunk.push(buildAlbumToRecord(storage.album.new[i].node.meta, albumKey))
-        );
+        if( storage.albums.new.length !== 0 ) {
+            switchActionOnDocsExist(
+                // Get albums from updated keys.
+                yield promiseMultiDocFromNodes('album', storage.albums.new.map(item => item.node)),
+                // If album already indexed, push in update list.
+                albumKey => albumsToUpdate.push(albumKey),
+                // If album no indexed, push in chunk.
+                albumKey => chunk.push(buildAlbumToRecord(storage.albums.new[i].node.meta, albumKey))
+            );
+        }
 
         // Time to proceed the first bach of chunk.
         // Bulk index chunk on elastic.
@@ -185,35 +127,105 @@ exports.runElasticUpdates = function( nodes, fullLogs ) {
             (data, count, size) => {
                 // Callback after index done in elastic.
                 // Log result.
-                console.log({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
+                logs.push({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
             }
         );
 
         // Now testing if old album keys still have tracks.
         // If no tracks, delete album from index.
-        yield switchActionOnAlbumsWithTracks(
-            storage.album.old,
-            // Callback with tracks.
-            (key, data) => {
-                const album = {genre: [], artist: []};
-                let toUpdate = {};
-                for(let j = 0, m = data.length; j < m; j++){
-                    testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
-                    //const test = data[j]._source.meta;
+        if( storage.albums.old.length !== 0 ) {
+            yield switchActionOnAlbumsWithTracks(
+                storage.albums.old,
+                // Callback with tracks.
+                (key, data) => {
+                    const album = {genre: [], artist: []};
+                    let toUpdate = {};
+                    for (let j = 0, m = data.length; j < m; j++) {
+                        testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+                        //const test = data[j]._source.meta;
+                    }
+                    chunk.push(buildBulkRecord('update', 'album', 'album', {doc: toUpdate}, key));
+                },
+                // Callback without tracks
+                key => {
+                    chunk.push(buildBulkRecord('delete', 'album', 'album', null, key));
                 }
-                chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, key ));
+            );
+        }
+
+        // Testing and update albums registered has new, but already indexed.
+        // Now testing if old album keys still have tracks.
+        // If no tracks, delete album from index.
+        if( albumsToUpdate.length !== 0 ) {
+            yield switchActionOnAlbumsWithTracks(
+                albumsToUpdate,
+                // Callback with tracks.
+                (key, data) => {
+                    const album = {genre: [], artist: []};
+                    let toUpdate = {};
+                    for (let j = 0, m = data.length; j < m; j++) {
+                        testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+                        //const test = data[j]._source.meta;
+                    }
+                    chunk.push(buildBulkRecord('update', 'album', 'album', {doc: toUpdate}, key));
+                },
+                // Callback without tracks
+                key => {
+                    console.log(`Elasticsearch cache problem, this album with key ${key} must exist....`);
+                }
+            );
+        }
+
+        // Switch action, if genre is already indexed or not in elasticsearch.
+        // If no indexed, add it.
+        if( storage.genres.testToAdd.length !== 0 ) {
+            switchActionOnDocsExist(
+                // Get genres docs.
+                yield promiseMultiDocFromId('genre', storage.genres.testToAdd),
+                // If genre already indexed, do nothing.
+                key => logs.push(`Genre ${storage.genres.testToAdd[key]} already exist.`),
+                // Else if genre no indexed, add it.
+                key => chunk.push(buildGenreToRecord(storage.genres.testToAdd[key]))
+            );
+        }
+
+        // Switch action, if genre is already indexed or not in elasticsearch.
+        // If indexed, remove it.
+        if( storage.genres.testToDelete.length !== 0 ) {
+            switchActionOnDocsExist(
+                // Get genres docs.
+                yield promiseMultiDocFromId('genre', storage.genres.testToDelete),
+                // If genre indexed, remove it.
+                key => chunk.push(buildBulkRecord( 'delete', 'genre', 'genre', null, storage.genres.testToDelete[key] )),
+                // Else, if no indexed, do nothing.
+                key => logs.push(`Genre ${storage.genres.testToDelete[key]} no exist.`)
+            );
+        }
+
+        // Finally bulk for the second and last time actions pushed in chunk.
+        // Bulk index chunk on elastic.
+        yield loopOnChunk(
+            chunk,
+            (count, size) => {
+                // Callback before send elastic api request.
+                // Increment chunk index counter.
+                console.log(`Start bulk index ${count}. Indexing ${size} documents...`)
             },
-            // Callback without tracks
-            key => {
-                chunk.push(buildBulkRecord( 'delete', 'album', 'album', null, key ) );
+            (data, count, size) => {
+                // Callback after index done in elastic.
+                // Log result.
+                logs.push({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
             }
         );
+
+        // Return logs to report.
+        return {total_count: counter, logs: logs};
     }
-};
+}
 
+exports.runElasticUpdates = runElasticUpdates;
 
-
-function trackTestInit( chunk, exist, storage ) {
+function trackTestInit( chunk, storage ) {
 
     return {
         test: (node, meta, track) => {
@@ -228,30 +240,47 @@ function trackTestInit( chunk, exist, storage ) {
             if( track ) {
 
                 // Store old/new genre and artist meta values.
-                storage.genres.old = storage.genres.old.concat(track.meta.genre);
-                storage.genres.new = storage.genres.new.concat(meta.genre);
+                hasModifiedGenre(storage.genres, track.meta.genre, meta.genre);
 
                 // Test if artist change. If yes, store it.
                 if( track.meta.artist !== meta.artist) {
-                    storage.artist.old.push(track.meta.artist);
-                    storage.artist.new.push(meta.artist);
+                    _obj.pushUniq(track.meta.artist, storage.artistsToUpdate);
+                    _obj.pushUniq(meta.artist, storage.artistsToUpdate);
                 }
 
                 // If albumKey moved, store value and node, to test album.
                 if( nKey !== track.albumKey ){
-                    storage.albums.old.push(track.albumKey);
-                    storage.albums.new.push({key: nKey, node: node});
-                    chunk.push(buildTracksToRecord( node, meta, track.albumKey, 'update' ));
+                    pushUniqAlbum({key: nKey, node: node}, storage.albums.new);
                 }
+                // Update tracks document in elasticsearch.
+                chunk.push(buildTracksToRecord( node, meta, track.albumKey, 'update' ));
+                // Store tracks(s album to run update later.
+                // @TODO : mettre ici une condition pour tester si l'upadte est necessaire pour l'album....
+                _obj.pushUniq(track.albumKey, storage.albums.old);
             }
             // If track no exist, index it.
             else {
-                storage.genres.new = storage.genres.new.concat(meta.genre);
-                storage.artist.new.push(meta.artist);
-                storage.albums.new.push({key: nKey, node: node});
+                storage.genres.testToAdd = storage.genres.testToAdd.concat(meta.genre);
+                _obj.pushUniq(meta.artist, storage.artistsToUpdate);
+                pushUniqAlbum({key: nKey, node: node}, storage.albums.new);
                 chunk.push(buildTracksToRecord( node, meta, nKey ));
             }
         }
+    }
+}
+
+function hasModifiedGenre( store, theOlds, theNews ){
+
+    const toDelete = _.difference(theOlds, theNews);
+    const toAdd = _.difference(theNews, theOlds);
+
+    store.testToDelete = store.testToDelete.concat(toDelete);
+    store.testToAdd = store.testToAdd.concat(toAdd);
+}
+
+function pushUniqAlbum(album , array) {
+    if (array.findIndex(elmt => elmt.key === album.key) === -1 ){
+        array.push(album);
     }
 }
 
@@ -616,7 +645,7 @@ function buildAlbumToRecord( meta, albumKEY ) {
 
 
 function buildTracksToRecord( track, meta, albumKEY, action = 'index' ) {
-    const _doc = {
+    const entity = {
         suggest: {
             input: meta.title,
         },
@@ -627,6 +656,7 @@ function buildTracksToRecord( track, meta, albumKEY, action = 'index' ) {
         meta: meta,
         albumKey: albumKEY,
     };
+    const _doc = (action === 'update') ? {doc:entity} : entity;
     return buildBulkRecord( action, 'tracks', 'tracks', _doc, track._id );
 }
 
@@ -638,7 +668,7 @@ function buildArtistToRecord( artist ) {
         name: artist,
         keyName: artist,
     };
-    return buildBulkRecord( 'index', 'artist', 'artist', _doc );
+    return buildBulkRecord( 'index', 'artist', 'artist', _doc, artist );
 }
 
 function buildGenreToRecord( genre ) {
@@ -649,7 +679,7 @@ function buildGenreToRecord( genre ) {
         name: genre,
         keyName: genre,
     };
-    return buildBulkRecord( 'index', 'genre', 'genre', _doc );
+    return buildBulkRecord( 'index', 'genre', 'genre', _doc, genre );
 }
 
 function buildBulkRecord( action, _index, _type, _doc, _id ) {
@@ -988,3 +1018,95 @@ function initIndexLog(counter, fullLog){
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.test = function(req, res, next){
+
+    const nodesID = [
+        {_id: '1000415'},
+        {_id: '5a47790c59921b15c4b944db'},
+        {_id: '1000415'},
+        {_id: '5a47790c59921b15c4b944da'},
+        {_id: '1000415'},
+    ];
+
+    const params =
+        //{query: {match : {albumKey : `"${"sizzla___2004-speak of jah-retail cd___0"}"`}}};
+        //{query: {match : {albumKey : "prout____de__la__vie"}}};
+        {
+            _sourceInclude: ['meta.artist', 'meta.genre'],
+            //body: {query: {match : {albumKey : "sizzla___2004-speak of jah-retail cd___0"}}},
+            body: {query: {match : {albumKey : "kavinsky___1986___0"}}}
+            //body: {query: {match : {albumKey : "PROUTnsky___1986___0"}}}
+        };
+
+    const keys = [
+        "kavinsky___1986___0",
+        "kavinzefzaefrzefsky___1986___0",
+        "sizzla___2004-speak of jah-retail cd___0",
+        "kaviefzeffzefezfzefnsky___1986___0",
+        "kaviefzeffzefezfzefnsky___1986___0",
+    ];
+
+    const chunk = [];
+
+    const nodes = [
+        { "_id" : "5a47790c59921b15c4b944db", "name" : "02 Le Fossoyeur.mp3", "publicName" : "02 Le Fossoyeur", "path" : "Brassens/02 Le Fossoyeur.mp3", "uri" : "E:\\Musique\\Brassens\\02 Le Fossoyeur.mp3", "parent" : { "$oid" : "5a47790a59921b15c4b93db9" }, "meta" : { "disk" : { "of" : "0", "no" : "0" }, "track" : { "of" : "0", "no" : "2" }, "albumartist" : "Georges Brassens", "genre" : ["Chanson"], "time" : "02:05", "year" : "1952", "album" : "La Mauvaise Réputation", "artist" : "Georges Brassens", "title" : "Le Fossoyeur" }, "isFile" : true },
+        { "_id" : "5a47790c59921b15c4b944fd", "name" : "10 - Genius Feat Gush.mp3", "publicName" : "10 - Genius Feat Gush", "path" : "C2C - Tetra (2012)/10 - Genius Feat Gush.mp3", "uri" : "E:\\Musique\\C2C - Tetra (2012)\\10 - Genius Feat Gush.mp3", "parent" : { "$oid" : "5a47790a59921b15c4b93dbc" }, "meta" : { "disk" : { "of" : "1", "no" : "1" }, "track" : { "of" : "14", "no" : "10" }, "albumartist" : "C2C", "genre" : ["Rap", "Test", "Yogros"], "time" : "04:10", "year" : "2012", "album" : "Tetra", "artist" : "C2C", "title" : "Genius Feat Gush" }, "isFile" : true }
+    ];
+
+    runElasticUpdates(
+        nodes,
+        (err, data) => {
+            if(err) return res.json(chunk);
+            res.json(data);
+        },
+        true
+    );
+
+    // function* run(){
+    //     // Get tracks elastic documents.
+    //     //return extractExistingDocs(
+    //         //return yield promiseSimpleSearch('tracks', params);
+    //         //return yield switchActionOnAlbumsWithTracks(keys);
+    //     //);
+    //
+    //     return yield switchActionOnAlbumsWithTracks(
+    //         keys,
+    //         // Callback with tracks.
+    //         (key, data) => {
+    //             const album = {genre: [], artist: []};
+    //             let toUpdate = {};
+    //             for(let j = 0, m = data.length; j < m; j++){
+    //                 testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+    //             }
+    //             chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, key ));
+    //         },
+    //         // Callback without tracks
+    //         key => {
+    //             chunk.push(buildBulkRecord( 'delete', 'album', 'album', null, key ) );
+    //         }
+    //     );
+    // }
+    //
+    // // Start query, filter, index operations.
+    // co(run).then(
+    //     // If success, call task runner with logs.
+    //     //data => res.json(data),
+    //     data => res.json(chunk),
+    //     // If error during process, call task runner with logs + error.
+    //     e => console.log(e),
+    // );
+};
