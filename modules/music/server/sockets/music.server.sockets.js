@@ -23,6 +23,12 @@ module.exports = function ( socketsEvents, io ) {
         nsp.emit( 'save:playlist', data );
     });
 
+    // Event when meta is saved
+    socketsEvents.register( 'save:meta', ( data ) => {
+      // console.log('post save meta');
+      nsp.emit( 'save:meta', data );
+    });
+
 };
 
 function messages( socket ) {

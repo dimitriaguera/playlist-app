@@ -10,6 +10,8 @@ import SearchFolderBar from './SearchFolderBar.client.components'
 import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
 import ps from 'core/client/services/core.path.services'
 
+import socketServices from 'core/client/services/core.socket.services'
+
 /**
  * Folder is the file explorator component.
  * The folder's path to open is get with component URL, via react-router v4.
@@ -41,6 +43,10 @@ class IndexableFolder extends Component {
         this.onListTracks = this.onListTracks.bind(this);
         this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
 
+        this.updateNodeMetaOnSocketEvent = this.updateNodeMetaOnSocketEvent.bind(this);
+
+        this.socket = socketServices.getPublicSocket();
+
         this.state = {
             path: [],
             query: null,
@@ -54,10 +60,15 @@ class IndexableFolder extends Component {
         };
     }
 
+
     componentWillMount() {
 
         const _self = this;
-        const { fetchFolder, searchNodes, location, match } = this.props;
+        const { fetchFolder, searchNodes, location, match } = _self.props;
+
+        // Update node when someone change meta
+        // on Socket Event
+        _self.socket.on('save:meta', _self.updateNodeMetaOnSocketEvent );
 
         // TODO a simplifier. Sert à récupérer via url query la playlist à activer dès le chargement du component. Ne devrait pas être l'affaire de ce component.
         const params = new URLSearchParams(location.search.substring(1));
@@ -85,20 +96,24 @@ class IndexableFolder extends Component {
         const path = ps.cleanPath(ps.removeRoute( location.pathname, match.path ));
 
         // Get folder's content.
-        return fetchFolder( ps.urlEncode(path) ).then((data) => {
+        function fetch() {
+          fetchFolder( ps.urlEncode(path) ).then((data) => {
             if ( !data.success ) {
-                _self.setState({ error: true, params: params });
+              _self.setState({ error: true, params: params });
             }
             else {
-                _self.setState({
-                    error: false,
-                    nodes: data.msg,
-                    params: params,
-                    query: path,
-                    path: ps.splitPath(path),
-                });
+              _self.setState({
+                error: false,
+                nodes: data.msg,
+                params: params,
+                query: path,
+                path: ps.splitPath(path),
+              });
             }
-        });
+          });
+        }
+
+        return fetch()
     }
 
     // Re-render only if path array or modal state are modified.
@@ -162,6 +177,28 @@ class IndexableFolder extends Component {
                 }
             });
         }
+    }
+
+    componentWillUnmount() {
+      this.socket.removeListener('save:meta', this.updateNodeMetaOnSocketEvent);
+    }
+
+    updateNodeMetaOnSocketEvent(data) {
+
+      let oldNode = Object.assign([], this.state.nodes);
+
+      // Find oldNode corresponding of newNode
+      // And update the meta
+      for (let i = 0, l = oldNode.length; i < l; i++) {
+        if (oldNode[i]._id === data._id) {
+          oldNode[i].meta = data.meta;
+          break;
+        }
+      }
+
+      this.setState({
+        nodes: oldNode
+      });
     }
 
     // Handle func when open Confirm Box.

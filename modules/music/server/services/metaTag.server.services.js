@@ -10,7 +10,7 @@ try {
   exports.read = taglib2Wrap.read;
   exports.readPict = taglib2Wrap.readPict;
   exports.readPictAndSave = taglib2Wrap.readPictAndSave;
-
+  exports.saveMeta = taglib2Wrap.saveMeta;
   exports.metaLibName = 'taglib2';
 
 } catch(e) {

@@ -120,25 +120,28 @@ class EditMetaTag extends Component {
       return obj;
     }
 
-    let newNode = {};
-    newNode = Object.assign(newNode, _self.props.item);
+    let newNode = Object.assign({}, _self.props.item);
     newNode.meta = getMetaFromForm(e);
 
     // User authenticated on any role can create playlist.
     updateNode(newNode)
       .then( (data) => {
 
-        _self.setState({loading: false});
-
         if (!data.success) {
+          _self.setState({loading: false});
           _self.setState({error: true, message: data.msg});
-        } else {
-          _self.setState({error: false, message: data.msg});
-          if ( redirect ) {
-            return history.push(`/playlist/${title}`);
-          }
         }
-      });
+
+        // This part was removed because the component is not mounted if
+        // success
+        // else {
+        //   _self.setState({error: false, message: data.msg});
+        //   if ( redirect ) {
+        //     return history.push(`/playlist/${title}`);
+        //   }
+        // }
+    });
+
   }
 
 
@@ -153,19 +156,19 @@ class EditMetaTag extends Component {
         basic size='small'
       >
         <Header content='Edit Metatag' />
+
         <Modal.Content>
 
           <Form error success loading={this.state.loading} >
 
-            {this.state.error ? (
-              <Message error content={this.state.message}/>
-              )
-              :
-              (
-              <Message success content={this.state.message}/>
-              )
+            { this.state.error ? (
+                <Message error content={this.state.message}/>
+                )
+                :
+                (
+                <Message success content={this.state.message}/>
+                )
             }
-
 
             <Form.Field inline>
               <Input label='Title' placeholder='Title' name='title' defaultValue={this.meta.title} />
@@ -174,23 +177,26 @@ class EditMetaTag extends Component {
             <Form.Field inline>
               <Input label='Artist' placeholder='Artist' name='artist' defaultValue={this.meta.artist} />
             </Form.Field>
+
             <Form.Field inline>
               <Input label='Album' placeholder='Album' name='album' defaultValue={this.meta.album} />
             </Form.Field>
-            <Form.Field inline>
 
+            <Form.Field inline>
               <Input label='Album Artist' placeholder='Album Artist' name='albumartist' defaultValue={this.meta.albumartist} />
             </Form.Field>
+
             <Form.Field inline>
               <Input label='Year' type='number' placeholder='Year' name='year' defaultValue={this.meta.year} />
             </Form.Field>
+
             <Form.Field inline>
               <Input label='Genre' placeholder='Genre' name='genre' defaultValue={this.meta.genre} />
             </Form.Field>
+
             <Form.Field inline>
               <Input label='Composer' placeholder='Composer' name='composer' defaultValue={this.meta.composer} />
             </Form.Field>
-
 
             <Form.Field inline>
               <Input label='Track n°' type='number' name='trackno' defaultValue={this.meta.track.no} />
@@ -214,7 +220,9 @@ class EditMetaTag extends Component {
           </Form>
 
         </Modal.Content>
+
       </Modal>
+
     );
   }
 }
