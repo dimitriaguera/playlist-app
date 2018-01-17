@@ -53,4 +53,7 @@ exports.indexCreate = index.indexCreate(client);
 exports.putTemplate = index.putTemplate(client);
 
 exports.searchAll = search.searchAll(client);
+exports.msearch = search.msearch(client);
 exports.search = search.search(client);
+exports.mget = search.mget(client);
+exports.get = search.get(client);

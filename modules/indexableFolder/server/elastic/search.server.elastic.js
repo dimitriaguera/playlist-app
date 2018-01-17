@@ -22,13 +22,35 @@ exports.searchAll = searchAll;
 function search( client ) {
     return ( params, callback ) => {
         return client.search(
-            // {
-            //     index: params.index,
-            //     type: params.type,
-            //     body: params.body
-            // },
             params,
             callback);
     }
 }
 exports.search = search;
+
+function msearch( client ) {
+    return ( params, callback ) => {
+        return client.msearch(
+            params,
+            callback);
+    }
+}
+exports.msearch = msearch;
+
+function get( client ) {
+    return ( params, callback ) => {
+        return client.get(
+            params,
+            callback);
+    }
+}
+exports.get = get;
+
+function mget( client ) {
+    return ( params, callback ) => {
+        return client.mget(
+            params,
+            callback);
+    }
+}
+exports.mget = mget;

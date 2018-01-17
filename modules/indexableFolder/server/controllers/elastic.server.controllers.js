@@ -7,13 +7,23 @@ const _ = require('lodash');
 const chalk = require('chalk');
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
+const _obj = require(path.resolve('./modules/core/server/services/obj.server.services'));
 const taskRunner = require(path.resolve('./modules/task/server/services/task.server.services'));
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
 const indices_body = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
 
-
+/**
+ * Master indexation controller.
+ * Delete and create all elasticsearch index.
+ * Build albums, artist, genre and tracks index on elasticsearch db,
+ * from all nodes tracks recorded in mongoDB.
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.index = function(req, res, next){
 
     // Get query params.
@@ -32,6 +42,266 @@ exports.index = function(req, res, next){
     );
 };
 
+
+
+
+
+exports.test = function(req, res, next){
+
+    const nodes = [
+        {_id: '1000415'},
+        {_id: '5a47790c59921b15c4b944db'},
+        {_id: '1000415'},
+        {_id: '5a47790c59921b15c4b944da'},
+        {_id: '1000415'},
+    ];
+
+    const params =
+        //{query: {match : {albumKey : `"${"sizzla___2004-speak of jah-retail cd___0"}"`}}};
+        //{query: {match : {albumKey : "prout____de__la__vie"}}};
+        {
+            _sourceInclude: ['meta.artist', 'meta.genre'],
+            //body: {query: {match : {albumKey : "sizzla___2004-speak of jah-retail cd___0"}}},
+            body: {query: {match : {albumKey : "kavinsky___1986___0"}}}
+            //body: {query: {match : {albumKey : "PROUTnsky___1986___0"}}}
+        };
+
+    const keys = [
+        "kavinsky___1986___0",
+        "kavinzefzaefrzefsky___1986___0",
+        "sizzla___2004-speak of jah-retail cd___0",
+        "kaviefzeffzefezfzefnsky___1986___0",
+        "kaviefzeffzefezfzefnsky___1986___0",
+    ];
+
+    const chunk = [];
+
+    function* run(){
+        // Get tracks elastic documents.
+        //return extractExistingDocs(
+            //return yield promiseSimpleSearch('tracks', params);
+            //return yield switchActionOnAlbumsWithTracks(keys);
+        //);
+
+        return yield switchActionOnAlbumsWithTracks(
+            keys,
+            // Callback with tracks.
+            (key, data) => {
+                const album = {genre: [], artist: []};
+                let toUpdate = {};
+                for(let j = 0, m = data.length; j < m; j++){
+                    testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+                }
+                chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, key ));
+            },
+            // Callback without tracks
+            key => {
+                chunk.push(buildBulkRecord( 'delete', 'album', 'album', null, key ) );
+            }
+        );
+    }
+
+    // Start query, filter, index operations.
+    co(run).then(
+        // If success, call task runner with logs.
+        //data => res.json(data),
+        data => res.json(chunk),
+        // If error during process, call task runner with logs + error.
+        e => console.log(e),
+    );
+};
+
+
+
+
+
+
+
+
+exports.runElasticUpdates = function( nodes, fullLogs ) {
+
+    function* run(){
+
+        const chunk = [];
+        const albumsToUpdate = [];
+        const storage = {
+            albums: {
+                old: [],
+                new: [],
+            },
+            genres: {
+                old: [],
+                new: [],
+            },
+            artists: {
+                old: [],
+                new: [],
+            },
+        };
+
+        // Counter object.
+        const counter = {};
+
+        // Init elastic log report.
+        const getIndexLog = initIndexLog(counter, fullLogs);
+
+        // Get tracks elastic documents.
+        const existingTracks = extractExistingDocs(
+            yield promiseMultiDocFromNodes('tracks', nodes)
+        );
+
+        // Init test functions.
+        const runTestTrack = trackTestInit(chunk, );
+
+        // Loop for each node.
+        for(let i = 0, l = nodes.length; i < l; i++) {
+
+            const node = nodes[i];
+            const meta = normalizedMeta(node);
+            const track = existingTracks[node._id];
+
+            runTestTrack.test(node, meta, track, storage);
+        }
+
+        // Switch action, if album is already indexed or not in elasticsearch.
+        switchActionOnDocsExist(
+            // Get albums from updated keys.
+            yield promiseMultiDocFromNodes('album', storage.album.new),
+            // If album already indexed, push in update list.
+            albumKey => albumsToUpdate.push(albumKey),
+            // If album no indexed, push in chunk.
+            albumKey => chunk.push(buildAlbumToRecord(storage.album.new[i].node.meta, albumKey))
+        );
+
+        // Time to proceed the first bach of chunk.
+        // Bulk index chunk on elastic.
+        yield loopOnChunk(
+            chunk,
+            (count, size) => {
+                // Callback before send elastic api request.
+                // Increment chunk index counter.
+                console.log(`Start bulk index ${count}. Indexing ${size} documents...`)
+            },
+            (data, count, size) => {
+                // Callback after index done in elastic.
+                // Log result.
+                console.log({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
+            }
+        );
+
+        // Now testing if old album keys still have tracks.
+        // If no tracks, delete album from index.
+        yield switchActionOnAlbumsWithTracks(
+            storage.album.old,
+            // Callback with tracks.
+            (key, data) => {
+                const album = {genre: [], artist: []};
+                let toUpdate = {};
+                for(let j = 0, m = data.length; j < m; j++){
+                    testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+                    //const test = data[j]._source.meta;
+                }
+                chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, key ));
+            },
+            // Callback without tracks
+            key => {
+                chunk.push(buildBulkRecord( 'delete', 'album', 'album', null, key ) );
+            }
+        );
+    }
+};
+
+
+
+function trackTestInit( chunk, exist, storage ) {
+
+    return {
+        test: (node, meta, track) => {
+
+            // Apply normalized meta.
+            node.meta = meta;
+
+            // Get albumKey from node.
+            const nKey = getAlbumKeyFromTrackNodeMeta(meta);
+
+            // If track exist in elasticsearch.
+            if( track ) {
+
+                // Store old/new genre and artist meta values.
+                storage.genres.old = storage.genres.old.concat(track.meta.genre);
+                storage.genres.new = storage.genres.new.concat(meta.genre);
+
+                // Test if artist change. If yes, store it.
+                if( track.meta.artist !== meta.artist) {
+                    storage.artist.old.push(track.meta.artist);
+                    storage.artist.new.push(meta.artist);
+                }
+
+                // If albumKey moved, store value and node, to test album.
+                if( nKey !== track.albumKey ){
+                    storage.albums.old.push(track.albumKey);
+                    storage.albums.new.push({key: nKey, node: node});
+                    chunk.push(buildTracksToRecord( node, meta, track.albumKey, 'update' ));
+                }
+            }
+            // If track no exist, index it.
+            else {
+                storage.genres.new = storage.genres.new.concat(meta.genre);
+                storage.artist.new.push(meta.artist);
+                storage.albums.new.push({key: nKey, node: node});
+                chunk.push(buildTracksToRecord( node, meta, nKey ));
+            }
+        }
+    }
+}
+
+function* switchActionOnAlbumsWithTracks(keys, withTracks, withoutTracks){
+
+    let params = {
+        body: {query: {match : {albumKey : ''}}},
+        _sourceInclude: ['meta.artist', 'meta.genre'],
+    };
+
+    for( let i = 0, l = keys.length; i < l; i++ ) {
+        params.body.query.match.albumKey = keys[i];
+        const data = yield promiseSimpleSearch('tracks', params);
+        if( data.hits.total === 0 ){
+            withoutTracks(keys[i]);
+            continue;
+        }
+        withTracks(keys[i], data.hits.hits);
+    }
+}
+
+function switchActionOnDocsExist(docs, callExist, callNoExist) {
+    for(let i = 0, l = docs.length; i < l; i++) {
+        if( docs[i].found ) {
+            callExist(i, docs[i]._id);
+        }
+        else{
+            callNoExist(i, docs[i]._id);
+        }
+    }
+}
+
+function extractExistingDocs(docs) {
+    const exists = {};
+    for(let i = 0, l = docs.length; i < l; i++) {
+        if( docs[i].found ) {
+            exists[docs[i]._id] = docs[i]._source;
+        }
+    }
+    return exists;
+}
+
+
+// function testAlbum() {
+//
+// }
+//
+// function testAlbum() {
+//
+// }
 /**
  * Start general indexation in elasticsearch from all tracks in nodes collection.
  * Album, artists and genre are extracted from all tracks metadata...
@@ -40,6 +310,8 @@ exports.index = function(req, res, next){
  * - artist
  * - tracks
  * - genre
+ *
+ * @param fullLogs Bool - extended index logs, or small index logs.
  *
  */
 function runIndexElastic( fullLogs ) {
@@ -81,43 +353,60 @@ function runIndexElastic( fullLogs ) {
             let chunkCount = 0;
 
             // Start reset all index.
-            yield clearIndices(logs, ['album', 'artist', 'tracks', 'genre']);
+            yield clearIndices(['album', 'artist', 'tracks', 'genre'], logs);
 
             // Start loop on mondoDB documents.
             for (let node = yield cursor.next(); node != null; node = yield cursor.next()) {
                 // Create entities to index from each track node.
                 extractDataFromMeta(node, keys, chunk);
                 // Bulk index entities.
-                yield proceedChunks();
+                yield proceedOneByOneChunks();
             }
+
+            // Proceed the last part of the chunk.
+            yield promiseProceedChunk(
+                chunk,
+                () => {
+                    // Before send elastic api request.
+                    // Increment chunk index counter.
+                    chunkCount++;
+                    // Set task runner step.
+                    onStep(`Start bulk index ${chunkCount}. Indexing ${chunk.length} documents...`)
+                },
+                data => {
+                    // Log result.
+                    logs.push({bulk_operation_number: chunkCount, bulk_size: chunk.length, ...getIndexLog(data)});
+                    // Clear chunk.
+                    chunk.length = 0;
+                }
+            );
 
             // Function that test if chunk is big enought.
             // And start elastic bulk index process.
-            function* proceedChunks() {
+            function* proceedOneByOneChunks() {
 
                 // Get number of operations in current chunk.
                 const chunkSize = chunk.length;
 
                 // If chunk is bigger enought, start indexation process.
                 if (chunkSize >= chunkMaxSize) {
-                    yield new Promise((resolve, reject) => {
-                        // Increment chunk index counter.
-                        chunkCount++;
-                        // Set task runner step.
-                        onStep(`Start bulk index ${chunkCount}. Indexing ${chunkSize} documents...`);
-                        // Start async bulk index process.
-                        es.indexBulk(chunk, (err, data) => {
-                            if (err) {
-                                return reject(err);
-                            }
+                    yield promiseProceedChunk(
+                        chunk,
+                        () => {
+                            // Before send elastic api request.
+                            // Increment chunk index counter.
+                            chunkCount++;
+                            // Set task runner step.
+                            onStep(`Start bulk index ${chunkCount}. Indexing ${chunkSize} documents...`)
+                        },
+                        data => {
+                            // After index done in elastic.
                             // Clear chunk array.
                             chunk.splice(0, chunkSize);
                             // Log result.
                             logs.push({bulk_operation_number: chunkCount, bulk_size: chunkSize, ...getIndexLog(data)});
-                            // Exit.
-                            resolve();
-                        });
-                    });
+                        }
+                    );
                 }
             }
 
@@ -127,11 +416,62 @@ function runIndexElastic( fullLogs ) {
     }
 }
 
-// Function that clear and create index.
-function* clearIndices( logs, indices ) {
+function promiseProceedChunk( chunk, onStep, onDone ){
+    return new Promise((resolve, reject) => {
+        // Callback.
+        onStep();
+        // Start async bulk index process.
+        es.indexBulk(chunk, (err, data) => {
+            if (err) {
+                return reject(err);
+            }
+            // Callback.
+            onDone(data);
+            // Exit.
+            resolve();
+        });
+    });
+}
+
+function* loopOnChunk(chunk, onStep, onDone) {
+
+    // Max number operations to bulk at same time.
+    const chunkMaxSize = config.index.sizeChunkElastic;
+    // Init bulk index operation number.
+    let chunkCount = 0;
+    // Start loop.
+    while( chunk.length > 0 ){
+
+        const part = _obj.splitTab( chunk, chunkMaxSize );
+
+        yield promiseProceedChunk(
+            part,
+            () => {
+                // Before send elastic api request.
+                // Increment chunk index counter.
+                chunkCount++;
+                // Set task runner step.
+                onStep(chunkCount, part.length);
+            },
+            data => {
+                // After index done in elastic.
+                onDone(data, chunkCount, part.length);
+            }
+        );
+    }
+}
+
+
+/**
+ * Function that clear and create index.
+ *
+ * @param logs
+ * @param indices
+ */
+function* clearIndices( indices, logs = [] ) {
 
     // Delete and re-build indexes.
-    for (let i = 0, l = indices.length; i < l; i++) {
+    for(let i = 0, l = indices.length; i < l; i++) {
 
         const index = indices[i];
         const body = indices_body[index + '_body'];
@@ -164,56 +504,45 @@ function* clearIndices( logs, indices ) {
             });
         });
     }
+    return logs;
 }
+
+
+function getAlbumKeyFromTrackNodeMeta( meta ){
+    let artistKEY = meta.albumartist || meta.artist;
+    return ps.buildSeparator([artistKEY, meta.album, meta.disk.no], '___');
+}
+
+function normalizedMeta( node ){
+    nMeta = Object.assign({}, node.meta);
+    nMeta.artist = nMeta.artist ? nMeta.artist.toLowerCase() : null;
+    nMeta.albumartist = nMeta.albumartist ? nMeta.albumartist.toLowerCase() : null;
+    nMeta.album = nMeta.album ? nMeta.album.toLowerCase() : 'NO-META-ALBUM';
+    nMeta.title = nMeta.title ? nMeta.title : node.publicName;
+    return nMeta;
+}
+
 
 function extractDataFromMeta( node, keys, chunk ){
 
     const { alKeys, arKeys, geKeys } = keys;
 
     /************* Core ***************/
-    let { title, album, year, artist, genre, track, disk, albumartist, composer } = node.meta;
+    const meta = normalizedMeta(node);
 
-    /*********** STRING NORMALIZATION ************/
-    artist = artist ? artist.toLowerCase() : null;
-    albumartist = albumartist ? albumartist.toLowerCase() : null;
-    album = album ? album.toLowerCase() : 'NO-META-ALBUM';
-
-    // Meta.field must not be null or empty, because of elasticsearch tracks mapping.
-    // If no value, give file name for default value.
-    title = title ? title : node.publicName;
-
-    // Here start test to filter albums and artists.
-    // Create unique key for artist.
-    let artistKEY = albumartist || artist;
     // Create unique key for album.
-    let albumKEY = ps.buildSeparator([artistKEY, album, disk.no], '___');
-
-    // Create track meta.
-    const meta = {
-        title: title,
-        album: album,
-        artist: artist,
-        albumartist: albumartist,
-        year: year,
-        disk: disk,
-        genre: genre,
-        track: track,
-    };
+    let albumKEY = getAlbumKeyFromTrackNodeMeta(meta);
 
     // Add track record.
-    chunk.push(buildTracksToRecord( node, albumKEY, meta ));
-
-    // if(albumKEY == ''){
-    //     const ok = true;
-    // }
+    chunk.push(buildTracksToRecord( node, meta, albumKEY ));
 
     // If album tracks not yet created,
     // Create and push it in albums array.
     if( !alKeys[albumKEY] ) {
         chunk.push(buildAlbumToRecord( meta, albumKEY ));
         alKeys[albumKEY] = {
-            artist: [artist],
-            genre: genre
+            artist: [meta.artist],
+            genre: meta.genre
         };
     }
 
@@ -221,20 +550,8 @@ function extractDataFromMeta( node, keys, chunk ){
     else {
         // Get already registred album.
         const currentAlbum = alKeys[albumKEY];
-        const addGenre = testMergeArray(currentAlbum.genre, genre);
         const toUpdate = {};
-
-        // Test if have to add tracks artist to album artist pool.
-        if(currentAlbum.artist.indexOf(artist) === -1) {
-            currentAlbum.artist.push(artist);
-            toUpdate.artist = currentAlbum.artist;
-        }
-
-        // Test if have to add tracks genre to album genre.
-        if( addGenre ) {
-            currentAlbum.genre = addGenre;
-            toUpdate.genre = addGenre;
-        }
+        testAlbumNeedUpdate(currentAlbum, meta, toUpdate);
 
         // If need to update, push it in chunk array.
         if( toUpdate.artist || toUpdate.genre ){
@@ -243,23 +560,42 @@ function extractDataFromMeta( node, keys, chunk ){
     }
 
     // let artistTest = artist ? artist.toLowerCase() : null;
-    let artistTest = artist;
+    let artistTest = meta.artist;
 
     // Proceed artists list.
     if( !arKeys[artistTest] ) {
         arKeys[artistTest] = true;
-        chunk.push(buildArtistToRecord(artist));
+        chunk.push(buildArtistToRecord(meta.artist));
     }
 
     // Proceed genre list.
-    for(let i = 0; i < genre.length; i++) {
-        const gen = genre[i];
+    for(let i = 0; i < meta.genre.length; i++) {
+        const gen = meta.genre[i];
         if( !geKeys[gen] ) {
             geKeys[gen] = true;
             chunk.push(buildGenreToRecord(gen));
         }
     }
 }
+
+function testAlbumNeedUpdate(album, newProps, toUpdate){
+    // Get already registred album.
+    const addGenre = testMergeArray(album.genre, newProps.genre);
+
+    // Test if have to add tracks artist to album artist pool.
+    if(album.artist.indexOf(newProps.artist) === -1) {
+        album.artist.push(newProps.artist);
+        toUpdate.artist = album.artist;
+    }
+
+    // Test if have to add tracks genre to album genre.
+    if( addGenre ) {
+        album.genre = addGenre;
+        toUpdate.genre = addGenre;
+    }
+    return toUpdate;
+}
+
 
 function buildAlbumToRecord( meta, albumKEY ) {
     const _doc = {
@@ -278,7 +614,8 @@ function buildAlbumToRecord( meta, albumKEY ) {
     return buildBulkRecord( 'index', 'album', 'album', _doc, albumKEY );
 }
 
-function buildTracksToRecord( track, albumKEY, meta ) {
+
+function buildTracksToRecord( track, meta, albumKEY, action = 'index' ) {
     const _doc = {
         suggest: {
             input: meta.title,
@@ -290,7 +627,7 @@ function buildTracksToRecord( track, albumKEY, meta ) {
         meta: meta,
         albumKey: albumKEY,
     };
-    return buildBulkRecord( 'index', 'tracks', 'tracks', _doc, track._id );
+    return buildBulkRecord( action, 'tracks', 'tracks', _doc, track._id );
 }
 
 function buildArtistToRecord( artist ) {
@@ -316,13 +653,14 @@ function buildGenreToRecord( genre ) {
 }
 
 function buildBulkRecord( action, _index, _type, _doc, _id ) {
-    return {
+    const record = {
         action_type: action,
         _index: _index,
         _type: _type,
-        _id: _id,
-        _doc: _doc
+        _id: _id
     };
+    if(_doc) record._doc = _doc;
+    return record;
 }
 
 function testMergeArray(arr1, arr2) {
@@ -335,14 +673,79 @@ function testMergeArray(arr1, arr2) {
     return false;
 }
 
+function promiseSimpleSearch( index, body ) {
+    return new Promise( (resolve, reject) => {
+        simpleSearch(index, body, (err, data) => {
+            if(err) return reject(err);
+            resolve(data);
+        });
+    });
+}
 
-exports.update = function(req, res, next) {
 
-};
+function promiseDocFromId(index, id){
+    return new Promise( (resolve, reject) => {
+        getDocFromId(index, id, (err, data) => {
+            if(err) return reject(err);
+            resolve(data);
+        });
+    });
+}
 
-exports.delete = function(req, res, next) {
+function promiseMultiDocFromId(index, ids){
+    return new Promise( (resolve, reject) => {
+        getMultiDocFromId(index, ids, (err, data) => {
+            if(err) return reject(err);
+            resolve(data);
+        });
+    });
+}
 
-};
+function promiseMultiDocFromNodes(index, nodes) {
+    const ids = nodes.map(node => node._id);
+    return promiseMultiDocFromId(index, ids);
+}
+
+function getDocFromId(index, id, callback) {
+
+    const params = {
+        index: index,
+        type: index,
+        id: id
+    };
+
+    es.get( params, (err, data) => {
+        if(err) return callback(err);
+        callback(null, data);
+    });
+}
+
+function simpleSearch(index, params, callback) {
+
+    const pars = Object.assign({index: index, type: index}, params);
+
+    es.search( pars, (err, data) => {
+        if(err) return callback(err);
+        callback(null, data);
+    });
+}
+
+function getMultiDocFromId(index, ids, callback) {
+
+    const params = {
+        _sourceExclude: 'suggest',
+        index: index,
+        type: index,
+        body: {
+            ids: ids
+        }
+    };
+
+    es.mget( params, (err, data) => {
+        if(err) return callback(err);
+        callback(null, data.docs);
+    });
+}
 
 function getSortValues(query){
     if( !query ) return [];
@@ -406,7 +809,7 @@ function getFiltersFromQuery(query){
     return filters;
 }
 
-exports.search = function (req, res, next) {
+exports.search = function(req, res, next) {
 
     const index = ps.clean(req.params.type);
     const exact = req.query.exact;

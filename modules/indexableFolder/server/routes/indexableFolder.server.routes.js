@@ -40,9 +40,11 @@ module.exports = function(app){
 
     // Index all Nodes into elastisearch folder index.
     app.route('/api/elastic/build')
-        .post(elastic.index)
-        .put(elastic.update)
-        .delete(elastic.delete);
+        .post(elastic.index);
+    app.route('/api/elastic/test')
+        .get(elastic.test);
+        // .put(elastic.update)
+        // .delete(elastic.delete);
 
     // Get searching nodes from elastisearch query.
     app.route('/api/search/:type').get(elastic.search);
