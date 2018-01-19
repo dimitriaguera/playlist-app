@@ -109,8 +109,8 @@ exports.runElasticUpdates = function( nodes, callback, fullLogs ) {
         // Prevent toAdd item being deleted, or existing item to be addTested.
         const commonGenre = _.intersection(storage.genres.testToDelete, storage.genres.testToAdd);
         const commonArtist = _.intersection(storage.artists.testToDelete, storage.artists.testToAdd);
-        storage.genres.testToDelete = _.difference(storage.artists.testToDelete, commonGenre);
-        storage.genres.testToAdd = _.difference(storage.artists.testToAdd, commonGenre);
+        storage.genres.testToDelete = _.difference(storage.genres.testToDelete, commonGenre);
+        storage.genres.testToAdd = _.difference(storage.genres.testToAdd, commonGenre);
         storage.artists.testToDelete = _.difference(storage.artists.testToDelete, commonArtist);
         storage.artists.testToAdd = _.difference(storage.artists.testToAdd, commonArtist);
 

@@ -611,7 +611,7 @@ exports.updateMeta = function (req, res, next) {
 
 
           // Elastic update here
-          runElasticUpdates(node,
+          runElasticUpdates([node._doc],
             (err, data) => {
 
               if (err) console.log(err);
