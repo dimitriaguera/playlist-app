@@ -18,7 +18,10 @@ const mongoose = require('mongoose');
 const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
 
 
-const socketsEvents = require('../../../../config/sockets/sockets.conf');
+const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
+
+const { runElasticUpdates } = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
+
 
 // @todo put this when export conf
 const rootOK = ps.conformPathToOs(config.folder_base_url);
@@ -272,13 +275,15 @@ function runIndexNodes(onError, onStep, onDone) {
         // Remove all collection nodes
         Node.collection.drop(
             (err) => {
-                if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+                //@todo when collection doesn't exist it an error but i do nothing
+                //if (err) return err;
 
                 console.log('Node collection drop');
 
                 // Read root dir and save nodes
                 read(rootOK, (err) => {
-                    if (err) return next(err);
+                    //@todo check this err
+                    if (err) return err;
                     nbFiles = files.length;
                     nbDirs = Object.keys(dirs).length;
                     findMetaAndSave( files, sendResult);
@@ -517,7 +522,7 @@ exports.updateMeta = function (req, res, next) {
         }
       });
 
-      Node.bulkWrite(bulkOps, { "ordered": true, w: 1 }, (err, raw) => {
+      Node.bulkWrite(bulkOps, { "ordered": true, w: 1 }, (err) => {
 
       // Change Meta in Db
       //Node.updateMany(files, (err, raw) => {
@@ -538,22 +543,32 @@ exports.updateMeta = function (req, res, next) {
         //   );
         // }
 
-        //@todo add elastic update here
+        // Elastic update here
+        runElasticUpdates(files,
+          (err, data) => {
 
-        // Emit socket event
-        socketsEvents.emit('save:meta', files);
+            if (err) console.log(err);
 
-        let msg;
-        if (saveFilesErr.length === 0){
-          msg = 'Every thing is allright';
-        } else {
-          msg = 'Meta well saved in db but some error for writing meta in files';
-        }
 
-        return res.json({
-          success: true,
-          msg: msg
-        })
+            // Emit socket event
+            socketsEvents.emit('save:meta', files);
+
+            let msg;
+            if (saveFilesErr.length === 0){
+              msg = 'Every thing is allright';
+            } else {
+              msg = 'Meta well saved in db but some error for writing meta in files';
+            }
+
+            return res.json({
+              success: true,
+              msg: msg
+            })
+          }
+        );
+
+
+
 
 
       });
@@ -591,10 +606,25 @@ exports.updateMeta = function (req, res, next) {
             });
           }
 
-          //@todo add elastic update here
 
-          // Emit socket event
-          socketsEvents.emit('save:meta', [node._doc]);
+          // Elastic update here
+          runElasticUpdates(node,
+            (err, data) => {
+
+              if (err) console.log(err);
+
+              // Emit socket event
+              socketsEvents.emit('save:meta', [node._doc]);
+
+              return res.json({
+                success: true,
+                msg: 'Every thing is allright'
+              })
+            }
+          );
+
+
+
 
           return res.json({
             success: true,
