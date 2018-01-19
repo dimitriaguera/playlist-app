@@ -47,7 +47,7 @@ exports.index = function(req, res, next){
 
 
 
-function runElasticUpdates( nodes, callback, fullLogs ) {
+exports.runElasticUpdates = function( nodes, callback, fullLogs ) {
 
     // Start query, filter, index operations.
     co(run).then(
@@ -99,7 +99,7 @@ function runElasticUpdates( nodes, callback, fullLogs ) {
             const meta = normalizedMeta(node);
             const track = existingTracks[node._id];
 
-            runTestTrack.test(node, meta, track, storage);
+            runTestTrack(node, meta, track, storage);
         }
 
         // Need to make uniq the multiple keys of genre and artist to test.
@@ -305,57 +305,53 @@ function runElasticUpdates( nodes, callback, fullLogs ) {
         // Return logs to report.
         return {total_count: counter, logs: logs};
     }
-}
-
-exports.runElasticUpdates = runElasticUpdates;
+};
 
 function trackTestInit( chunk, storage ) {
 
-    return {
-        test: (node, meta, track) => {
+    return (node, meta, track) => {
 
-            // Apply normalized meta.
-            node.meta = meta;
+        // Apply normalized meta.
+        node.meta = meta;
 
-            // Get albumKey from node.
-            const nKey = getAlbumKeyFromTrackNodeMeta(meta);
+        // Get albumKey from node.
+        const nKey = getAlbumKeyFromTrackNodeMeta(meta);
 
-            // If track exist in elasticsearch.
-            if( track ) {
+        // If track exist in elasticsearch.
+        if( track ) {
 
-                // Store old/new genre and artist meta values.
-                hasModifiedGenre(storage.genres, track.meta.genre, meta.genre);
+            // Store old/new genre and artist meta values.
+            hasModifiedGenre(storage.genres, track.meta.genre, meta.genre);
 
-                // Test if artist change. If yes, store it.
-                if( track.meta.artist !== meta.artist) {
-                    _obj.pushUniq(track.meta.artist, storage.artists.testToDelete);
-                    _obj.pushUniq(meta.artist, storage.artists.testToAdd);
-                }
-
-                // Test if albumartist change. If yes, store it.
-                if( track.meta.albumartist !== meta.albumartist) {
-                    _obj.pushUniq(track.meta.albumartist, storage.artists.testToDelete);
-                    _obj.pushUniq(meta.albumartist, storage.artists.testToAdd);
-                }
-
-                // If albumKey moved, store value and node, to test album.
-                if( nKey !== track.albumKey ){
-                    pushUniqAlbum({key: nKey, node: node}, storage.albums.new);
-                }
-                // Update tracks document in elasticsearch.
-                chunk.push(buildTracksToRecord( node, meta, nKey, 'update' ));
-                // Store tracks(s album to run update later.
-                // @TODO : mettre ici une condition pour tester si l'upadte est necessaire pour l'album....
-                _obj.pushUniq(track.albumKey, storage.albums.old);
+            // Test if artist change. If yes, store it.
+            if( track.meta.artist !== meta.artist) {
+                _obj.pushUniq(track.meta.artist, storage.artists.testToDelete);
+                _obj.pushUniq(meta.artist, storage.artists.testToAdd);
             }
-            // If track no exist, index it.
-            else {
-                storage.genres.testToAdd = storage.genres.testToAdd.concat(meta.genre);
-                if(meta.artist) _obj.pushUniq(meta.artist, storage.artists.testToAdd);
-                if(meta.albumartist) _obj.pushUniq(meta.albumartist, storage.artists.testToAdd);
+
+            // Test if albumartist change. If yes, store it.
+            if( track.meta.albumartist !== meta.albumartist) {
+                _obj.pushUniq(track.meta.albumartist, storage.artists.testToDelete);
+                _obj.pushUniq(meta.albumartist, storage.artists.testToAdd);
+            }
+
+            // If albumKey moved, store value and node, to test album.
+            if( nKey !== track.albumKey ){
                 pushUniqAlbum({key: nKey, node: node}, storage.albums.new);
-                chunk.push(buildTracksToRecord( node, meta, nKey ));
             }
+            // Update tracks document in elasticsearch.
+            chunk.push(buildTracksToRecord( node, meta, nKey, 'update' ));
+            // Store tracks(s album to run update later.
+            // @TODO : mettre ici une condition pour tester si l'upadte est necessaire pour l'album....
+            _obj.pushUniq(track.albumKey, storage.albums.old);
+        }
+        // If track no exist, index it.
+        else {
+            storage.genres.testToAdd = storage.genres.testToAdd.concat(meta.genre);
+            if(meta.artist) _obj.pushUniq(meta.artist, storage.artists.testToAdd);
+            if(meta.albumartist) _obj.pushUniq(meta.albumartist, storage.artists.testToAdd);
+            pushUniqAlbum({key: nKey, node: node}, storage.albums.new);
+            chunk.push(buildTracksToRecord( node, meta, nKey ));
         }
     }
 }
@@ -1167,7 +1163,7 @@ exports.test = function(req, res, next){
         { "_id" : "5a47790c57921b15c4b944xx", "name" : "test nouveau tracks", "publicName" : "test nouveau tracks", "path" : "C2C - Tetra (2012)/10 - Genius Feat Gush.mp3", "uri" : "E:\\Musique\\C2C - Tetra (2012)\\10 - Genius Feat Gush.mp3", "parent" : { "$oid" : "5a47790a59921b15c4b93dbc" }, "meta" : { "disk" : { "of" : "1", "no" : "1" }, "track" : { "of" : "14", "no" : "8" }, "albumartist" : "Test artist", "genre" : ["Rap"], "time" : "04:10", "year" : "2012", "album" : "TestAlbum", "artist" : "testartist5", "title" : "test nouveau tracks" }, "isFile" : true }
     ];
 
-    runElasticUpdates(
+    exports.runElasticUpdates(
         nodes,
         (err, data) => {
             if(err) return res.json(chunk);
