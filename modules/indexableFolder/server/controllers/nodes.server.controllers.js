@@ -206,7 +206,7 @@ function runIndexNodes(onError, onStep, onDone) {
                             uri: filePath,
                             parent: dirs[file.dir],
                             isFile: true,
-                            meta: data || {}
+                            meta: data || metaTag.metaSchema()
                         });
 
                     });

@@ -3,26 +3,22 @@
  */
 
 
-/**
- * taglib2Wrap.read(filePath, cb)
- *
- * return
- *
- * {
- *  title: 'title',
- *  artist: 'artist',
- *  album: 'album',
- *  year: '1951',
- *  genre: ['blues','rock'],
- *  albumartist: 'albumartist',
- *  composer: 'composer',
- *  trackno: '0',
- *  trackof: '0',
- *  diskno: '0',
- *  diskof: '0'
- * }
- *
- */
+exports.metaSchema= function() {
+  return {
+    title: '',
+    artist: '',
+    album: '',
+    year: '',
+    albumartist: '',
+    label:'',
+    genre: [],
+    composer: '',
+    trackno: '',
+    trackof: '',
+    diskno: '',
+    diskof: ''
+  }
+};
 
 try {
 
