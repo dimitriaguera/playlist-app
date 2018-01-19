@@ -22,9 +22,12 @@ const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
 const { runElasticUpdates } = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
 
+// const runElasticUpdates = function( a , cb){
+//   cb();
+// };
 
 // @todo put this when export conf
-const rootOK = ps.conformPathToOs(config.folder_base_url);
+const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.folder_base_url));
 
 exports.index = function(req, res, next){
 
@@ -415,38 +418,38 @@ const cleanMeta = function(meta) {
   // );
 
   // Set to null empty value
-  Object.keys(cleanMeta).forEach( (key) => {
-    if (cleanMeta[key] === '') cleanMeta[key] = null;
-  });
+  // Object.keys(cleanMeta).forEach( (key) => {
+  //   if (cleanMeta[key] === '') cleanMeta[key] = null;
+  // });
 
   // Transform track in obj
-  if (cleanMeta.trackno) {
-    cleanMeta.track = {
-      no: cleanMeta.trackno || '0',
-      of: cleanMeta.trackof || '0',
-    };
-  }
-  delete cleanMeta.trackno;
-  delete cleanMeta.trackof;
+  // if (cleanMeta.trackno) {
+  //   cleanMeta.track = {
+  //     no: cleanMeta.trackno || '0',
+  //     of: cleanMeta.trackof || '0',
+  //   };
+  // }
+  // delete cleanMeta.trackno;
+  // delete cleanMeta.trackof;
 
   // Transform disk in obj
-  if (cleanMeta.diskno) {
-    cleanMeta.disk = {
-      no: cleanMeta.diskno || '0',
-      of: cleanMeta.diskof || '0',
-    };
-  }
-  delete cleanMeta.diskno;
-  delete cleanMeta.diskof;
+  // if (cleanMeta.diskno) {
+  //   cleanMeta.disk = {
+  //     no: cleanMeta.diskno || '0',
+  //     of: cleanMeta.diskof || '0',
+  //   };
+  // }
+  // delete cleanMeta.diskno;
+  // delete cleanMeta.diskof;
 
   // Convert Genre in tab and split it
   if (typeof cleanMeta.genre === 'string' || cleanMeta.genre instanceof String) {
     cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
   }
 
-  // Doesn't exist if null empty
-  if (cleanMeta.albumartist === null) delete cleanMeta.albumartist;
-  if (cleanMeta.composer === null) delete cleanMeta.composer;
+  // // Doesn't exist if null empty
+  // if (cleanMeta.albumartist === null) delete cleanMeta.albumartist;
+  // if (cleanMeta.composer === null) delete cleanMeta.composer;
 
   return cleanMeta;
 
@@ -623,13 +626,6 @@ exports.updateMeta = function (req, res, next) {
             }
           );
 
-
-
-
-          return res.json({
-            success: true,
-            msg: 'Meta saved !'
-          });
         }
       );
 

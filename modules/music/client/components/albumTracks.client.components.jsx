@@ -166,7 +166,7 @@ class AlbumTracks extends Component {
                                         </Button>
                                     </span>
                                     <span className='album-tracks-title'>
-                                        {item.meta.track.no !== '0' && <span>{item.meta.track.no} - </span>}
+                                        {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
                                         {item.meta.title}
                                     </span>
                                 </div>

@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { put, get } from 'core/client/services/core.api.services'
-import { Form, Message, Button, Input, Icon, Header, Modal, Dropdown, Label} from 'semantic-ui-react'
+import React, {Component} from 'react'
+import {connect} from 'react-redux'
+import {put, get} from 'core/client/services/core.api.services'
+import {Form, Message, Button, Input, Icon, Header, Modal, Dropdown, Label} from 'semantic-ui-react'
 
 import ps from 'core/client/services/core.path.services'
 
@@ -10,9 +10,9 @@ import socketServices from 'core/client/services/core.socket.services'
 
 class EditMetaTag extends Component {
 
-  constructor( props ) {
+  constructor(props) {
 
-    super( props );
+    super(props);
 
     this.handleClose = this.props.onClose.bind(this);
 
@@ -26,9 +26,9 @@ class EditMetaTag extends Component {
     this.handleChangeDropDown = this.handleChangeDropDown.bind(this);
 
     this.dropDownOpt = [
-      { key: 'donothing', text: 'donothing', value: 'donothing'},
-      { key: 'override', text: 'override', value: 'override' },
-      { key: 'addvalue', text: 'addvalue', value: 'addvalue' },
+      {key: 'donothing', text: 'donothing', value: 'donothing'},
+      {key: 'override', text: 'override', value: 'override'},
+      {key: 'addvalue', text: 'addvalue', value: 'addvalue'},
     ];
 
 
@@ -45,8 +45,10 @@ class EditMetaTag extends Component {
         year: 'donothing',
         genre: 'donothing',
         composer: 'donothing',
-        track: 'donothing',
-        disk: 'donothing'
+        trackno: 'donothing',
+        trackof: 'donothing',
+        diskno: 'donothing',
+        diskof: 'donothing',
       },
       inputDisable: {
         title: false,
@@ -56,19 +58,22 @@ class EditMetaTag extends Component {
         year: false,
         genre: false,
         composer: false,
-        track: false,
-        disk: false
+        trackno: false,
+        trackof: false,
+        diskno: false,
+        diskof: false
       },
       existingMetaBulk: {
-        title: null,
-        artist: null,
-        album: null,
-        albumartist: null,
-        year: null,
-        genre: null,
-        composer: null,
-        track: null,
-        disk: null
+        title: '',
+        artist: '',
+        album: '',
+        albumartist: '',
+        year: '',
+        genre: '',
+        composer: '',
+        trackno: '',
+        trackof: '',
+        disk: ''
       }
     };
   }
@@ -84,21 +89,25 @@ class EditMetaTag extends Component {
         year: meta.year || '',
         genre: (meta.genre) ? meta.genre.join(', ') : '',
         composer: meta.composer || '',
-        track: meta.track || {no: '', of: ''},
-        disk: meta.disk || {no: '', of: ''}
+        trackno: meta.trackno || '',
+        trackof: meta.trackof || '',
+        diskno: meta.diskno || '',
+        diskof: meta.diskof || ''
       }
     }
 
     return {
-        title: '',
-        artist: '',
-        album: '',
-        albumartist: '',
-        year: '',
-        genre: '',
-        composer: '',
-        track: {no: '', of: ''},
-        disk: {no: '', of: ''}
+      title: '',
+      artist: '',
+      album: '',
+      albumartist: '',
+      year: '',
+      genre: '',
+      composer: '',
+      trackno: '',
+      trackof: '',
+      diskno: '',
+      diskof: ''
     }
   }
 
@@ -106,9 +115,9 @@ class EditMetaTag extends Component {
   componentWillMount() {
 
     const _self = this;
-    
+
     // If other user modify meta on the same file print error.
-    _self.socket.on('save:meta', _self.updateNodeMetaOnSocketEvent );
+    _self.socket.on('save:meta', _self.updateNodeMetaOnSocketEvent);
 
     // Check if isFile and fill meta
     if (_self.props.item.isFile) {
@@ -120,15 +129,15 @@ class EditMetaTag extends Component {
             message: 'No meta found !',
           });
       }
-      
-    // If is Album dir get all files
+
+      // If is Album dir get all files
     } else {
 
       // Get all files in the dir
-      _self.props.fetchFiles( ps.urlEncode(_self.props.item.path) ).then((data) => {
+      _self.props.fetchFiles(ps.urlEncode(_self.props.item.path)).then((nodes) => {
 
-        if ( !data.success ) return _self.setState(
-          { 
+        if (!nodes.success) return _self.setState(
+          {
             error: true,
             loading: false,
             message: 'Issue when loading files !'
@@ -136,120 +145,87 @@ class EditMetaTag extends Component {
         );
 
         let bulkMeta = {
-          title:  [],
-          artist:  [],
-          album:  [],
-          albumartist:  [],
-          year:  [],
-          genre:  [],
-          composer:  [],
+          title: [],
+          artist: [],
+          album: [],
+          albumartist: [],
+          year: [],
+          genre: [],
+          composer: [],
+          trackno: [],
+          trackof: [],
           diskno: [],
           diskof: []
         };
 
-        //@todo put this in a service file obj.serve.services.js
-        function pushUniq(newData , Array){
 
-          if (Array.findIndex(elmt => elmt === newData) === -1){
-            if (newData !== undefined) Array.push(newData);
-          }
-
-        }
-
-
-        function checkStringReturnArray(str){
+        /**
+         * Giving a string return an array split by , ; /
+         * If the input is not a string return it
+         *
+         * @param str
+         * @returns {*}
+         */
+        function checkStringReturnArray(str) {
           if (typeof str === 'string' || str instanceof String) {
             return str.split(/\s*[,;\/]\s*/);
           }
           return str;
         }
 
-        function uniq(arr){
+        /**
+         * Replace In arr empty string
+         * @param arr
+         * @param replacer
+         * @param first if true replace first occurrence if false replace all occurrence
+         */
+        function changeEmptyValInArray(arr, replacer, first){
+          if (!first) {
+            for(let i=0, li = arr.length ; i < li; i++) {
+              if(arr[i] === "") arr = replacer;
+            }
+          } else {
+            let index = arr.indexOf('');
+            if(index !== -1) arr[index] = replacer;
+          }
+          return arr;
+        }
+
+        /**
+         * Remove duplicate value form an array
+         * @param arr
+         * @returns {[null]}
+         */
+        function uniq(arr) {
           return [...new Set(arr)];
         }
 
-        function mergeUniqArray(arr1, arr2) {
-          return uniq(arr1.concat(arr2));
+        // Helper for loop on nodes
+        let iNodes, liNodes = nodes.msg.length;
+
+        // Helper for loop on bulkMeta Keys
+        let jKeys, keys = Object.keys(bulkMeta), ljKeys = keys.length;
+
+        // Fill bulkMeta with meta in all nodes and remove duplicate value
+        // for instead of forEach for perf.
+        for (jKeys = 0 ; jKeys < ljKeys ; jKeys++ ) {
+          for (iNodes = 0; iNodes < liNodes; iNodes++) {
+            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]]));
+          }
+          bulkMeta[keys[jKeys]] = changeEmptyValInArray(uniq(bulkMeta[keys[jKeys]]), 'NOT MET', true);
         }
-
-        // Fill bulkMeta with unique value
-        for (let i = 0, l = data.msg.length ; i < l ; i ++){
-
-          Object.keys(bulkMeta).forEach( (key) => {
-            if (key === 'genre') {
-              for( let j = 0, lj = data.msg[i].meta[key].length ; j < lj ; j++){
-                pushUniq(data.msg[i].meta[key][j] , bulkMeta[key]);
-              }
-            } else if (key === 'diskno') {
-              pushUniq(data.msg[i].meta.disk.no , bulkMeta[key]);
-              pushUniq(data.msg[i].meta.disk.of , bulkMeta[key]);
-            } else if (key === 'trackof') {
-              pushUniq(data.msg[i].meta.track.no , bulkMeta[key]);
-              pushUniq(data.msg[i].meta.track.of , bulkMeta[key]);
-            } else if (key === 'title') {
-              // Do nothing
-            } else if (data.msg[i].meta[key] === null) {
-              pushUniq('NOT MET' , bulkMeta[key]);
-            } else {
-              pushUniq(data.msg[i].meta[key] , bulkMeta[key]);
-            }
-          });
-
-        }
-
-        // let i, li = data.msg.length;
-        // let j, keys = Object.keys(bulkMeta), lj = keys.length;
-        //
-        // for (j = 0 ; j < lj ; j++ ){
-        //   for (i = 0 ; i< li; i++ ) {
-        //
-        //     if (keys[j] === 'diskno') {
-        //       pushUniq(data.msg[i].meta.disk.no , bulkMeta[keys[j]]);
-        //       pushUniq(data.msg[i].meta.disk.of , bulkMeta[keys[j]]);
-        //     } else if (keys[j] === 'trackof') {
-        //       pushUniq(data.msg[i].meta.track.no, bulkMeta[keys[j]]);
-        //       pushUniq(data.msg[i].meta.track.of, bulkMeta[keys[j]]);
-        //     }
-        //     bulkMeta[keys[j]] = bulkMeta[keys[j]].concat(checkStringReturnArray(data.msg[i].meta[keys[j]]));
-        //
-        //
-        //
-        //   }
-        //   bulkMeta[keys[j]] = uniq(bulkMeta[keys[j]]);
-        // }
-
 
         // Fill state.meta if is unique and
         // fill state.existingMetaBulk is not
-        // let newMeta = Object.assign(){
-        //   track: {no: '', of: ''},
-        //   disk: {no: '', of: ''}
-        // };
         let newMeta = _self.initMeta();
         let newExistingMetaBulk = {};
-        Object.keys(bulkMeta).forEach( (key) => {
-          if (key === 'diskno') {
-            if (bulkMeta[key].length === 1) {
-              if (bulkMeta[key][0] !== undefined && bulkMeta[key][0] !== 'NOT MET') newMeta.disk.no = bulkMeta[key][0];
-            } else {
-              newExistingMetaBulk[key] = bulkMeta[key].join(', ');
-            }
-          } else if (key === 'diskof') {
-            if (bulkMeta[key].length === 1) {
-              if (bulkMeta[key][0] !== undefined && bulkMeta[key][0] !== 'NOT MET') newMeta.disk.of = bulkMeta[key][0];
-            } else {
-              newExistingMetaBulk[key] = bulkMeta[key].join(', ');
-            }
+        for (jKeys = 0 ; jKeys < ljKeys ; jKeys++ ) {
+          if (bulkMeta[keys[jKeys]].length === 1) {
+            if (bulkMeta[keys[jKeys]][0] !== undefined || bulkMeta[keys[jKeys]][0] !== 'NOT MET' ) newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
           } else {
-            if (bulkMeta[key].length === 1) {
-              if (bulkMeta[key][0] !== undefined && bulkMeta[key][0] !== 'NOT MET') newMeta[key] = bulkMeta[key][0];
-            } else {
-              newExistingMetaBulk[key] = bulkMeta[key].join(', ');
-            }
+            newExistingMetaBulk[keys[jKeys]] = bulkMeta[keys[jKeys]].join(', ');
           }
-        });
-
-
+        }
 
         // Update state
         _self.setState({
@@ -297,31 +273,21 @@ class EditMetaTag extends Component {
     }
   }
 
-  handleChange(e){
+  handleChange(e) {
 
     let name = e.target.name, value = e.target.value;
 
     let oldMeta = Object.assign({}, this.state.meta);
 
-    if (name === 'diskno'){
-      oldMeta.disk.no = value;
-    } else if (name === 'diskof'){
-      oldMeta.disk.of = value
-    } else if (name === 'trackno'){
-      oldMeta.track.no = value
-    } else if (name === 'trackof'){
-      oldMeta.track.of = value
-    } else {
-      oldMeta[name] = value;
-    }
+    oldMeta[name] = value;
 
     this.setState({
-     meta: oldMeta
+      meta: oldMeta
     })
 
   }
 
-  handleChangeDropDown(e, {name, value}){
+  handleChangeDropDown(e, {name, value}) {
 
     let oldMetaFlag = Object.assign({}, this.state.metaFlag);
 
@@ -332,7 +298,6 @@ class EditMetaTag extends Component {
     })
 
   }
-
 
 
   submitForm(e) {
@@ -363,7 +328,7 @@ class EditMetaTag extends Component {
 
     // User authenticated on any role can create playlist.
     _self.props.updateNode(newNode)
-      .then( (data) => {
+      .then((data) => {
         if (!data.success) {
           _self.setState({loading: false, error: true, message: data.msg});
         }
@@ -371,52 +336,28 @@ class EditMetaTag extends Component {
           //_self.setState({loading: false, error: false, message: data.msg});
           this.handleClose();
         }
-    });
+      });
   }
 
 
   cleanMeta(meta) {
 
-      let cleanMeta = Object.assign({}, meta);
+    let cleanMeta = Object.assign({}, meta);
 
-      // Set to null empty value
-      Object.keys(cleanMeta).forEach( (key) => {
-        if (cleanMeta[key] === '') cleanMeta[key] = null;
-      });
+    // // Set to null empty value
+    // Object.keys(cleanMeta).forEach( (key) => {
+    //   if (cleanMeta[key] === '') cleanMeta[key] = null;
+    // });
 
-      // Transform track in obj
-      if (cleanMeta.trackno) {
-        cleanMeta.track = {
-          no: cleanMeta.trackno || '0',
-          of: cleanMeta.trackof || '0',
-        };
-      }
-      delete cleanMeta.trackno;
-      delete cleanMeta.trackof;
+    // Convert Genre in tab and split it
+    if (typeof cleanMeta.genre === 'string' || cleanMeta.genre instanceof String) {
+      cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
+    }
 
-      // Transform disk in obj
-      if (cleanMeta.diskno) {
-        cleanMeta.disk = {
-          no: cleanMeta.diskno || '0',
-          of: cleanMeta.diskof || '0',
-        };
-      }
-      delete cleanMeta.diskno;
-      delete cleanMeta.diskof;
-
-      // Convert Genre in tab and split it
-      if (typeof cleanMeta.genre === 'string' || cleanMeta.genre instanceof String) {
-        cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
-      }
-
-      // cleanMeta.albumartist composer doesn't exist if null empty
-      if (cleanMeta.albumartist === null) delete cleanMeta.albumartist;
-      if (cleanMeta.composer === null) delete cleanMeta.composer;
-
-      return cleanMeta;
+    return cleanMeta;
   }
 
-  render(){
+  render() {
 
     return (
       <Modal
@@ -425,19 +366,19 @@ class EditMetaTag extends Component {
         onSubmit={(e) => this.submitForm(e)}
         basic size='small'
       >
-        <Header content='Edit Metatag' />
+        <Header content='Edit Metatag'/>
 
         <Modal.Content>
 
-          <Form error success loading={this.state.loading} >
+          <Form error success loading={this.state.loading}>
 
-            { this.state.error ? (
+            {this.state.error ? (
                 <Message error content={this.state.message}/>
-                )
-                :
-                (
+              )
+              :
+              (
                 <Message success content={this.state.message}/>
-                )
+              )
             }
 
             <Form.Field inline>
@@ -450,7 +391,7 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.title}>
                 <Label>Title</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='titleDropDown' defaultValue='donothing' options={this.dropDownOpt}/>
                 </Label>
@@ -468,9 +409,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.artist}>
                 <Label>Artist</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='artist' defaultValue='donothing' options={this.dropDownOpt} onChange={ (e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                  <Dropdown name='artist' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.artist}</div>
@@ -485,9 +427,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.album}>
                 <Label>Album</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='album' defaultValue='donothing' options={this.dropDownOpt} onChange={ (e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                  <Dropdown name='album' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.album}</div>
@@ -502,9 +445,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.albumartist}>
                 <Label>Album Artist</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='albumartist' defaultValue='donothing' options={this.dropDownOpt} onChange={ (e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                  <Dropdown name='albumartist' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.albumartist}</div>
@@ -520,9 +464,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.year}>
                 <Label>Year</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='year' defaultValue='donothing' options={this.dropDownOpt} onChange={ (e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                  <Dropdown name='year' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.year}</div>
@@ -537,9 +482,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.genre}>
                 <Label>Genre</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='genre' defaultValue='donothing' options={this.dropDownOpt} onChange={ (e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                  <Dropdown name='genre' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.genre}</div>
@@ -553,44 +499,92 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.composer}>
                 <Label>Composer</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='composer' defaultValue='donothing' options={this.dropDownOpt} onChange={ (e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                  <Dropdown name='composer' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.composer}</div>
             </Form.Field>
 
             <Form.Field inline>
-              <Input label='Track n°' type='number' name='trackno'
-                     value={this.state.meta.track.no}
-                     onChange={this.handleChange}
-                     disabled={this.state.inputDisable.track}/>
-              <Input label='of' type='number' name='trackof'
-                     value={this.state.meta.track.of}
-                     onChange={this.handleChange}
-                     disabled={this.state.inputDisable.track}/>
+              <Input
+                labelPosition='left'
+                type='number'
+                name='trackno'
+                value={this.state.meta.trackno}
+                onChange={this.handleChange}
+                disabled={this.state.inputDisable.trackno}>
+                <Label>Track n°</Label>
+                <input/>
+                <Label>
+                  <Dropdown name='trackno' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
+                </Label>
+              </Input>
+              <div>{this.state.existingMetaBulk.trackno}</div>
+
+
+              <Input
+                labelPosition='left'
+                type='number'
+                name='trackof'
+                value={this.state.meta.trackof}
+                onChange={this.handleChange}
+                disabled={this.state.inputDisable.trackof}>
+                <Label>Track of</Label>
+                <input/>
+                <Label>
+                  <Dropdown name='trackof' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
+                </Label>
+              </Input>
+              <div>{this.state.existingMetaBulk.trackof}</div>
+
             </Form.Field>
 
             <Form.Field inline>
-              <Input label='Disc n°' type='number' name='diskno'
-                     value={this.state.meta.disk.no}
-                     onChange={this.handleChange}
-                     disabled={this.state.inputDisable.disk}/>
+
+              <Input
+                labelPosition='left'
+                type='number'
+                name='diskno'
+                value={this.state.meta.diskno}
+                onChange={this.handleChange}
+                disabled={this.state.inputDisable.diskno}>
+                <Label>Disc n°</Label>
+                <input/>
+                <Label>
+                  <Dropdown name='diskno' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
+                </Label>
+              </Input>
               <div>{this.state.existingMetaBulk.diskno}</div>
-              <Input label='of' type='number' name='diskof'
-                     value={this.state.meta.disk.of}
-                     onChange={this.handleChange}
-                     disabled={this.state.inputDisable.disk}/>
-              <div>{this.state.existingMetaBulk.diskof}</div>
+
+              <Input
+                labelPosition='left'
+                type='number'
+                name='diskof'
+                value={this.state.meta.diskof}
+                onChange={this.handleChange}
+                disabled={this.state.inputDisable.diskof}>
+                <Label>Disc of</Label>
+                <input/>
+                <Label>
+                  <Dropdown name='diskof' defaultValue='donothing' options={this.dropDownOpt}
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
+                </Label>
+                <div>{this.state.existingMetaBulk.diskof}</div>
+              </Input>
             </Form.Field>
 
             <div>
               <Button type='button' onClick={this.handleClose} basic color='red' inverted>
-                <Icon name='remove' /> No
+                <Icon name='remove'/> No
               </Button>
               <Button type='submit' color='green' inverted>
-                <Icon name='checkmark' /> Yes
+                <Icon name='checkmark'/> Yes
               </Button>
             </div>
 
@@ -612,12 +606,12 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateNode: ( item ) => dispatch (
-      put( 'nodes/' + item._id + '/meta', {data: item} )
+    updateNode: (item) => dispatch(
+      put('nodes/' + item._id + '/meta', {data: item})
     ),
 
-    fetchFiles: ( query ) => dispatch(
-      get( `nodes/q/files?path=${query || ''}` )
+    fetchFiles: (query) => dispatch(
+      get(`nodes/q/files?path=${query || ''}`)
     )
 
   }

@@ -628,13 +628,13 @@ function* clearIndices( indices, logs = [] ) {
 
 function getAlbumKeyFromTrackNodeMeta( meta ){
     let artistKEY = meta.albumartist || meta.artist;
-    return ps.buildSeparator([artistKEY, meta.album, meta.disk.no], '___');
+    return ps.buildSeparator([artistKEY, meta.album, meta.diskno], '___');
 }
 
 function normalizedMeta( node ){
     nMeta = Object.assign({}, node.meta);
-    nMeta.artist = nMeta.artist ? nMeta.artist.toLowerCase() : null;
-    nMeta.albumartist = nMeta.albumartist ? nMeta.albumartist.toLowerCase() : null;
+    nMeta.artist = nMeta.artist ? nMeta.artist.toLowerCase() : '';
+    nMeta.albumartist = nMeta.albumartist ? nMeta.albumartist.toLowerCase() : '';
     nMeta.album = nMeta.album ? nMeta.album.toLowerCase() : 'NO-META-ALBUM';
     nMeta.title = nMeta.title ? nMeta.title : node.publicName;
     return nMeta;
@@ -731,7 +731,9 @@ function buildAlbumToRecord( meta, albumKEY ) {
         artist: [meta.artist],
         albumartist: meta.albumartist,
         year: meta.year,
-        disk: meta.disk,
+        diskno: meta.diskno,
+        diskof: meta.diskof,
+        label: meta.label,
         genre: meta.genre,
         key: albumKEY,
     };
