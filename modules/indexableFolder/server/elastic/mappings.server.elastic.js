@@ -38,15 +38,14 @@ exports.album_body = {
                     "format": "yyyy||yyyy-MM-dd",
                     "ignore_malformed": "true"
                 },
-                "disk": {
-                    "properties": {
-                        "no": {
-                            "type": "keyword"
-                        },
-                        "of": {
-                            "type": "keyword"
-                        },
-                    }
+                "diskno": {
+                  "type": "integer"
+                },
+                "diskof": {
+                  "type": "integer"
+                },
+                "label": {
+                  "type": "keyword"
                 },
                 "genre": {
                     "type": "keyword"
@@ -114,25 +113,20 @@ exports.tracks_body = {
                             "format": "yyyy||yyyy-MM-dd",
                             "ignore_malformed": "true",
                         },
-                        "disk": {
-                            "properties": {
-                                "no": {
-                                    "type": "integer"
-                                },
-                                "of": {
-                                    "type": "integer"
-                                },
-                            }
+                        "diskno": {
+                          "type": "integer"
                         },
-                        "track": {
-                            "properties": {
-                                "no": {
-                                    "type": "integer"
-                                },
-                                "of": {
-                                    "type": "integer"
-                                },
-                            }
+                        "diskof": {
+                          "type": "integer"
+                        },
+                        "label": {
+                          "type": "keyword"
+                        },
+                        "trackno": {
+                          "type": "integer"
+                        },
+                        "trackof": {
+                          "type": "integer"
                         },
                         "genre": {
                             "type": "keyword",

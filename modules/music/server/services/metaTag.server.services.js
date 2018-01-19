@@ -14,16 +14,12 @@
  *  album: 'album',
  *  year: '1951',
  *  genre: ['blues','rock'],
- *  albumartist: 'albumartist', (If exist)
- *  composer: 'composer', (If exist)
- *  track: {
- *    no: '0',
- *    of: '0'
- *  },
- *  disk: {
- *    no: '0',
- *    of: '0'
- *  }
+ *  albumartist: 'albumartist',
+ *  composer: 'composer',
+ *  trackno: '0',
+ *  trackof: '0',
+ *  diskno: '0',
+ *  diskof: '0'
  * }
  *
  */

@@ -3,6 +3,16 @@
  */
 const _ = require('lodash');
 
+
+/**
+ * Remove duplicate value form an array
+ * @param arr
+ * @returns {[null]}
+ */
+exports.uniq = function(Arr){
+  return [...new Set(Arr)];
+};
+
 /**
  * Trim obj and key of an obj in deep
  * @param obj
@@ -97,4 +107,14 @@ exports.testMergeArray = function(arr1, arr2) {
         return newArray;
     }
     return false;
+};
+
+/**
+ * Merge => uniq => return
+ * @param arr1
+ * @param arr2
+ * @returns {*}
+ */
+exports.mergeUniqArray = function(arr1, arr2) {
+  return _.uniq(arr1.concat(arr2));
 };

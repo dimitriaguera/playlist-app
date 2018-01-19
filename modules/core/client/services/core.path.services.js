@@ -103,3 +103,10 @@ exports.conformPathToOs = function (myPath) {
 exports.toPosixPath = function (myPath) {
   return changeAntiToSlash(myPath)
 };
+
+exports.removeLastSeparator = function (myPath) {
+  if (myPath.slice(-1) === '/' || myPath.slice(-1) === '\\') {
+    return myPath.slice(0, -1);
+  }
+  return myPath;
+};

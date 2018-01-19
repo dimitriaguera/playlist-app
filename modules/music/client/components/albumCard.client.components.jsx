@@ -62,7 +62,7 @@ class AlbumCard extends Component {
         const { search, album } = this.props;
 
         // Start fetching album tracks.
-        return search(`tracks?fi=albumKey&sort=meta.track.no&q=${album.key}&exact=true`)
+        return search(`tracks?fi=albumKey&sort=meta.trackno&q=${album.key}&exact=true`)
             .then((data) => {
                 // If error, stop process.
                 if (!data.success) {

@@ -24,19 +24,19 @@ exports.read = function read(filePath, cb) {
 
         let cleanMeta = {};
 
-        cleanMeta.title = metadata.common.title  || null;
-        cleanMeta.artist = metadata.common.artist  || null;
-        cleanMeta.album = metadata.common.album  || null;
+        cleanMeta.title = metadata.common.title  || '';
+        cleanMeta.artist = metadata.common.artist  || '';
+        cleanMeta.album = metadata.common.album  || '';
 
         // Change date to string
-        cleanMeta.year = metadata.common.year ? (metadata.common.year + '') : null;
+        cleanMeta.year = metadata.common.year ? (metadata.common.year + '') : '';
 
         // Change time to ms in MM:SS and convert it to string
         if (metadata.format.duration) {
           cleanMeta.time = new Date(metadata.format.duration * 1000).toISOString().substr(11, 8);
           if (cleanMeta.time.substr(0,2) === '00') cleanMeta.time = cleanMeta.time.substr(3, 6);
         } else {
-          cleanMeta.time = null;
+          cleanMeta.time = '';
         }
 
         // Convert Genre in tab and split well for exemple this case
@@ -44,47 +44,47 @@ exports.read = function read(filePath, cb) {
         cleanMeta.genre = metadata.common.genre ? metadata.common.genre.join(', ').split(/\s*[,;\/]\s*/) : [];
 
         // cleanMeta.albumartist doesn't exist if null empty
-        if (metadata.common.albumartist) {
-          cleanMeta.albumartist = metadata.common.albumartist;
-        }
+        cleanMeta.albumartist = metadata.common.albumartist || '';
 
         // cleanMeta.composer doesn't exist if null empty
-        if (metadata.common.composer) {
-          cleanMeta.composer = metadata.common.composer.join('/');
-        }
+        cleanMeta.composer = metadata.common.composer.join('/') || '';
+
+        //@todo implement label
+        cleanMeta.label = '';
 
         // Forge track field
         if (metadata.common.track) {
-          cleanMeta.track = {};
+
           if (metadata.common.track.no === null) {
-            cleanMeta.track.no = '0';
+            cleanMeta.trackno = '0';
           } else {
-            cleanMeta.track.no = (metadata.common.track.no + '').replace(/^0+(?=\d)/, '');
+            cleanMeta.trackno = (metadata.common.track.no + '').replace(/^0+(?=\d)/, '');
           }
           if (metadata.common.track.of === null) {
-            cleanMeta.track.of = '0';
+            cleanMeta.trackof = '0';
           } else {
-            cleanMeta.track.of = (metadata.common.track.of + '').replace(/^0+(?=\d)/, '');
+            cleanMeta.trackof = (metadata.common.track.of + '').replace(/^0+(?=\d)/, '');
           }
         } else {
-          cleanMeta.track = {no: '0', of: '0'};
+          cleanMeta.trackno = '0';
+          cleanMeta.trackof = '0';
         }
 
         // Forge Disk field
         if (metadata.common.disk) {
-          cleanMeta.disk = {};
           if (metadata.common.disk.no === null) {
-            cleanMeta.disk.no = '0';
+            cleanMeta.diskno = '0';
           } else {
-            cleanMeta.disk.no = (metadata.common.disk.no + '').replace(/^0+(?=\d)/, '');
+            cleanMeta.diskno = (metadata.common.disk.no + '').replace(/^0+(?=\d)/, '');
           }
           if (metadata.common.disk.of === null) {
-            cleanMeta.disk.of = '0';
+            cleanMeta.diskof = '0';
           } else {
-            cleanMeta.disk.of = (metadata.common.disk.of + '').replace(/^0+(?=\d)/, '');
+            cleanMeta.diskof = (metadata.common.disk.of + '').replace(/^0+(?=\d)/, '');
           }
         } else {
-          cleanMeta.disk = {no: '0', of: '0'};
+          cleanMeta.diskno = '0';
+          cleanMeta.diskof = '0';
         }
 
 
