@@ -221,7 +221,7 @@ class EditMetaTag extends Component {
         let newExistingMetaBulk = {};
         for (jKeys = 0 ; jKeys < ljKeys ; jKeys++ ) {
           if (bulkMeta[keys[jKeys]].length === 1) {
-            if (bulkMeta[keys[jKeys]][0] !== undefined || bulkMeta[keys[jKeys]][0] !== 'NOT MET' ) newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
+            if (bulkMeta[keys[jKeys]][0] !== undefined && bulkMeta[keys[jKeys]][0] !== 'NOT MET' ) newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
           } else {
             newExistingMetaBulk[keys[jKeys]] = bulkMeta[keys[jKeys]].join(', ');
           }
