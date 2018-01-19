@@ -20,11 +20,11 @@ const metaTag = require(path.resolve('./modules/music/server/services/metaTag.se
 
 const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
-//const { runElasticUpdates } = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
+const { runElasticUpdates } = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
 
-const runElasticUpdates = function( a , cb){
-  cb();
-};
+// const runElasticUpdates = function( a , cb){
+//   cb();
+// };
 
 // @todo put this when export conf
 const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.folder_base_url));
