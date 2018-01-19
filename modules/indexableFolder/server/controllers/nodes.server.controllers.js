@@ -206,7 +206,7 @@ function runIndexNodes(onError, onStep, onDone) {
                             uri: filePath,
                             parent: dirs[file.dir],
                             isFile: true,
-                            meta: data || {}
+                            meta: data || metaTag.metaSchema()
                         });
 
                     });
@@ -504,12 +504,24 @@ exports.updateMeta = function (req, res, next) {
           // Flag Add
           } else {
 
-            if (typeof reqMeta[key] === 'string' || reqMeta[key] instanceof String) tmp1 = reqMeta[key].split(/\s*[,;\/]\s*/);
-            if (typeof files[i].meta[key] === 'string' || files[i].meta[key] instanceof String) tmp2 = files[i].meta[key].split(/\s*[,;\/]\s*/);
+            if (typeof reqMeta[key] === 'string' || reqMeta[key] instanceof String) {
+                tmp1 = reqMeta[key].split(/\s*[,;\/]\s*/);
+            } else {
+                tmp1 =  reqMeta[key];
+            }
+
+            if (typeof files[i].meta[key] === 'string' || files[i].meta[key] instanceof String) {
+                tmp2 = files[i].meta[key].split(/\s*[,;\/]\s*/);
+            } else {
+                tmp2 = files[i].meta[key];
+            }
 
             // Add element only if doesn't exists.
-            files[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
-
+              if (key === 'genre') {
+                  files[i].meta[key] = mergeUniqArray(tmp1, tmp2);
+              } else {
+                  files[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
+              }
           }
         });
       }
@@ -567,7 +579,7 @@ exports.updateMeta = function (req, res, next) {
               success: true,
               msg: msg
             })
-          }
+          }, true
         );
 
 
@@ -611,7 +623,7 @@ exports.updateMeta = function (req, res, next) {
 
 
           // Elastic update here
-          runElasticUpdates([node._doc],
+          runElasticUpdates([node],
             (err, data) => {
 
               if (err) console.log(err);
@@ -623,7 +635,7 @@ exports.updateMeta = function (req, res, next) {
                 success: true,
                 msg: 'Every thing is allright'
               })
-            }
+            }, true
           );
 
         }

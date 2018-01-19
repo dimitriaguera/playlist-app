@@ -47,7 +47,9 @@ exports.index = function(req, res, next){
 
 
 
-exports.runElasticUpdates = function( nodes, callback, fullLogs ) {
+exports.runElasticUpdates = function( nodes, callback, fLogs ) {
+
+    const fullLogs = fLogs || false;
 
     // Start query, filter, index operations.
     co(run).then(
@@ -58,252 +60,274 @@ exports.runElasticUpdates = function( nodes, callback, fullLogs ) {
         err => callback(err),
     );
 
-    function* run(){
+    function* run() {
 
-        const logs = [];
-        const chunk = [];
-        const albumsToUpdate = [];
-        const storage = {
-            albums: {
-                old: [],
-                new: [],
-            },
-            genres: {
-                testToAdd: [],
-                testToDelete: [],
-            },
-            artists: {
-                testToAdd: [],
-                testToDelete: [],
-            },
-        };
-
-        // Counter object.
-        const counter = {};
-
-        // Init elastic log report.
-        const getIndexLog = initIndexLog(counter, fullLogs);
-
-        // Get tracks elastic documents.
-        const existingTracks = extractExistingDocs(
-            yield promiseMultiDocFromNodes('tracks', nodes)
-        );
-
-        // Init test functions.
-        const runTestTrack = trackTestInit(chunk, storage);
-
-        // Loop for each node.
-        for(let i = 0, l = nodes.length; i < l; i++) {
-
-            const node = nodes[i];
-            const meta = normalizedMeta(node);
-            const track = existingTracks[node._id];
-
-            runTestTrack(node, meta, track, storage);
-        }
-
-        // Need to make uniq the multiple keys of genre and artist to test.
-        storage.genres.testToAdd = _.uniq(storage.genres.testToAdd);
-        storage.genres.testToDelete = _.uniq(storage.genres.testToDelete);
-
-        // Prevent toAdd item being deleted, or existing item to be addTested.
-        const commonGenre = _.intersection(storage.genres.testToDelete, storage.genres.testToAdd);
-        const commonArtist = _.intersection(storage.artists.testToDelete, storage.artists.testToAdd);
-        storage.genres.testToDelete = _.difference(storage.genres.testToDelete, commonGenre);
-        storage.genres.testToAdd = _.difference(storage.genres.testToAdd, commonGenre);
-        storage.artists.testToDelete = _.difference(storage.artists.testToDelete, commonArtist);
-        storage.artists.testToAdd = _.difference(storage.artists.testToAdd, commonArtist);
-
-        // Switch action, if album is already indexed or not in elasticsearch.
-        if( storage.albums.new.length !== 0 ) {
-            switchActionOnDocsExist(
-                // Get albums from updated keys.
-                yield promiseMultiDocFromId('album', storage.albums.new.map(item => item.key)),
-                // If album already indexed, push in update list.
-                key => {
-                    albumsToUpdate.push(storage.albums.new[key].key);
-                    console.log(`Album with key ${storage.albums.new[key].key} already exists. Add it to update queue.`);
+        try {
+            const logs = [];
+            const chunk = [];
+            const albumsToUpdate = [];
+            const storage = {
+                albums: {
+                    old: [],
+                    new: [],
                 },
-                // If album no indexed, push in chunk.
-                key => {
-                    chunk.push(buildAlbumToRecord(storage.albums.new[key].node.meta, storage.albums.new[key].key));
-                    console.log(`Album with key ${storage.albums.new[key].key} no exists. Add it bulk index chunk.`);
-                }
-            );
-        }
+                genres: {
+                    testToAdd: [],
+                    testToDelete: [],
+                },
+                artists: {
+                    testToAdd: [],
+                    testToDelete: [],
+                },
+            };
 
-        // Time to proceed the first bach of chunk.
-        // Bulk index chunk on elastic.
-        yield loopOnChunk(
-            chunk,
-            (count, size) => {
-                // Callback before send elastic api request.
-                // Increment chunk index counter.
-                console.log(`Start bulk index ${count}. Indexing ${size} documents...`);
-            },
-            (data, count, size) => {
-                // Callback after index done in elastic.
-                // Log result.
-                logs.push({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
+            // Counter object.
+            const counter = {};
+
+            // Init elastic log report.
+            const getIndexLog = initIndexLog(counter, fullLogs);
+
+            // Get tracks elastic documents.
+            const existingTracks = extractExistingDocs(
+                yield promiseMultiDocFromNodes('tracks', nodes)
+            );
+
+            // Init test functions.
+            const runTestTrack = trackTestInit(chunk, storage);
+
+            // Loop for each node.
+            for (let i = 0, l = nodes.length; i < l; i++) {
+
+                const node = nodes[i];
+                const meta = normalizedMeta(node);
+                const track = existingTracks[node._id];
+
+                runTestTrack(node, meta, track, storage);
             }
-        );
 
-        // Now testing if old album keys still have tracks.
-        // If no tracks, delete album from index.
-        if( storage.albums.old.length !== 0 ) {
-            yield switchActionIfMatchingTracks(
-                // Album keys to test.
-                storage.albums.old,
-                // Params routing for each search.
-                key => {return {body: {query: {match: {albumKey: key}}}}},
-                // Callback with tracks.
-                (key, data) => {
-                    const album = {genre: [], artist: []};
-                    let toUpdate = {};
-                    for (let j = 0, m = data.length; j < m; j++) {
-                        testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
-                        //console.log('OLD ALBUMS loop update test: ', toUpdate);
+            // Need to test if album key is both in new and old storage.
+            // If both, delete old.
+            storage.albums.old = storage.albums.old.filter( item => {
+                for(let i = 0, l = storage.albums.new.length; i < l; i++){
+                    if(storage.albums.new[i].key === item) return false;
+                }
+                return true;
+            });
+
+            // Need to make uniq the multiple keys of genre and artist to test.
+            storage.genres.testToAdd = _.uniq(storage.genres.testToAdd);
+            storage.genres.testToDelete = _.uniq(storage.genres.testToDelete);
+
+            // Prevent toAdd item being deleted, or existing item to be addTested.
+            const commonGenre = _.intersection(storage.genres.testToDelete, storage.genres.testToAdd);
+            const commonArtist = _.intersection(storage.artists.testToDelete, storage.artists.testToAdd);
+            storage.genres.testToDelete = _.difference(storage.genres.testToDelete, commonGenre);
+            storage.genres.testToAdd = _.difference(storage.genres.testToAdd, commonGenre);
+            storage.artists.testToDelete = _.difference(storage.artists.testToDelete, commonArtist);
+            storage.artists.testToAdd = _.difference(storage.artists.testToAdd, commonArtist);
+
+            // Switch action, if album is already indexed or not in elasticsearch.
+            if (storage.albums.new.length !== 0) {
+                switchActionOnDocsExist(
+                    // Get albums from updated keys.
+                    yield promiseMultiDocFromId('album', storage.albums.new.map(item => item.key)),
+                    // If album already indexed, push in update list.
+                    key => {
+                        albumsToUpdate.push(storage.albums.new[key].key);
+                        console.log(`Album with key ${storage.albums.new[key].key} already exists. Add it to update queue.`);
+                    },
+                    // If album no indexed, push in chunk.
+                    key => {
+                        chunk.push(buildAlbumToRecord(storage.albums.new[key].node.meta, storage.albums.new[key].key));
+                        console.log(`Album with key ${storage.albums.new[key].key} no exists. Add it bulk index chunk.`);
                     }
-                    chunk.push(buildBulkRecord('update', 'album', 'album', {doc: toUpdate}, key));
-                    console.log(`Album with key ${key} still have tracks. Update it:`, toUpdate);
-                },
-                // Callback without tracks
-                key => {
-                    chunk.push(buildBulkRecord('delete', 'album', 'album', null, key));
-                    console.log(`Album with key ${key} no have tracks anymore. Delete it.`);
-                }
-            );
-        }
-
-        // Testing and update albums registered has new, but already indexed.
-        // Now testing if old album keys still have tracks.
-        // If no tracks, delete album from index.
-        if( albumsToUpdate.length !== 0 ) {
-            yield switchActionIfMatchingTracks(
-                // Album keys to test.
-                albumsToUpdate,
-                // Params routing for each search.
-                key => {return {body: {query: {match: {albumKey: key}}}}},
-                // Callback with tracks.
-                (key, data) => {
-                    const album = {genre: [], artist: []};
-                    let toUpdate = {};
-                    for (let j = 0, m = data.length; j < m; j++) {
-                        testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
-                        //const test = data[j]._source.meta;
-                    }
-                    chunk.push(buildBulkRecord('update', 'album', 'album', {doc: toUpdate}, key));
-                    console.log(`Album with key ${key} still have tracks. Update it:`, toUpdate);
-                },
-                // Callback without tracks
-                key => {
-                    console.log(`Elasticsearch cache problem, this album with key ${key} must have tracks...`);
-                }
-            );
-        }
-
-        // Switch action, if genre is already indexed or not in elasticsearch.
-        // If no indexed, add it.
-        if( storage.genres.testToAdd.length !== 0 ) {
-            switchActionOnDocsExist(
-                // Get genres docs.
-                yield promiseMultiDocFromId('genre', storage.genres.testToAdd),
-                // If genre already indexed, do nothing.
-                key => {
-                    logs.push(`Genre ${storage.genres.testToAdd[key]} already exist.`);
-                    console.log(`Genre ${storage.genres.testToAdd[key]} already exist.`);
-                },
-                // Else if genre no indexed, add it.
-                key => {
-                    chunk.push(buildGenreToRecord(storage.genres.testToAdd[key]));
-                    console.log(`Genre ${storage.genres.testToAdd[key]} no exist. Index it.`);
-                }
-            );
-        }
-
-        // Switch action test :
-        // If genre removed from updating tracks,
-        // Don't have others tracks indexed with,
-        // Remove them from index genre.
-        if( storage.genres.testToDelete.length !== 0 ) {
-            yield switchActionIfMatchingTracks(
-                // Album keys to test.
-                storage.genres.testToDelete,
-                // Params routing for each search.
-                key => {return {body: {query: {match: {'meta.genre': key}}}}},
-                // Callback with tracks.
-                key => {
-                    logs.push(`Genre ${key} still have tracks.`);
-                    console.log(`Genre ${key} still have tracks.`);
-                },
-                // Callback without tracks
-                key => {
-                    chunk.push(buildBulkRecord( 'delete', 'genre', 'genre', null, key ));
-                    console.log(`No tracks for genre ${key}, add delete to bulk process...`);
-                }
-            );
-        }
-
-        // Switch action, if artist is already indexed or not in elasticsearch.
-        // If no indexed, add it.
-        if( storage.artists.testToAdd.length !== 0 ) {
-            switchActionOnDocsExist(
-                // Get genres docs.
-                yield promiseMultiDocFromId('artist', storage.artists.testToAdd),
-                // If genre already indexed, do nothing.
-                key => {
-                    logs.push(`Artist ${storage.artists.testToAdd[key]} already exist.`);
-                    console.log(`Artist ${storage.artists.testToAdd[key]} already exist.`);
-                },
-                // Else if genre no indexed, add it.
-                key => {
-                    chunk.push(buildArtistToRecord(storage.artists.testToAdd[key]));
-                    console.log(`Artist ${storage.artists.testToAdd[key]} no exist. Index it.`);
-                }
-            );
-        }
-
-        // Switch action test :
-        // If artist removed from updating tracks,
-        // Don't have others tracks indexed with,
-        // Remove them from index artist.
-        if( storage.artists.testToDelete.length !== 0 ) {
-            yield switchActionIfMatchingTracks(
-                // Album keys to test.
-                storage.artists.testToDelete,
-                // Params routing for each search.
-                key => {return {body: {query: {match: {'meta.artist': key}}}}},
-                // Callback with tracks.
-                key => {
-                    logs.push(`Artist ${key} still have tracks.`);
-                    console.log(`Artist ${key} still have tracks.`);
-                },
-                // Callback without tracks
-                key => {
-                    chunk.push(buildBulkRecord( 'delete', 'artist', 'artist', null, key ));
-                    console.log(`No tracks for artist ${key}, add delete to bulk process...`);
-                }
-            );
-        }
-
-        // Finally bulk for the second and last time actions pushed in chunk.
-        // Bulk index chunk on elastic.
-        yield loopOnChunk(
-            chunk,
-            (count, size) => {
-                // Callback before send elastic api request.
-                // Increment chunk index counter.
-                console.log(`Start bulk index ${count}. Indexing ${size} documents...`);
-            },
-            (data, count, size) => {
-                // Callback after index done in elastic.
-                // Log result.
-                logs.push({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
+                );
             }
-        );
 
-        // Return logs to report.
-        return {total_count: counter, logs: logs};
+            // Time to proceed the first bach of chunk.
+            // Bulk index chunk on elastic.
+            yield* loopOnChunk(
+                chunk,
+                (count, size) => {
+                    // Callback before send elastic api request.
+                    // Increment chunk index counter.
+                    console.log(`Start bulk index ${count}. Indexing ${size} documents...`);
+                },
+                (data, count, size) => {
+                    // Callback after index done in elastic.
+                    // Log result.
+                    logs.push({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
+                }
+            );
+
+            // Now testing if old album keys still have tracks.
+            // If no tracks, delete album from index.
+            if (storage.albums.old.length !== 0) {
+                yield* switchActionIfMatchingTracks(
+                    // Album keys to test.
+                    storage.albums.old,
+                    // Params routing for each search.
+                    key => {
+                        return {body: {query: {term: {albumKey: key}}}}
+                    },
+                    // Callback with tracks.
+                    (key, data) => {
+                        const album = {genre: [], artist: []};
+                        let toUpdate = {};
+                        for (let j = 0, m = data.length; j < m; j++) {
+                            testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+                            //console.log('OLD ALBUMS loop update test: ', toUpdate);
+                        }
+                        chunk.push(buildBulkRecord('update', 'album', 'album', {doc: toUpdate}, key));
+                        console.log(`Album with key ${key} still have tracks. Update it:`, toUpdate);
+                    },
+                    // Callback without tracks
+                    key => {
+                        chunk.push(buildBulkRecord('delete', 'album', 'album', null, key));
+                        console.log(`Album with key ${key} no have tracks anymore. Delete it.`);
+                    }
+                );
+            }
+
+            // Testing and update albums registered has new, but already indexed.
+            // Now testing if old album keys still have tracks.
+            // If no tracks, delete album from index.
+            if (albumsToUpdate.length !== 0) {
+                yield* switchActionIfMatchingTracks(
+                    // Album keys to test.
+                    albumsToUpdate,
+                    // Params routing for each search.
+                    key => {
+                        return {body: {query: {term: {albumKey: key}}}}
+                    },
+                    // Callback with tracks.
+                    (key, data) => {
+                        const album = {genre: [], artist: []};
+                        let toUpdate = {};
+                        for (let j = 0, m = data.length; j < m; j++) {
+                            testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
+                            //const test = data[j]._source.meta;
+                        }
+                        chunk.push(buildBulkRecord('update', 'album', 'album', {doc: toUpdate}, key));
+                        console.log(`Album with key ${key} still have tracks. Update it:`, toUpdate);
+                    },
+                    // Callback without tracks
+                    key => {
+                        console.log(`Elasticsearch cache problem, this album with key ${key} must have tracks...`);
+                    }
+                );
+            }
+
+            // Switch action, if genre is already indexed or not in elasticsearch.
+            // If no indexed, add it.
+            if (storage.genres.testToAdd.length !== 0) {
+                switchActionOnDocsExist(
+                    // Get genres docs.
+                    yield promiseMultiDocFromId('genre', storage.genres.testToAdd),
+                    // If genre already indexed, do nothing.
+                    key => {
+                        logs.push(`Genre ${storage.genres.testToAdd[key]} already exist.`);
+                        console.log(`Genre ${storage.genres.testToAdd[key]} already exist.`);
+                    },
+                    // Else if genre no indexed, add it.
+                    key => {
+                        chunk.push(buildGenreToRecord(storage.genres.testToAdd[key]));
+                        console.log(`Genre ${storage.genres.testToAdd[key]} no exist. Index it.`);
+                    }
+                );
+            }
+
+            // Switch action test :
+            // If genre removed from updating tracks,
+            // Don't have others tracks indexed with,
+            // Remove them from index genre.
+            if (storage.genres.testToDelete.length !== 0) {
+                yield* switchActionIfMatchingTracks(
+                    // Album keys to test.
+                    storage.genres.testToDelete,
+                    // Params routing for each search.
+                    key => {
+                        return {body: {query: {match: {'meta.genre': key}}}}
+                    },
+                    // Callback with tracks.
+                    key => {
+                        logs.push(`Genre ${key} still have tracks.`);
+                        console.log(`Genre ${key} still have tracks.`);
+                    },
+                    // Callback without tracks
+                    key => {
+                        chunk.push(buildBulkRecord('delete', 'genre', 'genre', null, key));
+                        console.log(`No tracks for genre ${key}, add delete to bulk process...`);
+                    }
+                );
+            }
+
+            // Switch action, if artist is already indexed or not in elasticsearch.
+            // If no indexed, add it.
+            if (storage.artists.testToAdd.length !== 0) {
+                switchActionOnDocsExist(
+                    // Get genres docs.
+                    yield promiseMultiDocFromId('artist', storage.artists.testToAdd),
+                    // If genre already indexed, do nothing.
+                    key => {
+                        logs.push(`Artist ${storage.artists.testToAdd[key]} already exist.`);
+                        console.log(`Artist ${storage.artists.testToAdd[key]} already exist.`);
+                    },
+                    // Else if genre no indexed, add it.
+                    key => {
+                        chunk.push(buildArtistToRecord(storage.artists.testToAdd[key]));
+                        console.log(`Artist ${storage.artists.testToAdd[key]} no exist. Index it.`);
+                    }
+                );
+            }
+
+            // Switch action test :
+            // If artist removed from updating tracks,
+            // Don't have others tracks indexed with,
+            // Remove them from index artist.
+            if (storage.artists.testToDelete.length !== 0) {
+                yield* switchActionIfMatchingTracks(
+                    // Album keys to test.
+                    storage.artists.testToDelete,
+                    // Params routing for each search.
+                    key => {
+                        return {body: {query: {term: {'meta.artist': key}}}}
+                    },
+                    // Callback with tracks.
+                    key => {
+                        logs.push(`Artist ${key} still have tracks.`);
+                        console.log(`Artist ${key} still have tracks.`);
+                    },
+                    // Callback without tracks
+                    key => {
+                        chunk.push(buildBulkRecord('delete', 'artist', 'artist', null, key));
+                        console.log(`No tracks for artist ${key}, add delete to bulk process...`);
+                    }
+                );
+            }
+
+            // Finally bulk for the second and last time actions pushed in chunk.
+            // Bulk index chunk on elastic.
+            yield* loopOnChunk(
+                chunk,
+                (count, size) => {
+                    // Callback before send elastic api request.
+                    // Increment chunk index counter.
+                    console.log(`Start bulk index ${count}. Indexing ${size} documents...`);
+                },
+                (data, count, size) => {
+                    // Callback after index done in elastic.
+                    // Log result.
+                    logs.push({bulk_operation_number: count, bulk_size: size, ...getIndexLog(data)});
+                }
+            );
+
+            // Return logs to report.
+            return {total_count: counter, logs: logs};
+        }
+        catch(err){
+            console.log(err);
+        }
     }
 };
 
@@ -342,7 +366,6 @@ function trackTestInit( chunk, storage ) {
             // Update tracks document in elasticsearch.
             chunk.push(buildTracksToRecord( node, meta, nKey, 'update' ));
             // Store tracks(s album to run update later.
-            // @TODO : mettre ici une condition pour tester si l'upadte est necessaire pour l'album....
             _obj.pushUniq(track.albumKey, storage.albums.old);
         }
         // If track no exist, index it.
@@ -374,14 +397,15 @@ function pushUniqAlbum(album , array) {
 function* switchActionIfMatchingTracks(keys, paramFactory, withTracks, withoutTracks){
 
     const defaultParams = {
-        body: {query: {match : {}}},
+        body: {query: {term : {}}},
         requestCache: false,
-        _sourceInclude: ['meta.artist', 'meta.genre'],
+        //_sourceInclude: ['meta.artist', 'meta.genre'],
     };
 
     for( let i = 0, l = keys.length; i < l; i++ ) {
 
-        const data = yield promiseSimpleSearch('tracks', Object.assign({}, defaultParams, paramFactory(keys[i])));
+        const params = Object.assign({}, defaultParams, paramFactory(keys[i]));
+        const data = yield promiseSimpleSearch('tracks', params);
 
         if( data.hits.total === 0 ){
             withoutTracks(keys[i]);
@@ -569,11 +593,11 @@ function* loopOnChunk(chunk, onStep, onDone) {
                 // Increment chunk index counter.
                 chunkCount++;
                 // Set task runner step.
-                onStep(chunkCount, part.length);
+                return onStep(chunkCount, part.length);
             },
             data => {
                 // After index done in elastic.
-                onDone(data, chunkCount, part.length);
+                return onDone(data, chunkCount, part.length);
             }
         );
     }

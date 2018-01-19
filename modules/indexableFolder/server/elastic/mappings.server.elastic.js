@@ -33,6 +33,9 @@ exports.album_body = {
                 "artist": {
                     "type": "keyword"
                 },
+                "albumartist": {
+                    "type": "keyword"
+                },
                 "year": {
                     "type":   "date",
                     "format": "yyyy||yyyy-MM-dd",
@@ -82,6 +85,9 @@ exports.tracks_body = {
                         },
                     ],
                 },
+                "albumKey": {
+                    "type": "keyword",
+                },
                 "tracksId": {
                     "type": "keyword",
                     "index": "false",
@@ -106,6 +112,9 @@ exports.tracks_body = {
                             "type": "keyword",
                         },
                         "artist": {
+                            "type": "keyword",
+                        },
+                        "albumartist": {
                             "type": "keyword",
                         },
                         "year": {
