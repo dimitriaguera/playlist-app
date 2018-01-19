@@ -514,6 +514,7 @@ function buildFiltersRequest(filters, mappings){
 
     for(let s in f){
         query += '&filter.' + s + '=' + ps.urlEncode(f[s]);
+        if(s.indexOf('artist') !== -1) query += '&filter.' + s.replace('artist', 'albumartist') + '=' + ps.urlEncode(f[s]);
     }
 
     return query;

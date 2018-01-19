@@ -15,10 +15,10 @@ function buildBulk( data ) {
                 _id: _id,
             }
         });
-        bulkBody.push(_doc);
+        if(_doc) bulkBody.push(_doc);
     });
 
-    return {body: bulkBody};
+    return {refresh:true, body: bulkBody};
 }
 
 /**
