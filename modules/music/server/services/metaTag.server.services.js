@@ -2,6 +2,32 @@
  * Created by Marc Foletto on 23/11/2017.
  */
 
+
+/**
+ * taglib2Wrap.read(filePath, cb)
+ *
+ * return
+ *
+ * {
+ *  title: 'title',
+ *  artist: 'artist',
+ *  album: 'album',
+ *  year: '1951',
+ *  genre: ['blues','rock'],
+ *  albumartist: 'albumartist', (If exist)
+ *  composer: 'composer', (If exist)
+ *  track: {
+ *    no: '0',
+ *    of: '0'
+ *  },
+ *  disk: {
+ *    no: '0',
+ *    of: '0'
+ *  }
+ * }
+ *
+ */
+
 try {
 
   // Js wrap for taglib

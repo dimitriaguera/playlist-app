@@ -2,10 +2,7 @@ import React from 'react'
 import { Button, Icon } from 'semantic-ui-react'
 import DropZone from './dropZone.client.components'
 
-import EditMetaTag from '../../../../modules/music/client/components/editMetaTag.client.components.jsx.js'
-
-
-const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, item, user, onAddItem }) => {
+const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, onEditMetaTag, item, user, onAddItem }) => {
 
     const name = item.publicName || item.name;
 
@@ -31,7 +28,9 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
                       <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">
                           <Icon name='plus' />
                       </Button>
-                      <EditMetaTag item={item}/>
+                      <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color="teal">
+                          <Icon name='tags' />
+                      </Button>
                   </span>
             </span>
           );
@@ -44,7 +43,9 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
                     <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">
                         <Icon name='plus' />
                     </Button>
-                    <EditMetaTag item={item}/>
+                    <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color="teal">
+                        <Icon name='tags' />
+                    </Button>
                 </span>
             </span>
           );

@@ -12,6 +12,9 @@ import ps from 'core/client/services/core.path.services'
 
 import socketServices from 'core/client/services/core.socket.services'
 
+import EditMetaTag from '../../../../modules/music/client/components/editMetaTag.client.components'
+
+
 /**
  * Folder is the file explorator component.
  * The folder's path to open is get with component URL, via react-router v4.
@@ -43,21 +46,27 @@ class IndexableFolder extends Component {
         this.onListTracks = this.onListTracks.bind(this);
         this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
 
+
+        this.onEditMetaTag = this.onEditMetaTag.bind(this);
+
         this.updateNodeMetaOnSocketEvent = this.updateNodeMetaOnSocketEvent.bind(this);
 
         this.socket = socketServices.getPublicSocket();
 
         this.state = {
-            path: [],
-            query: null,
-            search: null,
-            nodes: [],
-            error: false,
-            modal: {
-                open: false,
-                addTracks: [],
-            },
-        };
+          path: [],
+          query: null,
+          search: null,
+          nodes: [],
+          error: false,
+          modal: {
+            open: false,
+            addTracks: [],
+          },
+          showEditMetaTagModal: false,
+          editMetaTagItem: null
+        }
+        ;
     }
 
 
@@ -124,6 +133,7 @@ class IndexableFolder extends Component {
             query !== this.state.query ||
             modal !== this.state.modal ||
             nodes !== this.state.nodes ||
+            nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
             activePlaylist !== this.props.activePlaylist );
     }
 
@@ -189,15 +199,18 @@ class IndexableFolder extends Component {
 
       // Find oldNode corresponding of newNode
       // And update the meta
-      for (let i = 0, l = oldNode.length; i < l; i++) {
-        if (oldNode[i]._id === data._id) {
-          oldNode[i].meta = data.meta;
-          break;
+      let i = 0, li = oldNode.length, j = 0, lj = data.length ;
+
+      for ( ; i < li; i++) {
+        for ( ; j < lj; j++) {
+          if (oldNode[i]._id === data[j]._id) {
+            oldNode[i].meta = data[j].meta;
+          }
         }
       }
 
       this.setState({
-        nodes: oldNode
+        nodes: oldNode,
       });
     }
 
@@ -285,6 +298,10 @@ class IndexableFolder extends Component {
         // Change global state to start playing track.
         this.props.readFile( item );
         e.preventDefault();
+    }
+
+    onEditMetaTag( e, item ){
+      this.setState({editMetaTagItem: item, showEditMetaTagModal: true});
     }
 
     // Handler to add single track on playlist.
@@ -398,11 +415,19 @@ class IndexableFolder extends Component {
                                 onAddItem={this.handlerAddItem}
                                 onPlayFolder={this.handlerPlayFolder}
                                 onListTracks={this.onListTracks}
+                                onEditMetaTag={this.onEditMetaTag}
                             />
                         )
                     })
                  }
 
+                {this.state.showEditMetaTagModal &&
+                  <EditMetaTag
+                    open={this.state.showEditMetaTagModal}
+                    item={this.state.editMetaTagItem}
+                    onClose={() => this.setState({showEditMetaTagModal: false})}
+                  />
+                }
 
                 <Modal
                     open={ modal.open }

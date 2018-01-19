@@ -10,7 +10,7 @@ const taskRunner = require(path.resolve('./modules/task/server/services/task.ser
 const {clock} = require(path.resolve('./modules/core/server/services/time.server.services.js'));
 
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
-const { splitTab } = require(path.resolve('./modules/core/server/services/obj.server.services'));
+const { splitTab, pushUniq, mergeUniqArray } = require(path.resolve('./modules/core/server/services/obj.server.services'));
 
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const mongoose = require('mongoose');
@@ -22,7 +22,6 @@ const socketsEvents = require('../../../../config/sockets/sockets.conf');
 
 // @todo put this when export conf
 const rootOK = ps.conformPathToOs(config.folder_base_url);
-
 
 exports.index = function(req, res, next){
 
@@ -288,8 +287,7 @@ function runIndexNodes(onError, onStep, onDone) {
         );
 
     })();
-
-};
+}
 
 /**
  * Update a Node, and if needed, his parent.
@@ -389,46 +387,10 @@ exports.delete = function (req, res, next) {
     });
 };
 
-/**
- * Update a Node, and if needed, his parent.
- *
- * @param req
- * @param res
- * @param next
- */
-exports.updateMeta = function (req, res, next) {
 
-  const node = req.fileNode;
+const cleanMeta = function(meta) {
 
-  if (!node) {
-    return res.json({
-      success: false,
-      msg: 'Node doesn\'t exist !'
-    });
-  }
-
-  if (!node.isFile){
-
-    // Load All children audio file ( recursively )
-    // Add Confirmation modal if to many files (client side or server side ?)
-
-    // Loop on every node
-
-      // Change Meta in Db
-
-      // Change Meta in file itself
-
-    // Emit socket Event
-
-    // Send res
-
-    return res.json({
-      success: true,
-      msg: 'HAVE TO DO THIS FUNC!'
-    });
-  }
-
-  let newMeta = req.body.meta;
+  let cleanMeta = Object.assign({}, meta);
 
   // @todo remove this
   // Check if empty field in newMeta and not in old one
@@ -447,61 +409,203 @@ exports.updateMeta = function (req, res, next) {
   //   {}
   // );
 
+  // Set to null empty value
+  Object.keys(cleanMeta).forEach( (key) => {
+    if (cleanMeta[key] === '') cleanMeta[key] = null;
+  });
 
-  for (let i = 0, keys = Object.keys(newMeta), l = keys.length ; i < l ; i ++) {
-    if (newMeta[i] === '') newMeta[i] = null;
+  // Transform track in obj
+  if (cleanMeta.trackno) {
+    cleanMeta.track = {
+      no: cleanMeta.trackno || '0',
+      of: cleanMeta.trackof || '0',
+    };
   }
+  delete cleanMeta.trackno;
+  delete cleanMeta.trackof;
+
+  // Transform disk in obj
+  if (cleanMeta.diskno) {
+    cleanMeta.disk = {
+      no: cleanMeta.diskno || '0',
+      of: cleanMeta.diskof || '0',
+    };
+  }
+  delete cleanMeta.diskno;
+  delete cleanMeta.diskof;
 
   // Convert Genre in tab and split it
-  if (typeof newMeta.genre === 'string' || newMeta.genre instanceof String) {
-    newMeta.genre = newMeta.genre.split(/\s*[,;\/]\s*/);
+  if (typeof cleanMeta.genre === 'string' || cleanMeta.genre instanceof String) {
+    cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
   }
 
   // Doesn't exist if null empty
-  if (newMeta.albumartist === null) delete newMeta.albumartist;
-  if (newMeta.composer === null) delete newMeta.composer;
+  if (cleanMeta.albumartist === null) delete cleanMeta.albumartist;
+  if (cleanMeta.composer === null) delete cleanMeta.composer;
 
-  // Add time
-  newMeta.time = node.meta.time;
+  return cleanMeta;
 
-  node.meta = newMeta;
+};
 
-  node.save((err, node) => {
 
-    if(err){
-      return res.json({
+/**
+ * Update a Node, and if needed, his parent.
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.updateMeta = function (req, res, next) {
+
+  const node = req.fileNode;
+
+  if (!node) {
+    return res.json({
+      success: false,
+      msg: 'Node doesn\'t exist !'
+    });
+  }
+
+  let reqMeta = cleanMeta(req.body.meta);
+  let metaFlag = req.body.metaFlag;
+
+
+  if (!node.isFile){
+
+    // Load All children audio file ( recursively )
+    // Add Confirmation modal if to many files (client side or server side ?)
+    walk(node, (err, files) => {
+      if( err ) return res.json({
         success: false,
-        msg: 'Cannot save node !'
+        msg: 'Error when seeking all files saved in DB!'
       });
-    }
 
-    metaTag.saveMeta(
-      node.uri,
-      node.meta,
-      (err) => {
+      // Loop on every node & change theirs meta
+      let tmp1, tmp2;
+      for (let i = 0, l = files.length ; i < l ; i++) {
 
-        if (err) {
-          return res.json({
-            success: false,
-            msg: 'Cannot write tag in file !'
-          });
+        Object.keys(reqMeta).forEach( (key) => {
+          // Flag Do Nothing
+          if (metaFlag[key] === 'donothing') {
+            return;
+
+          // Flag Override
+          } else if (metaFlag[key] === 'override') {
+            files[i].meta[key] = reqMeta[key];
+
+          // Flag Add
+          } else {
+
+            if (typeof reqMeta[key] === 'string' || reqMeta[key] instanceof String) tmp1 = reqMeta[key].split(/\s*[,;\/]\s*/);
+            if (typeof files[i].meta[key] === 'string' || files[i].meta[key] instanceof String) tmp2 = files[i].meta[key].split(/\s*[,;\/]\s*/);
+
+            // Add element only if doesn't exists.
+            files[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
+
+          }
+        });
+      }
+
+
+      // Initialise the bulk operations array
+      const bulkOps = files.map( (file) => {
+        return {
+          "updateOne": {
+            "filter": { "_id": file._id } ,
+            "update": { "$set": { "meta": file.meta } }
+          }
         }
+      });
+
+      Node.bulkWrite(bulkOps, { "ordered": true, w: 1 }, (err, raw) => {
+
+      // Change Meta in Db
+      //Node.updateMany(files, (err, raw) => {
+
+        if (err) return res.json({
+          success: false,
+          msg: 'Error when trying to save Meta in DB!'
+        });
+
+
+        // Change Meta in file itself
+        let saveFilesErr = [];
+        // for (let i = 0, l = files.length ; i < l ; i++) {
+        //   metaTag.saveMeta(
+        //     files[i].uri,
+        //     files[i].meta,
+        //     (err) => {if (err) saveFilesErr.push(files[i].uri)}
+        //   );
+        // }
 
         //@todo add elastic update here
 
         // Emit socket event
-        socketsEvents.emit( 'save:meta', node._doc );
+        socketsEvents.emit('save:meta', files);
+
+        let msg;
+        if (saveFilesErr.length === 0){
+          msg = 'Every thing is allright';
+        } else {
+          msg = 'Meta well saved in db but some error for writing meta in files';
+        }
 
         return res.json({
           success: true,
-          msg: 'Meta saved !'
+          msg: msg
+        })
+
+
+      });
+
+    });
+
+
+
+  // Is a file
+  } else {
+
+    // Add time
+    reqMeta.time = node.meta.time;
+
+    node.meta = reqMeta;
+
+    node.save((err, node) => {
+
+      if (err) {
+        return res.json({
+          success: false,
+          msg: 'Cannot save node !'
         });
       }
-    );
+
+      metaTag.saveMeta(
+        node.uri,
+        node.meta,
+        (err) => {
+
+          if (err) {
+            return res.json({
+              success: false,
+              msg: 'Cannot write tag in file !'
+            });
+          }
+
+          //@todo add elastic update here
+
+          // Emit socket event
+          socketsEvents.emit('save:meta', [node._doc]);
+
+          return res.json({
+            success: true,
+            msg: 'Meta saved !'
+          });
+        }
+      );
 
 
-
-  });
+    });
+  }
 
 };
 
