@@ -401,16 +401,31 @@ const checkStringReturnArray = function (str) {
   if (typeof str === 'string' || str instanceof String) {
     if (str.length) return str.split(/\s*[,;\/]\s*/);
     return [];
+  } else if (!str) {
+    return [];
   }
   return str;
 };
 
-
+// @todo add check to prevent injection
 const cleanMeta = function (meta) {
 
-  let cleanMeta = Object.assign({}, meta);
+  ////// Definition
+  function removeInvalidMeta(meta){
 
-  cleanMeta.genre = checkStringReturnArray(cleanMeta.genre);
+    let metaSchema = metaTag.metaSchema();
+
+    return Object
+      .keys(meta)
+      .filter( key => metaSchema[key] !== undefined )
+      .reduce( (acc, key) => (acc[key] = meta[key], acc), {} );
+
+  }
+  //////////
+
+  let cleanMeta = removeInvalidMeta(meta);
+  if (cleanMeta.genre) cleanMeta.genre = checkStringReturnArray(cleanMeta.genre);
+
 
   return cleanMeta;
 
@@ -430,7 +445,7 @@ exports.updateMeta = async function (req, res, next) {
   const walkP = promisify(walk);
   const runElasticUpdatesP = promisify(runElasticUpdates);
 
-  // Update Node in memory
+  // Update Meta Node in memory
   function updateInMemMeta(oldNodes, reqMeta, metaAction) {
 
     let newNodes = cloneDeep(oldNodes);
@@ -519,7 +534,7 @@ exports.updateMeta = async function (req, res, next) {
 
   async function initAndCheck(req) {
 
-      if (!req.fileNode) throw new Error('Can\'t find node');
+      if (!req.fileNode && req.fileNode.collection.name !== 'nodes') throw new Error('Can\'t find node');
 
       if (!req.body.meta) throw new Error('No meta in request');
 
@@ -532,7 +547,11 @@ exports.updateMeta = async function (req, res, next) {
       });
 
       // If no action return
-      if (!somethingToDo) throw new Error('No action meta to do');
+      if (!somethingToDo) throw new Error('All action are donothing');
+
+      // Check if valid meta
+      let reqMetaClean = cleanMeta(req.body.meta);
+      if (!Object.keys(reqMetaClean).length) throw new Error('No valid Meta');
 
       let nodes;
       if (req.fileNode.isFile) {
@@ -544,7 +563,7 @@ exports.updateMeta = async function (req, res, next) {
 
       return {
         oldNodes: nodes,
-        reqMeta: cleanMeta(req.body.meta), // New meta from the request
+        reqMeta: reqMetaClean, // New meta from the request
         metaAction: req.body.metaAction // Action to do in each meta field
       }
 
@@ -571,6 +590,9 @@ exports.updateMeta = async function (req, res, next) {
 
     // Check if diff between old and new meta;
     checkDiffOldAndNewNodes(oldNodes, newNodes);
+
+    // If no newNode stop the process.
+    if (!newNodes.length) throw new Error('No node need to be update');
 
     // Update nodes meta in DB
     await updateInDbMeta(newNodes);
