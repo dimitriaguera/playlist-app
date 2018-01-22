@@ -28,6 +28,7 @@ class EditMetaTag extends Component {
     this.dropDownOpt = [
       {key: 'donothing', text: 'donothing', value: 'donothing'},
       {key: 'override', text: 'override', value: 'override'},
+      {key: 'remove', text: 'remove', value: 'remove'},
       {key: 'addvalue', text: 'addvalue', value: 'addvalue'},
     ];
 
@@ -37,7 +38,7 @@ class EditMetaTag extends Component {
       loading: false,
       message: null,
       meta: this.initMeta(props.item.meta),
-      metaFlag: { // donothing, replace, add
+      metaFlag: { // donothing, override, remove, add
         title: 'donothing',
         artist: 'donothing',
         album: 'donothing',
@@ -112,6 +113,59 @@ class EditMetaTag extends Component {
   }
 
 
+  /**
+   * Giving a string return an array split by , ; /
+   * If the input is not a string return it
+   *
+   * @param str
+   * @returns {*}
+   */
+  checkStringReturnArray(str) {
+    if (typeof str === 'string' || str instanceof String) {
+      if (str.length) return str.split(/\s*[,;\/]\s*/);
+      return [];
+    }
+    return str;
+  }
+
+  /**
+   * Replace In arr empty string
+   * @param arr
+   * @param replacer
+   * @param first if true replace first occurrence if false replace all occurrence
+   */
+  changeEmptyValInArray(arr, replacer, first) {
+    if (!first) {
+      for (let i = 0, li = arr.length; i < li; i++) {
+        if (arr[i] === '') arr = replacer;
+      }
+    } else {
+      let index = arr.indexOf('');
+      if (index !== -1) arr[index] = replacer;
+    }
+    return arr;
+  }
+
+  /**
+   * Remove duplicate value form an array
+   * @param arr
+   * @returns {[null]}
+   */
+  uniq(arr) {
+    return [...new Set(arr)];
+  }
+
+
+  cleanMeta(meta) {
+
+    let cleanMeta = Object.assign({}, meta);
+
+    cleanMeta.genre = this.checkStringReturnArray(cleanMeta.genre);
+
+    return cleanMeta;
+  }
+
+
   componentWillMount() {
 
     const _self = this;
@@ -159,47 +213,6 @@ class EditMetaTag extends Component {
         };
 
 
-        /**
-         * Giving a string return an array split by , ; /
-         * If the input is not a string return it
-         *
-         * @param str
-         * @returns {*}
-         */
-        function checkStringReturnArray(str) {
-          if (typeof str === 'string' || str instanceof String) {
-            return str.split(/\s*[,;\/]\s*/);
-          }
-          return str;
-        }
-
-        /**
-         * Replace In arr empty string
-         * @param arr
-         * @param replacer
-         * @param first if true replace first occurrence if false replace all occurrence
-         */
-        function changeEmptyValInArray(arr, replacer, first){
-          if (!first) {
-            for(let i=0, li = arr.length ; i < li; i++) {
-              if(arr[i] === "") arr = replacer;
-            }
-          } else {
-            let index = arr.indexOf('');
-            if(index !== -1) arr[index] = replacer;
-          }
-          return arr;
-        }
-
-        /**
-         * Remove duplicate value form an array
-         * @param arr
-         * @returns {[null]}
-         */
-        function uniq(arr) {
-          return [...new Set(arr)];
-        }
-
         // Helper for loop on nodes
         let iNodes, liNodes = nodes.msg.length;
 
@@ -208,20 +221,20 @@ class EditMetaTag extends Component {
 
         // Fill bulkMeta with meta in all nodes and remove duplicate value
         // for instead of forEach for perf.
-        for (jKeys = 0 ; jKeys < ljKeys ; jKeys++ ) {
+        for (jKeys = 0; jKeys < ljKeys; jKeys++) {
           for (iNodes = 0; iNodes < liNodes; iNodes++) {
-            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]]));
+            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(this.checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]]));
           }
-          bulkMeta[keys[jKeys]] = changeEmptyValInArray(uniq(bulkMeta[keys[jKeys]]), 'NOT MET', true);
+          bulkMeta[keys[jKeys]] = this.changeEmptyValInArray(this.uniq(bulkMeta[keys[jKeys]]), 'NOT MET', true);
         }
 
         // Fill state.meta if is unique and
         // fill state.existingMetaBulk is not
         let newMeta = _self.initMeta();
         let newExistingMetaBulk = {};
-        for (jKeys = 0 ; jKeys < ljKeys ; jKeys++ ) {
+        for (jKeys = 0; jKeys < ljKeys; jKeys++) {
           if (bulkMeta[keys[jKeys]].length === 1) {
-            if (bulkMeta[keys[jKeys]][0] !== undefined && bulkMeta[keys[jKeys]][0] !== 'NOT MET' ) newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
+            if (bulkMeta[keys[jKeys]][0] !== undefined && bulkMeta[keys[jKeys]][0] !== 'NOT MET') newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
           } else {
             newExistingMetaBulk[keys[jKeys]] = bulkMeta[keys[jKeys]].join(', ');
           }
@@ -304,7 +317,6 @@ class EditMetaTag extends Component {
 
     const _self = this;
 
-
     _self.setState({loading: true});
 
     // User need to be authenticated.
@@ -337,24 +349,6 @@ class EditMetaTag extends Component {
           this.handleClose();
         }
       });
-  }
-
-
-  cleanMeta(meta) {
-
-    let cleanMeta = Object.assign({}, meta);
-
-    // // Set to null empty value
-    // Object.keys(cleanMeta).forEach( (key) => {
-    //   if (cleanMeta[key] === '') cleanMeta[key] = null;
-    // });
-
-    // Convert Genre in tab and split it
-    if (typeof cleanMeta.genre === 'string' || cleanMeta.genre instanceof String) {
-      cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
-    }
-
-    return cleanMeta;
   }
 
   render() {

@@ -395,61 +395,20 @@ exports.delete = function (req, res, next) {
     });
 };
 
+const checkStringReturnArray = function (str) {
+  if (typeof str === 'string' || str instanceof String) {
+    if (str.length) return str.split(/\s*[,;\/]\s*/);
+    return [];
+  }
+  return str;
+};
+
 
 const cleanMeta = function(meta) {
 
   let cleanMeta = Object.assign({}, meta);
 
-  // @todo remove this
-  // Check if empty field in newMeta and not in old one
-  // set it to null val
-  // newMeta = Object.keys(newMeta).reduce(
-  //   (acc, key) => {
-  //     if ( newMeta[key] === '') {
-  //       if (node.meta.hasOwnProperty(key)) {
-  //         acc[key] = null;
-  //       }
-  //       return acc;
-  //     }
-  //     acc[key] = newMeta[key];
-  //     return acc;
-  //   },
-  //   {}
-  // );
-
-  // Set to null empty value
-  // Object.keys(cleanMeta).forEach( (key) => {
-  //   if (cleanMeta[key] === '') cleanMeta[key] = null;
-  // });
-
-  // Transform track in obj
-  // if (cleanMeta.trackno) {
-  //   cleanMeta.track = {
-  //     no: cleanMeta.trackno || '0',
-  //     of: cleanMeta.trackof || '0',
-  //   };
-  // }
-  // delete cleanMeta.trackno;
-  // delete cleanMeta.trackof;
-
-  // Transform disk in obj
-  // if (cleanMeta.diskno) {
-  //   cleanMeta.disk = {
-  //     no: cleanMeta.diskno || '0',
-  //     of: cleanMeta.diskof || '0',
-  //   };
-  // }
-  // delete cleanMeta.diskno;
-  // delete cleanMeta.diskof;
-
-  // Convert Genre in tab and split it
-  if (typeof cleanMeta.genre === 'string' || cleanMeta.genre instanceof String) {
-    cleanMeta.genre = cleanMeta.genre.split(/\s*[,;\/]\s*/);
-  }
-
-  // // Doesn't exist if null empty
-  // if (cleanMeta.albumartist === null) delete cleanMeta.albumartist;
-  // if (cleanMeta.composer === null) delete cleanMeta.composer;
+  cleanMeta.genre = checkStringReturnArray(cleanMeta.genre);
 
   return cleanMeta;
 
@@ -505,13 +464,13 @@ exports.updateMeta = function (req, res, next) {
           } else {
 
             if (typeof reqMeta[key] === 'string' || reqMeta[key] instanceof String) {
-                tmp1 = reqMeta[key].split(/\s*[,;\/]\s*/);
+                tmp1 = checkStringReturnArray(reqMeta[key]);
             } else {
-                tmp1 =  reqMeta[key];
+                tmp1 = reqMeta[key];
             }
 
             if (typeof files[i].meta[key] === 'string' || files[i].meta[key] instanceof String) {
-                tmp2 = files[i].meta[key].split(/\s*[,;\/]\s*/);
+                tmp2 = checkStringReturnArray(files[i].meta[key]);
             } else {
                 tmp2 = files[i].meta[key];
             }
