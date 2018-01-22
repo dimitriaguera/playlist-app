@@ -118,3 +118,14 @@ exports.testMergeArray = function(arr1, arr2) {
 exports.mergeUniqArray = function(arr1, arr2) {
   return _.uniq(arr1.concat(arr2));
 };
+
+
+/**
+ * _.difference([2, 1], [2, 3]);
+ * // => [1]
+ * @param arr1
+ * @param arr2
+ */
+exports.difference = function(arr1, arr2){
+  return _.difference(arr1, arr2);
+};
