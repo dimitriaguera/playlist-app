@@ -10,7 +10,7 @@ const taskRunner = require(path.resolve('./modules/task/server/services/task.ser
 const {clock} = require(path.resolve('./modules/core/server/services/time.server.services.js'));
 
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
-const { splitTab, pushUniq, mergeUniqArray } = require(path.resolve('./modules/core/server/services/obj.server.services'));
+const { splitTab, mergeUniqArray, difference } = require(path.resolve('./modules/core/server/services/obj.server.services'));
 
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const mongoose = require('mongoose');
@@ -452,35 +452,36 @@ exports.updateMeta = function (req, res, next) {
       for (let i = 0, l = files.length ; i < l ; i++) {
 
         Object.keys(reqMeta).forEach( (key) => {
-          // Flag Do Nothing
-          if (metaFlag[key] === 'donothing') {
-            return;
 
           // Flag Override
-          } else if (metaFlag[key] === 'override') {
+          if (metaFlag[key] === 'override') {
             files[i].meta[key] = reqMeta[key];
 
-          // Flag Add
-          } else {
+          // Flag Remove
+          } else if (metaFlag[key] === 'remove') {
 
-            if (typeof reqMeta[key] === 'string' || reqMeta[key] instanceof String) {
-                tmp1 = checkStringReturnArray(reqMeta[key]);
-            } else {
-                tmp1 = reqMeta[key];
-            }
-
-            if (typeof files[i].meta[key] === 'string' || files[i].meta[key] instanceof String) {
-                tmp2 = checkStringReturnArray(files[i].meta[key]);
-            } else {
-                tmp2 = files[i].meta[key];
-            }
+            tmp1 = checkStringReturnArray(reqMeta[key]);
+            tmp2 = checkStringReturnArray(files[i].meta[key]);
 
             // Add element only if doesn't exists.
-              if (key === 'genre') {
-                  files[i].meta[key] = mergeUniqArray(tmp1, tmp2);
-              } else {
-                  files[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
-              }
+            if (key === 'genre') {
+              files[i].meta[key] = difference(tmp2, tmp1);
+            } else {
+              files[i].meta[key] = difference(tmp2, tmp1).join(', ');
+            }
+
+          // Flag Add
+          } else if (metaFlag[key] === 'add') {
+
+            tmp1 = checkStringReturnArray(reqMeta[key]);
+            tmp2 = checkStringReturnArray(files[i].meta[key]);
+
+            // Add element only if doesn't exists.
+            if (key === 'genre') {
+                files[i].meta[key] = mergeUniqArray(tmp1, tmp2);
+            } else {
+                files[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
+            }
           }
         });
       }
