@@ -129,3 +129,42 @@ exports.mergeUniqArray = function(arr1, arr2) {
 exports.difference = function(arr1, arr2){
   return _.difference(arr1, arr2);
 };
+
+
+/**
+ * Deep diff between two object, using lodash
+ *
+ * @param  {Object} object Object compared
+ * @param  {Object} base   Object to compare with
+ * @return {Object}        Return a new object who represent the diff
+ *
+ * https://gist.github.com/Yimiprod/7ee176597fef230d1451
+ */
+exports.deepObjDifference = function (object, base) {
+
+  function changes(object, base) {
+    return _.transform(object, function(result, value, key) {
+      if (!_.isEqual(value, base[key])) {
+        result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+      }
+    });
+  }
+
+  return changes(object, base);
+};
+
+
+/**
+ * Creates a shallow clone in deep of value.
+ *
+ * @param  {Object}
+ * @return {Object} Return a copy of the object
+ *
+ * var objects = [{ 'a': 1 }, { 'b': 2 }];
+ * var shallow = _.clone(objects);
+ * console.log(shallow[0] === objects[0]);
+ * // => false
+ */
+exports.cloneDeep = function (obj){
+  return _.cloneDeep(obj);
+};
