@@ -10,7 +10,7 @@ const taskRunner = require(path.resolve('./modules/task/server/services/task.ser
 const {clock} = require(path.resolve('./modules/core/server/services/time.server.services.js'));
 
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
-const { splitTab, mergeUniqArray, difference } = require(path.resolve('./modules/core/server/services/obj.server.services'));
+const {splitTab, mergeUniqArray, difference, deepObjDifference, cloneDeep} = require(path.resolve('./modules/core/server/services/obj.server.services'));
 
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const mongoose = require('mongoose');
@@ -20,7 +20,9 @@ const metaTag = require(path.resolve('./modules/music/server/services/metaTag.se
 
 const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
-const { runElasticUpdates } = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
+const {runElasticUpdates} = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
+
+const {promisify} = require('util');
 
 // const runElasticUpdates = function( a , cb){
 //   cb();
@@ -29,19 +31,19 @@ const { runElasticUpdates } = require(path.resolve('./modules/indexableFolder/se
 // @todo put this when export conf
 const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.folder_base_url));
 
-exports.index = function(req, res, next){
+exports.index = function (req, res, next) {
 
-    // Create taskRunner instance.
-    const runTask = taskRunner.create(req, res, next);
+  // Create taskRunner instance.
+  const runTask = taskRunner.create(req, res, next);
 
-    // Start Task.
-    runTask(
-        {
-            name:'index nodes',
-            unique: true
-        },
-        runIndexNodes
-    );
+  // Start Task.
+  runTask(
+    {
+      name: 'index nodes',
+      unique: true
+    },
+    runIndexNodes
+  );
 };
 
 // function runTest(onError, onStep, onDone){
@@ -404,7 +406,7 @@ const checkStringReturnArray = function (str) {
 };
 
 
-const cleanMeta = function(meta) {
+const cleanMeta = function (meta) {
 
   let cleanMeta = Object.assign({}, meta);
 
@@ -414,7 +416,6 @@ const cleanMeta = function(meta) {
 
 };
 
-
 /**
  * Update a Node, and if needed, his parent.
  *
@@ -422,191 +423,184 @@ const cleanMeta = function(meta) {
  * @param res
  * @param next
  */
-exports.updateMeta = function (req, res, next) {
+exports.updateMeta = async function (req, res, next) {
 
-  const node = req.fileNode;
+  //////////////////////////////////////// Declaration
 
-  if (!node) {
-    return res.json({
-      success: false,
-      msg: 'Node doesn\'t exist !'
-    });
-  }
+  const walkP = promisify(walk);
+  const runElasticUpdatesP = promisify(runElasticUpdates);
 
-  let reqMeta = cleanMeta(req.body.meta);
-  let metaFlag = req.body.metaFlag;
+  // Update Node in memory
+  function updateInMemMeta(oldNodes, reqMeta, metaAction) {
 
+    let newNodes = cloneDeep(oldNodes);
 
-  if (!node.isFile){
+    // Loop on every node & change theirs meta
+    let tmp1, tmp2;
+    for (let i = 0, l = newNodes.length; i < l; i++) {
 
-    // Load All children audio file ( recursively )
-    // Add Confirmation modal if to many files (client side or server side ?)
-    walk(node, (err, files) => {
-      if( err ) return res.json({
-        success: false,
-        msg: 'Error when seeking all files saved in DB!'
-      });
+      Object.keys(reqMeta).forEach((key) => {
 
-      // Loop on every node & change theirs meta
-      let tmp1, tmp2;
-      for (let i = 0, l = files.length ; i < l ; i++) {
-
-        Object.keys(reqMeta).forEach( (key) => {
-
-          // Flag Override
-          if (metaFlag[key] === 'override') {
-            files[i].meta[key] = reqMeta[key];
+        // Flag Override
+        if (metaAction[key] === 'override') {
+          newNodes[i].meta[key] = reqMeta[key];
 
           // Flag Remove
-          } else if (metaFlag[key] === 'remove') {
+        } else if (metaAction[key] === 'remove') {
 
-            tmp1 = checkStringReturnArray(reqMeta[key]);
-            tmp2 = checkStringReturnArray(files[i].meta[key]);
+          tmp1 = checkStringReturnArray(reqMeta[key]);
+          tmp2 = checkStringReturnArray(newNodes[i].meta[key]);
 
-            // Add element only if doesn't exists.
-            if (key === 'genre') {
-              files[i].meta[key] = difference(tmp2, tmp1);
-            } else {
-              files[i].meta[key] = difference(tmp2, tmp1).join(', ');
-            }
+          // Add element only if doesn't exists.
+          if (key === 'genre') {
+            newNodes[i].meta[key] = difference(tmp2, tmp1);
+          } else {
+            newNodes[i].meta[key] = difference(tmp2, tmp1).join(', ');
+          }
 
           // Flag Add
-          } else if (metaFlag[key] === 'add') {
+        } else if (metaAction[key] === 'add') {
 
-            tmp1 = checkStringReturnArray(reqMeta[key]);
-            tmp2 = checkStringReturnArray(files[i].meta[key]);
+          tmp1 = checkStringReturnArray(reqMeta[key]);
+          tmp2 = checkStringReturnArray(newNodes[i].meta[key]);
 
-            // Add element only if doesn't exists.
-            if (key === 'genre') {
-                files[i].meta[key] = mergeUniqArray(tmp1, tmp2);
-            } else {
-                files[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
-            }
-          }
-        });
-      }
-
-
-      // Initialise the bulk operations array
-      const bulkOps = files.map( (file) => {
-        return {
-          "updateOne": {
-            "filter": { "_id": file._id } ,
-            "update": { "$set": { "meta": file.meta } }
+          // Add element only if doesn't exists.
+          if (key === 'genre') {
+            newNodes[i].meta[key] = mergeUniqArray(tmp1, tmp2);
+          } else {
+            newNodes[i].meta[key] = mergeUniqArray(tmp1, tmp2).join(', ');
           }
         }
       });
+    }
 
-      Node.bulkWrite(bulkOps, { "ordered": true, w: 1 }, (err) => {
+    return newNodes;
 
-      // Change Meta in Db
-      //Node.updateMany(files, (err, raw) => {
-
-        if (err) return res.json({
-          success: false,
-          msg: 'Error when trying to save Meta in DB!'
-        });
-
-
-        // Change Meta in file itself
-        let saveFilesErr = [];
-        // for (let i = 0, l = files.length ; i < l ; i++) {
-        //   metaTag.saveMeta(
-        //     files[i].uri,
-        //     files[i].meta,
-        //     (err) => {if (err) saveFilesErr.push(files[i].uri)}
-        //   );
-        // }
-
-        // Elastic update here
-        runElasticUpdates(files,
-          (err, data) => {
-
-            if (err) console.log(err);
-
-
-            // Emit socket event
-            socketsEvents.emit('save:meta', files);
-
-            let msg;
-            if (saveFilesErr.length === 0){
-              msg = 'Every thing is allright';
-            } else {
-              msg = 'Meta well saved in db but some error for writing meta in files';
-            }
-
-            return res.json({
-              success: true,
-              msg: msg
-            })
-          }, true
-        );
-
-
-
-
-
-      });
-
-    });
-
-
-
-  // Is a file
-  } else {
-
-    // Add time
-    reqMeta.time = node.meta.time;
-
-    node.meta = reqMeta;
-
-    node.save((err, node) => {
-
-      if (err) {
-        return res.json({
-          success: false,
-          msg: 'Cannot save node !'
-        });
-      }
-
-      metaTag.saveMeta(
-        node.uri,
-        node.meta,
-        (err) => {
-
-          if (err) {
-            return res.json({
-              success: false,
-              msg: 'Cannot write tag in file !'
-            });
-          }
-
-
-          // Elastic update here
-          runElasticUpdates([node],
-            (err, data) => {
-
-              if (err) console.log(err);
-
-              // Emit socket event
-              socketsEvents.emit('save:meta', [node._doc]);
-
-              return res.json({
-                success: true,
-                msg: 'Every thing is allright'
-              })
-            }, true
-          );
-
-        }
-      );
-
-
-    });
   }
 
-};
+  // Update node in db
+  async function updateInDbMeta(nodes) {
 
+    // Initialise the bulk operations array
+    const bulkOps = nodes.map((node) => {
+      return {
+        "updateOne": {
+          "filter": {"_id": node._id},
+          "update": {"$set": {"meta": node.meta}}
+        }
+      }
+    });
+
+    // Change Meta in Db (NB bulkWrite Return Promise
+    return Node.bulkWrite(bulkOps, {"ordered": true, w: 1});
+
+  }
+
+  // Update meta data in file
+  async function updateMetaInFile(nodes) {
+
+    let saveNodesErr = [];
+
+    // Is working because this part is sync
+    for (let i = 0, l = nodes.length; i < l; i++) {
+      metaTag.saveMeta(
+        nodes[i].uri,
+        nodes[i].meta,
+        (err) => {
+          if (err) saveNodesErr.push(nodes[i].uri);
+        }
+      );
+    }
+
+    return {nodes: nodes, error: saveNodesErr}
+
+  }
+
+
+  async function initAndCheck(req) {
+
+      if (!req.fileNode) throw new Error('Can\'t find node');
+
+      if (!req.body.meta) throw new Error('No meta in request');
+
+      if (!req.body.metaAction) throw new Error('No action meta in request');
+
+      // Check if action is need
+      let somethingToDo = false;
+      Object.keys(req.body.metaAction).forEach((key) => {
+        if (req.body.metaAction[key] !== 'donothing') somethingToDo = true;
+      });
+
+      // If no action return
+      if (!somethingToDo) throw new Error('No action meta to do');
+
+      let nodes;
+      if (req.fileNode.isFile) {
+        nodes = [req.fileNode];
+      } else {
+        // Load All children audio file ( recursively )
+        nodes = await walkP(req.fileNode);
+      }
+
+      return {
+        oldNodes: nodes,
+        reqMeta: cleanMeta(req.body.meta), // New meta from the request
+        metaAction: req.body.metaAction // Action to do in each meta field
+      }
+
+  }
+
+  function checkDiffOldAndNewNodes(oldNodes, newNodes){
+    let change;
+
+    for (let i = 0, l = oldNodes.length; i < l; i++) {
+      change = deepObjDifference(newNodes[i], oldNodes[i]);
+      if (Object.keys(change).length === 0) newNodes.splice(i, 1);
+    }
+  }
+
+  //////////////////////////////////////// END Declaration
+
+
+  try {
+
+    let {oldNodes, reqMeta, metaAction} = await initAndCheck(req);
+
+    // Update nodes meta in memory
+    let newNodes = updateInMemMeta(oldNodes, reqMeta, metaAction);
+
+    // Check if diff between old and new meta;
+    checkDiffOldAndNewNodes(oldNodes, newNodes);
+
+    // Update nodes meta in DB
+    await updateInDbMeta(newNodes);
+
+    //@todo improve promisify to access log option of runElasticUpdatesP
+    await runElasticUpdatesP(newNodes);
+
+    // Emit socket event
+    socketsEvents.emit('save:meta', newNodes);
+
+    // Update meta in files
+    updateMetaInFile(newNodes);
+
+  } catch (e) {
+
+    console.log(e);
+
+  } finally {
+
+    res.json(
+      {
+        success: true,
+        msg:'Niquel'
+      }
+    )
+  }
+
+
+
+};
 
 /**
  * Return file's Node object.

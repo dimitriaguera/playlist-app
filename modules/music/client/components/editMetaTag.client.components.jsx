@@ -29,7 +29,7 @@ class EditMetaTag extends Component {
       {key: 'donothing', text: 'donothing', value: 'donothing'},
       {key: 'override', text: 'override', value: 'override'},
       {key: 'remove', text: 'remove', value: 'remove'},
-      {key: 'addvalue', text: 'addvalue', value: 'addvalue'},
+      {key: 'add', text: 'add', value: 'add'},
     ];
 
 
@@ -38,7 +38,7 @@ class EditMetaTag extends Component {
       loading: false,
       message: null,
       meta: this.initMeta(props.item.meta),
-      metaFlag: { // donothing, override, remove, add
+      metaAction: { // donothing, override, remove, add
         title: 'donothing',
         artist: 'donothing',
         album: 'donothing',
@@ -302,12 +302,12 @@ class EditMetaTag extends Component {
 
   handleChangeDropDown(e, {name, value}) {
 
-    let oldMetaFlag = Object.assign({}, this.state.metaFlag);
+    let oldMetaAction = Object.assign({}, this.state.metaAction);
 
-    oldMetaFlag[name] = value;
+    oldMetaAction[name] = value;
 
     this.setState({
-      metaFlag: oldMetaFlag
+      metaAction: oldMetaAction
     })
 
   }
@@ -336,7 +336,7 @@ class EditMetaTag extends Component {
     let newNode = Object.assign({}, _self.props.item);
     newNode.meta = _self.cleanMeta(_self.state.meta);
 
-    newNode.metaFlag = _self.state.metaFlag;
+    newNode.metaAction = _self.state.metaAction;
 
     // User authenticated on any role can create playlist.
     _self.props.updateNode(newNode)
