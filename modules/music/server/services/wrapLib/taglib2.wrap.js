@@ -12,6 +12,7 @@ const trimObj = require('../../../../core/server/services/obj.server.services');
  */
 exports.read = function (filePath, cb) {
   try {
+
     const metadata = taglib2.readTagsSync(filePath);
 
     let cleanMeta = {};
