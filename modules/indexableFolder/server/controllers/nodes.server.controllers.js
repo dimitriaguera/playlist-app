@@ -431,16 +431,55 @@ const cleanMeta = function (meta) {
 
 };
 
+
+/**
+ * Add update meta of a Node to the taskManager
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.updateMeta = function (req, res, next) {
+
+  // Create taskRunner instance.
+  const runTask = taskRunner.create(req, res, next);
+
+  // Start Task.
+  runTask(
+    {
+      name: 'update meta',
+      unique: false
+    },
+    (onError, onStep, onDone) => updateMetaWrap(onError, onStep, onDone, req)
+  );
+};
+
+
 /**
  * Update a Node, and if needed, his parent.
  *
  * @param req
  * @param res
  * @param next
+ *
  */
-exports.updateMeta = async function (req, res, next) {
+
+async function updateMetaWrap(onError, onStep, onDone, req, opts) {
 
   //////////////////////////////////////// Declaration
+
+  opts = Object.assign(
+    {},
+    {
+      updateDB: true,
+      updateES: true,
+      updateFiles: false
+    },
+    req.body.opts,
+    opts,
+  );
+
+  let msg = {error: '', msg: ''};
 
   const walkP = promisify(walk);
   const runElasticUpdatesP = promisify(runElasticUpdates);
@@ -499,22 +538,22 @@ exports.updateMeta = async function (req, res, next) {
     // Initialise the bulk operations array
     const bulkOps = nodes.map((node) => {
       return {
-        "updateOne": {
-          "filter": {"_id": node._id},
-          "update": {"$set": {"meta": node.meta}}
+        'updateOne': {
+          'filter': {'_id': node._id},
+          'update': {'$set': {'meta': node.meta}}
         }
       }
     });
 
     // Change Meta in Db (NB bulkWrite Return Promise
-    return Node.bulkWrite(bulkOps, {"ordered": true, w: 1});
+    return Node.bulkWrite(bulkOps, {'ordered': true, w: 1});
 
   }
 
   // Update meta data in file
   async function updateMetaInFile(nodes) {
 
-    let saveNodesErr = [];
+    let filesErr = [];
 
     // Is working because this part is sync
     for (let i = 0, l = nodes.length; i < l; i++) {
@@ -522,23 +561,23 @@ exports.updateMeta = async function (req, res, next) {
         nodes[i].uri,
         nodes[i].meta,
         (err) => {
-          if (err) saveNodesErr.push(nodes[i].uri);
+          if (err) filesErr.push(nodes[i].uri);
         }
       );
     }
 
-    return {nodes: nodes, error: saveNodesErr}
+    return {nodes: nodes, filesErr: filesErr}
 
   }
 
 
   async function initAndCheck(req) {
 
-      if (!req.fileNode && req.fileNode.collection.name !== 'nodes') throw new Error('Can\'t find node');
+      if (!req.fileNode && req.fileNode.collection.name !== 'nodes') throw new Error('Can\'t find node.');
 
-      if (!req.body.meta) throw new Error('No meta in request');
+      if (!req.body.meta) throw new Error('No meta in request.');
 
-      if (!req.body.metaAction) throw new Error('No action meta in request');
+      if (!req.body.metaAction) throw new Error('No action meta in request.');
 
       // Check if action is need
       let somethingToDo = false;
@@ -547,11 +586,11 @@ exports.updateMeta = async function (req, res, next) {
       });
 
       // If no action return
-      if (!somethingToDo) throw new Error('All action are donothing');
+      if (!somethingToDo) throw new Error('All action are donothing.');
 
       // Check if valid meta
       let reqMetaClean = cleanMeta(req.body.meta);
-      if (!Object.keys(reqMetaClean).length) throw new Error('No valid Meta');
+      if (!Object.keys(reqMetaClean).length) throw new Error('No valid Meta.');
 
       let nodes;
       if (req.fileNode.isFile) {
@@ -592,37 +631,61 @@ exports.updateMeta = async function (req, res, next) {
     checkDiffOldAndNewNodes(oldNodes, newNodes);
 
     // If no newNode stop the process.
-    if (!newNodes.length) throw new Error('No node need to be update');
+    if (!newNodes.length) throw new Error('No node need to be update.');
 
     // Update nodes meta in DB
-    await updateInDbMeta(newNodes);
+    if(opts.updateDB){
+      console.log('Start Update DB for meta');
+      await updateInDbMeta(newNodes);
+      console.log('End Update DB for meta');
+      // Put message in taskmanager
+      msg.msg = `Succefully update ${Object.keys(newNodes).length}.`;
+      onStep(msg);
+    }
 
     //@todo improve promisify to access log option of runElasticUpdatesP
-    await runElasticUpdatesP(newNodes);
-
-    // Emit socket event
-    socketsEvents.emit('save:meta', newNodes);
+    if(opts.updateES) {
+      console.log('Start Update ES for meta');
+      await runElasticUpdatesP(newNodes);
+      console.log('End Update ES for meta');
+      // Put message in taskmanager
+      msg.msg = `Succefully update Elastic ${Object.keys(newNodes).length}.`;
+      onStep(msg);
+    }
 
     // Update meta in files
-    updateMetaInFile(newNodes);
+    if(opts.updateFiles) {
+      console.log('Start Update Files for meta');
+      let {filesErr} = await updateMetaInFile(newNodes);
+      console.log('END Update Files for meta');
+      // Put message in taskmanager
+      if (filesErr.length > 0) {
+        msg.msg = `Some error append when writing meta to files.`;
+        msg.errorFiles = filesErr;
+        msg.errorFilesNb = filesErr.length;
+        onStep(msg);
+      } else {
+        msg.msg = `Succefully write meta tag to all files (${Object.keys(newNodes).length}).`;
+        onStep(msg);
+      }
+    }
+
+    // Emit socket event for the client
+    socketsEvents.emit('save:meta', newNodes);
+
+    onDone(msg);
 
   } catch (e) {
 
     console.log(e);
 
-  } finally {
+    // Put message in taskmanager
+    msg = {error: e.msg};
+    onError(msg);
 
-    res.json(
-      {
-        success: true,
-        msg:'Niquel'
-      }
-    )
   }
 
-
-
-};
+}
 
 /**
  * Return file's Node object.
