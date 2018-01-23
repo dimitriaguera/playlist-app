@@ -59,6 +59,7 @@ exports.create = function( req, res, next ) {
                         task.status = 'done';
                         task.ended = Date.now();
                         task.body = body;
+
                         task.save( err => {
                             if (err) return console.error(err);
                             console.log(`Task ${task.name} started at ${task.created} successful done at ${task.ended}`);

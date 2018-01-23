@@ -648,7 +648,7 @@ async function updateMetaWrap(onError, onStep, onDone, req, opts) {
     //@todo improve promisify to access log option of runElasticUpdatesP
     if (opts.updateES) {
       console.log('Start Update ES for meta');
-      await runElasticUpdatesP(newNodes);
+      msg.elastic_update_log = await runElasticUpdatesP(newNodes);
       console.log('End Update ES for meta');
       // Put message in taskmanager
       msg.msg = `Succefully update Elastic ${Object.keys(newNodes).length}.`;
@@ -675,15 +675,16 @@ async function updateMetaWrap(onError, onStep, onDone, req, opts) {
     // Emit socket event for the client
     socketsEvents.emit('save:meta', newNodes);
 
-    onDone(msg);
+    console.log(msg);
+    onDone(JSON.stringify(msg));
 
   } catch (e) {
 
     console.log(e);
 
     // Put message in taskmanager
-    msg = {error: e.msg};
-    onError(msg);
+    msg = {msg: e.msg, error: e};
+    onError(JSON.stringify(msg));
 
   }
 
