@@ -1,7 +1,12 @@
+/**
+ * Created by Marc Foletto on 23/01/2018.
+ */
+
 import React, { Component } from 'react'
 import config from 'env/config.client'
+import {removeLast} from 'core/client/services/core.path.services'
 
-import style from './style/dropZone.scss'
+import style from './style/uploadZone.scss'
 
 
 class DropZone extends Component {
@@ -199,7 +204,7 @@ class DropZone extends Component {
       // We want to known if is a file or a folder and if the browser support folder.
       if (files.length) {
         let {items} = e.dataTransfer;
-        if (items && items.length && (items[0].webkitGetAsEntry != null)) {
+        if (items && items.length && (items[0].webkitGetAsEntry !== null)) {
           // Browser supports folders
           console.log('start');
           this.addFilesFromItems(items)
@@ -226,17 +231,24 @@ class DropZone extends Component {
     // Create a new FormData object.
     let formData = new FormData();
 
+    if (this.props.isFile) {
+      formData.set('targetPath', removeLast(this.props.targetPath));
+    } else {
+      formData.set('targetPath', this.props.targetPath);
+    }
+
+
     // Loop through each of the selected files.
     for (let i = 0, l = files.length ; i < l ; i++) {
       // Add the file to the request.
-      formData.append(`files[${i}]`, files[i], files[i].fullPath || files[i].name);
+      formData.append('files', files[i], files[i].fullPath || files[i].name);
     }
 
     // Set up the request.
     let xhr = new window.XMLHttpRequest();
 
     // Open the connection.
-    xhr.open('POST', 'api/sendFiles', true);
+    xhr.open('POST', '/api/sendFiles', true);
 
 
     // Set up a handler for when the request finishes.
@@ -264,13 +276,8 @@ class DropZone extends Component {
     }
 
     this.addFilesHandler(e);
-
-
-
     this.setState({input: true});
 
-
-    //@todo set input false after cb
   }
 
   onDragOver(e){
@@ -283,8 +290,8 @@ class DropZone extends Component {
   onDragLeave(e){
     e.preventDefault();
     e.stopPropagation();
-
-    this.setState({isHovered: false});
+    e.dataTransfer.dropEffect = 'none';
+    this.setState({isHovered: false, input: false});
   }
 
   render(){
@@ -297,10 +304,10 @@ class DropZone extends Component {
         {this.props.children}
         {this.state.input &&
           <form method="post" encType="multipart/form-data">
-              <div>
-                <label htmlFor="file">Sélectionner le fichier à envoyer</label>
-                <input type="file" id="file" name="file" multiple/>
-              </div>
+              {/*<div>*/}
+                {/*<label htmlFor="file">Sélectionner le fichier à envoyer</label>*/}
+                {/*<input type="file" id="file" name="file" multiple/>*/}
+              {/*</div>*/}
           </form>
         }
       </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Icon } from 'semantic-ui-react'
-import DropZone from './dropZone.client.components'
+import UploadZone from 'uploadZone/client/components/uploadZone.client.components'
 
 const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, onEditMetaTag, item, user, onAddItem }) => {
 
@@ -53,7 +53,7 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
     };
 
     return (
-        <DropZone>
+        <UploadZone isFile={item.isFile} targetPath={item.path}>
           <div className={classes.join(' ')}>
 
               <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
@@ -66,7 +66,7 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
 
 
           </div>
-        </DropZone>
+        </UploadZone>
     );
 };
 

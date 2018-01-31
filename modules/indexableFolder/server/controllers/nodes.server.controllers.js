@@ -4,12 +4,12 @@
 const fs = require('fs');
 const async = require('async');
 const path = require('path');
+const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const config = require(path.resolve('./config/env/config.server'));
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const taskRunner = require(path.resolve('./modules/task/server/services/task.server.services'));
 const {clock} = require(path.resolve('./modules/core/server/services/time.server.services.js'));
 
-const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const {splitTab, mergeUniqArray, difference, deepObjDifference, cloneDeep} = require(path.resolve('./modules/core/server/services/obj.server.services'));
 
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
@@ -72,6 +72,16 @@ exports.index = function (req, res, next) {
 //         }
 //     }, 20000);
 // }
+
+
+// Save many mongo docs in db
+exports.saveInDb = function(nodes, cb) {
+  Node.insertMany(nodes, (err, docs) => {
+    if (err) return cb(err);
+    cb(null, docs);
+  });
+};
+
 
 /**
  * Create Node collection reflection deep folder structure from root folder.
@@ -149,14 +159,6 @@ function runIndexNodes(onError, onStep, onDone) {
     //@todo let it here ? Closure memory problem vs cpu
     let tabOnWork;
 
-    // Save many mongo docs in db
-    function saveInDb(files, cb) {
-      Node.insertMany(files, (err) => {
-        if (err) return cb(err);
-        cb();
-      });
-    }
-
     // Save dir in DB
     function saveDirInDb(dirs, cb) {
       const dirsToSave = [];
@@ -177,7 +179,7 @@ function runIndexNodes(onError, onStep, onDone) {
         },
         (err) => {
           if (err) return cb(err);
-          saveInDb(dirsToSave, (err) => {
+          exports.saveInDb(dirsToSave, (err) => {
             if (err) return cb(err);
             cb();
           })
@@ -220,7 +222,7 @@ function runIndexNodes(onError, onStep, onDone) {
 
           console.log('End read bulk metaTag');
 
-          saveInDb(res,
+          exports.saveInDb(res,
             (err) => {
               if (err) return cbfindMetaAndSave(err);
 
@@ -752,6 +754,19 @@ exports.getFilesNode = function (req, res, next) {
     });
   })
 };
+
+exports.getNodeFromPath = function(path, cb){
+  Node
+    .findOne({path: `${ps.cleanPath(path)}`})
+    .lean()
+    .exec((err, node) => {
+      if (err) return cb(err);
+      cb(null, node);
+    })
+  ;
+
+};
+
 
 exports.getNodeFromQuery = function (req, res, next) {
 

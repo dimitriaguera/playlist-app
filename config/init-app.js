@@ -165,6 +165,7 @@ module.exports.initRoutes = function(app) {
     require('../modules/indexableFolder/server/routes/indexableFolder.server.routes')(app);
     require('../modules/music/server/routes/music.server.routes')(app);
     require('../modules/task/server/routes/task.server.routes')(app);
+    require('../modules/uploadZone/server/routes/uploadZone.server.routes.js')(app);
 
     // Let it at the end
     require('../modules/core/server/routes/core.server.routes')(app);
