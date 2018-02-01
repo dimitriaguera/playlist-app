@@ -1,6 +1,6 @@
-const WebpackDevServer = require("webpack-dev-server");
-const webpack = require("webpack");
-const fs = require("fs");
+const WebpackDevServer = require('webpack-dev-server');
+const webpack = require('webpack');
+const fs = require('fs');
 const path = require('path');
 
 const webPackConfig = require(path.resolve('./webpack.dev.js'));
@@ -29,14 +29,14 @@ var server = new WebpackDevServer(compiler, {
   // Set this if you want to enable gzip compression for assets
 
   proxy: {
-    //"**": "http://localhost:8082"
+    // "**": "http://localhost:8082"
   },
   // Set this if you want webpack-dev-server to delegate a single path to an arbitrary server.
   // Use "**" to proxy all paths to the specified server.
   // This is useful if you want to get rid of 'http://localhost:8080/' in script[src],
   // and has many other use cases (see https://github.com/webpack/webpack-dev-server/pull/127 ).
 
-  setup: function(app) {
+  setup: function (app) {
     // Here you can access the Express app object and add your own custom middleware to it.
     // For example, to define custom handlers for some paths:
     // app.get('/some/path', function(req, res) {
@@ -48,22 +48,22 @@ var server = new WebpackDevServer(compiler, {
   staticOptions: {
   },
 
-  clientLogLevel: "info",
+  clientLogLevel: 'info',
   // Control the console log messages shown in the browser when using inline mode. Can be `error`, `warning`, `info` or `none`.
 
   // webpack-dev-middleware options
   quiet: false,
   noInfo: false,
   lazy: true,
-  filename: "bundle.js",
+  filename: 'bundle.js',
   watchOptions: {
     aggregateTimeout: 300,
     poll: 1000
   },
   // It's a required option.
-  publicPath: "/static/dist/",
-  headers: { "X-Custom-Header": "yes" },
-  stats: { colors: true },
+  publicPath: '/static/dist/',
+  headers: { 'X-Custom-Header': 'yes' },
+  stats: { colors: true }
 
   // https: {
   //   cert: fs.readFileSync("path-to-cert-file.pem"),
@@ -71,5 +71,5 @@ var server = new WebpackDevServer(compiler, {
   //   cacert: fs.readFileSync("path-to-cacert-file.pem")
   // }
 });
-server.listen(8080, "localhost", function() {});
+server.listen(8080, 'localhost', function () {});
 // server.close();

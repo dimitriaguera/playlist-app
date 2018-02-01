@@ -9,7 +9,7 @@ const _ = require('lodash');
  * @param arr
  * @returns {[null]}
  */
-exports.uniq = function(Arr){
+exports.uniq = function (Arr) {
   return [...new Set(Arr)];
 };
 
@@ -18,20 +18,20 @@ exports.uniq = function(Arr){
  * @param obj
  * @returns {*}
  */
-exports.trimObj = function(obj) {
-  if ( !Array.isArray(obj) || typeof obj !== 'object' || !obj ) return obj;
+exports.trimObj = function (obj) {
+  if (!Array.isArray(obj) || typeof obj !== 'object' || !obj) return obj;
 
-  return Object.keys(obj).reduce(function(acc, key) {
+  return Object.keys(obj).reduce(function (acc, key) {
     acc[key.trim()] = typeof obj[key] === 'string' ? obj[key].trim() : trimObj(obj[key]);
     return acc;
-  }, Array.isArray(obj)? []:{});
+  }, Array.isArray(obj) ? []:{});
 };
 
 
 /**
  * Giving an array split it and return the rest
  */
-exports.splitTab = function(files, nbToSplit) {
+exports.splitTab = function (files, nbToSplit) {
   let tabOnWork;
 
   nbToSplit = (files.length > nbToSplit) ? nbToSplit : files.length;
@@ -65,14 +65,12 @@ exports.splitTab = function(files, nbToSplit) {
  * @param array
  * @param callee
  */
-exports.pushUniq = function(data , array, callee){
+exports.pushUniq = function (data, array, callee) {
+  const call = callee || elmt => elmt === data;
 
-  const call = callee ? callee : elmt => elmt === data;
-
-    if (array.findIndex(call) === -1 ){
-        array.push(data);
-    }
-
+  if (array.findIndex(call) === -1) {
+    array.push(data);
+  }
 };
 
 /**
@@ -82,15 +80,14 @@ exports.pushUniq = function(data , array, callee){
  * @param theNews
  * @returns {{deleted: *, added: *}}
  */
-exports.compareArray = function( theOlds, theNews ){
-
+exports.compareArray = function (theOlds, theNews) {
     const deleted = _.difference(theOlds, theNews);
-    const added = _.difference(theNews, theOlds);
+  const added = _.difference(theNews, theOlds);
 
-    return {
-      deleted: deleted,
-        added: added,
-    };
+  return {
+    deleted: deleted,
+    added: added
+  };
 };
 
 /**
@@ -99,14 +96,14 @@ exports.compareArray = function( theOlds, theNews ){
  * @param arr2
  * @returns {*}
  */
-exports.testMergeArray = function(arr1, arr2) {
-    // Concat arr1 and 2, remove clones
-    const newArray = _.uniq(arr1.concat(arr2));
-    // If more entry, return concat array.
-    if( newArray.length !== arr1.length ) {
-        return newArray;
-    }
-    return false;
+exports.testMergeArray = function (arr1, arr2) {
+  // Concat arr1 and 2, remove clones
+  const newArray = _.uniq(arr1.concat(arr2));
+  // If more entry, return concat array.
+  if (newArray.length !== arr1.length) {
+    return newArray;
+  }
+  return false;
 };
 
 /**
@@ -115,7 +112,7 @@ exports.testMergeArray = function(arr1, arr2) {
  * @param arr2
  * @returns {*}
  */
-exports.mergeUniqArray = function(arr1, arr2) {
+exports.mergeUniqArray = function (arr1, arr2) {
   return _.uniq(arr1.concat(arr2));
 };
 
@@ -126,7 +123,7 @@ exports.mergeUniqArray = function(arr1, arr2) {
  * @param arr1
  * @param arr2
  */
-exports.difference = function(arr1, arr2){
+exports.difference = function (arr1, arr2) {
   return _.difference(arr1, arr2);
 };
 
@@ -141,9 +138,8 @@ exports.difference = function(arr1, arr2){
  * https://gist.github.com/Yimiprod/7ee176597fef230d1451
  */
 exports.deepObjDifference = function (object, base) {
-
-  function changes(object, base) {
-    return _.transform(object, function(result, value, key) {
+  function changes (object, base) {
+    return _.transform(object, function (result, value, key) {
       if (!_.isEqual(value, base[key])) {
         result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
       }
@@ -165,6 +161,6 @@ exports.deepObjDifference = function (object, base) {
  * console.log(shallow[0] === objects[0]);
  * // => false
  */
-exports.cloneDeep = function (obj){
+exports.cloneDeep = function (obj) {
   return _.cloneDeep(obj);
 };

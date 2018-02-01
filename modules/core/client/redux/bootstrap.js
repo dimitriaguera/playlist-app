@@ -12,13 +12,12 @@ import store from './store'
  *
  */
 export default function () {
+  // Get token on sessionStorage.
+  const token = getLocalToken();
 
-    // Get token on sessionStorage.
-    const token = getLocalToken();
 
-
-    // Start boot.
-    store.dispatch(initBoot(token))
+  // Start boot.
+  store.dispatch(initBoot(token))
 }
 
 /**
@@ -27,23 +26,22 @@ export default function () {
  * @param token
  * @returns {*}
  */
-function initBoot( token ) {
-
-    // If token on sessionStorage,
-    // Request user's info from server,
-    // Then store them.
-    if ( token !== 'undefined' && !!token ) {
-        return dispatch => {
-            dispatch(get('account', {
-                types: {
-                    REQUEST_TYPE: requestBOOT,
-                    FAILURE_TYPE: failureBOOT,
-                    SUCCESS_TYPE: proceedBOOT(token)
-                }
-            }))
+function initBoot (token) {
+  // If token on sessionStorage,
+  // Request user's info from server,
+  // Then store them.
+  if (token !== 'undefined' && !!token) {
+    return dispatch => {
+      dispatch(get('account', {
+        types: {
+          REQUEST_TYPE: requestBOOT,
+          FAILURE_TYPE: failureBOOT,
+          SUCCESS_TYPE: proceedBOOT(token)
         }
+      }))
     }
+  }
 
-    // If no token, ending boot.
-    return successBOOT();
+  // If no token, ending boot.
+  return successBOOT();
 }

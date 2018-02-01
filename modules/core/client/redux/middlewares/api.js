@@ -14,58 +14,54 @@ const CALL_API = Symbol('Call API');
  * @param callAPI
  * @returns {function(*)}
  */
-function proceedCallApi( callAPI ) {
+function proceedCallApi (callAPI) {
+  return dispatch => {
+    // Build actions types called during pipe.
+    // Default, set API actions.
+    // If success, the pipe call actions on this order :
+    // REQUEST_TYPE => HOOK_TYPE (optional) => SUCCESS_TYPE
+    const { types = {} } = callAPI;
+    const { HOOK_TYPE, REQUEST_TYPE = requestAPI, FAILURE_TYPE = failureAPI, SUCCESS_TYPE = successAPI } = types;
 
-    return dispatch => {
+    // Call request action.
+    dispatch(REQUEST_TYPE());
 
-        // Build actions types called during pipe.
-        // Default, set API actions.
-        // If success, the pipe call actions on this order :
-        // REQUEST_TYPE => HOOK_TYPE (optional) => SUCCESS_TYPE
-        const { types = {} } = callAPI;
-        const { HOOK_TYPE, REQUEST_TYPE = requestAPI, FAILURE_TYPE = failureAPI, SUCCESS_TYPE = successAPI } = types;
+    // Start server request.
+    return callAPI.send()
 
-        // Call request action.
-        dispatch(REQUEST_TYPE());
+    // Server response testing.
+      .then(rep => {
+        checkStatus(rep, dispatch);
+        if (!rep.ok) {
+          return Promise.reject(rep.statusText);
+        }
+        return rep.json();
+      })
 
-        // Start server request.
-        return callAPI.send()
+    // Data send by server testing.
+      .then(data => {
+        if (!data.success) {
+          return Promise.reject(data);
+        }
+        if (HOOK_TYPE) {
+          dispatch(HOOK_TYPE(data))
+        }
+        return data
+      })
 
-            // Server response testing.
-            .then(rep => {
-                checkStatus(rep, dispatch);
-                if ( !rep.ok ) {
-                    return Promise.reject(rep.statusText);
-                }
-                return rep.json();
-            })
+    // End pipe with success call.
+      .then(data => {
+        dispatch(SUCCESS_TYPE(data));
+        return data;
+      })
 
-            // Data send by server testing.
-            .then( data => {
-
-                if ( !data.success ) {
-                    return Promise.reject(data);
-                }
-                if ( HOOK_TYPE ) {
-                    dispatch(HOOK_TYPE(data))
-                }
-                return data
-            })
-
-            // End pipe with success call.
-            .then( data => {
-
-                dispatch(SUCCESS_TYPE(data));
-                return data;
-            })
-
-            // Catch any error during pipe process.
-            .catch( err => {
-                //const errMessage = err.message ? err.message : err.msg;
-                dispatch(FAILURE_TYPE(err));
-                return err;
-            });
-    }
+    // Catch any error during pipe process.
+      .catch(err => {
+        // const errMessage = err.message ? err.message : err.msg;
+        dispatch(FAILURE_TYPE(err));
+        return err;
+      });
+  }
 }
 
 /**
@@ -75,17 +71,16 @@ function proceedCallApi( callAPI ) {
  * @param store
  */
 const api = store => next => action => {
+  // Get API symbol.
+  const callAPI = action[CALL_API];
 
-    // Get API symbol.
-    const callAPI = action[CALL_API];
+  // If no API symbol in action, exit API pipe.
+  if (typeof callAPI === 'undefined') {
+    return next(action);
+  }
 
-    // If no API symbol in action, exit API pipe.
-    if ( typeof callAPI === 'undefined' ){
-        return next(action);
-    }
-
-    // Start API pipe.
-    return next( proceedCallApi( callAPI ) );
+  // Start API pipe.
+  return next(proceedCallApi(callAPI));
 };
 
 /**
@@ -94,41 +89,40 @@ const api = store => next => action => {
  * @param res
  * @returns {*}
  */
-function checkStatus ( rep, dispatch ) {
+function checkStatus (rep, dispatch) {
+  const {status} = rep;
 
-    const {status} = rep;
-
-    if (status >= 200 && status < 300) {
-        // Everything is ok
-        return rep
-    }
-    else if (status >= 300 && status < 400) {
-        // 300 Multiple Choices
-        // 301 - Moved Permanently,
-        // 302 - Found, Moved Temporarily
-        // 304 - not modified
-        // 307 - Temporary Redirect
-        return rep
-    }
-    else if (status === 400) {
-        // Probably is a validation error
-        return rep
-    }
-    else if (status === 403 || status === 401) {
-        // 401 - Forbidden
-        // 403 - Unauthorized
-        // Logout user from store in this case.
-        return dispatch(logoutUser());
-    }
-    else if (status === 404) {
-        // Not Found
-        alert('404 !');
-        return rep
-    }
-    else if (status >= 500) {
-        // Server error
-        return rep
-    }
+  if (status >= 200 && status < 300) {
+    // Everything is ok
+    return rep
+  }
+  else if (status >= 300 && status < 400) {
+    // 300 Multiple Choices
+    // 301 - Moved Permanently,
+    // 302 - Found, Moved Temporarily
+    // 304 - not modified
+    // 307 - Temporary Redirect
+    return rep
+  }
+  else if (status === 400) {
+    // Probably is a validation error
+    return rep
+  }
+  else if (status === 403 || status === 401) {
+    // 401 - Forbidden
+    // 403 - Unauthorized
+    // Logout user from store in this case.
+    return dispatch(logoutUser());
+  }
+  else if (status === 404) {
+    // Not Found
+    alert('404 !');
+    return rep
+  }
+  else if (status >= 500) {
+    // Server error
+    return rep
+  }
 }
 
 export { CALL_API }

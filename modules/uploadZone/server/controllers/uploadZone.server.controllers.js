@@ -30,21 +30,18 @@ const {runElasticUpdates} = require(path.resolve('./modules/indexableFolder/serv
  * @param file
  * @param cb
  */
-function dest(req, file, cb){
-
+function dest (req, file, cb) {
   let newDestination = '/' + ps.cleanPath(rootOK + '/' + req.body.targetPath + '/');
 
   let stat = null;
   try {
     stat = fs.statSync(newDestination);
   } catch (err) {
-
     try {
       fs.mkdirSync(newDestination);
     } catch (e) {
       throw new Error('Don\'t manage to create directory :"' + newDestination + '"');
     }
-
   }
   if (stat && !stat.isDirectory()) {
     throw new Error('Directory cannot be created because an inode of a different type exists at "' + newDestination + '"');
@@ -58,7 +55,7 @@ function dest(req, file, cb){
  * @param file
  * @param cb
  */
-function fileName(req, file, cb){
+function fileName (req, file, cb) {
   cb(null, file.originalname)
 }
 
@@ -82,8 +79,7 @@ function fileName(req, file, cb){
  * @param file
  * @param cb
  */
-function fileFilter(req, file, cb){
-
+function fileFilter (req, file, cb) {
   const regexFile = config.fileSystem.fileAudioTypes;
   const regexSecure = config.security.secureFile;
 
@@ -99,9 +95,9 @@ function fileFilter(req, file, cb){
  */
 exports.multerUp = multer(
   {
-    //dest: 'uploads/', //  will be override by storage
+    // dest: 'uploads/', //  will be override by storage
     limits: {
-      fieldNameSize: 100, //Max field name size
+      fieldNameSize: 100, // Max field name size
       // fieldSize: // Max field value size
       fields: 2, // Max number of non-file fields
       fileSize: 20 * 1000000, // For multipart forms, the max file size (in byte = octet) for each files
@@ -119,9 +115,7 @@ exports.multerUp = multer(
 
 
 exports.afterUpload = async function (req, res, next) {
-
   try {
-
     const metaTagAsync = promisify(metaTag.read);
     const saveInDbAsync = promisify(saveInDb);
     const runElasticUpdatesP = promisify(runElasticUpdates);
@@ -142,14 +136,12 @@ exports.afterUpload = async function (req, res, next) {
 
     // Read all files in files and save it by bulk
     //  => Meta => DB => ES => Cover
-    await (async function bulkTraitement() {
-
+    await (async function bulkTraitement () {
       let tabOnWork = splitTab(files, config.index.sizeChunkNode);
       let nodesToSave, nodes;
 
       // Load Meta and Forge New Node
       nodesToSave = await Promise.all(tabOnWork.map(async function (filePath) {
-
         const file = path.parse(filePath);
 
         return {
@@ -161,7 +153,6 @@ exports.afterUpload = async function (req, res, next) {
           isFile: true,
           meta: await metaTagAsync(filePath) || metaTag.metaSchema()
         }
-
       }));
 
       // Save in Db.
@@ -174,7 +165,6 @@ exports.afterUpload = async function (req, res, next) {
 
       // If there are files to be treated start again.
       if (files.length) await bulkTraitement();
-
     })();
 
 
@@ -182,8 +172,6 @@ exports.afterUpload = async function (req, res, next) {
       success: true,
       msg: 'success'
     });
-
-
   } catch (e) {
     console.log(e);
 
@@ -191,10 +179,6 @@ exports.afterUpload = async function (req, res, next) {
       success: false,
       msg: e.message
     });
-
-
   }
-
-  
 };
 

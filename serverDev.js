@@ -5,12 +5,12 @@
 
 const app = require('./config/init-app');
 
-const server = app.startApp( {webPackServ: true} );
+const server = app.startApp({webPackServ: true});
 
 /**
  * Fine exit
  */
-function exitApp() {
+function exitApp () {
   // server.close( () => {
   //   console.log('Finished all requests');
   //   console.log('Bonne journée');

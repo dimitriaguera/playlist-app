@@ -28,38 +28,36 @@ let user;
  */
 
 describe('User API Routes tests', function () {
+  before(function (done) {
+    // Get application
+    app = require('./config/init-app');
+    server = app.startApp();
+    agent = request.agent(server);
 
-    before(function (done) {
+    done();
+  });
 
-        // Get application
-        app = require('./config/init-app');
-        server = app.startApp();
-        agent = request.agent(server);
-
-        done();
-    });
-
-    /**
+  /**
      * Login route
      * POST /api/login
      *
      */
 
-    user = {
-        username: admin,
-        password: adminpwd,
-    };
+  user = {
+    username: admin,
+    password: adminpwd
+  };
 
-    describe('POST /api/login', function () {
-        it('should be able to login with username successfully and respond with json', function (done) {
-            agent.post('/api/login')
-                .send(user)
-                .expect(200, {
-                    success: true,
-                    msg: {
-                        username: admin,
-                    }
-                }, done);
-        });
+  describe('POST /api/login', function () {
+    it('should be able to login with username successfully and respond with json', function (done) {
+      agent.post('/api/login')
+        .send(user)
+        .expect(200, {
+          success: true,
+          msg: {
+            username: admin
+          }
+        }, done);
     });
+  });
 });

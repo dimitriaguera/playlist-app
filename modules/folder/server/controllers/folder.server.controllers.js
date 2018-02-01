@@ -9,84 +9,75 @@ const errorHandler = require(path.resolve('./modules/core/server/services/error.
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 
 exports.open = function (req, res) {
+  const DRIVE = config.folder_base_url;
+  const NOT_SECURE_STRING = req.query.path;
 
-    const DRIVE = config.folder_base_url;
-    const NOT_SECURE_STRING = req.query.path;
+  const query = ps.cleanPath(NOT_SECURE_STRING);
+  const path = `${DRIVE}/${query}`;
 
-    const query = ps.cleanPath(NOT_SECURE_STRING);
-    const path = `${DRIVE}/${query}`;
+  const regexFile = config.fileSystem.fileAudioTypes;
+  const regexSecure = config.security.secureFile;
 
-    const regexFile = config.fileSystem.fileAudioTypes;
-    const regexSecure = config.security.secureFile;
+  fs.readdir(path, (err, dir) => {
+    if (err) {
+      console.log(err.message);
+      return res.status(401).json({
+        success: false,
+        msg: 'Folder not found'
+      });
+    }
 
-    fs.readdir( path, ( err, dir ) => {
+    async.map(dir, function iterator (item, callback) {
+      fs.lstat(`${path}/${item}`, (err, stats) => {
+        let result = {};
 
-        if ( err ) {
-            console.log(err.message);
-            return res.status(401).json({
-                    success: false,
-                    msg: 'Folder not found',
-                });
-        }
-
-        async.map(dir, function iterator( item, callback ){
-
-            fs.lstat( `${path}/${item}`, (err, stats) => {
-
-                let result = {};
-
-                if( !err ) {
-
-                    if ( stats.isFile() ) {
-
-                        if ( !(regexSecure.test(item) && regexFile.test(item)) ) {
-                            result = null;
-                        }
-
-                        else {
-                            result = {
-                                authorized: true,
-                                isFile: true,
-                                name: item,
-                                publicName: item.replace(regexFile, ''),
-                                path: `${query}/${item}`,
-                                uri: `${path}/${item}`,
-                                meta: {}
-                            };
-                        }
-                    }
-
-                    else {
-                        result = {
-                            authorized: true,
-                            isFile: false,
-                            name: item,
-                            path: `${query}/${item}`,
-                            uri: `${path}/${item}`
-                        };
-                    }
-                }
-
-                return callback( err, result );
-
-            });
-
-        }, function( err, results ){
-
-            if ( err ) {
-                console.log( err.message );
-                return res.json({
-                    success: false,
-                    msg: err.message,
-                });
+        if (!err) {
+          if (stats.isFile()) {
+            if (!(regexSecure.test(item) && regexFile.test(item))) {
+              result = null;
             }
 
-            return res.json({
-                success: true,
-                msg: results,
-            });
+            else {
+              result = {
+                authorized: true,
+                isFile: true,
+                name: item,
+                publicName: item.replace(regexFile, ''),
+                path: `${query}/${item}`,
+                uri: `${path}/${item}`,
+                meta: {}
+              };
+            }
+          }
+
+          else {
+            result = {
+              authorized: true,
+              isFile: false,
+              name: item,
+              path: `${query}/${item}`,
+              uri: `${path}/${item}`
+            };
+          }
+        }
+
+        return callback(err, result);
+      });
+    }, function (err, results) {
+      if (err) {
+        console.log(err.message);
+        return res.json({
+          success: false,
+          msg: err.message
         });
+      }
+
+      return res.json({
+        success: true,
+        msg: results
+      });
     });
+  });
 };
 
 /**
@@ -97,28 +88,26 @@ exports.open = function (req, res) {
  * @param res
  * @param next
  */
-exports.searchSyncFiles = function(req, res, next) {
+exports.searchSyncFiles = function (req, res, next) {
+  const DRIVE = config.folder_base_url;
+  const NOT_SECURE_STRING = req.query.path;
 
-    const DRIVE = config.folder_base_url;
-    const NOT_SECURE_STRING = req.query.path;
+  const query = ps.cleanPath(NOT_SECURE_STRING);
+  const path = `${DRIVE}/${query}`;
 
-    const query = ps.cleanPath(NOT_SECURE_STRING);
-    const path = `${DRIVE}/${query}`;
+  // Call recursive search.
+  walk(path, (err, results) => {
+    if (err) {
+      res.status(401);
+      return errorHandler.errorMessageHandler(err, req, res, next, `Can't read file.`);
+    }
 
-    // Call recursive search.
-    walk( path, (err, results) => {
-
-        if ( err ) {
-            res.status(401);
-            return errorHandler.errorMessageHandler( err, req, res, next, `Can't read file.` );
-        }
-
-        return res.json({
-            success: true,
-            count: results.length,
-            msg: results,
-        });
-    }, query);
+    return res.json({
+      success: true,
+      count: results.length,
+      msg: results
+    });
+  }, query);
 };
 
 
@@ -132,53 +121,50 @@ exports.searchSyncFiles = function(req, res, next) {
  * @param done
  * @param p
  */
-const walk = function(dir, done, p) {
+const walk = function (dir, done, p) {
+  const regexFile = config.fileSystem.fileAudioTypes;
+  const regexSecure = config.security.secureFile;
 
-    const regexFile = config.fileSystem.fileAudioTypes;
-    const regexSecure = config.security.secureFile;
+  let results = [];
 
-    let results = [];
+  fs.readdir(dir, function (err, list) {
+    if (err) return done(err);
 
-    fs.readdir(dir, function(err, list) {
+    let i = 0;
 
-        if (err) return done(err);
+    (function next () {
+      let name = list[i++];
 
-        let i = 0;
+      if (!name) return done(null, results);
 
-        (function next() {
+      let relPath = p + '/' + name;
+      let file = dir + '/' + name;
 
-            let name = list[i++];
-
-            if (!name) return done(null, results);
-
-            let relPath = p + '/' + name;
-            let file = dir + '/' + name;
-
-            fs.stat(file, function(err, stat) {
-                if (stat && stat.isDirectory()) {
-                    walk(file, function(err, res) {
-                        results = results.concat(res);
-                        next();
-                    }, relPath);
-                } else {
-                    if ( regexSecure.test(name) && regexFile.test(name) ){
-                        results.push(
-                          {
-                            authorized: true,
-                            isFile: true,
-                            name: name,
-                            publicName: name.replace(regexFile, ''),
-                            path: relPath,
-                            uri: file,
-                            meta: {}
-                          }
-                        );
-                    }
-                    next();
-                }
-            });
-        })();
-    });
+      fs.stat(file, function (err, stat) {
+        if (stat && stat.isDirectory()) {
+          walk(file, function (err, res) {
+            results = results.concat(res);
+            next();
+          }, relPath);
+        } else {
+          if (regexSecure.test(name) && regexFile.test(name)) {
+            results.push(
+              {
+                authorized: true,
+                isFile: true,
+                name: name,
+                publicName: name.replace(regexFile, ''),
+                path: relPath,
+                uri: file,
+                meta: {}
+              }
+            );
+          }
+          next();
+        }
+      });
+    })();
+  });
 };
 
 

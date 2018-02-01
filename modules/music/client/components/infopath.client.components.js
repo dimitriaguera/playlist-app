@@ -6,20 +6,18 @@ import React, { Component } from 'react'
 import style from './style/infopath.scss'
 
 class InfoPath extends Component {
+  render () {
+    const { meta } = this.props;
+    const { artist, album, year, track, time, genre, disk } = meta;
 
-    render() {
-
-        const { meta } = this.props;
-        const { artist, album, year, track, time, genre, disk } = meta;
-
-        return (
-            <span className='ip-container'>
-                <span className='ip-item'>
-                {artist} | {album} | {year} | track {track.no}
-                </span>
-            </span>
-        );
-    };
+    return (
+      <span className='ip-container'>
+        <span className='ip-item'>
+          {artist} | {album} | {year} | track {track.no}
+        </span>
+      </span>
+    );
+  };
 }
 
 // class InfoPath extends Component {

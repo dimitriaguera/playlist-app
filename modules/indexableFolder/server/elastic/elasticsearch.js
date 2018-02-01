@@ -11,22 +11,22 @@ let client = null;
 
 // Instantiate ES client.
 // @t
-if (process.env.NODE_ENV === 'production'){
+if (process.env.NODE_ENV === 'production') {
   client = new elasticsearch.Client({
     host: 'localhost:9200',
     requestTimeout: 60000,
     log: [
       {
         type: 'stdio', // default
-        level: 'error',
-      },
+        level: 'error'
+      }
     // {
     //   type: 'file',
     //   level: 'trace',
     //   // config options specific to file type loggers
     //   path: '/var/log/elasticsearch.log'
     // }
-  ]
+    ]
   });
 } else {
   client = new elasticsearch.Client({

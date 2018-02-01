@@ -8,22 +8,22 @@ const TOKEN_KEY = 'token';
  *
  * @param token
  */
-export function setLocalToken( token ) {
-    sessionStorage.setItem(TOKEN_KEY, token);
+export function setLocalToken (token) {
+  sessionStorage.setItem(TOKEN_KEY, token);
 }
 
 /**
  * Return token from sessionStorage.
  *
  */
-export function getLocalToken() {
-    return sessionStorage.getItem(TOKEN_KEY);
+export function getLocalToken () {
+  return sessionStorage.getItem(TOKEN_KEY);
 }
 
 /**
  * Remove token from sessionStorage.
  *
  */
-export function clearLocalStorage() {
-    sessionStorage.removeItem(TOKEN_KEY);
+export function clearLocalStorage () {
+  sessionStorage.removeItem(TOKEN_KEY);
 }

@@ -9,8 +9,7 @@ const mm = require('music-metadata');
  * @param filePath
  * @param cb
  */
-exports.read = function read(filePath, cb) {
-
+exports.read = function read (filePath, cb) {
   mm.parseFile(filePath,
     {
       native: false,
@@ -19,14 +18,12 @@ exports.read = function read(filePath, cb) {
     }
   )
     .then(function (metadata) {
-
-      try{
-
+      try {
         let cleanMeta = {};
 
-        cleanMeta.title = metadata.common.title  || '';
-        cleanMeta.artist = metadata.common.artist  || '';
-        cleanMeta.album = metadata.common.album  || '';
+        cleanMeta.title = metadata.common.title || '';
+        cleanMeta.artist = metadata.common.artist || '';
+        cleanMeta.album = metadata.common.album || '';
 
         // Change date to string
         cleanMeta.year = metadata.common.year ? (metadata.common.year + '') : '';
@@ -34,7 +31,7 @@ exports.read = function read(filePath, cb) {
         // Change time to ms in MM:SS and convert it to string
         if (metadata.format.duration) {
           cleanMeta.time = new Date(metadata.format.duration * 1000).toISOString().substr(11, 8);
-          if (cleanMeta.time.substr(0,2) === '00') cleanMeta.time = cleanMeta.time.substr(3, 6);
+          if (cleanMeta.time.substr(0, 2) === '00') cleanMeta.time = cleanMeta.time.substr(3, 6);
         } else {
           cleanMeta.time = '';
         }
@@ -49,12 +46,11 @@ exports.read = function read(filePath, cb) {
         // cleanMeta.composer doesn't exist if null empty
         cleanMeta.composer = metadata.common.composer.join('/') || '';
 
-        //@todo implement label
+        // @todo implement label
         cleanMeta.label = '';
 
         // Forge track field
         if (metadata.common.track) {
-
           if (metadata.common.track.no === null) {
             cleanMeta.trackno = '0';
           } else {
@@ -89,15 +85,12 @@ exports.read = function read(filePath, cb) {
 
 
         // NOT Trim Obj beacause mm already does that
-        cb( null , cleanMeta );
-
+        cb(null, cleanMeta);
       } catch (e) {
         console.log('Error when reading/cleaning tag with mm');
         console.trace(e);
-        cb( e );
+        cb(e);
       }
-
-
     })
     .catch(function (err) {
       cb(err);
@@ -107,8 +100,7 @@ exports.read = function read(filePath, cb) {
 /**
  * Extract Picture from a track with music-metadata
  */
-function readPict(filePath, cb) {
-
+function readPict (filePath, cb) {
   mm.parseFile(filePath,
     {
       native: false,
@@ -116,7 +108,7 @@ function readPict(filePath, cb) {
       skipCovers: false
     }
   )
-    .then( (metadata) => {
+    .then((metadata) => {
       if (metadata && metadata.common.picture[0]) {
         return cb(null,
           {
@@ -134,14 +126,12 @@ function readPict(filePath, cb) {
 exports.readPict = readPict;
 
 
-exports.readPictAndSave = function readPictAndSave(input, output, cb) {
-
+exports.readPictAndSave = function readPictAndSave (input, output, cb) {
   const saveToJpeg = require('../picture.server.services');
 
   readPict(input, (err, data) => {
-      if (err) return cb(err);
-      saveToJpeg.saveToJpeg(data.pict, output, cb)
-    }
+    if (err) return cb(err);
+    saveToJpeg.saveToJpeg(data.pict, output, cb)
+  }
   );
-
 };

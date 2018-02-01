@@ -17,7 +17,7 @@ initSocketConnectors(store);
 
 // Root App Rendered on DOM.
 ReactDOM.render((
-    <Provider store={store}>
-            <Boot />
-    </Provider>
+  <Provider store={store}>
+    <Boot />
+  </Provider>
 ), document.getElementById('root'));

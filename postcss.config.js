@@ -3,7 +3,7 @@
  */
 
 module.exports = ({file, options, env}) => ({
-    plugins: {
-        autoprefixer: env === 'production' ? {} : false,
-    }
+  plugins: {
+    autoprefixer: env === 'production' ? {} : false
+  }
 });

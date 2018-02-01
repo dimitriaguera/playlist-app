@@ -6,8 +6,8 @@ const request = require('supertest');
 const should = require('should');
 const path = require('path');
 const mongoose = require('mongoose');
-//const User = mongoose.model('User');
-//const config = require(path.resolve('./config/env/config'));
+// const User = mongoose.model('User');
+// const config = require(path.resolve('./config/env/config'));
 const express = require(path.resolve('./config/init-app'));
 
 
@@ -28,41 +28,39 @@ let user;
  */
 
 describe('User API Routes tests', function () {
+  before(function (done) {
+    // Get application
+    app = require('../config/init-app');
+    server = app.startApp();
+    agent = request.agent(server);
 
-    before(function (done) {
+    done();
+  });
 
-        // Get application
-        app = require('../config/init-app');
-        server = app.startApp();
-        agent = request.agent(server);
-
-        done();
-    });
-
-    /**
+  /**
      * Login route
      * POST /api/login
      *
      */
 
-    user = {
-        username: 'admin',
-        password: 'adminpwd',
-    };
+  user = {
+    username: 'admin',
+    password: 'adminpwd'
+  };
 
-    describe('POST /api/login', function () {
-        it('should be able to login with username successfully and respond with json', function (done) {
-            agent.post('/api/login')
-                .send(user)
-                .expect(200)
-                .end(function(err, res) {
-                    if (err) return done(err);
+  describe('POST /api/login', function () {
+    it('should be able to login with username successfully and respond with json', function (done) {
+      agent.post('/api/login')
+        .send(user)
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
 
-                    res.body.success.should.equals( true );
-                    res.body.msg.user.username.should.equals( 'admin' );
+          res.body.success.should.equals(true);
+          res.body.msg.user.username.should.equals('admin');
 
-                    return done();
-                });
+          return done();
         });
     });
+  });
 });

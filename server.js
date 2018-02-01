@@ -11,8 +11,8 @@ const server = app.startApp();
 /**
  * Fine exit
  */
-function exitApp() {
-  server.close( () => {
+function exitApp () {
+  server.close(() => {
     console.log('Finished all requests');
     console.log('Bonne journée');
     process.exit();
