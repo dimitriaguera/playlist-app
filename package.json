@@ -11,8 +11,8 @@
     "watch": "cross-env NODE_ENV=development webpack -w --progress --config webpack.dev.js",
     "start-prod": "cross-env NODE_ENV=production node server",
     "build-prod": "cross-env NODE_ENV=production webpack --progress --config webpack.prod.js",
-    "lint": "eslint **/*.js?",
-    "lintfix": "eslint **/*.js? --fix"
+    "lint": "eslint .",
+    "lintfix": "eslint . --fix"
   },
   "browserslist": [
     "> 1%",
