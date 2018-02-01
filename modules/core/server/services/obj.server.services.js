@@ -24,7 +24,7 @@ exports.trimObj = function (obj) {
   return Object.keys(obj).reduce(function (acc, key) {
     acc[key.trim()] = typeof obj[key] === 'string' ? obj[key].trim() : trimObj(obj[key]);
     return acc;
-  }, Array.isArray(obj) ? []:{});
+  }, Array.isArray(obj) ? [] : {});
 };
 
 
@@ -66,7 +66,7 @@ exports.splitTab = function (files, nbToSplit) {
  * @param callee
  */
 exports.pushUniq = function (data, array, callee) {
-  const call = callee || elmt => elmt === data;
+  const call = callee || (elmt => elmt === data);
 
   if (array.findIndex(call) === -1) {
     array.push(data);
@@ -81,7 +81,7 @@ exports.pushUniq = function (data, array, callee) {
  * @returns {{deleted: *, added: *}}
  */
 exports.compareArray = function (theOlds, theNews) {
-    const deleted = _.difference(theOlds, theNews);
+  const deleted = _.difference(theOlds, theNews);
   const added = _.difference(theNews, theOlds);
 
   return {
