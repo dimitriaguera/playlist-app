@@ -22,7 +22,7 @@ exports.trimObj = function (obj) {
   if (!Array.isArray(obj) || typeof obj !== 'object' || !obj) return obj;
 
   return Object.keys(obj).reduce(function (acc, key) {
-    acc[key.trim()] = typeof obj[key] === 'string' ? obj[key].trim() : trimObj(obj[key]);
+    acc[key.trim()] = typeof obj[key] === 'string' ? obj[key].trim() : exports.trimObj(obj[key]);
     return acc;
   }, Array.isArray(obj) ? [] : {});
 };
@@ -164,3 +164,16 @@ exports.deepObjDifference = function (object, base) {
 exports.cloneDeep = function (obj) {
   return _.cloneDeep(obj);
 };
+
+
+/**
+ * This function flatten an array of array deeply
+ * @param arr
+ */
+exports.flattenDeep = function (arr) {
+  return arr.reduce(
+    (flat, toFlatten) => flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten),
+    []
+  );
+};
+
