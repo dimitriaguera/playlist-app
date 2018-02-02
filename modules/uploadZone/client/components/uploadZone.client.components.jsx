@@ -20,9 +20,7 @@ class DropZone extends Component {
 
     this.state = {
       isHovered: false,
-      input: false,
-      files: [],
-      ignoredFiles: []
+      input: false
     }
   }
 
@@ -45,28 +43,9 @@ class DropZone extends Component {
 
   }
 
-
-  addFile(file){
-    return new Promise( (resolve) => {
-      if( (config.fileSystem.fileAudioTypes.test(file.name) || config.fileSystem.fileImageTypes.test(file.name)) &&
-          file.name.substring(0, 1) !== '.') {
-
-            this.setState(prevState => ({
-              files: [...prevState.files, file]
-            }));
-
-      } else {
-            this.setState(prevState => ({
-              ignoredFiles: [...prevState.ignoredFiles, file]
-            }));
-     }
-
-      resolve(file);
-    });
-  }
-
+  // Use File and Directory Entries API if exist (this permit to upload folder)
+  // Put every file from a directory and create a fullPath.
   addFilesFromDirectory(directory, path) {
-
     // This promise is resolved when all items are resolved
     return new Promise( (resolveOne, rejectOne) => {
 
@@ -75,25 +54,16 @@ class DropZone extends Component {
       let _self = this;
 
       (function readEntries() {
-
           // According to the FileSystem API spec, readEntries() must be called until
           // it calls the callback with an empty array.
           reader.readEntries( (entries) => {
-
               if (!entries.length) {
-
                 // Done iterating this particular directory
-                Promise.all(promises)
-                  .then(
-                    (files) => {
-                      resolveOne(files);
-                    }
-                  );
+                Promise
+                  .all(promises)
+                  .then(files => resolveOne(files));
               } else {
-
-
                 for (let entry of entries) {
-
                   // FILES
                   if (entry.isFile) {
                     promises.push(
@@ -107,50 +77,41 @@ class DropZone extends Component {
                         );
                       })
                     );
-
                   // DIRECTORIES
                   } else if (entry.isDirectory) {
                     promises.push(_self.addFilesFromDirectory(entry, `${path}/${entry.name}`));
                   }
                 }
-
                 // calling readEntries() again for the same dir
                 readEntries();
-
               }
             },
-
             error => rejectOne(error)
-
           );
-
       })();
-
     });
-
   }
 
-
+  // Use File and Directory Entries API if exist (this permit to upload folder)
   // When a folder is dropped items must be handled
   // Copied from Dropzone.js www.dropzonejs.com/
   addFilesFromItems(items){
-
     // This promise is resolved when all items are resolved
-    return new Promise( (resolveOne, rejectOne) => {
+    return new Promise( (resolve, reject) => {
 
       let promises = [];
 
       for (let item of items) {
         let entry;
-        if ((item.webkitGetAsEntry != null) && (entry = item.webkitGetAsEntry())) {
+        if ((item.webkitGetAsEntry !== null) && (entry = item.webkitGetAsEntry())) {
           if (entry.isFile) {
             promises.push(this.addFile(item.getAsFile()));
           } else if (entry.isDirectory) {
             // Append all files from that directory to files
             promises.push(this.addFilesFromDirectory(entry, entry.name));
           }
-        } else if (item.getAsFile != null) {
-          if ((item.kind == null) || (item.kind === "file")) {
+        } else if (item.getAsFile !== null) {
+          if ((item.kind === null) || (item.kind === "file")) {
             promises.push(this.addFile(item.getAsFile()));
           }
         }
@@ -158,13 +119,8 @@ class DropZone extends Component {
 
       Promise
         .all(promises)
-        .then ((files) => {
-
-          resolveOne(files);
-        })
-        .catch((error) => {
-          rejectOne(error);
-        })
+        .then(items => resolve(items))
+        .catch(error => reject(error))
       ;
 
     })
@@ -172,10 +128,8 @@ class DropZone extends Component {
   }
 
   addFiles(files) {
-
     // This promise is resolve when all items are resolved
-    return new Promise( (resolveOne, rejectOne) => {
-
+    return new Promise( (resolve, reject) => {
       // Array of promise for all files
       let promises = [];
 
@@ -185,20 +139,28 @@ class DropZone extends Component {
 
       Promise
         .all(promises)
-        .then ((files) => {
-          resolveOne(files);
-        })
-        .catch((error) => {
-          rejectOne(error);
-        })
+        .then(files => resolve(files))
+        .catch(error => reject(error))
       ;
-
     });
-
   }
 
-  addFilesHandler(e) {
+  // At the end this function is call for every files
+  // with or without the File Api
+  // Check type of file and add accepted prop.
+  addFile(file){
+    return new Promise( (resolve) => {
+      file.accepted = (config.fileSystem.fileAudioTypes.test(file.name) || config.fileSystem.fileImageTypes.test(file.name)) &&
+        file.name.substring(0, 1) !== '.';
 
+      resolve(file);
+    });
+  }
+
+
+  // Use File and Directory Entries API if exist (this permit to upload folder)
+  // Else use just event data.
+  addFilesHandler(e) {
       let {files} = e.dataTransfer;
 
       // We want to known if is a file or a folder and if the browser support folder.
@@ -206,23 +168,20 @@ class DropZone extends Component {
         let {items} = e.dataTransfer;
         if (items && items.length && (items[0].webkitGetAsEntry !== null)) {
           // Browser supports folders
-          console.log('start');
           this.addFilesFromItems(items)
-            .then(() => {
-              this.sendFiles(this.state.files);
-            })
-            .catch(e => {
-              console.log(e);
-            });
+            .then(files => this.sendFiles(files))
+            .catch(e => console.log(e));
         } else {
           this.addFiles(files)
-            .then((files) => console.log('finished'))
-            .catch(e => {
-              console.log(e);
-            });
+            .then(files => this.sendFiles(files))
+            .catch(e => console.log(e));
         }
       }
 
+  }
+
+  flatten(arr) {
+    return arr.reduce( (flat, toFlatten) => flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten), []);
   }
 
 
@@ -237,11 +196,12 @@ class DropZone extends Component {
       formData.set('targetPath', this.props.targetPath);
     }
 
+    files = this.flatten(files);
 
     // Loop through each of the selected files.
     for (let i = 0, l = files.length ; i < l ; i++) {
       // Add the file to the request.
-      formData.append('files', files[i], files[i].fullPath || files[i].name);
+      if (files[i].accepted) formData.append('files', files[i], files[i].fullPath || files[i].name);
     }
 
     // Set up the request.
