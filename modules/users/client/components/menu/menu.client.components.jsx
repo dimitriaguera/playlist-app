@@ -12,43 +12,43 @@ import { activatePlaylist } from 'music/client/redux/actions'
  * Account menu entry and sub-menu.
  *
  */
-const AccountItemInner = ( {user, logoutHandler} ) => {
-    console.log('render account item');
-    return (
-        <Menu.Menu position='right'>
-            <Dropdown text={user.username} pointing className='link item'>
-                <Dropdown.Menu>
-                    <Dropdown.Item as={Link} to='/account'>My account</Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item as="a" href='#' onClick={ logoutHandler }>Logout</Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
-        </Menu.Menu>
-    );
+const AccountItemInner = ({user, logoutHandler}) => {
+  console.log('render account item');
+  return (
+    <Menu.Menu position='right'>
+      <Dropdown text={user.username} pointing className='link item'>
+        <Dropdown.Menu>
+          <Dropdown.Item as={Link} to='/account'>My account</Dropdown.Item>
+          <Dropdown.Divider />
+          <Dropdown.Item as='a' href='#' onClick={logoutHandler}>Logout</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+    </Menu.Menu>
+  );
 };
 
 const mapStateToProps = state => {
-    return {
-        user: state.authenticationStore._user,
-    }
+  return {
+    user: state.authenticationStore._user
+  }
 };
 
-const mapDispatchToProps = ( dispatch ) => {
-    return {
-        logoutHandler: e => {
-            e.preventDefault();
-            dispatch(logoutUser());
+const mapDispatchToProps = (dispatch) => {
+  return {
+    logoutHandler: e => {
+      e.preventDefault();
+      dispatch(logoutUser());
 
-            // AddExt.
-            dispatch(activatePlaylist(null));
-            // End AddExt.
-        }
+      // AddExt.
+      dispatch(activatePlaylist(null));
+      // End AddExt.
     }
+  }
 };
 
 export const AccountItem = connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(AccountItemInner);
 
 
@@ -57,9 +57,9 @@ export const AccountItem = connect(
  *
  */
 export const LoginItem = () => (
-    <Menu.Menu position='right'>
-        <Menu.Item as={Link} to='/Login'>Login</Menu.Item>
-    </Menu.Menu>
+  <Menu.Menu position='right'>
+    <Menu.Item as={Link} to='/Login'>Login</Menu.Item>
+  </Menu.Menu>
 );
 
 /**

@@ -6,151 +6,146 @@ import { Menu, Icon } from 'semantic-ui-react'
 
 
 class PlayingControls extends Component {
+  constructor () {
+    super();
 
-    constructor() {
+    this.onPauseHandler = this.onPauseHandler.bind(this);
+    this.onPlayHandler = this.onPlayHandler.bind(this);
+    this.onNextHandler = this.onNextHandler.bind(this);
+    this.onPrevHandler = this.onPrevHandler.bind(this);
+  }
 
-        super();
+  onPlayHandler (e) {
+    const _self = this;
+    const pl = this.props.playlist;
 
-        this.onPauseHandler = this.onPauseHandler.bind(this);
-        this.onPlayHandler = this.onPlayHandler.bind(this);
-        this.onNextHandler = this.onNextHandler.bind(this);
-        this.onPrevHandler = this.onPrevHandler.bind(this);
+    if (this.props.playingList.pl === pl) {
+      this.props.play();
     }
-
-    onPlayHandler(e) {
-        const _self = this;
-        const pl = this.props.playlist;
-
-        if ( this.props.playingList.pl === pl ) {
-            this.props.play();
-        }
-        else {
-
-            this.props.getPlaylist(pl.title)
-                .then((data) => {
-                    if(data.success){
-                        _self.props.onPlay({
-                            pl: data.msg,
-                            onPlayIndex: 0,
-                        });
-                    }
-                });
-
-        }
-    }
-
-    onPauseHandler(e) {
-        this.props.pause();
-    }
-
-    onNextHandler(e) {
-        const { nextTracks, playingList, playlist } = this.props;
-        const { onPlayIndex } = playingList;
-
-        nextTracks({
-            onPlayIndex: onPlayIndex + 1,
-            pl: playlist,
+    else {
+      this.props.getPlaylist(pl.title)
+        .then((data) => {
+          if (data.success) {
+            _self.props.onPlay({
+              pl: data.msg,
+              onPlayIndex: 0
+            });
+          }
         });
     }
+  }
 
-    onPrevHandler(e) {
-        const { nextTracks, playingList, playlist } = this.props;
-        const { onPlayIndex } = playingList;
+  onPauseHandler (e) {
+    this.props.pause();
+  }
 
-        nextTracks({
-            onPlayIndex: onPlayIndex - 1,
-            pl: playlist,
-        });
-    }
+  onNextHandler (e) {
+    const { nextTracks, playingList, playlist } = this.props;
+    const { onPlayIndex } = playingList;
 
-    render() {
+    nextTracks({
+      onPlayIndex: onPlayIndex + 1,
+      pl: playlist
+    });
+  }
 
-        const { playingList, isPaused, playlist } = this.props;
-        const { onPlayIndex, pl } = playingList;
+  onPrevHandler (e) {
+    const { nextTracks, playingList, playlist } = this.props;
+    const { onPlayIndex } = playingList;
 
-        // Test if menu linked with active playlist.
-        const isActive = pl && (pl.title === playlist.title);
-        const disable = ( !playlist.length );
+    nextTracks({
+      onPlayIndex: onPlayIndex - 1,
+      pl: playlist
+    });
+  }
 
-        const playPauseBtn = () => {
-            // If active playlist and on play, display Pause button.
-            if ( isActive && !isPaused ) return (
-                <Menu.Item onClick={this.onPauseHandler}>
-                    <Icon name='pause' />
-                </Menu.Item>
-            );
-            // Else display Play button.
-            else return (
-                <Menu.Item disabled={disable} onClick={this.onPlayHandler}>
-                    <Icon disabled={disable} name='play' />
-                </Menu.Item>
-            );
-        };
+  render () {
+    const { playingList, isPaused, playlist } = this.props;
+    const { onPlayIndex, pl } = playingList;
 
-        const leftBtn = () => {
-            if ( isActive ) {
-                const disabled = ( onPlayIndex === 0 );
-                return (
-                    <Menu.Item disabled={disabled} onClick={this.onPrevHandler}>
-                        <Icon disabled={disabled} name='left chevron'/>
-                    </Menu.Item>
-                );
-            }
-            return null;
-        };
+    // Test if menu linked with active playlist.
+    const isActive = pl && (pl.title === playlist.title);
+    const disable = (!playlist.length);
 
-        const rightBtn = () => {
-            if ( isActive ) {
-                const disabled = ( onPlayIndex + 1 === playlist.length );
-                return (
-                    <Menu.Item disabled={disabled} onClick={this.onNextHandler}>
-                        <Icon disabled={disabled} name='right chevron'/>
-                    </Menu.Item>
-                );
-            }
-            return null;
-        };
+    const playPauseBtn = () => {
+      // If active playlist and on play, display Pause button.
+      if (isActive && !isPaused) { return (
+        <Menu.Item onClick={this.onPauseHandler}>
+          <Icon name='pause' />
+        </Menu.Item>
+      ); }
+      // Else display Play button.
+      else { return (
+        <Menu.Item disabled={disable} onClick={this.onPlayHandler}>
+          <Icon disabled={disable} name='play' />
+        </Menu.Item>
+      ); }
+    };
 
+    const leftBtn = () => {
+      if (isActive) {
+        const disabled = (onPlayIndex === 0);
         return (
-            <Menu color='blue' secondary={true} inverted={isActive}>
-                {leftBtn()}
-                {playPauseBtn()}
-                {rightBtn()}
-            </Menu>
+          <Menu.Item disabled={disabled} onClick={this.onPrevHandler}>
+            <Icon disabled={disabled} name='left chevron' />
+          </Menu.Item>
         );
-    }
+      }
+      return null;
+    };
+
+    const rightBtn = () => {
+      if (isActive) {
+        const disabled = (onPlayIndex + 1 === playlist.length);
+        return (
+          <Menu.Item disabled={disabled} onClick={this.onNextHandler}>
+            <Icon disabled={disabled} name='right chevron' />
+          </Menu.Item>
+        );
+      }
+      return null;
+    };
+
+    return (
+      <Menu color='blue' secondary inverted={isActive}>
+        {leftBtn()}
+        {playPauseBtn()}
+        {rightBtn()}
+      </Menu>
+    );
+  }
 }
 
 const mapStateToProps = state => {
-    return {
-        playingList: state.playlistStore.playingList,
-        isPaused: state.playlistStore.pause,
-    }
+  return {
+    playingList: state.playlistStore.playingList,
+    isPaused: state.playlistStore.pause
+  }
 };
 
 const mapDispatchToProps = dispatch => {
-    return {
-        pause: () => dispatch(
-            pauseState()
-        ),
-        play: () => dispatch(
-            playState()
-        ),
-        getPlaylist: ( title ) => dispatch(
-            get(`playlist/${title}`)
-        ),
-        onPlay: ( item ) => dispatch(
-            playOnPlaylist( item )
-        ),
-        nextTracks: ( item ) => dispatch(
-            playOnPlaylist( item )
-        ),
-    }
+  return {
+    pause: () => dispatch(
+      pauseState()
+    ),
+    play: () => dispatch(
+      playState()
+    ),
+    getPlaylist: (title) => dispatch(
+      get(`playlist/${title}`)
+    ),
+    onPlay: (item) => dispatch(
+      playOnPlaylist(item)
+    ),
+    nextTracks: (item) => dispatch(
+      playOnPlaylist(item)
+    )
+  }
 };
 
 const PlayingControlsContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(PlayingControls);
 
 export default PlayingControlsContainer
