@@ -15,20 +15,18 @@ const Schema = mongoose.Schema;
 /**
  * Check basics needs on config file.
  */
-const checkConfig = function() {
+const checkConfig = function () {
+  // Check if NODE_ENV is set.
+  if (!process.env.NODE_ENV) {
+    // If no NODE_ENV, default set to development.
+    console.error(chalk.red('WARNING: NODE_ENV is not defined! Set development environment by default'));
+    process.env.NODE_ENV = 'development';
+  }
 
-    // Check if NODE_ENV is set.
-    if ( !process.env.NODE_ENV ) {
-
-        // If no NODE_ENV, default set to development.
-        console.error(chalk.red('WARNING: NODE_ENV is not defined! Set development environment by default'));
-        process.env.NODE_ENV = 'development';
-    }
-
-    // Check if secret word for JWT generation is different from vanilla.
-    if ( config.security.jwtSecret === 'SECRET' ) {
-        console.log(chalk.red('Hey bro! You have to change security jwtSecret word on config.js file....'));
-    }
+  // Check if secret word for JWT generation is different from vanilla.
+  if (config.security.jwtSecret === 'SECRET') {
+    console.log(chalk.red('Hey bro! You have to change security jwtSecret word on config.js file....'));
+  }
 };
 
 
@@ -36,11 +34,11 @@ const checkConfig = function() {
  * User model.
  *
  */
-const TaMereSchema = new Schema ({
+const TaMereSchema = new Schema({
 
   name: {
-    type: String,
-  },
+    type: String
+  }
 });
 
 const TaMere = mongoose.model('TaMere', TaMereSchema);
@@ -49,39 +47,35 @@ const TaMere = mongoose.model('TaMere', TaMereSchema);
  * Connect to database
  * @param app
  */
-const initDatabase = function(app) {
-
-    const dbUri = `mongodb://${config.db.host}:${config.db.port}/${config.db.database}`;
-
+const initDatabase = function (app) {
+  const dbUri = `mongodb://${config.db.host}:${config.db.port}/${config.db.database}`;
 
 
-    const opt = {};
-    opt.useMongoClient = true;
 
-    mongoose.Promise = require('bluebird');
+  const opt = {};
+  opt.useMongoClient = true;
 
-    mongoose.connect(dbUri, opt, (err) => {
+  mongoose.Promise = require('bluebird');
 
-      if( err ) {
-        return console.log(chalk.red(`Mongo connexion error on :`, chalk.blue(dbUri), err));
+  mongoose.connect(dbUri, opt, (err) => {
+    if (err) {
+      return console.log(chalk.red(`Mongo connexion error on :`, chalk.blue(dbUri), err));
+    }
+
+    console.log(chalk.blue(`Mongo connexion OK on :`, chalk.blue(dbUri)));
+
+    const maman = new TaMere({
+      name: 'simone'
+    });
+
+    maman.save((err) => {
+      if (err) {
+        return console.log(chalk.red(`Mongo write db error`, err));
       }
 
-      console.log(chalk.blue(`Mongo connexion OK on :`, chalk.blue(dbUri)));
-
-      const maman = new TaMere({
-        name: 'simone',
-      });
-
-      maman.save( (err) => {
-        if (err) {
-          return console.log(chalk.red(`Mongo write db error`, err));
-        }
-
-        console.log(chalk.blue(`Mongo write db OK`));
-      });
-
-
+      console.log(chalk.blue(`Mongo write db OK`));
     });
+  });
 };
 
 
@@ -93,14 +87,14 @@ const initDatabase = function(app) {
  */
 
 
-    const app = express();
+const app = express();
 
-    checkConfig();
-    initDatabase(app);
+checkConfig();
+initDatabase(app);
 
-    config.port = 8085;
-    app.listen(config.port);
+config.port = 8085;
+app.listen(config.port);
 
-    console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), "isoDateTime")}`));
-    console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
-    console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
+console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), 'isoDateTime')}`));
+console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
+console.log(chalk.green(`PORT LISTENED :: ${config.port}`));

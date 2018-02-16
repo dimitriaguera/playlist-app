@@ -12,7 +12,6 @@ const trimObj = require('../../../../core/server/services/obj.server.services');
  */
 exports.read = function (filePath, cb) {
   try {
-
     const metadata = taglib2.readTagsSync(filePath);
 
     let cleanMeta = {};
@@ -34,7 +33,7 @@ exports.read = function (filePath, cb) {
     cleanMeta.albumartist = metadata.albumartist || '';
     cleanMeta.composer = metadata.composer || '';
 
-    //@todo implement label
+    // @todo implement label
     cleanMeta.label = '';
 
     // Convert track number to string and split in no and of and
@@ -66,12 +65,11 @@ exports.read = function (filePath, cb) {
     // Trim Obj key and value
     cleanMeta = trimObj.trimObj(cleanMeta);
 
-    cb( null , cleanMeta );
-
+    cb(null, cleanMeta);
   } catch (e) {
     console.log('Error when reading/cleaning tag with taglib2');
     console.trace(e);
-    cb( e );
+    cb(e);
   }
 };
 
@@ -81,7 +79,7 @@ exports.read = function (filePath, cb) {
  *
  * @param input String path to a audio file
  */
-function readPict(filePath , cb) {
+function readPict (filePath, cb) {
   try {
     const metadata = taglib2.readTagsSync(filePath);
     if (metadata && metadata.pictures && metadata.pictures[0]) {
@@ -93,9 +91,9 @@ function readPict(filePath , cb) {
         }
       )
     }
-    cb( null , null );
+    cb(null, null);
   } catch (e) {
-    cb( e );
+    cb(e);
   }
 }
 exports.readPict = readPict;
@@ -108,13 +106,12 @@ exports.readPict = readPict;
  * @param cb
  */
 exports.readPictAndSave = function (input, output, cb) {
-
   const saveToJpeg = require('../picture.server.services');
 
   readPict(input, (err, data) => {
-      if (err) return cb(err);
-      saveToJpeg.saveToJpeg(data.pict, output, cb)
-    }
+    if (err) return cb(err);
+    saveToJpeg.saveToJpeg(data.pict, output, cb)
+  }
   );
 };
 
@@ -149,9 +146,7 @@ exports.readPictAndSave = function (input, output, cb) {
  * @param cb
  */
 exports.saveMeta = function (audioFile, meta, cb) {
-
-  function standardizeMeta(meta){
-
+  function standardizeMeta (meta) {
     let newMeta = Object.assign({}, meta);
 
     newMeta.tracknumber = meta.trackno || '0';
@@ -172,13 +167,12 @@ exports.saveMeta = function (audioFile, meta, cb) {
     }
 
     return newMeta;
-
   }
 
   try {
     taglib2.writeTagsSync(audioFile, standardizeMeta(meta));
     cb(null);
-  } catch (e){
+  } catch (e) {
     cb(e);
   }
 };

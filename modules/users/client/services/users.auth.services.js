@@ -11,9 +11,9 @@ import { ALL_ROLE } from '../../commons/roles'
  *
  * @returns {boolean}
  */
-export function isAuthenticated() {
-    const Auth = store.getState().authenticationStore;
-    return !!Auth.isAuthenticated;
+export function isAuthenticated () {
+  const Auth = store.getState().authenticationStore;
+  return !!Auth.isAuthenticated;
 }
 
 /**
@@ -25,15 +25,14 @@ export function isAuthenticated() {
  * @param roles
  * @returns {*}
  */
-export function allowDisplayItem ( user, roles ) {
+export function allowDisplayItem (user, roles) {
+  if (!user)
+  { return false; }
 
-    if ( !user )
-        return false;
+  if (!roles)
+  { return true; }
 
-    if ( !roles )
-        return true;
-
-    return hasRole(user, roles);
+  return hasRole(user, roles);
 }
 
 
@@ -44,18 +43,18 @@ export function allowDisplayItem ( user, roles ) {
  * @param roles
  * @returns {boolean}
  */
-export function hasRole ( user, roles ) {
-    const ids = [];
-    for ( let i = 0; i < roles.length; i++ ) ids.push(roles[i].id);
-    return (!!user && !!_.intersection(user.roles, ids).length);
+export function hasRole (user, roles) {
+  const ids = [];
+  for (let i = 0; i < roles.length; i++) ids.push(roles[i].id);
+  return (!!user && !!_.intersection(user.roles, ids).length);
 }
 
-export function getRoleNames ( rolesIds ) {
-    let roles = '';
-    for ( let i = 0; i < rolesIds.length; i++ ) {
-        for ( let j = 0; j < ALL_ROLE.length; j++ ) {
-            if ( rolesIds[i] === ALL_ROLE[j].id ) roles = `${roles} ${i !== 0 ? '/' : ' '} ${ALL_ROLE[j].name}`
-        }
+export function getRoleNames (rolesIds) {
+  let roles = '';
+  for (let i = 0; i < rolesIds.length; i++) {
+    for (let j = 0; j < ALL_ROLE.length; j++) {
+      if (rolesIds[i] === ALL_ROLE[j].id) roles = `${roles} ${i !== 0 ? '/' : ' '} ${ALL_ROLE[j].name}`
     }
-    return roles;
+  }
+  return roles;
 }

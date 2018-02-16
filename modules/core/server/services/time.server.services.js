@@ -13,12 +13,12 @@
  * @param start
  * @returns {end, duration}
  */
-module.exports.clock = function(start) {
-  if ( !start ) return process.hrtime();
+module.exports.clock = function (start) {
+  if (!start) return process.hrtime();
   let end = process.hrtime(start);
 
   return {
     end: end,
-    duration: Math.round((end[0]*1000) + (end[1]/1000000)) / 100
+    duration: Math.round((end[0] * 1000) + (end[1] / 1000000)) / 100
   }
 };

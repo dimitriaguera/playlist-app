@@ -11,51 +11,51 @@ import Login from 'users/client/components/authentication/login.client.component
 import Register from 'users/client/components/authentication/register.client.components'
 
 export const routes = [
-    {
-        private: false,
-        route: {
-            path: '/register',
-            exact: true,
-            component: Register,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/login',
-            exact: true,
-            component: Login,
-        },
-    },
-    {
-        private: true,
-        route: {
-            path: '/users',
-            roles: [ADMIN_ROLE],
-            exact: true,
-            component: Users,
-        },
-    },
-    {
-        private: true,
-        route: {
-            path: '/user/edit/:userName',
-            roles: [ADMIN_ROLE],
-            component: EditUser,
-        },
-    },
-    {
-        private: true,
-        route: {
-            path: '/account',
-            component: Account,
-        },
-    },
-    {
-        private: true,
-        route: {
-            path: '/user/:userName',
-            component: User,
-        },
-    },
+  {
+    private: false,
+    route: {
+      path: '/register',
+      exact: true,
+      component: Register
+    }
+  },
+  {
+    private: false,
+    route: {
+      path: '/login',
+      exact: true,
+      component: Login
+    }
+  },
+  {
+    private: true,
+    route: {
+      path: '/users',
+      roles: [ADMIN_ROLE],
+      exact: true,
+      component: Users
+    }
+  },
+  {
+    private: true,
+    route: {
+      path: '/user/edit/:userName',
+      roles: [ADMIN_ROLE],
+      component: EditUser
+    }
+  },
+  {
+    private: true,
+    route: {
+      path: '/account',
+      component: Account
+    }
+  },
+  {
+    private: true,
+    route: {
+      path: '/user/:userName',
+      component: User
+    }
+  }
 ];

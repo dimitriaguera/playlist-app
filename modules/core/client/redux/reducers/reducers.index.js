@@ -10,10 +10,10 @@ import { authenticationStore } from 'users/client/redux/reducers/authentication.
 import { playlistStore } from 'music/client/redux/reducers/playlist.store'
 
 const storeApp = combineReducers({
-    authenticationStore,
-    playlistStore,
-    bootStore,
-    apiStore,
+  authenticationStore,
+  playlistStore,
+  bootStore,
+  apiStore
 });
 
 export default storeApp

@@ -10,55 +10,55 @@ import Queue from 'music/client/components/queue.client.components';
 import AllTracks from 'music/client/components/allTracks.client.components';
 
 export const routes = [
-    {
-        private: false,
-        route: {
-            path: '/',
-            exact: true,
-            component: AllPlaylist,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/playlist/:title',
-            component: Playlist,
-        },
-    },
-    {
-        private: true,
-        route: {
-            path: '/queue',
-            exact: true,
-            component: Queue,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/album',
-            component: Album,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/list/folder',
-            component: FolderList,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/albums',
-            component: Albums,
-        },
-    },
-    {
-        private: false,
-        route: {
-            path: '/tracks',
-            component: AllTracks,
-        },
-    },
+  {
+    private: false,
+    route: {
+      path: '/',
+      exact: true,
+      component: AllPlaylist
+    }
+  },
+  {
+    private: false,
+    route: {
+      path: '/playlist/:title',
+      component: Playlist
+    }
+  },
+  {
+    private: true,
+    route: {
+      path: '/queue',
+      exact: true,
+      component: Queue
+    }
+  },
+  {
+    private: false,
+    route: {
+      path: '/album',
+      component: Album
+    }
+  },
+  {
+    private: false,
+    route: {
+      path: '/list/folder',
+      component: FolderList
+    }
+  },
+  {
+    private: false,
+    route: {
+      path: '/albums',
+      component: Albums
+    }
+  },
+  {
+    private: false,
+    route: {
+      path: '/tracks',
+      component: AllTracks
+    }
+  }
 ];

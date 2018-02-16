@@ -6,8 +6,7 @@ const TaskDb = require('../models/task.server.models');
 const path = require('path');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
-exports.getAllTask = function(req, res, next) {
-
+exports.getAllTask = function (req, res, next) {
   TaskDb.find({})
         .lean()
         .exec((err, tasks) => {
@@ -83,7 +82,7 @@ exports.taskByKey = function(req, res, next, key) {
         }
 
         req.model = {
-          inMemoryTasks: taskCore.getByKey(key),
+          inMemoryTasks: [taskCore.getByKey(key)] || [],
           inDataBaseTasks: task
         };
         next();
@@ -105,3 +104,4 @@ exports.taskById = function(req, res, next, memId) {
         next();
     });
 };
+

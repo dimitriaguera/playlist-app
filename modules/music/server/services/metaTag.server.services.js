@@ -3,14 +3,14 @@
  */
 
 
-exports.metaSchema= function() {
+exports.metaSchema = function () {
   return {
     title: '',
     artist: '',
     album: '',
     year: '',
     albumartist: '',
-    label:'',
+    label: '',
     genre: [],
     composer: '',
     trackno: '',
@@ -21,7 +21,6 @@ exports.metaSchema= function() {
 };
 
 try {
-
   // Js wrap for taglib
   const taglib2Wrap = require('./wrapLib/taglib2.wrap');
 
@@ -30,11 +29,8 @@ try {
   exports.readPictAndSave = taglib2Wrap.readPictAndSave;
   exports.saveMeta = taglib2Wrap.saveMeta;
   exports.metaLibName = 'taglib2';
-
-} catch(e) {
-
+} catch (e) {
   try {
-
     // Pure Js MusicMeta
     const mmWrap = require('./wrapLib/musicmetatag.wrap');
 
@@ -43,11 +39,8 @@ try {
     exports.readPictAndSave = mmWrap.readPictAndSave;
 
     exports.metaLibName = 'music-metadata';
-
-  } catch(e) {
-
-      console.error('No lib for reading meta');
-      exports.metaLibName = null;
+  } catch (e) {
+    console.error('No lib for reading meta');
+    exports.metaLibName = null;
   }
-
 }

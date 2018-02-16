@@ -3,18 +3,18 @@ const TaskDb = require('../models/task.server.models');
 const version = '1.0'
 
 const __TASK_RUNNER_INSTANCE__ = Symbol.for('__task_runner_instance_' + version + '__');
-const _status = Symbol('status')
-const _taskMemoryList = Symbol('taskMemoryList')
-const _check = Symbol('check')
-const _addTask = Symbol('addTask')
-const _deleteTaskFromMemory = Symbol('deleteTaskFromMemory')
-const _onErrorBuild = Symbol('onErrorBuild')
-const _onStepBuild = Symbol('onStepBuild')
-const _onDoneBuild = Symbol('onDoneBuild')
+const _status = Symbol('status');
+const _taskMemoryList = Symbol('taskMemoryList');
+const _check = Symbol('check');
+const _addTask = Symbol('addTask');
+const _deleteTaskFromMemory = Symbol('deleteTaskFromMemory');
+const _onErrorBuild = Symbol('onErrorBuild');
+const _onStepBuild = Symbol('onStepBuild');
+const _onDoneBuild = Symbol('onDoneBuild');
 
-const PENDING = 'pending'
-const REJECTED = 'rejected'
-const DONE = 'done'
+const PENDING = 'pending';
+const REJECTED = 'rejected';
+const DONE = 'done';
 
 class TaskCore {
 
@@ -38,7 +38,7 @@ class TaskCore {
   }
 
   get() {
-    const list = this[_taskMemoryList]
+    const list = this[_taskMemoryList];
     return Object.keys(list).map( id => list[id].display())
   }
 
@@ -60,7 +60,7 @@ class TaskCore {
 
   [_check]( key ) {
     // Find pending task with same name
-    const list = this[_taskMemoryList]
+    const list = this[_taskMemoryList];
     const id = Object.keys(list).find( id => (list[id].key === key && list[id][_status] === PENDING ))
     return (id && list[id].unique) ? id : null
   }
@@ -68,14 +68,14 @@ class TaskCore {
   [_addTask]( {key, unique}, response, accept ) {
     // If task is already in list, is unique, and is pending.
     // Call callback and stop process.
-    const _id = this[_check](key)
+    const _id = this[_check](key);
     if( _id ) {
       return response(this[_taskMemoryList][_id].display())
     }
     // Create and add task to list.
     const id = getID()
-    const task = new Task(key, id, unique)
-    this[_taskMemoryList][id] = task
+    const task = new Task(key, id, unique);
+    this[_taskMemoryList][id] = task;
 
     accept(
       this[_onErrorBuild](task),
@@ -87,16 +87,16 @@ class TaskCore {
   }
 
   [_deleteTaskFromMemory](task) {
-    delete this[_taskMemoryList][task.memId]
+    delete this[_taskMemoryList][task.memId];
     log(`key ${task.key}, id ${task.memId} deleted from memory at ${Date.now()}`)
   }
 
   // Error handler builder.
   [_onErrorBuild](task) {
     return body => {
-      task.write(body)
-      task.reject()
-      task.save()
+      task.write(body);
+      task.reject();
+      task.save();
       this[_deleteTaskFromMemory](task)
     }
   }
@@ -111,9 +111,9 @@ class TaskCore {
   // End success handler builder.
   [_onDoneBuild](task) {
     return body => {
-      task.write(body)
-      task.done()
-      task.save()
+      task.write(body);
+      task.done();
+      task.save();
       this[_deleteTaskFromMemory](task)
     }
   }
@@ -121,27 +121,27 @@ class TaskCore {
 
 class Task {
   constructor( key, id, unique = true ) {
-    const d = Date.now()
-    const message = `key ${key}, id ${id}, task started at ${d}`
-    this[_status] = PENDING
-    this.memId = id
-    this.key = key
-    this.unique = unique
-    this.created = d
-    this.ended = null
-    this.body = `Task ${key} started at ${d} with id ${id}`
+    const d = Date.now();
+    const message = `key ${key}, id ${id}, task started at ${d}`;
+    this[_status] = PENDING;
+    this.memId = id;
+    this.key = key;
+    this.unique = unique;
+    this.created = d;
+    this.ended = null;
+    this.body = `Task ${key} started at ${d} with id ${id}`;
     log(message)
   }
 
   reject() {
-    this[_status] = REJECTED
-    this.ended = Date.now()
+    this[_status] = REJECTED;
+    this.ended = Date.now();
     warn(`key ${this.key}, memId ${this.id} rejected at ${this.ended}`);
   }
 
   done() {
-    this[_status] = DONE
-    this.ended = Date.now()
+    this[_status] = DONE;
+    this.ended = Date.now();
     log(`key ${this.key}, memId ${this.id} successful finished at ${this.ended}`);
   }
 
@@ -154,14 +154,14 @@ class Task {
   }
 
   clone() {
-    const clone = Object.assign({}, this)
-    clone.status = this[_status]
-    delete clone[_status]
+    const clone = Object.assign({}, this);
+    clone.status = this[_status];
+    delete clone[_status];
     return clone
   }
 
   save() {
-    const task = this.clone()
+    const task = this.clone();
     TaskDb.create(task, err => {
       if (err) return danger(`Unable to save key ${task.key}, memId ${task.memId} in database.`, err);
       log(`key ${task.key}, memId ${task.memId}, task saved in database.`)
@@ -203,4 +203,4 @@ if (!warnExist){
 }
 
 // export the task runner instance.
-module.exports = global[__TASK_RUNNER_INSTANCE__]
+module.exports = global[__TASK_RUNNER_INSTANCE__];

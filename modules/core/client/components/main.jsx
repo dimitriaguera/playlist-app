@@ -7,38 +7,36 @@ import NotFound from './404.jsx'
 import AudioBar from 'music/client/components/audioBar.client.components'
 
 class Main extends Component {
-
-    constructor() {
-        super();
-        this.state = {
-            routes: buildRoutes(getRoutes()),
-        }
+  constructor () {
+    super();
+    this.state = {
+      routes: buildRoutes(getRoutes())
     }
+  }
 
-    render(){
+  render () {
+    const { routes } = this.state;
 
-        const { routes } = this.state;
-
-        return (
-            <div>
-                <Container className='app-main-container'>
-                    <Switch>
-                        {routes}
-                        <Route component={NotFound} />
-                    </Switch>
-                </Container>
-                <AudioBar />
-            </div>
-        )
-    };
+    return (
+      <div>
+        <Container className='app-main-container'>
+          <Switch>
+            {routes}
+            <Route component={NotFound} />
+          </Switch>
+        </Container>
+        <AudioBar />
+      </div>
+    )
+  };
 }
 
 // HELPER
-function buildRoutes( routes ) {
-    return routes.map( (route, i) => {
-        const { props } = route;
-        return ( !route.private ) ? <Route key={i} {...props} /> : <PrivateRoute key={i} {...props} />;
-    });
+function buildRoutes (routes) {
+  return routes.map((route, i) => {
+    const { props } = route;
+    return (!route.private) ? <Route key={i} {...props} /> : <PrivateRoute key={i} {...props} />;
+  });
 }
 
 

@@ -3,12 +3,10 @@
  */
 const core = require('../controllers/core.server.controllers.js');
 
-module.exports = function(app){
+module.exports = function (app) {
+  // Return a 404 for all undefined api, module or lib routes
+  app.route('/:url(api|modules|lib)/*').get(core.renderNotFound);
 
-    // Return a 404 for all undefined api, module or lib routes
-    app.route('/:url(api|modules|lib)/*').get(core.renderNotFound);
-
-    // Return index file.
-    app.route('/*').get(core.index);
-
+  // Return index file.
+  app.route('/*').get(core.index);
 };
