@@ -9,13 +9,13 @@ module.exports = function(app){
     app.route('/api/task').get(task.getAllTask);
 
     // Return a task.
-    app.route('/api/task/id/:taskId')
-        .get(task.getTask)
-        .delete(task.deleteTask);
+    app.route('/api/task/id/:memId')
+        .get(task.getTask);
+        // .delete(task.deleteTask);
 
     // Return tasks.
-    app.route('/api/task/name/:taskName').get(task.getTask);
+    app.route('/api/task/key/:key').get(task.getTask);
 
-    app.param('taskId', task.taskById);
-    app.param('taskName', task.taskByName);
+    app.param('memId', task.taskById);
+    app.param('key', task.taskByKey);
 };

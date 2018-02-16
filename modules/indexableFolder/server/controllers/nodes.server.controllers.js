@@ -39,7 +39,7 @@ exports.index = function (req, res, next) {
   // Start Task.
   runTask(
     {
-      name: 'index nodes',
+      key: 'index nodes',
       unique: true
     },
     runIndexNodes
@@ -448,7 +448,7 @@ exports.updateMeta = function (req, res, next) {
   // Start Task.
   runTask(
     {
-      name: 'update meta',
+      key: 'update meta',
       unique: false
     },
     (onError, onStep, onDone) => updateMetaWrap(onError, onStep, onDone, req)

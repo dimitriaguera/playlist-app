@@ -35,7 +35,7 @@ exports.index = function(req, res, next){
     // Start Task.
     runTask(
         {
-            name:'index elastic',
+            key:'index elastic',
             unique: true
         },
         runIndexElastic(fullLogs)
@@ -1382,7 +1382,6 @@ exports.test = function(req, res, next){
     }
 
     function* genCallback(){
-        prrrrut
         const ok1 = yield test1();
         const ok2 = yield test2();
         return [ok1, ok2];

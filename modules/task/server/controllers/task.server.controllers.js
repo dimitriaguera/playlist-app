@@ -1,14 +1,14 @@
 /**
  * Created by Dimitri Aguera on 30/08/2017.
  */
-
-const Task = require('../models/task.server.models');
+const taskCore = require('../core/task.server.core');
+const TaskDb = require('../models/task.server.models');
 const path = require('path');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 
 exports.getAllTask = function(req, res, next) {
 
-    Task.find({})
+  TaskDb.find({})
         .lean()
         .exec((err, tasks) => {
 
@@ -16,7 +16,10 @@ exports.getAllTask = function(req, res, next) {
 
         res.json({
             success: true,
-            msg: tasks
+            msg: {
+                inMemoryTasks: taskCore.get(),
+                inDataBaseTasks: tasks
+            }
         });
     });
 };
@@ -24,61 +27,81 @@ exports.getAllTask = function(req, res, next) {
 exports.getTask = function(req, res) {
     const task = req.model;
 
-    if (!task) {
+    if ( !task.inMemoryTasks.length && !task.inDataBaseTasks.length ) {
         return res.status(404).json({
-            success: false,
-            msg: 'Task not found'});
-    }
-    res.json({
-        success: true,
-        msg: task
-    });
-};
-
-exports.deleteTask = function(req, res, next) {
-
-    const task = req.model;
-
-    if (!task) {
-        return res.status(404).json({
-            success: false,
-            msg: 'Task not found'});
+        success: false,
+        msg: 'Task not found'});
     }
 
-    task.remove(function(err){
-        if (err) {
-            res.status(422);
-            return errorHandler.errorMessageHandler( err, req, res, next );
-        }
-        res.json({
-            success: true,
-            msg: task
-        });
-    });
+  res.json({
+    success: true,
+    msg: task
+  });
 };
 
-exports.taskByName = function(req, res, next, taskName) {
+// exports.deleteTask = function(req, res, next) {
+//
+//     const task = req.model;
+//
+//     if (!task.inMemoryTasks || !task.inDataBaseTasks) {
+//         return res.status(404).json({
+//             success: false,
+//             msg: 'Task not found'});
+//     }
+//
+//   if ( task.inDataBaseTasks ) {
+//     task.inDataBaseTasks.remove(function(err){
+//       if (err) {
+//         res.status(422);
+//         return errorHandler.errorMessageHandler( err, req, res, next );
+//       }
+//       if ( task.inMemoryTasks ) {
+//         taskCore.remove(task.inMemoryTasks)
+//       }
+//       res.json({
+//         success: true,
+//         msg: task
+//       });
+//     });
+//   }
+//
+//   else if ( task.inMemoryTasks ) {
+//     taskCore.remove(task.inMemoryTasks)
+//     res.json({
+//       success: true,
+//       msg: task
+//     });
+//   }
+// };
 
-    Task.find({name:taskName}).exec(function(err, task){
+exports.taskByKey = function(req, res, next, key) {
+
+  TaskDb.find({key:key}).exec(function(err, task){
 
         if ( err ) {
             return next( err );
         }
 
-        req.model = task;
+        req.model = {
+          inMemoryTasks: taskCore.getByKey(key),
+          inDataBaseTasks: task
+        };
         next();
     });
 };
 
-exports.taskById = function(req, res, next, taskId) {
+exports.taskById = function(req, res, next, memId) {
 
-    Task.findById(taskId).exec(function(err, task){
+  TaskDb.find({memId: memId}).exec(function(err, task){
 
         if ( err ) {
             return next( err );
         }
 
-        req.model = task;
+        req.model = {
+          inMemoryTasks: [taskCore.getById(memId)] || [],
+          inDataBaseTasks: task
+        };
         next();
     });
 };
