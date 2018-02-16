@@ -9,8 +9,8 @@ module.exports = function (app) {
 
   // Return a task.
   app.route('/api/task/id/:taskId')
-    .get(task.getTask)
-    .delete(task.deleteTask);
+    .get(task.getTask);
+    //.delete(task.deleteTask);
 
 
   // Return a task.

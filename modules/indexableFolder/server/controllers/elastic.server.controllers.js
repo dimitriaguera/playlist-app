@@ -1331,13 +1331,6 @@ exports.test = function (req, res, next) {
     });
   }
 
-<<<<<<< HEAD
-    function* genCallback(){
-        const ok1 = yield test1();
-        const ok2 = yield test2();
-        return [ok1, ok2];
-    }
-=======
   function test3 (value) {
     return new Promise((resolve, rej) => {
       setTimeout(() => {
@@ -1354,7 +1347,6 @@ exports.test = function (req, res, next) {
   }
 
   function * genCallback () {
-    prrrrut
     const ok1 = yield test1();
     const ok2 = yield test2();
     return [ok1, ok2];
@@ -1370,7 +1362,7 @@ exports.test = function (req, res, next) {
     //     console.error('catch du testAsync --->' + err);
     //     //throw err;
     // }
->>>>>>> 3faef43386984bb79ae74aa979c02af6c58ecead
+
 
     const ok3 = yield test3(value);
 
