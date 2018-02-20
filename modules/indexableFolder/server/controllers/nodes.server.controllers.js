@@ -278,7 +278,13 @@ function runIndexNodes (onError, onStep, onDone) {
         // Read root dir and save nodes
         read(rootOK, (err) => {
           // @todo check this err
-          if (err) return err;
+          if (err) {
+            console.log(err);
+            let end = clock(start);
+            console.log('Indexation stoped with error at : ' + end.end);
+            console.log('***********************');
+            return onError(err);
+          }
           nbFiles = files.length;
           nbDirs = Object.keys(dirs).length;
           findMetaAndSave(files, sendResult);
