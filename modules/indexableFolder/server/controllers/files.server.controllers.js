@@ -9,6 +9,8 @@ const { splitTab } = require(path.resolve('./modules/core/server/services/obj.se
 const async = require('async');
 const fs = require('fs-extra');
 
+const ps = require(path.resolve('./modules/core/client/services/core.path.services.js'));
+
 const DRIVE = config.folder_base_url;
 const PUBLIC_FILE = path.isAbsolute(config.public_base_url) ? config.public_base_url : path.join(path.dirname(require.main.filename || process.mainModule.filename), config.public_base_url);
 
@@ -84,6 +86,14 @@ const PATTERN_FOLDERS = config.covers.pattern.folders;
 //         );
 //     });
 // };
+
+
+/**
+ * Add create all cover to task runner
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.createAllCovers = function (req, res, next) {
 
   // Create taskRunner instance.
@@ -99,7 +109,16 @@ exports.createAllCovers = function (req, res, next) {
   );
 };
 
-
+/**
+ * Function to create All Covers.
+ * Find all albums in es
+ * Find all tracks for one album
+ * Extract cover
+ * Put cover.jpeg in PUBLIC_FILE
+ * @param onError
+ * @param onStep
+ * @param onDone
+ */
 function runCreateAllCovers (onError, onStep, onDone) {
   const params = queryFactory('album', null, '');
 
@@ -108,7 +127,7 @@ function runCreateAllCovers (onError, onStep, onDone) {
     if (err) return onError(err);
 
     // Get tracks path.
-    const albums = data.hits.hits.map((item) => { return {name: item._source.name, cover: item._source.cover} });
+    const albums = data.hits.hits.map((item) => { return {name: item._source.name, key: item._source.key, cover: ps.changeSeparator(item._source.key, '___', '/')} });
 
     // Declare chunk outside off closure for memory consideration.
     let chunk = [];
@@ -140,8 +159,14 @@ function runCreateAllCovers (onError, onStep, onDone) {
   });
 }
 
+/**
+ * Find all tracks of one album
+ * @param album
+ * @param callback
+ */
 function runAlbumCoverCreate (album, callback) {
-  const params = queryFactory('tracks', ['meta.album'], album.name, true);
+
+  const params = queryFactory('tracks', ['albumKey'], album.key, true);
 
   // Elasticsearch album tracks.
   es.search(params, (err, data) => {
@@ -158,11 +183,17 @@ function runAlbumCoverCreate (album, callback) {
     // Get tracks path.
     const tracks = data.hits.hits.map((item) => item._source.path);
 
-    // Run Algorythm that search and create cover.jpg
+    // Run algorithm that search and create cover.jpg
     runTracksAlbumCoverCreate(tracks, callback, album);
   });
 }
 
+/**
+ * Find cover for tracks
+ * @param tracks
+ * @param callback
+ * @param context
+ */
 function runTracksAlbumCoverCreate (tracks, callback, context) {
   const visitedPath = {};
   const coverPath = context.cover;
@@ -221,6 +252,13 @@ function testFiles (path, files, callback) {
   async.each(files, iteration, (filePath) => callback(filePath));
 }
 
+/**
+ * Main process to find cover for each track
+ * @param src
+ * @param coverPath
+ * @param visitedPath
+ * @param callback
+ */
 function createCoverFile (src, coverPath, visitedPath, callback) {
   // Get album folder path.
   let dirname = path.dirname(src);
@@ -230,7 +268,8 @@ function createCoverFile (src, coverPath, visitedPath, callback) {
   } else {
     folder = DRIVE + '/';
   }
-  let audioFileSrc = path.join(folder, src);
+
+  let audioFileSrc = path.join(folder, path.basename(src));
 
   const destination = PUBLIC_FILE + '/' + coverPath + '/';
   const cover = destination + 'cover.jpg';
@@ -425,7 +464,17 @@ function createCoverFile (src, coverPath, visitedPath, callback) {
  * @param index
  * @param fields
  * @param terms
- * @returns {{index: *, type: *, body: {size: number, from: number, query: {query_string: {query: string, fields: *, default_operator: string}}}}}
+ * @param exact
+ * @returns
+ * {
+ * index: *,
+ * type: *,
+ * body: {
+ *  query: {
+ *    query: string,
+ *    fields: *,
+ *    default_operator: string
+ *  }
  */
 function queryFactory (index, fields, terms, exact) {
   let base_query = {};
