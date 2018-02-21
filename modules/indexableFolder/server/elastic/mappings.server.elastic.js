@@ -30,6 +30,9 @@ exports.album_body = {
         'keyName': {
           'type': 'keyword'
         },
+        'key': {
+          'type': 'keyword'
+        },
         'artist': {
           'type': 'keyword'
         },
