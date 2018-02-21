@@ -8,12 +8,6 @@ module.exports = function (app) {
   app.route('/api/task').get(task.getAllTask);
 
   // Return a task.
-  app.route('/api/task/id/:taskId')
-    .get(task.getTask);
-    //.delete(task.deleteTask);
-
-
-  // Return a task.
   app.route('/api/task/id/:memId')
     .get(task.getTask);
   // .delete(task.deleteTask);
