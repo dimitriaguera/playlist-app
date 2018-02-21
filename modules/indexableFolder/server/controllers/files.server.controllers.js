@@ -92,7 +92,7 @@ exports.createAllCovers = function (req, res, next) {
   // Start Task.
   runTask(
     {
-      name: 'create all cover',
+      key: 'create all cover',
       unique: true
     },
     runCreateAllCovers
