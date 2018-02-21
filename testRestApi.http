@@ -5,6 +5,8 @@ POST http://localhost:8082/api/nodes/build
 ### Build Elastic
 POST http://localhost:8082/api/elastic/build
 
+### Get all albums
+GET http://localhost:8082/api/search/album?q=
 
 ### Find cover
 POST http://localhost:8082/api/files/cover/all
@@ -12,5 +14,8 @@ POST http://localhost:8082/api/files/cover/all
 
 ### Get Task
 GET http://localhost:8082/api/task
+
+### Test
+GET http://localhost:8082/api/elastic/test
 
 ###
