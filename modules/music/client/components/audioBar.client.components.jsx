@@ -112,14 +112,9 @@ class AudioBar extends Component {
           src={`/api/music/read?path=${ps.urlEncode(onPlay.path)}`}
         />
 
-        <Grid className='audioBarMenu' verticalAlign='middle' padded='horizontally'>
-
-          <Grid.Row>
-            <Grid.Column only='mobile' mobile='4' textAlign='left' />
-            <Grid.Column only='computer tablet' computer='6' textAlign='right'>
-              <MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />
-            </Grid.Column>
-            <Grid.Column mobile='8' tablet='4' computer='4' textAlign='center'>
+        <div className='audioBarMenu'>
+          <div className='audioBar-control-row'>
+              {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
               <PlayingControls onPauseHandler={this.onPauseHandler}
                 onPlayHandler={this.onPlayHandler}
                 onPrevHandler={this.onPrevHandler}
@@ -129,38 +124,19 @@ class AudioBar extends Component {
                 onPlay={onPlay}
                 pl={pl}
               />
-            </Grid.Column>
-            <Grid.Column only='computer tablet' computer='6' textAlign='left'>
-              <MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />
-            </Grid.Column>
-            <Grid.Column only='mobile' mobile='4' textAlign='left'>
-              <MetaInfoPlaylistMini pl={pl} onPlayIndex={onPlayIndex} mode={mode} />
-            </Grid.Column>
-          </Grid.Row>
-
-          <Grid.Row className='audioBar-range-row'>
-            <Grid.Column only='computer tablet' computer='4' verticalAlign='bottom' textAlign='left'>
-              <Label size='large' color='teal'>
-                                    Recent play
-              </Label>
-            </Grid.Column>
-
-            <Grid.Column mobile='16' tablet='8' computer='8'>
+              {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
+          </div>
+          <div className='audioBar-range-row'>
               <MetaNameTracks onPlay={onPlay} />
               {audioReady && <RangeSlider audioEl={audioEl} />}
-            </Grid.Column>
+              {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
+          </div>
 
-            <Grid.Column mobile='16' tablet='8' computer='8'>
-              {audioReady && <RangeVolume audioEl={audioEl} />}
-            </Grid.Column>
+          <div className='audioBar-info-row'>
+            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode} />
+          </div>
 
-            <Grid.Column only='computer tablet' computer='4' textAlign='right'>
-              <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode} />
-            </Grid.Column>
-          </Grid.Row>
-
-        </Grid>
-
+        </div>
       </div>
     );
   }
@@ -654,7 +630,7 @@ class MetaNameNextTracks extends Component {
 
   render () {
     const { onPlayIndex, pl } = this.props;
-    const name = (pl && pl.tracks[onPlayIndex + 1]) ? pl.tracks[onPlayIndex + 1].name : null;
+    const name = (pl && pl.tracks[onPlayIndex + 1]) ? pl.tracks[onPlayIndex + 1].publicName : null;
 
     return (
       name && <span><Label color='teal' pointing='right'>Next</Label>{`${name}`}</span>
@@ -670,7 +646,7 @@ class MetaNamePrevTracks extends Component {
 
   render () {
     const { onPlayIndex, pl } = this.props;
-    const name = (pl && pl.tracks[onPlayIndex - 1]) ? pl.tracks[onPlayIndex - 1].name : null;
+    const name = (pl && pl.tracks[onPlayIndex - 1]) ? pl.tracks[onPlayIndex - 1].publicName : null;
 
     return (
       name && <span>{`${name}`}<Label color='teal' pointing='left'>Prev</Label></span>
@@ -729,8 +705,8 @@ class MetaInfoPlaylist extends Component {
       let modeLabel = mode === 'folder' ? 'folder tracks' : mode;
 
       // If pl is album, use folder path to construct link path.
-      if (pl.path) {
-        path += `/${pl.path}`;
+      if (mode === 'album') {
+        path += `/${pl.tracks[0].albumKey}`;
       }
 
       // Else if pl is Queue.
