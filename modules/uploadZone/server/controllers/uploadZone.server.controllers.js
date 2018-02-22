@@ -14,7 +14,7 @@ const {splitTab} = require(path.resolve('./modules/core/server/services/obj.serv
 
 
 const config = require(path.resolve('./config/env/config.server'));
-const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.folder_base_url));
+const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.musicFolder));
 
 const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
 
