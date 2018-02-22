@@ -377,10 +377,6 @@ class IndexableFolder extends Component {
         <h1>Music Folders</h1>
         <Divider />
 
-        <Segment>
-          <SearchFolderBar handlerResult={result => this.setState({nodes: result})} />
-        </Segment>
-
         {user && (
           <Segment>
             <Header icon='pencil' content='Editing playlist' />
