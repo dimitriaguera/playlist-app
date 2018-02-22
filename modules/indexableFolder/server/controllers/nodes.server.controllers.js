@@ -29,7 +29,7 @@ const {promisify} = require('util');
 // };
 
 // @todo put this when export conf
-const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.folder_base_url));
+const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.musicFolder));
 
 exports.index = function (req, res, next) {
   // Create taskRunner instance.
