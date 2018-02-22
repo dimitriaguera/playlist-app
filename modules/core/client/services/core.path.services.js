@@ -108,3 +108,10 @@ exports.removeLastSeparator = function (myPath) {
   }
   return myPath;
 };
+
+exports.removeFirstSeparator = function (myPath) {
+  if (myPath.slice(0, 1) === '/' || myPath.slice(0, 1) === '\\') {
+    return myPath.slice(1, myPath.length);
+  }
+  return myPath;
+};

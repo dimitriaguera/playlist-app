@@ -27,7 +27,7 @@ class AddPlaylist extends Component {
 
   submitForm (e) {
     const _self = this;
-    const { user, createPlaylist, history, tracks, redirect, onSave } = this.props;
+    const { user, createPlaylist, history, tracksId, redirect, onSave } = this.props;
     const { title } = this.state;
 
     // User need to be authenticated.
@@ -52,7 +52,7 @@ class AddPlaylist extends Component {
     }
 
     // User authenticated on any role can create playlist.
-    createPlaylist({ title: title, user: user, tracks: tracks })
+    createPlaylist({ title: title, user: user, tracks: tracksId })
       .then((data) => {
         if (!data.success) {
           _self.setState({message: data.msg, error: true });

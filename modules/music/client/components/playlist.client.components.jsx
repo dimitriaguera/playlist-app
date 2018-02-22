@@ -149,7 +149,7 @@ class Playlist extends Component {
         {isAuthor &&
         <div>
           {/* Add tracks button. */}
-          <Button onClick={() => history.push(`/indexMusic?pl=${playlist.title}`)} icon basic inverted>
+          <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
                         Add tracks
           </Button>
 

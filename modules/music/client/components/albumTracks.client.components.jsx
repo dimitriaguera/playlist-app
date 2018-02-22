@@ -85,7 +85,7 @@ class AlbumTracks extends Component {
       const albumToPlay = {
         pl: {
           title: album.name,
-          path: album.path,
+          key: album.key,
           tracks: this.state.tracks
         },
         onPlayIndex: i

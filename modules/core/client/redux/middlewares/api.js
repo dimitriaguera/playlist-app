@@ -116,7 +116,6 @@ function checkStatus (rep, dispatch) {
   }
   else if (status === 404) {
     // Not Found
-    alert('404 !');
     return rep
   }
   else if (status >= 500) {

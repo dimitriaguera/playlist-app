@@ -126,7 +126,7 @@ class AlbumCard extends Component {
           onPlayIndex: i || 0,
           pl: {
             title: album.name,
-            path: album.path,
+            key: album.key,
             tracks: album.tracks
           }
         };

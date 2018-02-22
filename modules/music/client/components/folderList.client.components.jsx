@@ -43,7 +43,6 @@ class FolderList extends Component {
     }
     // Else, query data from DB.
     else {
-      console.log(ps.urlEncode(path));
       fetchFiles(ps.urlEncode(path))
         .then((data) => {
           if (!data.success) {
@@ -195,7 +194,7 @@ class FolderList extends Component {
             <AddPlaylist
               history={history}
               placeholder={`${pl.title}'s playlist`}
-              tracks={pl.tracks}
+              tracksId={pl.tracks}
               validation='Save'
               redirect
             />

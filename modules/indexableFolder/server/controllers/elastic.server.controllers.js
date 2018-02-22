@@ -510,7 +510,6 @@ function * switchActionIfMatchingTracks (keys, paramFactory, withTracks, without
   const defaultParams = {
     body: {query: {term: {}}},
     requestCache: false
-    // _sourceInclude: ['meta.artist', 'meta.genre'],
   };
 
   for (let i = 0, l = keys.length; i < l; i++) {
@@ -547,13 +546,6 @@ function extractExistingDocs (docs) {
 }
 
 
-// function testAlbum() {
-//
-// }
-//
-// function testAlbum() {
-//
-// }
 /**
  * Start general indexation in elasticsearch from all tracks in nodes collection.
  * Album, artists and genre are extracted from all tracks metadata...
@@ -1037,6 +1029,68 @@ function getFiltersFromQuery (query) {
   return filters;
 }
 
+exports.getAlbumByKeyFn = function(key, callback) {
+  const params = {
+    index: 'album',
+    body: {
+      query: {
+        match: {
+          key: key
+        }
+      }
+    }
+  };
+  // Send search to elastic server.
+  es.search(params, (err, data) => {
+    if (err) return callback(err);
+    const album = data.hits.hits[0]._source ;
+    callback(null, album);
+  });
+};
+
+exports.getAlbumByKey = function(req, res, next, key) {
+  this.getAlbumByKeyFn( ps.clean(key), (err, data) => {
+    if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+    req.album = data;
+    next();
+  });
+};
+
+exports.getAlbum = function (req, res) {
+  res.json({
+    success: true,
+    msg: req.album
+  });
+};
+
+exports.getAlbumWithTracks = function (req, res){
+
+  const term = req.album.key;
+  const params = {
+    index: 'tracks',
+    body: {
+      query: {
+        match: {
+          albumKey: term
+        }
+      }
+    }
+  };
+
+  // Send search to elastic server.
+  es.search(params, (err, data) => {
+    if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+
+    const tracks = data.hits.hits.map( item => item._source )
+    const result = Object.assign(req.album, {tracks: tracks})
+
+    res.json({
+      success: true,
+      msg: result
+    });
+  });
+};
+
 exports.search = function (req, res, next) {
   const index = ps.clean(req.params.type);
   const exact = req.query.exact;
@@ -1258,177 +1312,5 @@ function initIndexLog (counter, fullLog) {
 
 
 exports.test = function (req, res, next) {
-  // const nodesID = [
-  //     {_id: '1000415'},
-  //     {_id: '5a47790c59921b15c4b944db'},
-  //     {_id: '1000415'},
-  //     {_id: '5a47790c59921b15c4b944da'},
-  //     {_id: '1000415'},
-  // ];
-  //
-  // const params =
-  //     //{query: {match : {albumKey : `"${"sizzla___2004-speak of jah-retail cd___0"}"`}}};
-  //     //{query: {match : {albumKey : "prout____de__la__vie"}}};
-  //     {
-  //         _sourceInclude: ['meta.artist', 'meta.genre'],
-  //         //body: {query: {match : {albumKey : "sizzla___2004-speak of jah-retail cd___0"}}},
-  //         body: {query: {match : {albumKey : "kavinsky___1986___0"}}}
-  //         //body: {query: {match : {albumKey : "PROUTnsky___1986___0"}}}
-  //     };
-  //
-  // const keys = [
-  //     "kavinsky___1986___0",
-  //     "kavinzefzaefrzefsky___1986___0",
-  //     "sizzla___2004-speak of jah-retail cd___0",
-  //     "kaviefzeffzefezfzefnsky___1986___0",
-  //     "kaviefzeffzefezfzefnsky___1986___0",
-  // ];
-  //
-  // const chunk = [];
-  //
-  // const nodes = [
-  //     { "_id" : "5a47790c59921b15c4b944db", "name" : "02 Le Fossoyeur.mp3", "publicName" : "02 Le Fossoyeur", "path" : "Brassens/02 Le Fossoyeur.mp3", "uri" : "E:\\Musique\\Brassens\\02 Le Fossoyeur.mp3", "parent" : { "$oid" : "5a47790a59921b15c4b93db9" }, "meta" : { "disk" : { "of" : "0", "no" : "0" }, "track" : { "of" : "0", "no" : "2" }, "albumartist" : "Georges Brassens", "genre" : ["Chanson"], "time" : "02:05", "year" : "1952", "album" : "La Mauvaise Réputation", "artist" : "Georges Brassens", "title" : "Le Fossoyeur" }, "isFile" : true },
-  //     { "_id" : "5a47790c59921b15c4b944fd", "name" : "10 - Genius Feat Gush.mp3", "publicName" : "10 - Genius Feat Gush", "path" : "C2C - Tetra (2012)/10 - Genius Feat Gush.mp3", "uri" : "E:\\Musique\\C2C - Tetra (2012)\\10 - Genius Feat Gush.mp3", "parent" : { "$oid" : "5a47790a59921b15c4b93dbc" }, "meta" : { "disk" : { "of" : "1", "no" : "1" }, "track" : { "of" : "14", "no" : "10" }, "albumartist" : "C2C", "genre" : ["Rap", "supergros"], "time" : "04:10", "year" : "2012", "album" : "Tetra", "autretestartist" : "C2C", "title" : "Genius Feat Gush" }, "isFile" : true },
-  //     { "_id" : "5a47790c57921b15c4b944xx", "name" : "test nouveau tracks", "publicName" : "test nouveau tracks", "path" : "C2C - Tetra (2012)/10 - Genius Feat Gush.mp3", "uri" : "E:\\Musique\\C2C - Tetra (2012)\\10 - Genius Feat Gush.mp3", "parent" : { "$oid" : "5a47790a59921b15c4b93dbc" }, "meta" : { "disk" : { "of" : "1", "no" : "1" }, "track" : { "of" : "14", "no" : "8" }, "albumartist" : "Test artist", "genre" : ["Rap"], "time" : "04:10", "year" : "2012", "album" : "TestAlbum", "artist" : "testartist5", "title" : "test nouveau tracks" }, "isFile" : true }
-  // ];
 
-  // exports.runElasticUpdates(
-  //     nodes,
-  //     (err, data) => {
-  //         if(err) return res.json(chunk);
-  //         res.json(data);
-  //     },
-  //     true
-  // );
-
-  function test1 () {
-    return new Promise((resolve, rej) => {
-      setTimeout(() => {
-        try {
-          resolve('timeout 1 fini!');
-          console.log('timeout 1 fini!');
-        }
-        catch (err) {
-          rej(err.message);
-          // throw err;
-        }
-      }, 200);
-    });
-  }
-
-  function test2 () {
-    return new Promise((resolve, rej) => {
-      setTimeout(() => {
-        try {
-          resolve('timeout 2 fini!');
-          console.log('timeout 2 fini!');
-        }
-        catch (err) {
-          rej(err.message);
-          // throw err;
-        }
-      }, 200);
-    });
-  }
-
-  function test3 (value) {
-    return new Promise((resolve, rej) => {
-      setTimeout(() => {
-        try {
-          resolve('test3 ok ---> ' + value);
-          console.log('timeout 3 fini!');
-        }
-        catch (err) {
-          rej(err.message);
-          // throw err;
-        }
-      }, 200);
-    });
-  }
-
-  function * genCallback () {
-    const ok1 = yield test1();
-    const ok2 = yield test2();
-    return [ok1, ok2];
-  }
-
-  function * testWithCallAsync (value) {
-    // try {
-    //     const ok1 = yield test1();
-    //     const ok3 = yield test3(value);
-    //     return [ok1, ok3];
-    // }
-    // catch(err){
-    //     console.error('catch du testAsync --->' + err);
-    //     //throw err;
-    // }
-
-
-    const ok3 = yield test3(value);
-
-    return ok3;
-  }
-
-  co(function * () {
-    try {
-      const result = yield testWithCallAsync(
-        yield genCallback()
-      );
-      return result;
-    } catch (err) {
-      console.error('catch du co ---> ' + err);
-      return ('catch du co ---> ' + err);
-    }
-
-    // const result = yield testWithCallAsync(
-    //     yield genCallback()
-    // );
-    // return result;
-  }).then(
-    data => {
-      res.json({
-        success: true,
-        value: data
-      })
-    },
-    err => {
-      res.json({
-        success: false,
-        value: err
-      })
-    });
-
-  // function* run(){
-  //     // Get tracks elastic documents.
-  //     //return extractExistingDocs(
-  //         //return yield promiseSimpleSearch('tracks', params);
-  //         //return yield switchActionOnAlbumsWithTracks(keys);
-  //     //);
-  //
-  //     return yield switchActionOnAlbumsWithTracks(
-  //         keys,
-  //         // Callback with tracks.
-  //         (key, data) => {
-  //             const album = {genre: [], artist: []};
-  //             let toUpdate = {};
-  //             for(let j = 0, m = data.length; j < m; j++){
-  //                 testAlbumNeedUpdate(album, data[j]._source.meta, toUpdate);
-  //             }
-  //             chunk.push(buildBulkRecord( 'update', 'album', 'album', {doc: toUpdate}, key ));
-  //         },
-  //         // Callback without tracks
-  //         key => {
-  //             chunk.push(buildBulkRecord( 'delete', 'album', 'album', null, key ) );
-  //         }
-  //     );
-  // }
-  //
-  // // Start query, filter, index operations.
-  // co(run).then(
-  //     // If success, call task runner with logs.
-  //     //data => res.json(data),
-  //     data => res.json(chunk),
-  //     // If error during process, call task runner with logs + error.
-  //     e => console.log(e),
-  // );
 };

@@ -171,7 +171,7 @@ class Queue extends Component {
               <p>Type the playlist's title you want to create.</p>
               <AddPlaylist
                 history={history}
-                tracks={playlist.tracks}
+                tracksId={playlist.tracks}
                 validation='Save'
                 redirect
                 onSave={this.handlerSavePlaylist}
@@ -182,7 +182,7 @@ class Queue extends Component {
           </Modal>
           }
           {/* Add tracks button. */}
-          <Button onClick={() => history.push(`/indexMusic?pl=${playlist.title}`)} icon basic inverted>
+          <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
                         Add tracks
           </Button>
 

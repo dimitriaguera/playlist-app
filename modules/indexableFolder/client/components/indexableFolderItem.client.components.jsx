@@ -2,6 +2,8 @@ import React from 'react'
 import { Button, Icon } from 'semantic-ui-react'
 import UploadZone from 'uploadZone/client/components/uploadZone.client.components'
 
+import style from './style/folderItem.scss'
+
 const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, onEditMetaTag, item, user, onAddItem }) => {
   const name = item.publicName || item.name;
 

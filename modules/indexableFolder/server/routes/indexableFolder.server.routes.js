@@ -46,10 +46,13 @@ module.exports = function (app) {
   // .delete(elastic.delete);
 
   // Get searching nodes from elastisearch query.
+  app.route('/api/album/:key').get(elastic.getAlbum);
+  app.route('/api/album/tracks/:key').get(elastic.getAlbumWithTracks);
   app.route('/api/search/:type').get(elastic.search);
   app.route('/api/suggest/:type').get(elastic.suggest);
 
   // Get a Node and attach it to req.
   app.param('id', nodes.getNodeById);
   app.param('query', nodes.getNodeFromQuery);
+  app.param('key', elastic.getAlbumByKey);
 };

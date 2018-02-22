@@ -30,12 +30,14 @@ class Album extends Component {
     const { history, fetchFiles, playingList } = _self.props;
 
     // Build folder path from url path.
-    let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
-    let path = ps.buildPath(pathArray);
+    const key = ps.removeFirstSeparator(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
+
+    console.log(key);
 
     // Test if album is already playing.
     // If album playing, mount data from store.
-    if (playingList.pl && playingList.pl.path === path) {
+    if (playingList.pl && playingList.pl.key === key) {
+      console.log('PL DETECTE');
       _self.setState({
         isActive: true,
         albumOfUrl: playingList
@@ -43,17 +45,17 @@ class Album extends Component {
     }
     // Else, query data from DB.
     else {
-      console.log(ps.urlEncode(path));
-      fetchFiles(ps.urlEncode(path))
+      console.log('PAS PL');
+      fetchFiles(ps.urlEncode(key))
         .then((data) => {
           if (!data.success) {
             return history.push('/not-found');
           }
-
+          console.log(data);
           const album = {
-            title: pathArray[pathArray.length - 1],
-            path: path,
-            tracks: data.msg
+            title: data.msg.name,
+            key: key,
+            tracks: data.msg.tracks
           };
 
           _self.setState({
@@ -76,11 +78,10 @@ class Album extends Component {
     if (_self.props.location.pathname !== nextProps.location.pathname) {
       // Test if album is already playing.
       // Get and clean path.
-      let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
-      let path = ps.buildPath(pathArray);
+      const key = ps.removeFirstSeparator(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
 
       // If album playing, mount data from store.
-      if (playingList.pl && playingList.pl.path === path) {
+      if (playingList.pl && playingList.pl.key === key) {
         return _self.setState({
           isActive: true,
           albumOfUrl: playingList
@@ -88,16 +89,16 @@ class Album extends Component {
       }
       // Else, query data from DB.
       else {
-        return fetchFiles(ps.urlEncode(path))
+        return fetchFiles(ps.urlEncode(key))
           .then((data) => {
             if (!data.success) {
               return history.push('/not-found');
             }
 
             const album = {
-              title: pathArray[pathArray.length - 1],
-              path: path,
-              tracks: data.msg
+              title: data.msg.name,
+              key: key,
+              tracks: data.msg.tracks
             };
 
             _self.setState({
@@ -114,7 +115,7 @@ class Album extends Component {
     // Else. Props albumList comes from store, and isn't empty if album playing.
     if (playingList !== this.props.playingList) {
       // So checking if store's albumList is already current album in component's state.
-      const isActive = (playingList.pl && playingList.pl.path === albumOfUrl.pl.path);
+      const isActive = (playingList.pl && playingList.pl.key === albumOfUrl.pl.key);
 
       // If same album, copy changes in local state, and set isActive to true.
       this.setState({
@@ -161,7 +162,7 @@ class Album extends Component {
     // Need to determine if changes must update playing album in state store,
     // or just update component state.
     // If this album mounted on component state is now playing, update via redux store.
-    if (playingList.pl && playingList.pl.path === albumOfUrl.pl.path) {
+    if (playingList.pl && playingList.pl.key === albumOfUrl.pl.key) {
       // Store updated album.
       return this.props.updateAlbumList(data);
     }
@@ -177,8 +178,11 @@ class Album extends Component {
     const { isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = albumOfUrl;
 
+    if(pl)console.log(pl.tracks)
+
     return (
       <div>{ pl &&
+
       <div>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Album</Label>
         <h1>{pl.title}</h1>
@@ -195,7 +199,7 @@ class Album extends Component {
             <AddPlaylist
               history={history}
               placeholder={`${pl.title}'s playlist`}
-              tracks={pl.tracks}
+              tracksId={pl.tracks.map(t => t.tracksId)}
               validation='Save'
               redirect
             />
@@ -233,7 +237,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     fetchFiles: (query) => dispatch(
-      get(`nodes/q/files?path=${query || ''}`)
+      get(`album/tracks/${query}`)
     ),
     updateAlbumList: (item) => dispatch(
       updateAlbumToPlay(item)

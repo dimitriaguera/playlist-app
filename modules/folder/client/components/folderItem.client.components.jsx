@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Icon } from 'semantic-ui-react'
 
-import style from './style/folderItem.scss'
+import style from '../../../indexableFolder/client/components/style/folderItem.scss'
 
 const FolderItem = (
   { onClick,

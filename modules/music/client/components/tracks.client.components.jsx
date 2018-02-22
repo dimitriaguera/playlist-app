@@ -25,7 +25,7 @@ class Tracks extends Component {
 
     const active = isActivePlaylist && (index === onPlayIndex);
     const iconName = isPaused ? 'pause' : 'play';
-    const title = item.meta.title || item.meta.TITLE;
+    const title = item.meta.title;
 
     let classes = ['pli-tracks'];
     if (active) classes.push('active');

@@ -261,7 +261,7 @@ class IndexableFolder extends Component {
     const { history } = this.props;
 
     // Update component via url update.
-    history.push(`/indexMusic/${path}`);
+    history.push(`/music/${path}`);
     e.preventDefault();
   }
 
@@ -270,7 +270,7 @@ class IndexableFolder extends Component {
     const { history } = this.props;
 
     // Update component via url update.
-    history.push(`/indexMusic`);
+    history.push(`/music`);
     e.preventDefault();
   }
 

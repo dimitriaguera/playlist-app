@@ -7,7 +7,7 @@ export const routes = [
   {
     private: false,
     route: {
-      path: '/indexMusic',
+      path: '/music',
       // exact: true,
       component: IndexableFolder
     }
