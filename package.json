@@ -1,14 +1,14 @@
 {
-  "name": "playlist-app",
+  "name": "playlistapp",
   "version": "0.0.1",
-  "description": "webapp to make and read music playlist's express/react/redux/semanticUI with auth system",
+  "description": "This application allowing you to manage, playing your music from anywhere",
   "main": "modules/core/client/index.js",
   "repository": "https://github.com/dimitriaguera/playlist-app.git",
-  "author": "Dimitri Aguera <dimitri.aguera@gmail.com>",
+  "author": "Dimitri Aguera <dimitri.aguera@gmail.com> & Marc Foletto <marc.foletto@gmail.com>",
   "scripts": {
     "test": "mocha",
     "start": "cross-env NODE_ENV=development node server",
-    "watch": "cross-env NODE_ENV=development webpack -w --progress --config webpack.dev.js",
+    "watch": "cross-env NODE_ENV=development webpack -w --progress --env.beep --config webpack.dev.js",
     "start-prod": "cross-env NODE_ENV=production node server",
     "build-prod": "cross-env NODE_ENV=production webpack --progress --config webpack.prod.js",
     "lint": "eslint . --ext .jsx --ext .js",
@@ -88,7 +88,8 @@
     "semantic-ui-react": "^0.73.1",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3",
-    "svgo": "^1.0.3"
+    "svgo": "^1.0.3",
+    "webpack-beep-plugin": "^1.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

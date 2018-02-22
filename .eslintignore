@@ -1,4 +1,5 @@
-marcW
-node_modules
-public
-test
+/data/
+/node_modules/
+/public/
+/test/
+/work/
