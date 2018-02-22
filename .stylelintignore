@@ -1,2 +1,6 @@
-/marcW/
+/config/
+/data/
 /node_modules/
+/public/
+/test/
+/work/

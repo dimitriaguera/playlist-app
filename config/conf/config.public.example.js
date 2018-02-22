@@ -6,10 +6,10 @@
 module.exports = {
 
   app: {
-    name: 'react-app-starter',
-    title: 'Playlist',
-    description: 'Une super description',
-    keywords: 'de, super, mots, clés',
+    name: 'PlaylistApp',
+    title: 'PlaylistApp',
+    description: 'This streaming application allowing you to manage, playing your music from anywhere.',
+    keywords: 'music, streaming, manage, playing',
     logo: '/static/assets/img/logo.png',
     favicon: '/static/assets/img/ico.png'
   },

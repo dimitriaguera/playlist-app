@@ -13,7 +13,7 @@ const ps = require(path.resolve('./modules/core/client/services/core.path.servic
 
 exports.read = function (req, res, next) {
   // Build absolute path.
-  const DRIVE = config.folder_base_url;
+  const DRIVE = config.musicFolder;
   const NOT_SECURE_STRING = req.query.path;
 
   const query = ps.cleanPath(NOT_SECURE_STRING);

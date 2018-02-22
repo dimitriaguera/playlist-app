@@ -22,6 +22,7 @@ const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
 
+const fs = require('fs-extra')
 /**
  * Check basics needs on config file.
  */
@@ -46,6 +47,43 @@ module.exports.checkConfig = function () {
   } else {
     console.log(chalk.red('You can\'t read and write meta tag please install taglib2 or music-metadata'));
   }
+
+
+  function checkAndCreateFolder(path, name) {
+    // Check if exist
+    fs.pathExists(path, (err, exists) => {
+      if (err) {
+        console.log(chalk.bgRed(`Problem when checking the ${name} folder`));
+        console.log(chalk.bgRed(path));
+        console.log(chalk.bgRed('Exit the app'));
+        return process.abort();
+      }
+
+      // Don't exist create it
+      if (!exists) {
+
+        console.log(chalk.red(`Note : the ${name} folder doesn't exists`));
+
+        fs.ensureDir(path, err => {
+          if (err) {
+            console.log(chalk.bgRed(`Problem when creating the ${name} folder`));
+            console.log(chalk.bgRed(path));
+            console.log(chalk.bgRed('Exit the app'));
+            return process.abort();
+          }
+          console.log(chalk.blue(`The ${name} folder was created successfully`));
+        });
+      }
+
+      console.log(chalk.blue(`${name} path : ${path}`));
+
+    });
+  }
+
+  checkAndCreateFolder(config.musicFolder, 'music');
+  checkAndCreateFolder(config.picturesFolder, 'pictures');
+
+
 };
 
 /**
@@ -103,12 +141,26 @@ module.exports.initLogger = function (app) {
  */
 module.exports.initDatabase = function (app) {
   const dbUri = `mongodb://${config.db.host}:${config.db.port}/${config.db.database}`;
-  const opt = {};
+
+  let opt = {}
+
+  if (config.db.user && config.db.password) {
+    opt.user = config.db.user;
+    opt.pass = config.db.password;
+  }
+
   opt.useMongoClient = true;
 
   mongoose.Promise = require('bluebird');
 
-  mongoose.connect(dbUri, opt);
+  mongoose.connect(dbUri, opt)
+    .then( () => console.log(chalk.green('MONGO OK')))
+    .catch(e => {
+      console.log(chalk.bgRed('MONGO : Error when connecting to mongodb'));
+      console.log(chalk.bgRed('Exit the app'));
+      return process.abort();
+    });
+
 };
 
 /**
@@ -146,7 +198,7 @@ module.exports.initViewEngine = function (app) {
 module.exports.initRoutes = function (app) {
   // Virtual path for Static files
   app.use('/static', express.static(path.resolve('./public')));
-  app.use('/pictures', express.static(path.resolve(config.public_base_url)));
+  app.use('/pictures', express.static(path.resolve(config.picturesFolder)));
 
   // Modules routes
   require('../modules/users/server/routes/users.server.routes')(app);
@@ -211,6 +263,8 @@ module.exports.startApp = function () {
       process.exit();
     } else {
       console.log(chalk.bgRed('Error when starting server'));
+      serve.close();
+      process.exit();
     }
   });
 
@@ -218,7 +272,7 @@ module.exports.startApp = function () {
     console.log(chalk.green(`SERVER STARTED at ${dateFormat(new Date(), 'isoDateTime')}`));
     console.log(chalk.green(`PORT LISTENED :: ${config.port}`));
     console.log(chalk.yellow(`MODE ---> ${process.env.NODE_ENV}`));
-    console.log(chalk.blue(`SOCKET listening`));
+    console.log(chalk.green(`SOCKET listening`));
     seedDB.populate();
   });
 };

@@ -9,6 +9,8 @@ const path = require('path');
 // Plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const BeepPlugin = require('webpack-beep-plugin');
+
 module.exports = {
   entry: {
     main: path.resolve(__dirname, 'modules/core/client/index.js')
@@ -78,6 +80,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'views/500.server.views.html',
       template: 'modules/core/server/views/500.server.views.html'
-    })
+    }),
+    new BeepPlugin()
   ]
 };

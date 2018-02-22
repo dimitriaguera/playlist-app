@@ -11,8 +11,8 @@ const fs = require('fs-extra');
 
 const ps = require(path.resolve('./modules/core/client/services/core.path.services.js'));
 
-const DRIVE = config.folder_base_url;
-const PUBLIC_FILE = path.isAbsolute(config.public_base_url) ? config.public_base_url : path.join(path.dirname(require.main.filename || process.mainModule.filename), config.public_base_url);
+const DRIVE = config.musicFolder;
+const PUBLIC_FILE = path.isAbsolute(config.picturesFolder) ? config.picturesFolder : path.join(path.dirname(require.main.filename || process.mainModule.filename), config.picturesFolder);
 
 // Cover Files Test Patterns.
 const PATTERN_FILES = config.covers.pattern.files;
