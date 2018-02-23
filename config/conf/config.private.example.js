@@ -57,7 +57,9 @@ module.exports = {
     illegalUsernames: [
       'administrator', 'password', 'user',
       'unknown', 'anonymous', 'null', 'undefined', 'api'
-    ]
+    ],
+    defaultAdminId: 'admin',
+    defaultAdminPassword: 'adminpwd'
   },
 
   session: {
@@ -73,7 +75,7 @@ module.exports = {
     sizeChunkElastic: 2000
   },
 
-  // Uncomment lines with first letter in upper case for case sensitive system
+  // Comment lines with first letter in upper case for case insensitive system
   covers: {
     // Files pattern where to search existing cover files into folders.
     pattern: {
@@ -102,14 +104,15 @@ module.exports = {
   },
 
   seedDB: {
-    haveToSeed: true, // Create the admin user the first time you start playlistapp.
-    collections: [{
+    haveToSeed: false, // Seed some data in Mongo.
+    collections: [{ // Make One user
       model: 'User',
       documents: [{
-        username: 'admin', // Change administrator id
-        password: 'adminpwd', // Change administrator password
-        roles: ['ADMIN_ROLE', 'USER_ROLE']
+        username: 'user1', // user id
+        password: 'user1pwd', // user password
+        roles: ['USER_ROLE']
       }]
     }]
   }
+
 };

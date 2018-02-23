@@ -22,7 +22,8 @@ const http = require('http');
 const socketServer = require('socket.io');
 const socketsEvents = require('./sockets/sockets.conf');
 
-const fs = require('fs-extra')
+const fs = require('fs-extra');
+
 /**
  * Check basics needs on config file.
  */
