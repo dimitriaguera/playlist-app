@@ -307,11 +307,7 @@ function createCoverFile(src, coverPath, visitedPath, callback) {
         // Test if there are sub-folders that can contain covers files.
         function(next){
             testFiles(folder, PATTERN_FOLDERS, subFolder => {
-<<<<<<< HEAD
                 let action = () => readPictAndSave(src, cover, callbackFs);
-=======
-                let action = () => readPictAndSave(audioFileSrc, cover, callback);
->>>>>>> 9d536d2e6fcfd73b8c336dc6e32506604d4e8e16
                 if(subFolder) next( null, subFolder );  // Call next step with arg.
                 else next( action );                    // Stop process and call action.
             });
