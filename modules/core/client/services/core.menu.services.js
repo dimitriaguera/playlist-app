@@ -3,14 +3,13 @@
  */
 import MenuModules from '../../../**/routes/*.client.menu.js';
 
-export const getMenuLink = function() {
+export const getMenuLink = function () {
+  const menuItems = [];
 
-    const menuItems = [];
-
-    MenuModules.map( item => {
-        item.menuItems.map( menuItem => {
-            menuItems.push(menuItem);
-        });
+  MenuModules.map(item => {
+    item.menuItems.map(menuItem => {
+      menuItems.push(menuItem);
     });
-    return menuItems;
+  });
+  return menuItems;
 };

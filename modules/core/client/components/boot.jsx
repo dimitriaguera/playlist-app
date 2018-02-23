@@ -13,40 +13,39 @@ import App from './App.jsx';
  *
  */
 class Boot extends Component {
+  // Start boot process.
+  componentWillMount () {
+    bootstrap();
+  }
 
-    // Start boot process.
-    componentWillMount(){
-        bootstrap();
-    }
+  render () {
+    const isBooted = this.props.isBooted;
+    // Application's tags
+    const application = (
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    );
 
-    render() {
-        const isBooted = this.props.isBooted;
-        // Application's tags
-        const application = (
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
-        );
+    // Loader's tags
+    const onBoot = (
+      <Loader active />
+    );
 
-        // Loader's tags
-        const onBoot = (
-            <Loader active/>
-        );
-
-        // If boot session end, call App.
-        // Else, call Loader.
-        return (
-            <div>
-                {isBooted ? application : onBoot}
-            </div>
-        )
-    }
+    // If boot session end, call App.
+    // Else, call Loader.
+    return (
+      <div>
+        {isBooted ? application : onBoot}
+      </div>
+    )
+  }
 }
 
 const mapStateToProps = state => {
-    return {
-        isBooted: state.bootStore.isBooted,
-    }
+  return {
+    isBooted: state.bootStore.isBooted
+  }
 };
 
 export default connect(mapStateToProps)(Boot);

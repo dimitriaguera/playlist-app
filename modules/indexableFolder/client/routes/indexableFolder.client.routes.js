@@ -4,12 +4,12 @@
 import IndexableFolder from 'indexableFolder/client/components/indexableFolder.client.components.jsx';
 
 export const routes = [
-    {
-        private: false,
-        route: {
-            path: '/indexMusic',
-            //exact: true,
-            component: IndexableFolder,
-        },
-    },
+  {
+    private: false,
+    route: {
+      path: '/music',
+      // exact: true,
+      component: IndexableFolder
+    }
+  }
 ];

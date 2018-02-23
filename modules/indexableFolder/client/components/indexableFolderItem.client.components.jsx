@@ -1,72 +1,74 @@
 import React from 'react'
 import { Button, Icon } from 'semantic-ui-react'
-import DropZone from './dropZone.client.components'
+import UploadZone from 'uploadZone/client/components/uploadZone.client.components'
 
-import EditMetaTag from '../../../../modules/music/client/components/editMetaTag.client.components.jsx.js'
+import style from './style/folderItem.scss'
 
+const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, onEditMetaTag, item, user, onAddItem }) => {
+  const name = item.publicName || item.name;
 
-const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, item, user, onAddItem }) => {
+  let classes = ['fol-item'];
+  let iconName = 'music';
 
-    const name = item.publicName || item.name;
+  if (!item.isFile) {
+    classes.push('fol-item-isfolder');
+    iconName = 'folder';
+  }
 
-    let classes = ['fol-item'];
-    let iconName = 'music';
-
-    if( !item.isFile ) {
-        classes.push('fol-item-isfolder');
-        iconName = 'folder';
+  const ItemMenu = () => {
+    if (!item.isFile) {
+      return (
+        <span className='fol-item-menu'>
+          <span className='fol-item-menu-inner'>
+            <Button onClick={(e) => onPlayFolder(e, item)} icon basic color='teal'>
+              <Icon name='play' />
+            </Button>
+            <Button onClick={(e) => onListTracks(e, item)} icon basic color='teal'>
+              <Icon name='list' />
+            </Button>
+            <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color='teal'>
+              <Icon name='plus' />
+            </Button>
+            <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>
+              <Icon name='tags' />
+            </Button>
+          </span>
+        </span>
+      );
     }
 
-    const ItemMenu = () => {
-      if( !item.isFile ) {
-          return (
-              <span className='fol-item-menu'>
-                  <span className='fol-item-menu-inner'>
-                      <Button onClick={(e) => onPlayFolder(e, item)} icon basic color="teal">
-                          <Icon name='play' />
-                      </Button>
-                      <Button onClick={(e) => onListTracks(e, item)} icon basic color="teal">
-                          <Icon name='list' />
-                      </Button>
-                      <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color="teal">
-                          <Icon name='plus' />
-                      </Button>
-                      <EditMetaTag item={item}/>
-                  </span>
-            </span>
-          );
-      }
+    else {
+      return (
+        <span className='fol-item-menu'>
+          <span className='fol-item-menu-inner'>
+            <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color='teal'>
+              <Icon name='plus' />
+            </Button>
+            <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>
+              <Icon name='tags' />
+            </Button>
+          </span>
+        </span>
+      );
+    }
+  };
 
-      else {
-          return (
-              <span className='fol-item-menu'>
-                <span className='fol-item-menu-inner'>
-                    <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color="teal">
-                        <Icon name='plus' />
-                    </Button>
-                    <EditMetaTag item={item}/>
-                </span>
-            </span>
-          );
-      }
-    };
+  return (
+    <UploadZone isFile={item.isFile} targetPath={item.path}>
+      <div className={classes.join(' ')}>
 
-    return (
-        <DropZone>
-          <div className={classes.join(' ')}>
-
-              <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
-                  <Icon name={iconName}/>
-                  <span className='fol-item-title'>
-                      {name}
-                  </span>
-              </a>
-              <ItemMenu/>
+        <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
+          <Icon name={iconName} />
+          <span className='fol-item-title'>
+            {name}
+          </span>
+        </a>
+        <ItemMenu />
 
 
-          </div>
-        </DropZone>
-    );
+      </div>
+    </UploadZone>
+  );
 };
 
 export default IndexableFolderItem

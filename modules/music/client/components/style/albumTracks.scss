@@ -1,9 +1,28 @@
 .album-tracks {
-  margin-top: 50px;
-  padding-right: 20px;
+  position: absolute;
+  padding: 30px 20px;
+  height: 500px;
+  overflow-y: auto;
+  z-index: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
 
-  div {
-    padding: 15px 0;
-    border-top: 1px solid #3d3d3d;
+  div div {
+    height: 40px;
+    overflow: hidden;
+    padding: 5px 0;
+    //border-top: 1px solid #3d3d3d;
+
+    .album-tracks-menu-inner {
+      float: right;
+    }
+
+    .album-tracks-title {
+      padding-left: 10px;
+    }
+
+    &.playing {
+      background-color: blue;
+    }
   }
 }

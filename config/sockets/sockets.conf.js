@@ -6,35 +6,33 @@
  * @type {{register, emit}}
  *
  */
-module.exports = (function() {
+module.exports = (function () {
+  const socketsActions = {};
 
-    const socketsActions = {};
+  return {
 
-    return {
+    register: (event, callback) => {
+      // If event already registered, return.
+      if (socketsActions[event]) {
+        return console.log(`Event ${event} already registered for namespace A VENIR`);
+      }
 
-        register: ( event, callback ) => {
+      // Else, register event.
+      socketsActions[event] = {
+        call: callback
+      };
+    },
 
-            // If event already registered, return.
-            if ( socketsActions[event] ) {
-                return console.log(`Event ${event} already registered for namespace A VENIR`);
-            }
-
-            // Else, register event.
-            socketsActions[event] = {
-                call: callback,
-            };
-        },
-
-        emit: ( event, data ) => {
-            if ( socketsActions[event] ) {
-                console.log('emit');
-                try {
-                    socketsActions[event].call(data);
-                }
-                catch ( err ) {
-                    throw new Error( err );
-                }
-            }
-        },
+    emit: (event, data) => {
+      if (socketsActions[event]) {
+        console.log('emit');
+        try {
+          socketsActions[event].call(data);
+        }
+        catch (err) {
+          throw new Error(err);
+        }
+      }
     }
+  }
 }());

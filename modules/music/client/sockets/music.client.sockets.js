@@ -17,17 +17,21 @@ import { mustUpdate, getPlayIndex } from 'music/client/helpers/music.client.help
  * @param store
  * @returns {*}
  */
-export const mountSocket = function(store) {
+export const mountSocket = function (store) {
+  // Create a socket.
+  const socket = socketServices.getPublicSocket();
 
-    // Create a socket.
-    const socket = socketServices.getPublicSocket();
+  // Apply event.
+  socket.on('save:playlist', (data) => {
+    checkAndUpdatePlaylistHandler(store, data);
+  });
 
-    // Apply event.
-    socket.on('save:playlist', (data) => {
-        checkAndUpdatePlaylistHandler(store, data);
-    });
+  // Apply event when save meta
+  // @todo update store, playlist, onplay
+  // socket.on('save:meta', (data) => {
+  // });
 
-    return socket;
+  return socket;
 };
 
 /**
@@ -38,46 +42,42 @@ export const mountSocket = function(store) {
  * @param store
  * @param updatedPl
  */
-function checkAndUpdatePlaylistHandler(store, updatedPl) {
+function checkAndUpdatePlaylistHandler (store, updatedPl) {
+  let state = store.getState();
+  let plState = state.playlistStore;
 
-    let state = store.getState();
-    let plState = state.playlistStore;
+  // On playlist mode, check if need to update playling list.
+  if (plState.mode === 'playlist') {
+    let toUpdate = plState.playingList;
 
-    // On playlist mode, check if need to update playling list.
-    if( plState.mode === 'playlist' ){
-
-        let toUpdate =  plState.playingList;
-
-        // If playlist updated is currently playing on app.
-        if( mustUpdate(updatedPl, toUpdate.pl) ){
-
-            // If server emit updated playlist with no tracks, do something.
-            // @TODO COMPORTEMENT A CHANGER
-            if( updatedPl.tracks.length === 0 ){
-                alert('Diantre, la playlist en cours de lecture est vide....');
-            }
-            // Dispatch updated playlist and playIndex.
-            else {
-                store.dispatch(
-                    updatePlaylistToPlay({
-                        pl: updatedPl,
-                        onPlayIndex: getPlayIndex(updatedPl, toUpdate)
-                    })
-                );
-            }
-        }
+    // If playlist updated is currently playing on app.
+    if (mustUpdate(updatedPl, toUpdate.pl)) {
+      // If server emit updated playlist with no tracks, do something.
+      // @TODO COMPORTEMENT A CHANGER
+      if (updatedPl.tracks.length === 0) {
+        alert('Diantre, la playlist en cours de lecture est vide....');
+      }
+      // Dispatch updated playlist and playIndex.
+      else {
+        store.dispatch(
+          updatePlaylistToPlay({
+            pl: updatedPl,
+            onPlayIndex: getPlayIndex(updatedPl, toUpdate)
+          })
+        );
+      }
     }
+  }
 
-    // If a playlist is activated, check if need to update.
-    if( plState.activePlaylist !== null ){
+  // If a playlist is activated, check if need to update.
+  if (plState.activePlaylist !== null) {
+    let plToUpdate = plState.activePlaylist;
 
-        let plToUpdate =  plState.activePlaylist;
-
-        // Dispatch updated activePlaylist.
-        if( mustUpdate(updatedPl, plToUpdate) ){
-            store.dispatch(
-                updateActivePlaylist(updatedPl)
-            );
-        }
+    // Dispatch updated activePlaylist.
+    if (mustUpdate(updatedPl, plToUpdate)) {
+      store.dispatch(
+        updateActivePlaylist(updatedPl)
+      );
     }
+  }
 }

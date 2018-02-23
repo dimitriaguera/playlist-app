@@ -3,22 +3,21 @@
  */
 const chalk = require('chalk');
 
-function buildBulk( index, type, data ) {
+function buildBulk (data) {
+  const bulkBody = [];
 
-    const bulkBody = [];
-
-    data.forEach((item) => {
-        bulkBody.push({
-            index: {
-                _index: index,
-                _type: type,
-                _id: item._id,
-            }
-        });
-        bulkBody.push(item);
+  data.forEach(({action_type, _index, _type, _doc, _id}) => {
+    bulkBody.push({
+      [action_type]: {
+        _index: _index,
+        _type: _type,
+        _id: _id
+      }
     });
+    if (_doc) bulkBody.push(_doc);
+  });
 
-    return {body: bulkBody};
+  return {refresh: true, body: bulkBody};
 }
 
 /**
@@ -26,22 +25,17 @@ function buildBulk( index, type, data ) {
  * @param client
  * @returns {function(*=, *)}
  */
-function indexBulk( client ) {
-    return (data, param, callback) => {
-
-        const index = param.index || 'folder';
-        const type = param.type || 'album';
-
-        client.bulk(buildBulk(index, type, data))
-            .then( (resp) => {
-                console.log(chalk.cyan(`Elasticsearch: Creation ${index} index type ${type} OK. Took ${resp.took} ms.`));
-                callback(null, resp);
-            })
-            .catch((err) => {
-                callback(err);
-            });
-
-    }
+function indexBulk (client) {
+  return (data, callback) => {
+    client.bulk(buildBulk(data))
+      .then((resp) => {
+        console.log(chalk.cyan(`Elasticsearch: bulk index on ${data.length} documents OK. Took ${resp.took} ms.`));
+        callback(null, resp);
+      })
+      .catch((err) => {
+        callback(err);
+      });
+  }
 }
 
 exports.indexBulk = indexBulk;
@@ -51,17 +45,15 @@ exports.indexBulk = indexBulk;
  * @param client
  * @returns {function(*=, *)}
  */
-function indexCreate( client ) {
-    return (param, callback) => {
+function indexCreate (client) {
+  return (param, callback) => {
+    const index = param.index;
+    const body = param.body;
 
-        const index = param.index;
-        const body = param.body;
-
-        client.indices.create({index:index, body:body}, (err, data) => {
-
-            callback(err, data);
-        });
-    }
+    client.indices.create({index: index, body: body}, (err, data) => {
+      callback(err, data);
+    });
+  }
 }
 
 exports.indexCreate = indexCreate;
@@ -71,34 +63,33 @@ exports.indexCreate = indexCreate;
  * @param client
  * @returns {function(*=)}
  */
-function indexDelete( client ) {
-    return ( index, callback ) => {
-        client.indices.exists({index: index}, (err, resp) => {
+function indexDelete (client) {
+  return (index, callback) => {
+    client.indices.exists({index: index}, (err, resp) => {
+      if (err) return callback(err);
 
-            if(err) return callback(err);
-
-            if (resp) {
-                return client.indices.delete({
-                        index: index
-                    },
-                    callback
-                );
-            }
-            callback(null, `${index} index not found.`);
-        });
-    }
+      if (resp) {
+        return client.indices.delete({
+          index: index
+        },
+        callback
+        );
+      }
+      callback(null, `${index} index not found.`);
+    });
+  }
 }
 exports.indexDelete = indexDelete;
 
 
-function putTemplate( client ) {
-    return ( params, callback ) => {
-        client.indices.putTemplate({
-                params: params
-            },
-            callback
-        );
-    }
+function putTemplate (client) {
+  return (params, callback) => {
+    client.indices.putTemplate({
+      params: params
+    },
+    callback
+    );
+  }
 }
 
 exports.putTemplate = putTemplate;

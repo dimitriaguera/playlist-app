@@ -5,30 +5,28 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const path = require('path');
-const config = require(path.resolve('./config/env/config.server'));
+
 
 const TaskSchema = new Schema ({
 
-    name: {
+    memId: {
+      type: String,
+    },
+
+    key: {
         type: String,
-        required: true,
     },
 
     unique: {
         type: Boolean,
-        default: true,
     },
 
     status: {
-        type: String,
-        enum: ['pending', 'rejected', 'done'],
-        default: 'pending',
+      type: String,
     },
 
     created: {
         type: Date,
-        default: Date.now
     },
 
     ended: {
@@ -40,4 +38,4 @@ const TaskSchema = new Schema ({
     }
 });
 
-module.exports = mongoose.model('Task', TaskSchema);
+module.exports = mongoose.model('TaskDb', TaskSchema);

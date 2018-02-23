@@ -1,58 +1,107 @@
-'use strict';
 /**
  * Created by Dimitri Aguera on 20/09/2017.
  */
+
+'use strict';
+
 const path = require('path');
 const async = require('async');
 const chalk = require('chalk');
-const mongoose = require('mongoose');
 const config = require('../env/config.server');
 const User = require(path.resolve('./modules/users/server/models/users.server.models.js'));
 
 const models = {
-    User,
+  User
 };
 
-module.exports.populate = function() {
+const checkIfThereAtLeastOneAdminAndCreateIt = function() {
 
-    if ( !config.seedDB.haveToSeed ) return;
+  User
+    .findOne({roles: {$in: ['ADMIN_ROLE']}})
+    .then(foundOne => {
 
-    const collections = config.seedDB.collections;
+      // If no admin create it
+      if (!foundOne) {
+        User.create(
+          {
+            username: config.security.defaultAdminId,
+            password: config.security.defaultAdminPassword,
+            roles: ['ADMIN_ROLE', 'USER_ROLE']
+          }
+        )
+          .then( () => {
+            console.log(chalk.red(`We have created one admin user : ${config.security.defaultAdminId}/${config.security.defaultAdminPassword}`));
+            console.log(chalk.bgRed('Please Change It PassWord'));
+          })
+          .catch( () => {
+            console.error(chalk.bgRed('Error don\'t manage to create Admin User'));
+          })
+      } else {
+        // Check if admin is the default Pass
+        // If it is print a warning message
+        User
+          .findOne({username: config.security.defaultAdminId})
+          .exec()
+          .then( userAdmin => {
+            userAdmin.comparePassword('adminpwd')
+              .then( test => {
+                if (test) console.error(chalk.bgRed('YOU MUST CHANGE THE ADMIN PASS'))
+              })
+              .catch(e => console.log(e));
+          })
+          .catch(e => console.log(e));
+      }
+    })
+    .catch(e => console.trace(e))
 
-    async.each( collections, ( item, cbOut ) => {
+};
 
-        const model = models[item.model];
-        const documents = item.documents;
+module.exports.populate = function () {
 
-        let it = 0;
+  checkIfThereAtLeastOneAdminAndCreateIt();
 
-        async.each( documents, ( data, cbInn ) => {
+  if (!config.seedDB.haveToSeed) return;
 
-            let count = it;
-            model.create( data, err => {
-                if ( err ) {
-                    console.error(chalk.red(`Error seeds on creating document ${count} of ${item.model} model`));
-                    console.error(chalk.red(`Error seeds: ${err.message}`));
-                } else {
-                    console.log(`Successfully seed your DB on created document ${count} of ${item.model} model`);
-                }
-            });
+  const collections = config.seedDB.collections;
 
-            it ++;
-            cbInn();
+  async.each(collections, (item, cbOut) => {
+    const model = models[item.model];
+    const documents = item.documents;
 
-        }, err => {
-            if ( err ) {
-                console.log('Error inner seeds')
-            }
+    let it = 0;
+
+    async.each(documents, (data, cbInn) => {
+      let count = it + 1;
+
+      try {
+        model.create(data, err => {
+          if (err) {
+            console.error(chalk.red(`Error seeds on creating document ${count} of "${item.model}" model.`));
+            console.error(chalk.red(`Error seeds: ${err.message}`));
+          } else {
+            console.log(`Successfully seed your DB on created document ${count} of "${item.model}" model.`);
+          }
         });
 
-        cbOut();
+        it++;
+        cbInn();
+      } catch (e) {
+        console.error(chalk.red(`Error seeds on creating document of "${item.model}" model. Model Doesn't exist.`));
+      }
 
     }, err => {
-        if ( err ) {
-            return console.log('Error outer seeds');
-        }
-        return console.log('Outer seeds ok');
+      if (err) {
+        console.log('Error inner seeds')
+      }
     });
+
+    cbOut();
+  }, err => {
+    if (err) {
+      return console.log('Error outer seeds');
+    }
+    return console.log('Outer seeds ok');
+  });
+
+
 };

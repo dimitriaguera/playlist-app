@@ -6,62 +6,59 @@ import { allowDisplayItem } from 'users/client/services/users.auth.services'
 import { getMenuLink } from 'core/client/services/core.menu.services'
 
 class Header extends Component {
-
-    constructor() {
-        super();
-        this.state = {
-            menuItems: getMenuLink(),
-        }
+  constructor () {
+    super();
+    this.state = {
+      menuItems: getMenuLink()
     }
+  }
 
-    render() {
+  render () {
+    const { user } = this.props;
+    const { menuItems } = this.state;
 
-        const { user } = this.props;
-        const { menuItems } = this.state;
-
-        return (
-            <header className='app-header-container' style={{zIndex:1002, position:'relative'}}>
-                <Menu as='nav' fixed='top' size='large' inverted color='teal'>
-                    {buildMenuItems( menuItems, user )}
-                </Menu>
-            </header>
-        )
-    }
+    return (
+      <header className='app-header-container' style={{zIndex: 1002, position: 'relative'}}>
+        <Menu as='nav' fixed='top' size='large' inverted color='teal'>
+          {buildMenuItems(menuItems, user)}
+        </Menu>
+      </header>
+    )
+  }
 }
 
 const mapStateToProps = state => {
-    return {
-        user: state.authenticationStore._user,
-    }
+  return {
+    user: state.authenticationStore._user
+  }
 };
 
 const HeaderContainer = connect(
-    mapStateToProps,
-    null
+  mapStateToProps,
+  null
 )(Header);
 
 
 // HELPER
-function buildMenuItems( items, user ) {
-    console.log('render header');
+function buildMenuItems (items, user) {
+  console.log('render header');
 
-    return items.map( (item, i) => {
+  return items.map((item, i) => {
+    const { component: Component, isPrivate, hiddenOnAuth, roles } = item;
 
-        const { component:Component, isPrivate, hiddenOnAuth, roles } = item;
-
-        // Hide elements if authenticated.
-        if ( hiddenOnAuth && user ) {
-            return null;
-        }
-        // Hide elements if non-authenticated or roles no match.
-        else if ( isPrivate && !allowDisplayItem( user, roles )) {
-            return null;
-        }
-        // Else, render menu entry element.
-        else {
-            return <Component key={i} />;
-        }
-    });
+    // Hide elements if authenticated.
+    if (hiddenOnAuth && user) {
+      return null;
+    }
+    // Hide elements if non-authenticated or roles no match.
+    else if (isPrivate && !allowDisplayItem(user, roles)) {
+      return null;
+    }
+    // Else, render menu entry element.
+    else {
+      return <Component key={i} />;
+    }
+  });
 }
 
 export default HeaderContainer

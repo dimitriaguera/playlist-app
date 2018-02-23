@@ -6,99 +6,93 @@ import Rx from 'rx'
 import style from './style/searchBar.scss'
 
 class SearchFolderBar extends Component {
+  constructor () {
+    super();
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleTrackOnly = this.handleTrackOnly.bind(this);
+    this.state = {
+      check1: false,
+      inputText: ''
+    };
+  }
 
-    constructor() {
-        super();
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleTrackOnly = this.handleTrackOnly.bind(this);
-        this.state = {
-            check1: false,
-            inputText: '',
-        };
-    }
+  componentDidMount () {
+    const _self = this;
 
-    componentDidMount() {
+    const searchApi = (term) => {
+      return _self.props.search(`${term}&ot=${_self.state.check1}`);
+    };
 
-        const _self = this;
+    const obs = Rx.Observable.fromEvent(this.inputText, 'keyup')
+      .pluck('target', 'value')
+      .filter(text => text.length > 1)
+      .debounce(500 /* ms */)
+      .distinctUntilChanged()
+      .flatMapLatest(searchApi)
+      .pluck('msg', 'hits', 'hits');
 
-        const searchApi = (term) => {
-            return _self.props.search(`${term}&ot=${_self.state.check1}`);
-        };
+    obs.subscribe(
+      data => {
+        const nodes = data.map((item) => item._source);
+        _self.props.handlerResult(nodes);
+      },
 
-        const obs = Rx.Observable.fromEvent(this.inputText, 'keyup')
-            .pluck('target', 'value')
-            .filter(text => text.length > 1 )
-            .debounce(500 /* ms */)
-            .distinctUntilChanged()
-            .flatMapLatest(searchApi)
-            .pluck('msg', 'hits', 'hits');
+      error => {
+        _self.setState({error: error});
+      });
+  }
 
-        obs.subscribe(
-            data => {
-                const nodes = data.map((item) => item._source);
-                _self.props.handlerResult(nodes);
-            },
+  // Make Form input controlled.
+  handleInputChange (e) {
+    const target = e.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
 
-            error => {
-                _self.setState({error: error});
-            });
+    this.setState({
+      [name]: value
+    });
+  }
 
-    }
+  // Check tracks only change.
+  handleTrackOnly (e) {
+    this.handleInputChange(e);
 
-    // Make Form input controlled.
-    handleInputChange(e) {
+    const { inputText } = this.state;
+    const value = e.target.checked;
+    const _self = this;
 
-        const target = e.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-
-        this.setState({
-            [name]: value
-        });
-    }
-
-    // Check tracks only change.
-    handleTrackOnly(e) {
-
-        this.handleInputChange(e);
-
-        const { inputText } = this.state;
-        const value = e.target.checked;
-        const _self = this;
-
-        this.props.search(`${inputText}&ot=${value}`)
-            .then((data) => {
-                if( data.success ) {
-                    const nodes = data.msg.hits.hits.map((item) => item._source);
-                    _self.props.handlerResult(nodes);
-                }
-            });
-    }
+    this.props.search(`${inputText}&ot=${value}`)
+      .then((data) => {
+        if (data.success) {
+          const nodes = data.msg.hits.hits.map((item) => item._source);
+          _self.props.handlerResult(nodes);
+        }
+      });
+  }
 
 
-    render(){
-
-        return (
-            <div style={this.props.style} className='search-bar'>
-                <input ref={(element) => this.inputText=element } onChange={this.handleInputChange} type='text' name='inputText' placeholder='Search...' className='search-input'/>
-                <label htmlFor='check1'>Tracks only</label>
-                <input ref={(element) => this.check1=element } onChange={this.handleTrackOnly} type='checkbox' name='check1' id='check1' className='search-checkbox'/>
-            </div>
-        );
-    }
+  render () {
+    return (
+      <div style={this.props.style} className='search-bar'>
+        <input ref={(element) => this.inputText = element} onChange={this.handleInputChange} type='text' name='inputText' placeholder='Search...' className='search-input' />
+        <label htmlFor='check1'>Tracks only</label>
+        <input ref={(element) => this.check1 = element} onChange={this.handleTrackOnly} type='checkbox' name='check1' id='check1' className='search-checkbox' />
+      </div>
+    );
+  }
 }
 
 const mapDispatchToProps = dispatch => {
-    return {
-        search: ( term ) => dispatch(
-            get(`search/album?search=${term}`)
-        ),
-    }
+  return {
+    search: (term) => dispatch(
+      get(`search/album?search=${term}`)
+    )
+  }
 };
 
 const SearchFolderBarContainer = connect(
-    null,
-    mapDispatchToProps
+  null,
+  mapDispatchToProps
 )(SearchFolderBar);
 
 export default SearchFolderBarContainer;

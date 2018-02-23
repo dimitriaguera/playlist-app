@@ -3,18 +3,17 @@
  */
 import RoutesModules from '../../../**/routes/*.client.routes.js';
 
-export const getRoutes = function() {
+export const getRoutes = function () {
+  const routes = [];
 
-    const routes = [];
-
-    RoutesModules.map( item => {
-        const itemRoutes = item.routes;
-        itemRoutes.map( route => {
-            routes.push({
-                private: route.private,
-                props: route.route,
-            });
-        });
+  RoutesModules.map(item => {
+    const itemRoutes = item.routes;
+    itemRoutes.map(route => {
+      routes.push({
+        private: route.private,
+        props: route.route
+      });
     });
-    return routes;
+  });
+  return routes;
 };

@@ -4,31 +4,30 @@
 import { API_REQUEST, API_FAILURE, API_SUCCESS } from '../actions/api.actions'
 
 let initialState = {
-    isFetching: false,
+  isFetching: false
 };
 
 const apiStore = (state = initialState, action) => {
-    switch (action.type) {
+  switch (action.type) {
+    case API_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true
+      });
 
-        case API_REQUEST:
-            return Object.assign({}, state, {
-                isFetching: true,
-            });
+    case API_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false
+      });
 
-        case API_SUCCESS:
-            return Object.assign({}, state, {
-                isFetching: false,
-            });
+    case API_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        error: action.error
+      });
 
-        case API_FAILURE:
-            return Object.assign({}, state, {
-                isFetching: false,
-                error: action.error
-            });
-
-        default:
-            return state
-    }
+    default:
+      return state
+  }
 };
 
 export default apiStore

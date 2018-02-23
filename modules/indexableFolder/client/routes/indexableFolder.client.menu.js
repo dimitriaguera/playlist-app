@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
 
 export const menuItems = [
-    {
-        component: () => <Menu.Item as={Link} to='/indexMusic'>IndexFolder</Menu.Item>,
-    },
+  {
+    component: () => <Menu.Item as={Link} to='/music'>Folder</Menu.Item>
+  }
 ];

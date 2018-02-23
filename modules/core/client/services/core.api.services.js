@@ -17,52 +17,50 @@ const BASE_URL = config.api_base_url;
  * @param data
  * @returns {function()}
  */
-export const forgeResquest = ( method, endpoint, data = {} ) => {
+export const forgeResquest = (method, endpoint, data = {}) => {
+  // Build request url.
+  let url = BASE_URL + endpoint;
 
-    // Build request url.
-    let url = BASE_URL + endpoint;
+  // Return function that execute controlled fetch.
+  return () => {
+    // Build defaults fetch request params.
+    const params = {
+      method,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    };
 
-    // Return function that execute controlled fetch.
-    return () => {
-
-        // Build defaults fetch request params.
-        const params = {
-            method,
-            headers: {
-                'Content-Type': 'application/json; charset=UTF-8',
-                'X-Requested-With' :'XMLHttpRequest',
-            },
-        };
-
-        // If GET, remove body data.
-        if ( method === 'GET' ) {
-            try {
-                // const urlParams = data || {};
-                // url = new URL(url);
-                // Object.keys(urlParams).forEach(key => url.searchParams.append(key, urlParams[key]))
-                data = null;
-            }
-            catch (e) {
-                console.log(`Unable to put params on GET ${url} api request : ${e.message}`);
-            }
-        }
-        else if ( data === Object(data) ) {
-            params.body = JSON.stringify(data);
-        }
-        else {
-            throw new Error(`Invalid XHR request. See ${method} at ${url}`);
-        }
-
-        // Get token from localStorage or sessionStorage
-        // And put it in headers.
-        const token = getLocalToken();
-        if (token) {
-            params.headers.authorization = token;
-        }
-
-        // Build fetch.
-        return fetch(url, params);
+    // If GET, remove body data.
+    if (method === 'GET') {
+      try {
+        // const urlParams = data || {};
+        // url = new URL(url);
+        // Object.keys(urlParams).forEach(key => url.searchParams.append(key, urlParams[key]))
+        data = null;
+      }
+      catch (e) {
+        console.log(`Unable to put params on GET ${url} api request : ${e.message}`);
+      }
     }
+    else if (data === Object(data)) {
+      params.body = JSON.stringify(data);
+    }
+    else {
+      throw new Error(`Invalid XHR request. See ${method} at ${url}`);
+    }
+
+    // Get token from localStorage or sessionStorage
+    // And put it in headers.
+    const token = getLocalToken();
+    if (token) {
+      params.headers.authorization = token;
+    }
+
+    // Build fetch.
+    return fetch(url, params);
+  }
 };
 
 /**
@@ -80,14 +78,14 @@ export const forgeResquest = ( method, endpoint, data = {} ) => {
  * @param options
  * @returns {{}}
  */
-export const get = ( endpoint, options = {} ) => {
-    const { data, types } = options;
-    return {
-        [CALL_API]: {
-            send: forgeResquest( 'GET', endpoint, data ),
-            types: types,
-        }
+export const get = (endpoint, options = {}) => {
+  const { data, types } = options;
+  return {
+    [CALL_API]: {
+      send: forgeResquest('GET', endpoint, data),
+      types: types
     }
+  }
 };
 
 /**
@@ -97,14 +95,14 @@ export const get = ( endpoint, options = {} ) => {
  * @param options
  * @returns {{}}
  */
-export const post = ( endpoint, options = {} ) => {
-    const { data, types } = options;
-    return {
-        [CALL_API]: {
-            send: forgeResquest( 'POST', endpoint, data ),
-            types: types,
-        }
+export const post = (endpoint, options = {}) => {
+  const { data, types } = options;
+  return {
+    [CALL_API]: {
+      send: forgeResquest('POST', endpoint, data),
+      types: types
     }
+  }
 };
 
 /**
@@ -114,14 +112,14 @@ export const post = ( endpoint, options = {} ) => {
  * @param options
  * @returns {{}}
  */
-export const put = ( endpoint, options = {} ) => {
-    const { data, types } = options;
-    return {
-        [CALL_API]: {
-            send: forgeResquest( 'PUT', endpoint, data ),
-            types: types,
-        }
+export const put = (endpoint, options = {}) => {
+  const { data, types } = options;
+  return {
+    [CALL_API]: {
+      send: forgeResquest('PUT', endpoint, data),
+      types: types
     }
+  }
 };
 
 /**
@@ -131,12 +129,12 @@ export const put = ( endpoint, options = {} ) => {
  * @param options
  * @returns {{}}
  */
-export const del = ( endpoint, options = {} ) => {
-    const { data, types } = options;
-    return {
-        [CALL_API]: {
-            send: forgeResquest( 'DELETE', endpoint, data ),
-            types: types,
-        }
+export const del = (endpoint, options = {}) => {
+  const { data, types } = options;
+  return {
+    [CALL_API]: {
+      send: forgeResquest('DELETE', endpoint, data),
+      types: types
     }
+  }
 };

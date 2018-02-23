@@ -4,35 +4,14 @@
 const elasticsearch = require('elasticsearch');
 const index = require('./index.server.elastic');
 const search = require('./search.server.elastic');
-const chalk = require('chalk');
+const path = require('path');
 
-let client = null;
-
+const {es: esConfig} = require(path.resolve('./config/env/config.server'));
 
 // Instantiate ES client.
-// @t
-if (process.env.NODE_ENV === 'production'){
-  client = new elasticsearch.Client({
-    host: 'localhost:9200',
-    log: [
-      {
-        type: 'stdio', // default
-        level: 'error',
-      },
-    // {
-    //   type: 'file',
-    //   level: 'trace',
-    //   // config options specific to file type loggers
-    //   path: '/var/log/elasticsearch.log'
-    // }
-  ]
-  });
-} else {
-  client = new elasticsearch.Client({
-    host: 'localhost:9200',
-    log: 'info'
-  });
-}
+client = new elasticsearch.Client({
+  esConfig
+});
 
 // @todo test if it's call more than once
 // client.ping({
@@ -53,4 +32,7 @@ exports.indexCreate = index.indexCreate(client);
 exports.putTemplate = index.putTemplate(client);
 
 exports.searchAll = search.searchAll(client);
+exports.msearch = search.msearch(client);
 exports.search = search.search(client);
+exports.mget = search.mget(client);
+exports.get = search.get(client);

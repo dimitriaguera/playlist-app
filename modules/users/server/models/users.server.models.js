@@ -17,7 +17,7 @@ try {
   bcrypt = require('bcrypt');
   console.log(chalk.blue('bcrypt'));
 }
-catch(e) {
+catch (e) {
   bcrypt = require('bcryptjs');
   console.log(chalk.red('bcryptjs : If authentification is slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs'));
 }
@@ -35,38 +35,38 @@ catch(e) {
  */
 
 const validateUsername = function (username) {
-    const usernameRegex = /^(?=[\w.-]+$)(?!.*[._-]{2})(?!\.)(?!.*\.$).{3,34}$/;
-    return (username && usernameRegex.test(username) && config.security.illegalUsernames.indexOf(username) < 0);
+  const usernameRegex = /^(?=[\w.-]+$)(?!.*[._-]{2})(?!\.)(?!.*\.$).{3,34}$/;
+  return (username && usernameRegex.test(username) && config.security.illegalUsernames.indexOf(username) < 0);
 };
 
 /**
  * User model.
  *
  */
-const UserSchema = new Schema ({
+const UserSchema = new Schema({
 
-    username: {
-        type: String,
-        unique: true,
-        required: true,
-        validate: [validateUsername, 'Please enter a valid username: 3+ characters long, non restricted word, characters "_-.", no consecutive dots, does not begin or end with dots, letters a-z and numbers 0-9.']
-    },
+  username: {
+    type: String,
+    unique: true,
+    required: true,
+    validate: [validateUsername, 'Please enter a valid username: 3+ characters long, non restricted word, characters "_-.", no consecutive dots, does not begin or end with dots, letters a-z and numbers 0-9.']
+  },
 
-    password: {
-        type: String,
-        required: true
-    },
+  password: {
+    type: String,
+    required: true
+  },
 
-    roles: ['string'],
+  roles: ['string'],
 
-    updated: {
-        type: Date
-    },
+  updated: {
+    type: Date
+  },
 
-    created: {
-        type: Date,
-        default: Date.now
-    },
+  created: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 
@@ -75,54 +75,52 @@ const UserSchema = new Schema ({
  *
  */
 UserSchema.pre('save', function (next) {
-    const user = this;
-    console.log('Debut Hash');
-    if ( this.isModified('password') || this.isNew ) {
-        bcrypt.hash(user.password, 8, (err, hash) => {
-            if (err) {
-                console.log('Error on Hash');
-                return next(err);
-            }
-            console.log('Fin Hash');
-            user.password = hash;
-            next();
-        });
-    } else {
-        return next();
-    }
+  const user = this;
+  if (this.isModified('password') || this.isNew) {
+    bcrypt.hash(user.password, config.security.bcryptSaltRounds, (err, hash) => {
+      if (err) return next(err);
+      user.password = hash;
+      next();
+    });
+  } else {
+    return next();
+  }
 });
 
 /**
  * Handle for sockets.
  *
  */
-UserSchema.post('save', function( doc ) {
-    console.log('save post middleware called on User Model');
-    socketsEvents.emit( 'save:user', doc );
+UserSchema.post('save', function (doc) {
+  console.log('save post middleware called on User Model');
+  socketsEvents.emit('save:user', doc);
 });
 
-UserSchema.method('comparePassword', function(password){
-    const self = this;
-
-    console.log('Debut Check Pass');
-
-    return new Promise(function(resolve, reject) {
-        bcrypt.compare( password, self.password,
-            ( err, res ) => {
-              if (err) {
-                return reject(err)
-              }
-
-              console.log('Fin Check Pass');
-              resolve(res);
-            });
+UserSchema.method('hashPassword', function (password) {
+  return new Promise(function (resolve, reject) {
+    bcrypt.hash(password, config.security.bcryptSaltRounds, (err, hash) => {
+      if (err) return reject(err);
+      resolve(hash);
     });
+  });
 });
 
-UserSchema.method('secure', function(){
-    const other = this.toObject();
-    delete other.password;
-    return other;
+UserSchema.method('comparePassword', function (password) {
+  const self = this;
+
+  return new Promise(function (resolve, reject) {
+    bcrypt.compare(password, self.password,
+      (err, res) => {
+        if (err) return reject(err);
+        resolve(res);
+      });
+  });
+});
+
+UserSchema.method('secure', function () {
+  const other = this.toObject();
+  delete other.password;
+  return other;
 });
 
 module.exports = mongoose.model('User', UserSchema);

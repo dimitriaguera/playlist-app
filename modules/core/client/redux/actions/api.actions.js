@@ -7,20 +7,20 @@ export const API_FAILURE = 'API_FAILURE'
 export const API_SUCCESS = 'API_SUCCESS'
 
 export function requestAPI () {
-    return {
-        type: API_REQUEST,
-    }
+  return {
+    type: API_REQUEST
+  }
 }
 
-export function failureAPI ( error ) {
-    return {
-        type: API_FAILURE,
-        error
-    }
+export function failureAPI (error) {
+  return {
+    type: API_FAILURE,
+    error
+  }
 }
 
 export function successAPI () {
-    return {
-        type: API_SUCCESS,
-    }
+  return {
+    type: API_SUCCESS
+  }
 }

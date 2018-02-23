@@ -1,144 +1,159 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import debounce from 'lodash/debounce'
 import { get } from 'core/client/services/core.api.services'
-import { playItem, addAlbumToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import SearchMusicBar from './searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
+import AlbumCard from 'music/client/components/albumCard.client.components'
 import AlbumTracks from 'music/client/components/albumTracks.client.components'
-import Img from 'music/client/components/image.client.components'
-import ps from 'core/client/services/core.path.services'
-import { Divider, Icon } from 'semantic-ui-react'
-
-import style from './style/albums.scss'
+import { Divider } from 'semantic-ui-react'
 
 class Albums extends Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+      card: {
+        width: 150,
+        height: 270,
+        margin: 1,
+        tabHeight: 500
+      },
+      grid: {}
+    };
 
-    constructor (props) {
-        super(props);
-        this.state = {
-          open: false,
-        };
-        this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
-        this.handleOnClick = this.handleOnClick.bind(this);
+    // Hook open/close album Tabs.
+    this.closeLastTab = null;
+    this.row = null;
+
+    // Bind handler.
+    this.onResizeHandle = this.onResizeHandle.bind(this);
+    this.hookOpenTab = this.hookOpenTab.bind(this);
+    this.hookCloseTab = this.hookCloseTab.bind(this);
+
+    // Debounced hendlers.
+    this.onResizeHandle = debounce(this.onResizeHandle, 200);
+  }
+
+  componentDidMount () {
+    window.addEventListener('resize', this.onResizeHandle);
+    this.props.searchSized(`album?sort=keyName&fi=name&q=`);
+    this.setGrid();
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('resize', this.onResizeHandle);
+  }
+
+  onResizeHandle () {
+    this.setGrid();
+  }
+
+  setGrid () {
+    const { card } = this.state;
+    const totalCardWidth = card.width + (card.margin * 2);
+    const nbPerRow = Math.floor(this.domElmt.getBoundingClientRect().width / totalCardWidth);
+
+    this.setState({grid: {row: nbPerRow, width: nbPerRow * totalCardWidth}});
+  }
+
+  hookOpenTab (func, row) {
+    const sameRow = this.row === row;
+
+    if (typeof this.closeLastTab === 'function') {
+      this.closeLastTab();
     }
 
-    componentDidMount() {
-        this.props.search(`album?sort=keyName&fi=name&q=`);
+    this.closeLastTab = func;
+    this.row = row;
+
+    return sameRow;
+  }
+
+  hookCloseTab () {
+    if (typeof this.closeLastTab === 'function') {
+      this.closeLastTab();
     }
+    this.closeLastTab = null;
+    this.row = null;
 
-    handleOnClick(e) {
-        const { open } = this.state;
-        console.log(!open);
-        this.setState({open: !open});
-    }
+    return false;
+  }
 
-    // Handler to add recursively all tracks on playlist.
-    handlerPlayAlbum( e, item ) {
+  render () {
+    const { card, grid } = this.state;
 
-        const _self = this;
-        const {fetchFiles, addAlbumToPlay} = this.props;
+    // Build default card style.
+    // Done here to avoid re-calculate this in each albumCard rendering.
+    const cardDefaultStyle = {
+      width: card.width + 'px',
+      padding: card.margin + 'px'
+    };
 
+    // Build inner Card styles.
+    // Done here to avoid re-calculate this in each albumCard rendering.
+    const innerWidth = (card.width - (card.margin * 2));
+    const innerStyle = {width: innerWidth, height: innerWidth};
+    const imageStyle = {width: innerWidth + 'px', height: innerWidth + 'px'};
 
-        fetchFiles( ps.urlEncode(item.path) ).then((data) => {
-            if ( !data.success ) {
-                _self.setState({ error: true });
-            }
-            else {
-                const album = {
-                    pl: {
-                        title: item.name,
-                        path: item.path,
-                        tracks: data.msg,
-                    }
-                };
-                addAlbumToPlay( album );
-            }
-        });
-    }
+    console.log('RENDER ALL ALBUMS');
 
-    render(){
+    return (
+      <div ref={r => { this.domElmt = r }} style={{position: 'relative'}}>
+        <h1>Albums</h1><span>{this.props.total} albums on result</span>
+        <SearchMusicBar indexName='album'
+          startLimit={0}
+          searchAction={this.props.searchSized}
+          filtersMapping={{artist: 'artist', genre: 'genre', date: 'range.year'}}
+          placeholder='search album...'
+        />
+        <Divider />
 
-        const { open } = this.state;
-        let classes = '';
-
-        if(open) classes = 'album-open';
-
-        return (
-            <div className={classes}>
-                <h1 onClick={(e) => this.handleOnClick()}>Albums</h1><span>{this.props.total} albums on result</span>
-                <SearchMusicBar indexName='album'
-                                startLimit={0}
-                                searchAction={this.props.search}
-                                filtersMapping={{artist:'artist', genre:'genre', date:'range.year'}}
-                                placeholder='search album...'
-                />
-                <Divider/>
-                {
-                    this.props.data.map((item, i) => {
-
-                        return (
-                            <div className='albums-item-album' key={item.cover}>
-                                <div className='albums-item-img' onClick={(e) => this.handlerPlayAlbum(e, item)}>
-                                    <Img title="Album Cover"
-                                         src={'pictures/' + item.cover + '/cover.jpg'}
-                                         defaultSrc='static/images/default_cover.png'
-                                         width="150" height="150"
-                                    />
-                                    <Icon color='teal' circular inverted name='play'/>
-                                </div>
-                                <AlbumTracks album={item} className='albums-item-info'>
-                                    <div className='name'>{item.name}</div>
-                                    <div className='date'>{item.year}</div>
-                                    <div className='artist'><span>{item.artist}</span></div>
-                                </AlbumTracks>
-                            </div>
-                        );
-                    })
-                }
-            </div>
-        );
-    }
+        <div style={{position: 'relative'}}>
+          {this.props.data.map((item, i) =>
+            <AlbumCard key={item.key}
+              index={i}
+              album={item}
+              card={card}
+              grid={grid}
+              wrapperStyle={cardDefaultStyle}
+              innerStyle={innerStyle}
+              imageStyle={imageStyle}
+              hookOpenTab={this.hookOpenTab}
+              hookCloseTab={this.hookCloseTab}
+            />)}
+        </div>
+      </div>
+    );
+  }
 }
 
+// SEARCH CONTAINER
 const fetchActions = (props) => {
-    return {
-        search: props.search
-    };
+  return {
+    searchSized: props.search
+  };
 };
 
 const AlbumsSplitFetchWrapped = splitFetchHOC(
-    {size: 50, offset: 200},
-    fetchActions
+  {size: 50, offset: 200},
+  fetchActions
 )(Albums);
 
-const mapStateToProps = state => {
-    return {
-        user: state.authenticationStore._user,
-    }
-};
-
+// REDUX CONNECT
 const mapDispatchToProps = dispatch => {
-    return {
-        search: ( query ) => dispatch(
-            get(`search/${query}`)
-        ),
-        fetchFiles: ( query ) => dispatch(
-            get( `nodes/q/files?path=${query || ''}` )
-        ),
-        addAlbumToPlay: ( item ) => {
-            // Search first track on list.
-            const track = item.pl.tracks[0];
-            // Add album to store.
-            dispatch(addAlbumToPlay(item));
-            // If track, play it.
-            if( track ) dispatch(playItem( track ));
-        },
-    }
+  return {
+    search: (query) => dispatch(
+      get(`search/${query}`)
+    ),
+    fetchFiles: (query) => dispatch(
+      get(`nodes/q/files?path=${query || ''}`)
+    )
+  }
 };
 
 const AlbumsContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
+  null,
+  mapDispatchToProps
 )(AlbumsSplitFetchWrapped);
 
 
