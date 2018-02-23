@@ -17,11 +17,11 @@ const models = {
 const checkIfThereAtLeastOneAdminAndCreateIt = function() {
 
   User
-    .count({roles: {$in: ['ADMIN_ROLE']}})
-    .then(nbAdmin => {
+    .findOne({roles: {$in: ['ADMIN_ROLE']}})
+    .then(foundOne => {
 
       // If no admin create it
-      if (nbAdmin === 0) {
+      if (!foundOne) {
         User.create(
           {
             username: config.security.defaultAdminId,
