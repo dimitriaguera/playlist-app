@@ -29,7 +29,7 @@ const {promisify} = require('util');
 // };
 
 // @todo put this when export conf
-const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.musicFolder));
+const rootOK = ps.removeLastSeparator(path.resolve(ps.conformPathToOs(config.musicFolder)));
 
 exports.index = function (req, res, next) {
   // Create taskRunner instance.
@@ -95,6 +95,7 @@ function runIndexNodes (onError, onStep, onDone) {
   let nbFiles = 0;
   let nbDirs = 0;
   let dirs = {};
+  let errorFilesAndDir = [];
 
   // Read all items recursively in dir an fill files and dirs var
   function read (uri, done) {
@@ -102,7 +103,10 @@ function runIndexNodes (onError, onStep, onDone) {
     dirs[uri] = mongoose.Types.ObjectId();
 
     fs.readdir(uri, (err, items) => {
-      if (err) return done(err);
+      if (err) {
+        errorFilesAndDir.push(uri);
+        return done(err);
+      }
 
       // If item is file save it.
       // If item is dir walk inside.
@@ -115,6 +119,7 @@ function runIndexNodes (onError, onStep, onDone) {
           fs.stat(itemUri,
             (err, itemStats) => {
               if (err) {
+                errorFilesAndDir.push(itemUri);
                 console.error(err);
                 return next();
               }
@@ -130,7 +135,10 @@ function runIndexNodes (onError, onStep, onDone) {
                 return next();
               } else if (itemStats.isDirectory()) {
                 read(itemUri, (err) => {
-                  if (err) console.error(err);
+                  if (err) {
+                    errorFilesAndDir.push(itemUri);
+                    console.error(err);
+                  }
                   return next();
                 });
               }
@@ -191,6 +199,7 @@ function runIndexNodes (onError, onStep, onDone) {
         (filePath, nextFile) => {
           metaTag.read(filePath, (err, data) => {
             if (err) {
+              errorFilesAndDir.push(filePath);
               console.log('Error when reading meta for : ' + filePath);
             }
 
@@ -249,6 +258,16 @@ function runIndexNodes (onError, onStep, onDone) {
     console.log('It takes (s) : ' + end.duration);
     console.log('Nb file : ' + nbFiles);
     console.log('Nb dir : ' + nbDirs);
+
+    let lerr = errorFilesAndDir.length;
+    let ierr = 0;
+    if (lerr > 0){
+      console.log(`Problem with (${lerr}) this files or dir :`);
+      for ( ; ierr < lerr ; ierr++){
+        console.log(errorFilesAndDir[ierr]);
+      }
+    }
+
     console.log('***********************');
 
     onDone({

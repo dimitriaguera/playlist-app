@@ -294,72 +294,72 @@ function createCoverFile (src, coverPath, visitedPath, callback) {
   }
 
   // Build index creation sequence.
-  let func = !mustTestCoverFiles ? [] : [
-    // Test if cover already exist.
-    function (next) {
-      fs.access(cover, (e) => {
-        let action = () => callback(null, true);
-        if (e) next(null); // Call next step.
-        else next(action); // Stop process and call action.
-      });
-    },
-    // Test if source folder exist.
-    function (next) {
-      fs.access(folder, (e) => {
-        let action = () => callback(null, false);
-        if (e) next(action); // Stop process and call action.
-        else next(null); // Call next step.
-      });
-    },
-    // Create destination folder.
-    function (next) {
-      fs.mkdirs(destination, (e) => {
-        let action = () => callback(null, false);
-        if (e) next(action); // Stop process and call action.
-        else next(null); // Call next step.
-      });
-    },
-    // Test if covers files pattern match, and copy to destination if true.
-    function (next) {
-      testFiles(folder, PATTERN_FILES, file => {
-        let action = () => fs.copy(file, cover, callbackFs);
-        if (file) next(action); // Stop process and call action.
-        else next(null); // Call next step.
-      });
-    },
-    // Test if covers no jpg files pattern match, convert and and copy to destination if true.
-    function (next) {
-      testFiles(folder, PATTERN_NO_JPG_FILES, file => {
-        let action = () => saveToJpeg(file, cover, callbackFs);
-        if (file) next(action); // Stop process and call action.
-        else next(null); // Call next step.
-      });
-    },
-    // Test if there are sub-folders that can contain covers files.
-    function (next) {
-      testFiles(folder, PATTERN_FOLDERS, subFolder => {
-        let action = () => readPictAndSave(audioFileSrc, cover, callback);
-        if (subFolder) next(null, subFolder); // Call next step with arg.
-        else next(action); // Stop process and call action.
-      });
-    },
-    // Test if covers files pattern match, and copy to destination if true.
-    function (subFolder, next) {
-      testFiles(subFolder, PATTERN_FILES, file => {
-        let action = () => fs.copy(file, cover, callbackFs);
-        if (file) next(action); // Stop process and call action.
-        else next(null, subFolder); // Call next step with arg.
-      });
-    },
-    // Test if covers no jpg files pattern match, convert and and copy to destination if true.
-    function (subFolder, next) {
-      testFiles(subFolder, PATTERN_NO_JPG_FILES, file => {
-        let action = () => saveToJpeg(file, cover, callbackFs);
-        if (file) next(action); // Stop process and call action.
-        else next(null); // Call next step.
-      });
-    }
-  ];
+    let func = !mustTestCoverFiles ? [] : [
+        // Test if cover already exist.
+        function (next) {
+            fs.access(cover, (e) => {
+                let action = () => callback(null, true);
+                if (e) next(null); // Call next step.
+                else next(action); // Stop process and call action.
+            });
+        },
+        // Test if source folder exist.
+        function (next) {
+            fs.access(folder, (e) => {
+                let action = () => callback(null, false);
+                if (e) next(action); // Stop process and call action.
+                else next(null); // Call next step.
+            });
+        },
+        // Create destination folder.
+        function (next) {
+            fs.mkdirs(destination, (e) => {
+                let action = () => callback(null, false);
+                if (e) next(action); // Stop process and call action.
+                else next(null); // Call next step.
+            });
+        },
+        // Test if covers files pattern match, and copy to destination if true.
+        function (next) {
+            testFiles(folder, PATTERN_FILES, file => {
+                let action = () => fs.copy(file, cover, callbackFs);
+                if (file) next(action); // Stop process and call action.
+                else next(null); // Call next step.
+            });
+        },
+        // Test if covers no jpg files pattern match, convert and and copy to destination if true.
+        function (next) {
+            testFiles(folder, PATTERN_NO_JPG_FILES, file => {
+                let action = () => saveToJpeg(file, cover, callbackFs);
+                if (file) next(action); // Stop process and call action.
+                else next(null); // Call next step.
+            });
+        },
+        // Test if there are sub-folders that can contain covers files.
+        function (next) {
+            testFiles(folder, PATTERN_FOLDERS, subFolder => {
+                let action = () => readPictAndSave(audioFileSrc, cover, callback);
+                if (subFolder) next(null, subFolder); // Call next step with arg.
+                else next(action); // Stop process and call action.
+            });
+        },
+        // Test if covers files pattern match, and copy to destination if true.
+        function (subFolder, next) {
+            testFiles(subFolder, PATTERN_FILES, file => {
+                let action = () => fs.copy(file, cover, callbackFs);
+                if (file) next(action); // Stop process and call action.
+                else next(null, subFolder); // Call next step with arg.
+            });
+        },
+        // Test if covers no jpg files pattern match, convert and and copy to destination if true.
+        function (subFolder, next) {
+            testFiles(subFolder, PATTERN_NO_JPG_FILES, file => {
+                let action = () => saveToJpeg(file, cover, callbackFs);
+                if (file) next(action); // Stop process and call action.
+                else next(null); // Call next step.
+            });
+        }
+    ];
 
     // Start recovery process.
   async.waterfall(func,
