@@ -19,10 +19,9 @@ const checkIfThereAtLeastOneAdminAndCreateIt = function() {
   User
     .findOne({roles: {$in: ['ADMIN_ROLE']}})
     .then(foundOne => {
-
-      // If no admin create it
+        // If no admin create it
       if (!foundOne) {
-        User.create(
+        return User.create(
           {
             username: config.security.defaultAdminId,
             password: config.security.defaultAdminPassword,
@@ -33,13 +32,14 @@ const checkIfThereAtLeastOneAdminAndCreateIt = function() {
             console.log(chalk.red(`We have created one admin user : ${config.security.defaultAdminId}/${config.security.defaultAdminPassword}`));
             console.log(chalk.bgRed('Please Change It PassWord'));
           })
-          .catch( () => {
+          .catch( e => {
+            console.log(e);
             console.error(chalk.bgRed('Error don\'t manage to create Admin User'));
           })
       } else {
         // Check if admin is the default Pass
         // If it is print a warning message
-        User
+        return User
           .findOne({username: config.security.defaultAdminId})
           .exec()
           .then( userAdmin => {

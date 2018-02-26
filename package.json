@@ -47,6 +47,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "async": "^2.5.0",
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "chalk": "^2.2.0",
@@ -99,7 +100,6 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "bcryptjs": "^2.4.3",
     "clean-webpack-plugin": "^0.1.16",
     "cross-env": "^5.0.5",
     "css-loader": "^0.28.7",
