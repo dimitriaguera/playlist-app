@@ -47,7 +47,7 @@ module.exports = {
           loader: 'file-loader',
           options: {
             limit: 100000,
-            publicPath: '',
+            //publicPath: '/static/dist/',
             name: 'assets/[name].[hash:8].[ext]'
           }
         }
