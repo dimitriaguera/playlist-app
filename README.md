@@ -12,6 +12,31 @@ These instructions will get you a copy of the project up and running.
 
 You need to install Node, npm, MongoDB, ElasticSearch, java, cmake
 
+Some node module need [node-gyp](https://github.com/nodejs/node-gyp)
+
+On mac you need :
+* python (already installed on Mac OS X)
+* Xcode
+* You also need to install the Command Line Tools via Xcode. You can find this under the menu Xcode -> Preferences -> Downloads
+  This step will install gcc and the related toolchain containing make
+  
+On Unix you need :
+* python
+* make (I think already install with build-essential)
+* A proper C/C++ compiler toolchain, like GCC (I think already install with build-essential)
+
+On Window :
+* Install all the required tools and configurations using Microsoft's windows-build-tools using 
+ npm install --global --production windows-build-tools` from an elevated PowerShell or CMD.exe (run as Administrator).
+
+#### Installing prerequisite software for Window
+
+Node.js : https://nodejs.org/en/download/
+MongoDB : https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
+Java (needs by ElasticSearch) Oracle JDK : http://www.oracle.com/technetwork/java/javase/downloads/index.html
+ElasticSearch : https://www.elastic.co/downloads/elasticsearch
+CMAKE : https://cmake.org/download/
+
 #### Installing prerequisite software for Linux (Debian or Ubuntu)
 
 ##### Update your linux
@@ -265,8 +290,8 @@ And try again
 npm install
 ```
 
-Some lib are really more performant but need some compilation process that can cause issue on some platform.
-There are list in `optionalDependencies` in `package.json`
+Some lib are really more performing but need some compilation process that can cause issue on some platform.
+There are list in `optionalDependencies` in `package.json`.
 
 To install them :
 
