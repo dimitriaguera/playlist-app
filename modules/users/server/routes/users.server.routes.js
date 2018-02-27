@@ -4,30 +4,35 @@
 
 'use strict';
 
-const passport = require('passport');
-const authorizeRoles = require('../roles/route.role.authorize');
-const { ADMIN_ROLE } = require('../../commons/roles');
-
+const path = require('path');
+const routeStrategy = require(path.resolve('./modules/users/server/config/route.strategy'));
 
 module.exports = function (app) {
   const users = require('../controllers/users.server.controllers');
 
   // Login api
-  app.route('/api/login').post(users.login);
+  app.route('/api/login')
+    .all(routeStrategy.needAuthentication)
+    .post(users.login);
 
   // Register api
-  app.route('/api/register').post(users.register);
+  app.route('/api/register')
+    .all(routeStrategy.needAuthentication)
+    .post(users.register);
 
   // Account
-  app.route('/api/account').all(passport.authenticate('jwt', { session: false }))
+  app.route('/api/account')
+    .all(routeStrategy.needAuthentication)
     .get(users.account);
 
   // Users list
-  app.route('/api/users').all(passport.authenticate('jwt', { session: false }), authorizeRoles(ADMIN_ROLE))
+  app.route('/api/users')
+    .all(routeStrategy.needAuthentication)
     .get(users.users);
 
   // Unique user
-  app.route('/api/users/:userName').all(passport.authenticate('jwt', { session: false }), authorizeRoles(ADMIN_ROLE))
+  app.route('/api/users/:userName')
+    .all(routeStrategy.needAuthentication)
     .get(users.user)
     .put(users.update)
     .delete(users.delete);

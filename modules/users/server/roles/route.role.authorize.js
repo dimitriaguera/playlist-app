@@ -14,9 +14,9 @@ module.exports = function (...authorizedRoles) {
 
     if (!_.intersection(userRoles, ids).length) {
       res.status(403);
-      res.send('Not permitted with this role');
-      return;
+      return res.send('Not permitted with this role');
     }
+
     next();
   }
 };
