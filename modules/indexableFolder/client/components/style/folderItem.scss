@@ -1,11 +1,21 @@
-//@todo remove input style because they doesn't exist any more
+$color-bg-item: rgba(200, 200, 200, 0.08);;
+$color-bg-item-hover: rgba(255, 255, 255, 0.85);
+$border-item: "solid 1px #ffffff";
+$color-link: rgba(0, 0, 0, 0.87);
+$color-link-hover: rgba(0, 0, 0, 0.87);
+$color-icon: rgba(0, 0, 0, 0.87);
+
 .fol-item {
   display: block;
   width: 100%;
   position: relative;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: $color-bg-item;
+  border-bottom: #{$border-item};
   padding: 0 60px 0 20px;
+
+  & > a {
+    color: $color-link;
+  }
 
   &.fol-item-isfolder {
     padding-right: 170px;
@@ -13,10 +23,6 @@
     .fol-item-menu {
       width: 170px;
     }
-  }
-
-  input[type='radio'] {
-    display: none;
   }
 
   .fol-item-menu-label {
@@ -32,7 +38,7 @@
     height: 70px;
 
     .icon {
-      color: #bcbcbc;
+      color: $color-icon;
       margin-right: 20px;
     }
   }
@@ -65,11 +71,11 @@
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: $color-bg-item-hover;
 
     .fol-item-inner {
       .fol-item-title {
-        color: #00b5ad;
+        color: $color-link-hover;
       }
     }
   }
@@ -95,7 +101,7 @@
       .fol-item-menu-label:hover,
       .fol-item-menu-label:focus {
         .icon {
-          color: #00f8f0 !important;
+          color: rgba(255, 255, 255, 0.85);
         }
       }
 
@@ -113,15 +119,6 @@
         transition: padding-left 0.3s, height 0.3s, opacity 0.2s;
       }
 
-      input[type='radio']:checked + label .icon {
-        transform: rotate(90deg);
-      }
-
-      input[type='radio']:checked + label + .fol-item-menu {
-        padding-left: 35px;
-        height: 56px;
-        opacity: 1;
-      }
     }
   }
 }

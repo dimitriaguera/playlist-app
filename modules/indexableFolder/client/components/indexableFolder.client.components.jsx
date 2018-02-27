@@ -500,7 +500,7 @@ function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
     <Step.Group size='mini' unstackable>
       <Step link onClick={handlerRootFolder} style={{maxWidth: '70px'}}>
         <Step.Content>
-          <Step.Title><Icon name='home' size='large' /></Step.Title>
+          <Step.Title><span aria-hidden="true" className='icon icon-home icon-m' /></Step.Title>
         </Step.Content>
       </Step>
       {path.map((item, i) => {

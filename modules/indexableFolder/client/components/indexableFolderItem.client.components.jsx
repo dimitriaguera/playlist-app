@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Icon } from 'semantic-ui-react'
+import { button, Icon } from 'semantic-ui-react'
 import UploadZone from 'uploadZone/client/components/uploadZone.client.components'
 
 import style from './style/folderItem.scss'
@@ -8,11 +8,11 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
   const name = item.publicName || item.name;
 
   let classes = ['fol-item'];
-  let iconName = 'music';
+  let iconName = 'icon-music';
 
   if (!item.isFile) {
     classes.push('fol-item-isfolder');
-    iconName = 'folder';
+    iconName = 'icon-folder';
   }
 
   const ItemMenu = () => {
@@ -20,18 +20,18 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
       return (
         <span className='fol-item-menu'>
           <span className='fol-item-menu-inner'>
-            <Button onClick={(e) => onPlayFolder(e, item)} icon basic color='teal'>
-              <Icon name='play' />
-            </Button>
-            <Button onClick={(e) => onListTracks(e, item)} icon basic color='teal'>
-              <Icon name='list' />
-            </Button>
-            <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color='teal'>
-              <Icon name='plus' />
-            </Button>
-            <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>
-              <Icon name='tags' />
-            </Button>
+            <button onClick={(e) => onPlayFolder(e, item)} className="btn btn-icon">
+              <span aria-hidden="true" className='icon icon-m icon-play' />
+            </button>
+            <button onClick={(e) => onListTracks(e, item)} className="btn btn-icon">
+              <span aria-hidden="true" className='icon icon-m icon-list' />
+            </button>
+            <button onClick={(e) => onGetFiles(e, item)} className="btn btn-icon">
+              <span aria-hidden="true" className='icon icon-m icon-plus' />
+            </button>
+            <button onClick={(e) => onEditMetaTag(e, item)} className="btn btn-icon">
+              <span aria-hidden="true" className='icon icon-m icon-tag' />
+            </button>
           </span>
         </span>
       );
@@ -41,12 +41,12 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
       return (
         <span className='fol-item-menu'>
           <span className='fol-item-menu-inner'>
-            <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color='teal'>
-              <Icon name='plus' />
-            </Button>
-            <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>
-              <Icon name='tags' />
-            </Button>
+            <button onClick={(e) => onAddItem(e, item)} className="btn btn-icon">
+              <span aria-hidden="true" className='icon icon-m icon-plus' />
+            </button>
+            <button onClick={(e) => onEditMetaTag(e, item)} className="btn btn-icon">
+              <span aria-hidden="true" className='icon icon-m icon-tag' />
+            </button>
           </span>
         </span>
       );
@@ -58,7 +58,7 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
       <div className={classes.join(' ')}>
 
         <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
-          <Icon name={iconName} />
+          <span aria-hidden="true" className={`icon icon-l ${iconName}`} />
           <span className='fol-item-title'>
             {name}
           </span>
