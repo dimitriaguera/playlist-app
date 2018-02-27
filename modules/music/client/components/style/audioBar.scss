@@ -2,6 +2,7 @@ $ab-info-width: 400px;
 $ab-control-width: 170px;
 $ab-menu-width: 170px;
 $ab-img-size: 100px;
+$center-btn-size: 3rem;
 
 .app-main-container {
   padding-bottom: 200px;
@@ -76,6 +77,23 @@ $ab-img-size: 100px;
     .pr-bar-handler {
       transform: scale(1);
       opacity: 1;
+    }
+  }
+}
+
+.playingControl {
+  button {
+    display: inline-block;
+    width: $center-btn-size;
+    height: $center-btn-size;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    color: #d5d5d5;
+
+    &.btn-center {
+      border-radius: 50%;
+      border: 2px solid #d5d5d5;
     }
   }
 }

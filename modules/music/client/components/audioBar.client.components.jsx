@@ -534,11 +534,11 @@ class PlayingControls extends Component {
     const playPauseBtn = () => {
       // If active playlist and on play, display Pause button.
       if (!isPaused) { return (
-        <Button circular inverted size='massive' icon='pause' onClick={onPauseHandler} />
+        <button onClick={onPauseHandler} className='btn-center'><span className='icon icon-pause'/></button>
       ); }
       // Else display Play button.
       else { return (
-        <Button circular inverted size='massive' icon='play' onClick={onPlayHandler} />
+        <button onClick={onPlayHandler} className='btn-center'><span className='icon icon-play'/></button>
       ); }
     };
 
@@ -546,7 +546,7 @@ class PlayingControls extends Component {
       if (pl) {
         const disabled = (onPlayIndex === 0);
         return (
-          <Button circular inverted icon='left chevron' disabled={disabled} onClick={onPrevHandler} />
+          <button disabled={disabled} onClick={onPrevHandler} ><span className='icon icon-skip-back'/></button>
         );
       }
       return null;
@@ -556,7 +556,7 @@ class PlayingControls extends Component {
       if (pl) {
         const disabled = (onPlayIndex + 1 === pl.tracks.length);
         return (
-          <Button circular inverted icon='right chevron' disabled={disabled} onClick={onNextHandler} />
+          <button disabled={disabled} onClick={onNextHandler} ><span className='icon icon-skip-forward'/></button>
         );
       }
       return null;
@@ -608,7 +608,7 @@ class MetaNameTracks extends Component {
         return (
           <Popup
             key={i}
-            trigger={<span className='metaOnPlayInfo-link'><Link to={`/indexMusic/${item.path}`} style={{maxWidth: width}}>{item.content}</Link><Icon name='angle right' /></span>}
+            trigger={<span className='metaOnPlayInfo-link'><Link to={`/music/${item.path}`} style={{maxWidth: width}}>{item.content}</Link><Icon name='angle right' /></span>}
             content={item.content}
             inverted
           />
