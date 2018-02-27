@@ -1,9 +1,10 @@
-@import "normalize.scss";
-@import "color.scss";
-
 $icomoon-font-path: "icomoon/fonts";
 
-@import "icomoon/style.scss";
+@import "normalize";
+@import "color";
+@import "icomoon/style";
+@import "button";
+@import "icon";
 
 body.pl-app {
   background: #{$bgImageProp};

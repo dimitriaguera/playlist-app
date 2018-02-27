@@ -1,0 +1,9 @@
+.btn {
+  background: transparent;
+  -webkit-appearance: none;
+  border: none;
+
+  &:focus {
+    outline: none;
+  }
+}
