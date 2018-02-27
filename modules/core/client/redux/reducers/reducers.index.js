@@ -9,8 +9,11 @@ import bootStore from './boot.store'
 import { authenticationStore } from 'users/client/redux/reducers/authentication.store'
 import { playlistStore } from 'music/client/redux/reducers/playlist.store'
 
+import { playingManagerStore } from 'music/client/redux/reducers/playingManager.store'
+
 const storeApp = combineReducers({
   authenticationStore,
+  playingManagerStore,
   playlistStore,
   bootStore,
   apiStore

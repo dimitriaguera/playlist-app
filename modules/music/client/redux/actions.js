@@ -14,6 +14,8 @@ export const PLAY_TRACK_ON_ALBUM = 'PLAY_TRACK_ON_ALBUM';
 export const PLAY_TRACK_ON_FOLDER = 'PLAY_TRACK_ON_FOLDER';
 export const PLAY_TRACK_ON_PLAYLIST = 'PLAY_TRACK_ON_PLAYLIST';
 
+export const PLAY_TRACK = 'PLAY_TRACK';
+
 export const ADD_ALBUM_TO_PLAY = 'ADD_ALBUM_TO_PLAY';
 export const ADD_FOLDER_TO_PLAY = 'ADD_FOLDER_TO_PLAY';
 export const ADD_PLAYLIST_TO_PLAY = 'ADD_PLAYLIST_TO_PLAY';
@@ -33,6 +35,13 @@ export const playState = () => {
 export const pauseState = () => {
   return {
     type: PAUSE_STATE
+  }
+};
+
+export const playTrack = (item) => {
+  return {
+    type: PLAY_TRACK,
+    item: item
   }
 };
 

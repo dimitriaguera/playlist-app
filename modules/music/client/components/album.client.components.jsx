@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, put } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
+
+import { addAlbumToQueue, playTrack } from 'music/client/redux/actions_po'
+
 import Tracks from 'music/client/components/tracks.client.components'
 import AddPlaylist from './addPlaylist.client.components'
 import { Divider, Label, Button, Modal, Header, Icon } from 'semantic-ui-react'
@@ -131,9 +134,9 @@ class Album extends Component {
       const { albumOfUrl } = this.state;
       const { pl } = albumOfUrl;
 
-      this.props.playTrackAlbum({
-        pl: pl,
-        onPlayIndex: key
+      this.props.addAlbumToQueue({
+        indexTrack: key,
+        po: pl
       });
       e.preventDefault();
     }
@@ -226,9 +229,9 @@ class Album extends Component {
 
 const mapStateToProps = state => {
   return {
-    playingList: state.playlistStore.playingList,
-    isPaused: state.playlistStore.pause,
-    onPlay: state.playlistStore.onPlay,
+    playingList: state.playingManagerStore.queue,
+    isPaused: state.playingManagerStore.pause,
+    onPlay: null, //state.playlistStore.onPlay,
     isAuthenticated: state.authenticationStore.isAuthenticated,
     user: state.authenticationStore._user
   }
@@ -242,8 +245,8 @@ const mapDispatchToProps = dispatch => {
     updateAlbumList: (item) => dispatch(
       updateAlbumToPlay(item)
     ),
-    playTrackAlbum: (item) => dispatch(
-      playOnAlbum(item)
+    addAlbumToQueue: item => dispatch(
+      addAlbumToQueue(item)
     )
   }
 };

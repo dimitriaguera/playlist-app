@@ -8,6 +8,10 @@ import AlbumTracks from 'music/client/components/albumTracks.client.components'
 import IconPlayAnim from 'music/client/components/iconPlayAnim.client.components'
 import { Icon } from 'semantic-ui-react'
 
+import { addPoToQueue, playTrack } from 'music/client/redux/actions_po'
+import playableObjectService from 'music/client/components//services/playingObjects.client.services'
+
+
 
 import style from './style/albumCard.scss'
 
@@ -116,22 +120,20 @@ class AlbumCard extends Component {
   }
 
   handlerPlayAlbum (e, i) {
-    const { addAlbumToPlay } = this.props;
+    const { addAlbumToQueue } = this.props;
+    const indexTrack = i;
 
     // Get album populated with tracks.
     this.getAlbumTracks((err, album) => {
       if (!err) {
         // Build data to store as playing album.
         const data = {
-          onPlayIndex: i || 0,
-          pl: {
             title: album.name,
             key: album.key,
             tracks: album.tracks
-          }
         };
         // Store playing album.
-        addAlbumToPlay(data);
+        addAlbumToQueue(data);
       }
     });
   }
@@ -190,7 +192,7 @@ class AlbumCard extends Component {
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
           <Icon color='teal' circular inverted name='play' />
-          <Icon color='teal' circular inverted name='plus' onClick={this.handlerAddTracks} />
+          {/*<Icon color='teal' circular inverted name='plus' onClick={this.handlerAddTracks} />*/}
         </div>
 
         <div className='albums-item-info' onClick={this.handlerOpenTab}>
@@ -232,6 +234,9 @@ const mapDispatchToProps = dispatch => {
       const track = item.pl.tracks[0];
       // Add album to store.
       dispatch(playOnAlbum(item));
+    },
+    addAlbumToQueue: data => {
+      dispatch(addPoToQueue(data));
     },
     addPlaylistItems: (title, items) => dispatch(
       post(`playlist/${title}`, {
