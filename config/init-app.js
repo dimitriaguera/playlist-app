@@ -143,7 +143,7 @@ module.exports.initLogger = function (app) {
 module.exports.initDatabase = function (app) {
   const dbUri = `mongodb://${config.db.host}:${config.db.port}/${config.db.database}`;
 
-  let opt = {}
+  let opt = {};
 
   if (config.db.user && config.db.password) {
     opt.user = config.db.user;
@@ -155,12 +155,15 @@ module.exports.initDatabase = function (app) {
   mongoose.Promise = require('bluebird');
 
   mongoose.connect(dbUri, opt)
-    .then( () => console.log(chalk.green('MONGO OK')))
-    .catch(e => {
-      console.log(chalk.bgRed('MONGO : Error when connecting to mongodb'));
-      console.log(chalk.bgRed('Exit the app'));
-      return process.abort();
-    });
+    .then(
+      () => console.log(chalk.green('MONGO OK')),
+      err => {
+        console.log(err);
+        console.log(chalk.bgRed('MONGO : Error when connecting to mongodb'));
+        console.log(chalk.bgRed('Exit the app'));
+        return process.abort();
+      }
+    );
 
 };
 
