@@ -1,9 +1,30 @@
+### Login For getting token
+POST http://localhost:8082/api/login
+Content-Type: application/json
+
+{
+"username":"admin",
+"password":"adminpwd"
+}
+
+###
+GET http://localhost:8082/api/users
+Content-Type: application/json; charset=UTF-8
+Authorization: Bearer MyPrevToken
+
 ### Build node
 POST http://localhost:8082/api/nodes/build
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer MyPrevToken
 
+### Get all nodes
+GET http://localhost:8082/api/nodes/q/child?path=
 
 ### Build Elastic
 POST http://localhost:8082/api/elastic/build
+
+###
+POST http://localhost:8082/api/elastic/test
 
 ### Get all albums
 GET http://localhost:8082/api/search/album?q=
@@ -11,11 +32,9 @@ GET http://localhost:8082/api/search/album?q=
 ### Find cover
 POST http://localhost:8082/api/files/cover/all
 
-
 ### Get Task
 GET http://localhost:8082/api/task
 
 ### Test
 GET http://localhost:8082/api/elastic/test
 
-###
