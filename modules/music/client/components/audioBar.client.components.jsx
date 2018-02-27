@@ -7,8 +7,10 @@ import ReactAudioPlayer from 'react-audio-player'
 import { playOnPlaylist, playOnAlbum, playOnFolder, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import ps from 'core/client/services/core.path.services'
 import { Label, Icon, Popup, Button, Grid } from 'semantic-ui-react'
+import Img from 'music/client/components/image.client.components'
 
-import style from './style/audio.scss'
+
+import style from './style/audioBar.scss'
 
 class AudioBar extends Component {
   constructor (props) {
@@ -101,6 +103,8 @@ class AudioBar extends Component {
 
     const classes = ['audioBar'];
 
+    const cover = onPlay.albumKey ? ps.changeSeparator(onPlay.albumKey, '___', '/') : null;
+
     return (
       !!onPlay.path &&
       <div style={{width: '100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
@@ -112,8 +116,17 @@ class AudioBar extends Component {
           src={`/api/music/read?path=${ps.urlEncode(onPlay.path)}`}
         />
 
-        <div className='audioBarMenu'>
-          <div className='audioBar-control-row'>
+        <div className='audioBar-wrapper'>
+
+          <div className='audioBar-coll audioBar-info'>
+            <Img title={`${onPlay.publicName} cover`}
+                 src={'pictures/' + cover + '/cover.jpg'}
+                 defaultSrc='static/images/default_cover.png'
+            />
+            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode} />
+          </div>
+
+          <div className='audioBar-coll audioBar-control'>
               {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
               <PlayingControls onPauseHandler={this.onPauseHandler}
                 onPlayHandler={this.onPlayHandler}
@@ -126,14 +139,16 @@ class AudioBar extends Component {
               />
               {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
           </div>
-          <div className='audioBar-range-row'>
+          <div className='audioBar-coll audioBar-range'>
               <MetaNameTracks onPlay={onPlay} />
               {audioReady && <RangeSlider audioEl={audioEl} />}
+              <MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />
+              <MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />
               {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
           </div>
 
-          <div className='audioBar-info-row'>
-            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode} />
+          <div className='audioBar-coll audioBar-menu'>
+            menu
           </div>
 
         </div>
