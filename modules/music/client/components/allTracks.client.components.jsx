@@ -51,8 +51,8 @@ class AllTracks extends Component {
             return (
               <div className='alltracks-item-album' key={i}>
                 <div className='tracks-item-img' onClick={(e) => this.handlerPlayTracks(e, item)}>
-                  <Img title='Album Cover'
-                    src={'pictures/' + ps.removeLast(item.path) + 'cover.jpg'}
+                  <Img title={`${item.meta.album} Cover`}
+                    src={'pictures/' + ps.changeSeparator(item.albumKey, '___', '/') + '/cover.jpg'}
                     defaultSrc='static/images/default_cover.png'
                     width='50' height='50'
                   />
