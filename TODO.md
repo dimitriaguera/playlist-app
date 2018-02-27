@@ -30,3 +30,8 @@
 
 * add/remove react-notification-system
 
+# Webpack
+
+* Check why webpack doesn't put all style in modules/core/client/components/style in the css file
+  instead it put it in the bundle.js
+  
