@@ -1,0 +1,24 @@
+$ctrl-btn-size: 2.5rem;
+$center-btn-size: 4rem;
+
+.ab-controls {
+  button {
+    display: inline-block;
+    width: $ctrl-btn-size;
+    height: $ctrl-btn-size;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    color: #d5d5d5;
+    cursor: pointer;
+
+    &.btn-center {
+      border-radius: 50%;
+      border: 2px solid #d5d5d5;
+      width: $center-btn-size;
+      height: $center-btn-size;
+    }
+  }
+}
+
+

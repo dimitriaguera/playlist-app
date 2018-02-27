@@ -4,7 +4,7 @@ import PrivateRoute from 'users/client/components/authorization/privateRoute.cli
 import { Container, Sidebar } from 'semantic-ui-react'
 import { getRoutes } from 'core/client/services/core.route.services';
 import NotFound from './404.jsx'
-import AudioBar from 'music/client/components/audioBar.client.components'
+import AudioBar from 'music/client/components/audiobar/audioBar.client.components'
 
 class Main extends Component {
   constructor () {

@@ -1,0 +1,13 @@
+$color-brown: #848484;
+
+.meta-track-bread {
+  font-size: 0.8em;
+
+  .meta-track-bread-link a {
+    color: $color-brown;
+  }
+
+  .meta-track-bread-play {
+    font-size: 1.2em;
+  }
+}
