@@ -82,64 +82,73 @@ $ab-img-size: 100px;
 
 .audioBar {
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.9);
+  background: #1e1e1e;
   color: white;
 
   .audioBar-wrapper {
     display: flex;
+    justify-content: flex-start;
     align-items: center;
+    height: $ab-img-size;
+    padding-left: $ab-img-size;
 
     .audioBar-coll {
       display: block;
-      float: left;
+      overflow: hidden;
+      flex-grow: 1;
     }
 
-    .audioBar-info {
-      width: $ab-info-width;
-      height: $ab-img-size;
-      padding-left: $ab-img-size;
+    .audioBar-img {
+      position: absolute;
+      display: block;
+      left: 0;
+      top: 0;
 
       img {
-        position: absolute;
-        display: block;
-        left: 0;
-        top: 0;
         width: $ab-img-size;
         height: $ab-img-size;
       }
     }
 
+    .audioBar-meta {
+      padding: 0 0.5em;
+    }
+
     .audioBar-range {
-      width: calc(100% - #{$ab-info-width + $ab-control-width + $ab-menu-width });
+      padding: 0 0.5em;
+      flex-grow: 5;
     }
 
     .audioBar-control {
-      width: $ab-control-width;
+      padding: 0 0.5em;
+      text-align: right;
     }
 
     .audioBar-menu {
-      width: $ab-menu-width;
+      padding: 0 0.5em;
     }
 
-    .metaOnPlayInfo {
-      display: inline-block;
-      width: 100%;
-      text-align: right;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
-      line-height: 1.5;
-      font-size: 1.1rem;
+    .audioBar-meta {
+      padding: 0 0.5em;
 
-      a {
-        display: inline-block;
-        line-height: 1;
-        max-width: 80px;
-        color: #00f8f0;
-        font-size: 0.8rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
+      .audioBar-info-label {
+        color: white;
+        font-size: 0.8em;
+        text-transform: uppercase;
+      }
+
+      .audioBar-info-name {
+        color: #d5d5d5;
+      }
+
+      .audioBar-info-artist {
+        font-size: 0.8em;
+        color: #3d3d3d;
+      }
+
+      .audioBar-info-year {
+        font-size: 0.8em;
+        color: #3d3d3d;
       }
     }
   }

@@ -118,16 +118,16 @@ class AudioBar extends Component {
 
         <div className='audioBar-wrapper'>
 
-          <div className='audioBar-coll audioBar-info'>
+          <div className='audioBar-coll audioBar-img'>
             <Img title={`${onPlay.publicName} cover`}
                  src={'pictures/' + cover + '/cover.jpg'}
                  defaultSrc='static/images/default_cover.png'
             />
-            <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode} />
           </div>
 
+          <MetaInfoPlaylist pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
+
           <div className='audioBar-coll audioBar-control'>
-              {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
               <PlayingControls onPauseHandler={this.onPauseHandler}
                 onPlayHandler={this.onPlayHandler}
                 onPrevHandler={this.onPrevHandler}
@@ -137,13 +137,12 @@ class AudioBar extends Component {
                 onPlay={onPlay}
                 pl={pl}
               />
-              {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
           </div>
           <div className='audioBar-coll audioBar-range'>
               <MetaNameTracks onPlay={onPlay} />
               {audioReady && <RangeSlider audioEl={audioEl} />}
-              <MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />
-              <MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />
+              {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
+              {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
               {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
           </div>
 
@@ -529,7 +528,6 @@ class PlayingControls extends Component {
   }
 
   render () {
-    console.log('RENDER PLAYING CONTROLS');
 
     const { onPauseHandler, onPlayHandler, onPrevHandler, onNextHandler, onPlayIndex, pl, isPaused} = this.props;
 
@@ -712,7 +710,7 @@ class MetaInfoPlaylist extends Component {
   }
 
   render () {
-    const { pl, onPlayIndex, mode } = this.props;
+    const { pl, onPlayIndex, mode, onPlay } = this.props;
 
     if (pl) {
       let title = pl.title;
@@ -737,44 +735,17 @@ class MetaInfoPlaylist extends Component {
       }
 
       return (
-        <div>
-          <Link as='span' to={path}>
-            <span className='audioBar-info-playlist-name'>{title}</span><br />
-            <Label size='large' color='teal'>
-              {modeLabel}
-              <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
-            </Label>
-          </Link>
+        <div className='audioBar-coll audioBar-meta'>
+          <Link to={path} className='audioBar-info-label'>{`${modeLabel} ${onPlayIndex + 1}/${pl.tracks.length}`}</Link>
+          <div className='audioBar-info-name'>{title || onPlay.name}</div>
+          {onPlay.meta && onPlay.meta.artist && <div className='audioBar-info-artist'>{onPlay.meta.artist}</div>}
+          {onPlay.meta && onPlay.meta.year && <div className='audioBar-info-artist'>{onPlay.meta.year}</div>}
         </div>
       );
     }
     return null;
   };
 }
-
-class MetaInfoPlaylistMini extends Component {
-  shouldComponentUpdate (nextProps) {
-    const { onPlayIndex, pl } = nextProps;
-    return (pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex);
-  }
-
-  render () {
-    const { pl, onPlayIndex, mode } = this.props;
-
-    if (pl) {
-      return (
-        <Link as='span' to={`${getActiveModePath(mode)}/${pl.title}`}>
-          <Label color='teal'>
-            {`${mode}`}
-            <Label.Detail>{`${onPlayIndex + 1}/${pl.tracks.length}`}</Label.Detail>
-          </Label>
-        </Link>
-      );
-    }
-    return null;
-  };
-}
-
 
 // HELPER
 function getFormatedTime (time) {
