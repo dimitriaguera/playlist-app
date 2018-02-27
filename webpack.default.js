@@ -44,13 +44,12 @@ module.exports = {
       {
         test: /\.(ico|eot|otf|webp|ttf|woff|woff2)$/i,
         use: {
-          loader: 'file-loader',
+          loader: 'url-loader',
           options: {
-            limit: 100000,
-            //publicPath: '/static/dist/',
+            limit: 8192,
             name: 'assets/[name].[hash:8].[ext]'
           }
-        }
+        },
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/,
@@ -59,12 +58,11 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 8192,
-              // path: '',
               name: 'images/[name].[hash:8].[ext]'
             }
           },
           'img-loader'
-        ]
+        ],
       }
     ]
   },
