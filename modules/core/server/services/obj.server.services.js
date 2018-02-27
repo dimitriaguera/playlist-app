@@ -177,3 +177,12 @@ exports.flattenDeep = function (arr) {
   );
 };
 
+
+exports.isString = function (x) {
+  return Object.prototype.toString.call(x) === "[object String]"
+};
+
+
+exports.isArray = function (x) {
+  return Object.prototype.toString.call(x) === "[object Array]"
+};
