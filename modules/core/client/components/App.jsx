@@ -6,12 +6,15 @@ import Header from './header.jsx'
 import Main from './main.jsx'
 import Loader from './loader.jsx'
 
+import NotificationsWrap from './notifications/notificationsWrap.jsx'
+
+
 import style from './style/general.scss'
 
 const App = () => (
-
   <div className='app-container'>
     <Header />
+    <NotificationsWrap />
     <Main />
     <Loader />
   </div>

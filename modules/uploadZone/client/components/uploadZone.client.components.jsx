@@ -3,11 +3,27 @@
  */
 
 import React, { Component } from 'react'
+import {connect} from 'react-redux'
+
 import config from 'env/config.client'
 import {removeLast} from 'core/client/services/core.path.services'
 
+import { Progress } from 'semantic-ui-react'
+
 import style from './style/uploadZone.scss'
 
+import { success, hide, update } from 'core/client/components/notifications/notifications.actions';
+
+const notificationOpts = {
+  title: 'Upload in progress!',
+  message: 'Please wait the end of upload before doing anything else !',
+  position: 'tr',
+  autoDismiss: 0,
+  level: 'info',
+  // children: (
+  //   <Progress percent={0} autoSuccess />
+  // )
+};
 
 class DropZone extends Component {
   constructor () {
@@ -19,7 +35,7 @@ class DropZone extends Component {
 
     this.state = {
       isHovered: false,
-      input: false
+      input: false,
     }
   }
 
@@ -174,6 +190,7 @@ class DropZone extends Component {
     }
   }
 
+  // @todo put it in module
   flatten (arr) {
     return arr.reduce((flat, toFlatten) => flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten), []);
   }
@@ -200,19 +217,45 @@ class DropZone extends Component {
     // Set up the request.
     let xhr = new window.XMLHttpRequest();
 
-    // Open the connection.
-    xhr.open('POST', '/api/sendFiles', true);
+    xhr.targetPath = this.props.targetPath;
+
+    // Progress
+    xhr.upload.addEventListener('progress', (e) => {
+      // Can I know the progression
+      if (e.lengthComputable) {
+        this.props.updateNotif(
+          {
+            uid: xhr.notifUid,
+            ...notificationOpts,
+            message: 'Upload in :' + xhr.targetPath + '\n Please wait the end of upload before doing anything else !',
+            children: (<Progress percent={Math.round(e.loaded / e.total * 1000) / 10} autoSuccess progress />)
+          });
+      }
+    }, false);
 
 
     // Set up a handler for when the request finishes.
-    xhr.onload = function () {
+    xhr.onload = () => {
       if (xhr.status === 200) {
         // File(s) uploaded.
-        alert('upload');
+        this.props.updateNotif(
+          {
+            uid: xhr.notifUid,
+            message: 'Upload in :' + xhr.targetPath + 'Finished !',
+            autoDismiss: 5,
+            ...notificationOpts,
+            children:(<Progress percent={100} autoSuccess progress />)
+          });
       } else {
-        alert('An error occurred!');
       }
     };
+
+    // Open the connection.
+    xhr.open('POST', '/api/sendFiles', true);
+
+    xhr.notifUid = Date.now();
+
+    this.props.putNotif({uid: xhr.notifUid, ...notificationOpts, children:(<Progress percent={0} autoSuccess progress />)});
 
     // Send the Data.
     xhr.send(formData);
@@ -226,6 +269,7 @@ class DropZone extends Component {
     if (!e.dataTransfer) {
       return;
     }
+
 
     this.addFilesHandler(e);
     this.setState({input: true});
@@ -265,4 +309,20 @@ class DropZone extends Component {
   }
 }
 
-export default DropZone
+
+const mapDispatchToProps = dispatch => {
+  return {
+    putNotif: opts => dispatch(success(opts)),
+    hideNotif: uid => dispatch(hide(uid)),
+    updateNotif: opts => dispatch(update(opts))
+  }
+};
+
+const DropZoneContainer = connect(
+  null,
+  mapDispatchToProps
+)(DropZone);
+
+
+export default DropZoneContainer
+

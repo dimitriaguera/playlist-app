@@ -136,36 +136,36 @@ exports.afterUpload = async function (req, res, next) {
 
     // Read all files in files and save it by bulk
     //  => Meta => DB => ES => Cover
-    await (async function bulkTraitement () {
-      let tabOnWork = splitTab(files, config.index.sizeChunkNode);
-      let nodesToSave, nodes;
-
-      // Load Meta and Forge New Node
-      nodesToSave = await Promise.all(tabOnWork.map(async function (filePath) {
-        const file = path.parse(filePath);
-
-        return {
-          name: file.base,
-          publicName: file.name,
-          path: ps.toPosixPath(path.relative(rootOK, filePath)),
-          uri: filePath,
-          parent: parent._id,
-          isFile: true,
-          meta: await metaTagAsync(filePath) || metaTag.metaSchema()
-        }
-      }));
-
-      // Save in Db.
-      nodes = await saveInDbAsync(nodesToSave);
-
-      // Save in Elastic.
-      await runElasticUpdatesP(nodes);
-
-      // @todo check cover
-
-      // If there are files to be treated start again.
-      if (files.length) await bulkTraitement();
-    })();
+    // await (async function bulkTraitement () {
+    //   let tabOnWork = splitTab(files, config.index.sizeChunkNode);
+    //   let nodesToSave, nodes;
+    //
+    //   // Load Meta and Forge New Node
+    //   nodesToSave = await Promise.all(tabOnWork.map(async function (filePath) {
+    //     const file = path.parse(filePath);
+    //
+    //     return {
+    //       name: file.base,
+    //       publicName: file.name,
+    //       path: ps.toPosixPath(path.relative(rootOK, filePath)),
+    //       uri: filePath,
+    //       parent: parent._id,
+    //       isFile: true,
+    //       meta: await metaTagAsync(filePath) || metaTag.metaSchema()
+    //     }
+    //   }));
+    //
+    //   // Save in Db.
+    //   nodes = await saveInDbAsync(nodesToSave);
+    //
+    //   // Save in Elastic.
+    //   await runElasticUpdatesP(nodes);
+    //
+    //   // @todo check cover
+    //
+    //   // If there are files to be treated start again.
+    //   if (files.length) await bulkTraitement();
+    // })();
 
 
     res.json({
