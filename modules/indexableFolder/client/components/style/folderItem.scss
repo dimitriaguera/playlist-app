@@ -1,4 +1,4 @@
-$color-bg-item: rgba(200, 200, 200, 0.08);;
+$color-bg-item: rgba(200, 200, 200, 0.08);
 $color-bg-item-hover: rgba(255, 255, 255, 0.85);
 $border-item: "solid 1px #ffffff";
 $color-link: rgba(0, 0, 0, 0.87);
@@ -118,7 +118,6 @@ $color-icon: rgba(0, 0, 0, 0.87);
         overflow: hidden;
         transition: padding-left 0.3s, height 0.3s, opacity 0.2s;
       }
-
     }
   }
 }
