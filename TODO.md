@@ -29,6 +29,7 @@
 # Package.json
 
 * add/remove react-notification-system
+* nouislider is it used ?
 
 # Webpack
 
