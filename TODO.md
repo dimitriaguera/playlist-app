@@ -1,3 +1,6 @@
+# Font
+* add other format for font and icomoon
+
 # In elastic model:
 
 * remove keyName in album schema
