@@ -31,8 +31,6 @@ class AllTracks extends Component {
   }
 
   render () {
-    // const { nodes } = this.state;
-    console.log('RENDER ALL TRACKS');
 
     return (
       <div>
@@ -51,10 +49,10 @@ class AllTracks extends Component {
             return (
               <div className='alltracks-item-album' key={i}>
                 <div className='tracks-item-img' onClick={(e) => this.handlerPlayTracks(e, item)}>
-                  <Img title='Album Cover'
-                    src={'pictures/' + ps.removeLast(item.path) + 'cover.jpg'}
-                    defaultSrc='static/images/default_cover.png'
-                    width='50' height='50'
+                  <Img title={`${item.meta.album} Cover`}
+                       src={'pictures/' + ps.changeSeparator(item.albumKey, '___', '/') + '/cover.jpg'}
+                       defaultSrc='static/images/default_cover.png'
+                       width='50' height='50'
                   />
                   <Icon color='teal' circular inverted name='play' />
                 </div>
