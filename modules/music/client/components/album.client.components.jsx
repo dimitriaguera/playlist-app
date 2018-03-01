@@ -6,6 +6,7 @@ import Tracks from 'music/client/components/tracks.client.components'
 import AddPlaylist from './addPlaylist.client.components'
 import { Divider, Label, Button, Modal, Header, Icon } from 'semantic-ui-react'
 import ps from 'core/client/services/core.path.services'
+import InfoPanel from './infoPanel.client.components'
 
 import DraggableList from 'draggable/client/components/draggableList'
 
@@ -178,14 +179,13 @@ class Album extends Component {
     const { isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = albumOfUrl;
 
-    if(pl)console.log(pl.tracks)
-
     return (
       <div>{ pl &&
 
       <div>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Album</Label>
-        <h1>{pl.title}</h1>
+        <InfoPanel item={pl}
+        />
 
         {!! user &&
         <Modal trigger={
