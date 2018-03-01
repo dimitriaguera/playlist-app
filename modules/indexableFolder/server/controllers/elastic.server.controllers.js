@@ -990,6 +990,14 @@ function getFilterRangeValues (key, query) {
     const ranges = query.split('+');
     for (let i = 0, l = ranges.length; i < l; i++) {
       const range = ranges[i].split('to');
+
+      // If range[0] > range[1] inverse then
+      if (range[0] > range[1]) {
+        let tmp = range[0];
+        range[0] = range[1];
+        range[1] = tmp;
+      }
+
       r.push({
         range: {
           [key]: {
@@ -1011,22 +1019,67 @@ function getFiltersFromQuery (query) {
   for (let key in query) {
     if (query.hasOwnProperty(key)) {
       const f = key.replace(/^(filter.)/g, '');
-      // Check if 'filter.' key in query.
+
+      // Go in if the key contains 'filter.'
       if (f !== key) {
+
         const rf = f.replace(/^(range.)/g, '');
-        // Check if 'filter.range.' key in query.
+
+        // Go in if the key contains 'filter.range.'
         if (rf !== f) {
           // Build filter range type array.
-          filters = filters.concat(getFilterRangeValues(rf, query[key]));
+          filters.push(getFilterRangeValues(rf, query[key]));
         } else {
           // Build filter text type array.
-          filters = filters.concat(getFilterValues(f, query[key]));
+          filters.push(getFilterValues(f, query[key]));
         }
       }
     }
   }
 
-  return filters;
+  // This function create filter query
+  // Example : we want something like
+  //  artist : me ; albumartist: otherme ; genre: jazz, hip-hop ; date: 1998
+  //  Query would be (me OR otherme) AND (jazz OR hip-hop) AND (1998)
+  // NB : It's group artist and albumArtist in should query (OR)
+  function splitFilters(filters) {
+    let i = 0;
+    const l = filters.length;
+
+    let filterQuery = [];
+
+    let artistAndAlbumArtistIndex = null;
+
+    for (; i < l ; i++) {
+
+      if (filters[i][0].term && (Object.keys(filters[i][0].term)[0] === 'artist' || Object.keys(filters[i][0].term)[0] === 'albumartist')) {
+
+        if (artistAndAlbumArtistIndex !== null)  {
+          filterQuery[artistAndAlbumArtistIndex].bool.should = filterQuery[artistAndAlbumArtistIndex].bool.should.concat(filters[i])
+        } else {
+          artistAndAlbumArtistIndex = i;
+          filterQuery.push(
+            {
+              bool: {
+                should: filters[i]
+              }
+            }
+          )
+        }
+      } else {
+        filterQuery.push(
+          {
+            bool: {
+              should: filters[i]
+            }
+          }
+        )
+      }
+    }
+    return filterQuery;
+  }
+
+  return splitFilters(filters);
 }
 
 exports.getAlbumByKeyFn = function(key, callback) {
@@ -1081,8 +1134,8 @@ exports.getAlbumWithTracks = function (req, res){
   es.search(params, (err, data) => {
     if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-    const tracks = data.hits.hits.map( item => item._source )
-    const result = Object.assign(req.album, {tracks: tracks})
+    const tracks = data.hits.hits.map( item => item._source );
+    const result = Object.assign(req.album, {tracks: tracks});
 
     res.json({
       success: true,
@@ -1132,7 +1185,7 @@ exports.search = function (req, res, next) {
         must: query_query,
         filter: {
           bool: {
-            should: filters
+            must: filters
           }
         }
       }
