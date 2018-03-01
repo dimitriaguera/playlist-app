@@ -254,7 +254,22 @@ class SearchMusicBar extends Component {
 
   // handler to add date range filter.
   handlerAddDateFilter (e) {
-    const { inputDateFrom, inputDateTo } = this.state;
+    let { inputDateFrom, inputDateTo } = this.state;
+
+    // If inputDateTo < inputDateFrom inverse it
+    if(inputDateTo < inputDateFrom){
+      let tmp = inputDateTo;
+      inputDateTo = inputDateFrom;
+      inputDateFrom = tmp;
+
+      this.setState({
+        inputDateTo: inputDateTo,
+        inputDateFrom: inputDateFrom
+      });
+
+      this.inputDateTo.value = inputDateTo;
+      this.inputDateFrom.value = inputDateFrom;
+    }
 
     // If no start date, exit.
     if (!inputDateFrom) return null;
