@@ -1,13 +1,16 @@
 @import "var";
 @import "normalize";
 @import "color";
-@import "icomoon/style";
+@import "fonts/fonts";
 @import "button";
 @import "icon";
 
 body.pl-app {
   background: #{$bgImageProp};
   background-color: $bgColor;
+  font-family: Numito, Arial, Helvetica, sans-serif;
+  font-weight: 300;
+  font-style: normal;
 }
 
 .ui {

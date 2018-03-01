@@ -1,3 +1,6 @@
+# Font
+* add other format for font and icomoon
+
 # In elastic model:
 
 * remove keyName in album schema
@@ -29,6 +32,7 @@
 # Package.json
 
 * add/remove react-notification-system
+* nouislider is it used ?
 
 # Webpack
 
