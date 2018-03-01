@@ -5,7 +5,7 @@ import { playOnAlbum } from 'music/client/redux/actions'
 import ps from 'core/client/services/core.path.services'
 import Img from 'music/client/components/image.client.components'
 import AlbumTracks from 'music/client/components/albumTracks.client.components'
-import IconPlayAnim from 'music/client/components/iconPlayAnim.client.components'
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 import { Icon } from 'semantic-ui-react'
 
 

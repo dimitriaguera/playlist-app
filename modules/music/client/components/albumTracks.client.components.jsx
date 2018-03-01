@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Motion, spring } from 'react-motion'
 import { post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
-import IconPlayAnim from 'music/client/components/iconPlayAnim.client.components'
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/albumTracks.scss'
