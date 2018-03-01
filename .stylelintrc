@@ -9,6 +9,7 @@
       {
         "ignoreAtRules": [ "extend", "at-root", "warn", "error", "if", "else", "for", "each", "while", "mixin", "include", "content", "return", "function" ]
       }
-    ]
+    ],
+    "max-empty-lines": 2
   }
 }
