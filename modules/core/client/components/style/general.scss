@@ -1,5 +1,6 @@
 @import "var";
-@import "normalize";
+@import "mixin";
+@import "reboot";
 @import "color";
 @import "fonts/fonts";
 @import "button";
@@ -11,6 +12,7 @@ body.pl-app {
   font-family: Numito, Arial, Helvetica, sans-serif;
   font-weight: 300;
   font-style: normal;
+  font-size: 1rem;
 }
 
 .ui {

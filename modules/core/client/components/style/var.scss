@@ -4,3 +4,40 @@
  */
 
 $bgImageProp: "url('../../../../../public/images/ginkgo_gris.png') no-repeat center fixed";
+
+// Body
+$font-family-base:
+  // Safari for OS X and iOS (San Francisco)
+  -apple-system,
+  // Chrome >= 56 for OS X (San Francisco), Windows, Linux and Android
+  system-ui,
+  // Chrome < 56 for OS X (San Francisco)
+  BlinkMacSystemFont,
+  // Windows
+  "Segoe UI",
+  // Android
+  "Roboto",
+  // Basic web fallback
+  "Helvetica Neue", Arial, sans-serif !default;
+
+$font-size-base: 1rem;
+$font-weight-base: normal;
+$line-height-base: 1;
+$body-color: black;
+$body-bg: white;
+
+$headings-margin-bottom: 0.5rem;  //h
+$paragraph-margin-bottom: 0.1rem; //p
+
+
+$dt-font-weight: normal; //dt
+
+// a
+$link-color: blue;
+$link-decoration: none;
+$link-hover-color: blue;
+$link-hover-decoration: none;
+
+// Caption
+$table-cell-padding: 0.1rem;
+$text-muted: grey; // color
