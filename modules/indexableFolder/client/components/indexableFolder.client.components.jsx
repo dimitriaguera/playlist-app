@@ -26,9 +26,6 @@ import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.
  * will call component to display /amy_winhouse/bestOf/theBest folder's content.
  *
  */
-
-
-
 class IndexableFolder extends Component {
   constructor () {
     super();

@@ -119,6 +119,7 @@ class Albums extends Component {
               imageStyle={imageStyle}
               hookOpenTab={this.hookOpenTab}
               hookCloseTab={this.hookCloseTab}
+              history={this.props.history}
             />)}
         </div>
       </div>

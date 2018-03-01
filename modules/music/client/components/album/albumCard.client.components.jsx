@@ -137,10 +137,13 @@ class AlbumCard extends Component {
   }
 
   handlerAddTracks (e) {
-    const { addPlaylistItems, activePlaylist, user } = this.props;
+
+    if (e.stopPropagation) e.stopPropagation();
+
+    const { addPlaylistItems, activePlaylist, user, history } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push('/login');
+    if (!user) return history.push({pathname: '/login', state: { from: 'albums' }});
 
     // Get album populated with tracks.
     this.getAlbumTracks((err, album) => {
@@ -151,7 +154,7 @@ class AlbumCard extends Component {
         addPlaylistItems(activePlaylist.title, {tracks: tracksID});
       }
     });
-    if (e) e.stopPropagation();
+
   }
 
   render () {
