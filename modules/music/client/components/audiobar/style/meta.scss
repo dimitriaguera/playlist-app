@@ -1,0 +1,23 @@
+$color-brown: #848484;
+
+.audioBar-meta {
+  .audioBar-info-label {
+    color: white;
+    font-size: 0.8em;
+    text-transform: uppercase;
+  }
+
+  .audioBar-info-name {
+    color: #d5d5d5;
+  }
+
+  .audioBar-info-artist {
+    font-size: 0.8em;
+    color: $color-brown;
+  }
+
+  .audioBar-info-year {
+    font-size: 0.8em;
+    color: $color-brown;
+  }
+}

@@ -1,0 +1,66 @@
+$ab-info-width: 400px;
+$ab-control-width: 170px;
+$ab-menu-width: 170px;
+$ab-img-size: 100px;
+$ctrl-btn-size: 2.5rem;
+$center-btn-size: 4rem;
+$color-brown: #848484;
+
+.app-main-container {
+  padding-bottom: 200px;
+}
+
+.audioBar {
+  z-index: 1000;
+  background: #1e1e1e;
+  color: white;
+
+  .audioBar-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: $ab-img-size;
+    padding-left: $ab-img-size;
+
+    .audioBar-coll {
+      display: block;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .audioBar-img {
+      position: absolute;
+      display: block;
+      left: 0;
+      top: 0;
+
+      img {
+        width: $ab-img-size;
+        height: $ab-img-size;
+      }
+    }
+
+    .audioBar-meta {
+      padding: 0 0.5em;
+    }
+
+    .audioBar-range {
+      padding: 0 0.5em;
+      flex-grow: 5;
+    }
+
+    .audioBar-control {
+      padding: 0 0.5em;
+      text-align: right;
+    }
+
+    .audioBar-menu {
+      padding: 0 0.5em;
+    }
+
+    .audioBar-meta {
+      padding: 0 0.5em;
+    }
+  }
+}
+
