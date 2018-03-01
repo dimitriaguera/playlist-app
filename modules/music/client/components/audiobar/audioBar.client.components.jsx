@@ -1,11 +1,8 @@
 import React, { Component } from 'react'
 import ps from 'core/client/services/core.path.services'
-import config from 'env/config.client'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnPlaylist, playOnAlbum, playOnFolder, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
-import { Label, Icon, Popup } from 'semantic-ui-react'
 import ReactAudioPlayer from 'react-audio-player'
 import Img from 'music/client/components/image.client.components'
 import Controls from './controls.client.components'
@@ -14,7 +11,6 @@ import MetaInfo from './meta.client.components'
 import Bread from './bread.client.components'
 import RangeVolume from './volume.client.components'
 import { MetaNameNextTracks, MetaNamePrevTracks } from './next.client.components'
-
 
 import style from './style/audioBar.scss'
 
