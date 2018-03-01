@@ -29,9 +29,9 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
             <Button onClick={(e) => onGetFiles(e, item)} disabled={!user} icon basic color='teal'>
               <Icon name='plus' />
             </Button>
-            <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>
-              <Icon name='tags' />
-            </Button>
+            {/*<Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>*/}
+              {/*<Icon name='tags' />*/}
+            {/*</Button>*/}
           </span>
         </span>
       );
@@ -44,9 +44,9 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
             <Button onClick={(e) => onAddItem(e, item)} disabled={!user} icon basic color='teal'>
               <Icon name='plus' />
             </Button>
-            <Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>
-              <Icon name='tags' />
-            </Button>
+            {/*<Button onClick={(e) => onEditMetaTag(e, item)} icon basic color='teal'>*/}
+              {/*<Icon name='tags' />*/}
+            {/*</Button>*/}
           </span>
         </span>
       );

@@ -1,0 +1,49 @@
+@mixin font-face($font-family, $file-path, $font-format, $file-suffix: null, $font-weight: null, $font-style: null) {
+  @font-face {
+    font-family: $font-family;
+
+    @if (index($font-format, eot)) {
+      src: url('#{$file-path}.eot#{$file-suffix}');
+    }
+
+    @if (index($font-format, eot)) {
+      src: url('#{$file-path}.eot#{$file-suffix}#iefix') format('embedded-opentype');
+    }
+
+    @if (index($font-format, woff2)) {
+      src: url('#{$file-path}.woff2#{$file-suffix}') format('woff2');
+    }
+
+    @if (index($font-format, woff)) {
+      src: url('#{$file-path}.woff#{$file-suffix}') format('woff');
+    }
+
+    @if (index($font-format, ttf)) {
+      src: url('#{$file-path}.ttf#{$file-suffix}') format('truetype');
+    }
+
+    @if (index($font-format, svg)) {
+      src: url('#{$file-path}.svg#{$file-suffix}##{$font-family}') format('svg');
+    }
+
+    font-weight: $font-weight;
+    font-style: $font-style;
+  }
+
+  @if (index($font-format, svg)) {
+    // Chrome for Windows rendering fix: http://www.adtrak.co.uk/blog/font-face-chrome-rendering/
+    @media screen and (-webkit-min-device-pixel-ratio: 0) {
+      @font-face {
+        font-family: $font-family;
+        src: url('#{$file-path}.svg#{$file-suffix}##{$font-family}') format('svg');
+      }
+    }
+  }
+}
+
+
+$icomoon-font-path: "fonts/icomoon/fonts";
+
+@import "icomoon/style";
+
+//@include font-face('Numito', 'fonts/Nunito/Nunito-Light', ttf, null, 300, normal);

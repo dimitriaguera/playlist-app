@@ -1,0 +1,25 @@
+/**
+ * Created by Marc Foletto on 27/02/2017.
+ * Color file
+ */
+
+.icon {
+  display: inline-block;
+  font-size: 1rem;
+
+  &.icon-s {
+    font-size: 0.8rem;
+  }
+
+  &.icon-m {
+    font-size: 1.5rem;
+  }
+
+  &.icon-l {
+    font-size: 2rem;
+  }
+
+  &.icon-xl {
+    font-size: 3rem;
+  }
+}
