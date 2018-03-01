@@ -17,7 +17,7 @@ class Img extends Component {
       this.domEl.src = defaultSrc;
       this.flag = true;
     } else {
-      console.log('mais tu es ou putain de static image?????');
+      console.log('Error when loading static image');
     }
   }
 

@@ -7,12 +7,12 @@ import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/re
 import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
-import SelectPlaylist from 'music/client/components/selectPlaylist.client.components'
+import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
 import ps from 'core/client/services/core.path.services'
 
 import socketServices from 'core/client/services/core.socket.services'
 
-import EditMetaTag from '../../../../modules/music/client/components/editMetaTag.client.components'
+import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
 
 
 /**

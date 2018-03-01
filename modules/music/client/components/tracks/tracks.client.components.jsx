@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Icon, Button } from 'semantic-ui-react'
-import InfoPath from 'music/client/components/infopath.client.components'
+import InfoPath from 'music/client/components/infoPath/infoPath.client.components'
 
 import style from './style/tracks.scss'
 

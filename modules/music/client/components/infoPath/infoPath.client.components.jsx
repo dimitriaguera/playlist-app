@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 
-import style from './style/infopath.scss'
+import style from './style/infoPath.scss'
 
 class InfoPath extends Component {
   render () {

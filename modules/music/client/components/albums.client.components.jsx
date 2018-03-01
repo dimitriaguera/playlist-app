@@ -2,10 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import debounce from 'lodash/debounce'
 import { get } from 'core/client/services/core.api.services'
-import SearchMusicBar from './searchMusicBar.client.components'
+import SearchMusicBar from 'music/client/components/searchMusicBar/searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
-import AlbumCard from 'music/client/components/albumCard.client.components'
-import AlbumTracks from 'music/client/components/albumTracks.client.components'
+import AlbumCard from 'music/client/components/album/albumCard.client.components'
 import { Divider } from 'semantic-ui-react'
 
 class Albums extends Component {

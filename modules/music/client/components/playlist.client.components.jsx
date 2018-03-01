@@ -4,7 +4,7 @@ import { get, put, del } from 'core/client/services/core.api.services'
 import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
-import Tracks from './tracks.client.components'
+import Tracks from './tracks/tracks.client.components'
 import { Divider, Label, Button } from 'semantic-ui-react'
 
 import DraggableList from 'draggable/client/components/draggableList'

@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
-import MenuPlay from './menuPlay.client.components'
-import AddPlaylist from './addPlaylist.client.components'
+import MenuPlay from 'music/client/components/playList/menuPlay.client.components'
+import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 import { Divider, Card, Segment, Icon, Grid } from 'semantic-ui-react'
 
 class AllPlaylist extends Component {

@@ -1,6 +1,6 @@
 import React from 'react'
 import ps from 'core/client/services/core.path.services'
-import Img from 'music/client/components/image.client.components'
+import Img from 'music/client/components/image/image.client.components'
 
 //import style from './style/infoPanel.scss'
 
