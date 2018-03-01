@@ -189,8 +189,8 @@ class AlbumCard extends Component {
             style={imageStyle}
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
-          <Icon color='teal' circular inverted name='play' />
-          <Icon color='teal' circular inverted name='plus' onClick={this.handlerAddTracks} />
+          <span aria-hidden='true' className='icon icon-l white icon-play' />
+          <span aria-hidden='true' className='icon icon-l white icon-plus' onClick={this.handlerAddTracks} />
         </div>
 
         <div className='albums-item-info' onClick={this.handlerOpenTab}>

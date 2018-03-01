@@ -14,7 +14,6 @@
 
 * Check upload var if it use
 
-
 # Security:
 
 * sanitize meta
@@ -32,10 +31,17 @@
 # Package.json
 
 * add/remove react-notification-system
-* nouislider is it used ?
+* nouislider is it used ? => I have remove it
 
 # Webpack
 
 * Check why webpack doesn't put all style in modules/core/client/components/style in the css file
   instead it put it in the bundle.js
   
+  
+# UX
+
+## Albums
+
+* + doesn't work
+* click on the whole track line not only on the small btn 

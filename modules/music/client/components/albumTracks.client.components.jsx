@@ -151,20 +151,18 @@ class AlbumTracks extends Component {
                     <IconPlayAnim iconStyle={{width: '30px', height: '30px', padding: '7px'}} />
                     }
                     {!trackIsPlaying &&
-                    <Button size='mini' onClick={(e) => this.handlerPlayAlbum(e, i)} icon basic
-                      color='teal'>
-                      <Icon name='play' />
-                    </Button>
+                    <button className='btn' onClick={(e) => this.handlerPlayAlbum(e, i)}>
+                      <span aria-hidden='true' className='icon white icon-play' />
+                    </button>
                     }
-                    <span className='album-tracks-menu-inner'>
-                      <Button size='mini' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}
-                        disabled={!user} icon basic color='teal'>
-                        <Icon name='plus' />
-                      </Button>
-                    </span>
                     <span className='album-tracks-title'>
                       {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
                       {item.meta.title}
+                    </span>
+                    <span className='album-tracks-menu-inner'>
+                      <button className='btn' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
+                        <span aria-hidden='true' className='icon white icon-plus'/>
+                      </button>
                     </span>
                   </div>
                 )

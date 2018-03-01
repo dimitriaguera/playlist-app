@@ -56,7 +56,7 @@ class AllTracks extends Component {
                     defaultSrc='static/images/default_cover.png'
                     width='50' height='50'
                   />
-                  <Icon color='teal' circular inverted name='play' />
+                  <span aria-hidden='true' className='icon icon-l white icon-play'/>
                 </div>
                 <div className='tracks-item-info'>
                   <div className='name'>{item.meta.title}</div>
