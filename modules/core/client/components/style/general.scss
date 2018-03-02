@@ -1,18 +1,13 @@
-@import "var";
-@import "mixin";
-@import "reboot";
+@import "knacss/knacss.scss";
+
 @import "color";
 @import "fonts/fonts";
 @import "button";
 @import "icon";
 
 body.pl-app {
-  background: #{$bgImageProp};
+  background: url('../../../../../public/images/ginkgo_gris.png') no-repeat center fixed;
   background-color: $bgColor;
-  font-family: Numito, Arial, Helvetica, sans-serif;
-  font-weight: 300;
-  font-style: normal;
-  font-size: 1rem;
 }
 
 .ui {
@@ -27,9 +22,6 @@ body.pl-app {
   }
 }
 
-a {
-  color: $linkcolor;
-}
 
 @media (max-width: 767px) {
   .ui {
