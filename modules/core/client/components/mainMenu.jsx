@@ -1,16 +1,27 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Menu } from 'semantic-ui-react'
 import { logoutUser } from 'users/client/redux/actions'
 import { allowDisplayItem } from 'users/client/services/users.auth.services'
 import { getMenuLink } from 'core/client/services/core.menu.services'
 
-class Header extends Component {
+class MainMenu extends Component {
   constructor () {
     super();
+
+    this.clickMenu = this.clickMenu.bind(this);
+
     this.state = {
       menuItems: getMenuLink()
     }
+  }
+
+  componentDidMount() {
+    this.burgerBtn = document.getElementById('btn-nav');
+  }
+
+  clickMenu() {
+    this.burgerBtn.classList.remove('is-active');
+    this.mainSide.classList.remove('menu-is-open');
   }
 
   render () {
@@ -18,10 +29,12 @@ class Header extends Component {
     const { menuItems } = this.state;
 
     return (
-      <aside>
-        <Menu as='nav' fixed='top' size='large' inverted color='teal'>
+      <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
+        <nav>
+          <ul className='unstyled' onClick={this.clickMenu}>
           {buildMenuItems(menuItems, user)}
-        </Menu>
+          </ul>
+        </nav>
       </aside>
     )
   }
@@ -33,10 +46,10 @@ const mapStateToProps = state => {
   }
 };
 
-const HeaderContainer = connect(
+const MainMenuContainer = connect(
   mapStateToProps,
   null
-)(Header);
+)(MainMenu);
 
 
 // HELPER
@@ -61,4 +74,4 @@ function buildMenuItems (items, user) {
   });
 }
 
-export default HeaderContainer
+export default MainMenuContainer

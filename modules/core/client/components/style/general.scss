@@ -1,35 +1,49 @@
 @import "knacss/knacss.scss";
-
 @import "color";
 @import "fonts/fonts";
 @import "button";
 @import "icon";
+@import "layout";
 
-body.pl-app {
+$bgColor: #f9f9fa;
+
+html,
+body,
+#root {
+  display: block;
+  position: relative;
+  height: 100%;
+}
+
+body {
   background: url('../../../../../public/images/ginkgo_gris.png') no-repeat center fixed;
   background-color: $bgColor;
 }
 
-.ui {
-  &.container {
-    &.app-main-container {
-      padding-top: 80px;
-    }
-  }
 
-  .loader {
-    position: fixed !important;
-  }
-}
+//
+//.ui {
+//  &.container {
+//    &.app-main-container {
+//      padding-top: 80px;
+//    }
+//  }
+//
+//  .loader {
+//    position: fixed !important;
+//  }
+//}
+//
+//
+//@media (max-width: 767px) {
+//  .ui {
+//    &.container {
+//      &.app-main-container {
+//        margin-left: 0 !important;
+//        margin-right: 0 !important;
+//      }
+//    }
+//  }
+//}
 
 
-@media (max-width: 767px) {
-  .ui {
-    &.container {
-      &.app-main-container {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-      }
-    }
-  }
-}

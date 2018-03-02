@@ -97,8 +97,9 @@ class Albums extends Component {
     console.log('RENDER ALL ALBUMS');
 
     return (
-      <section ref={r => { this.domElmt = r }} style={{position: 'relative'}}>
-        <h1>Albums</h1><span>{this.props.total} albums on result</span>
+      <section ref={r => { this.domElmt = r }}>
+        <h1>Albums</h1>
+        <span>{this.props.total} albums on result</span>
         <SearchMusicBar indexName='album'
           startLimit={0}
           searchAction={this.props.searchSized}
@@ -107,7 +108,7 @@ class Albums extends Component {
         />
         <Divider />
 
-        <div style={{position: 'relative'}}>
+        <div>
           {this.props.data.map((item, i) =>
             <AlbumCard key={item.key}
               index={i}

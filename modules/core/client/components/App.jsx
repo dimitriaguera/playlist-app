@@ -2,16 +2,16 @@
  * Created by Dimitri Aguera on 31/08/2017.
  */
 import React from 'react'
-import Header from './header.jsx'
-import Main from './main.jsx'
-import Loader from './loader.jsx'
+import Main from './main'
+import Loader from './loader'
+import AudioBar from 'music/client/components/audiobar/audioBar.client.components'
 
 import style from './style/general.scss'
 
 const App = () => (
-  <div className='app-container'>
-    <Header />
+  <div id='app-container'>
     <Main />
+    <AudioBar />
     <Loader />
   </div>
 );

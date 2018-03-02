@@ -10,7 +10,7 @@ import { connect } from 'react-redux'
 
 import { Loader } from 'semantic-ui-react'
 import bootstrap from '../redux/bootstrap'
-import App from './App.jsx';
+import App from './App';
 
 class Boot extends Component {
 
