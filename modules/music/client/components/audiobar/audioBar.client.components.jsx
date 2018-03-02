@@ -122,8 +122,8 @@ class AudioBar extends Component {
 
           <div className='audioBar-coll audioBar-img'>
             <Img title={`${onPlay.publicName} cover`}
-                 src={'pictures/' + cover + '/cover.jpg'}
-                 defaultSrc='static/images/default_cover.png'
+                 src={'/pictures/' + cover + '/cover.jpg'}
+                 defaultSrc='/static/images/default_cover.png'
             />
           </div>
 

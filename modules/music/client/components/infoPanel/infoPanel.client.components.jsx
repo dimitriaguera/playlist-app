@@ -17,8 +17,8 @@ const infoPanel = (props) => {
     <div className='info-panel'>
       <div className='info-panel-img'>
         <Img title={`${meta.album || item.name} cover`}
-             src={'pictures/' + cover + '/cover.jpg'}
-             defaultSrc='static/images/default_cover.png'
+             src={'/pictures/' + cover + '/cover.jpg'}
+             defaultSrc='/static/images/default_cover.png'
         />
       </div>
       <div className='info-panel-album'>

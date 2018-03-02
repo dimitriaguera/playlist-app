@@ -187,8 +187,8 @@ class AlbumCard extends Component {
 
         <div className={`albums-item-img`} style={innerStyle} onClick={this.handlerPlayAlbum}>
           <Img title={`${album.name} cover`}
-            src={'pictures/' + cover + '/cover.jpg'}
-            defaultSrc='static/images/default_cover.png'
+            src={'/pictures/' + cover + '/cover.jpg'}
+            defaultSrc='/static/images/default_cover.png'
             style={imageStyle}
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />

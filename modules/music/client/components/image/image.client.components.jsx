@@ -8,16 +8,10 @@ class Img extends Component {
     this.handleError = this.handleError.bind(this);
   }
 
-  handleError(e) {
-
-    const { defaultSrc } = this.props;
-
-    if( !this.flag ){
-      console.log(defaultSrc);
-      this.domEl.src = defaultSrc;
+  handleError() {
+    if( !this.flag ) {
+      this.domEl.src = (this.props.defaultSrc) ? this.props.defaultSrc : '';
       this.flag = true;
-    } else {
-      console.log('Error when loading static image');
     }
   }
 
@@ -25,7 +19,7 @@ class Img extends Component {
     const {defaultSrc, ...props} = this.props;
     return (
       <img ref={r => this.domEl = r} onError={this.handleError} {...props} >
-        {this.props.children}
+        {props.children}
       </img>
     )
   }
