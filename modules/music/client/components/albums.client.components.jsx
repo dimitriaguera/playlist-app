@@ -97,7 +97,7 @@ class Albums extends Component {
     console.log('RENDER ALL ALBUMS');
 
     return (
-      <div ref={r => { this.domElmt = r }} style={{position: 'relative'}}>
+      <section ref={r => { this.domElmt = r }} style={{position: 'relative'}}>
         <h1>Albums</h1><span>{this.props.total} albums on result</span>
         <SearchMusicBar indexName='album'
           startLimit={0}
@@ -122,7 +122,7 @@ class Albums extends Component {
               history={this.props.history}
             />)}
         </div>
-      </div>
+      </section>
     );
   }
 }

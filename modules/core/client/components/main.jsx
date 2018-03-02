@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import {Route, Switch} from 'react-router-dom'
 import PrivateRoute from 'users/client/components/authorization/privateRoute.client.components.jsx';
-import { Container, Sidebar } from 'semantic-ui-react'
 import { getRoutes } from 'core/client/services/core.route.services';
 import NotFound from './404.jsx'
 import AudioBar from 'music/client/components/audiobar/audioBar.client.components'
@@ -18,15 +17,13 @@ class Main extends Component {
     const { routes } = this.state;
 
     return (
-      <div>
-        <Container className='app-main-container'>
-          <Switch>
-            {routes}
-            <Route component={NotFound} />
-          </Switch>
-        </Container>
+      <main>
+        <Switch>
+          {routes}
+          <Route component={NotFound} />
+        </Switch>
         <AudioBar />
-      </div>
+      </main>
     )
   };
 }

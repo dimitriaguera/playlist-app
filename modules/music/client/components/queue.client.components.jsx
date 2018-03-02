@@ -153,7 +153,7 @@ class Queue extends Component {
     const isActivePlaylist = mustUpdate(pl, playlist);
 
     return (
-      <div>
+      <section>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Queue</Label>
         <h1>{user.username}</h1>
 
@@ -206,7 +206,7 @@ class Queue extends Component {
           onDelete={this.handlerDeleteTrack}
           onPlay={this.handlerReadFile}
         />
-      </div>
+      </section>
     );
   }
 }

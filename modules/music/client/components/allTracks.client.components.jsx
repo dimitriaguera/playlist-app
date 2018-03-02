@@ -35,7 +35,7 @@ class AllTracks extends Component {
     console.log('RENDER ALL TRACKS');
 
     return (
-      <div>
+      <section>
         <h1>Tracks</h1><span>{this.props.total} tracks on result</span>
         <SearchMusicBar indexName='tracks'
           field={'meta.title'}
@@ -67,7 +67,7 @@ class AllTracks extends Component {
             );
           })
         }
-      </div>
+      </section>
     );
   }
 }

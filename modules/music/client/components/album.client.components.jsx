@@ -180,7 +180,7 @@ class Album extends Component {
     const { onPlayIndex, pl } = albumOfUrl;
 
     return (
-      <div>{ pl &&
+      <section>{ pl &&
 
       <div>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Album</Label>
@@ -219,7 +219,7 @@ class Album extends Component {
           onPlay={this.handlerReadTrack}
         />
       </div>
-      }</div>
+      }</section>
     );
   }
 }

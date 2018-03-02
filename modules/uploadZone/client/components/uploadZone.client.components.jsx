@@ -246,7 +246,7 @@ class DropZone extends Component {
   }
 
   render () {
-    const classes = this.state.isHovered ? 'dragOver' : '';
+    const classes = this.state.isHovered ? 'dragZone dragOver' : 'dragZone';
 
 
     return (

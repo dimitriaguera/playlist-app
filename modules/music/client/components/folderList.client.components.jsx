@@ -177,7 +177,7 @@ class FolderList extends Component {
     const { onPlayIndex, pl } = albumOfUrl;
 
     return (
-      <div>{ pl &&
+      <section>{ pl &&
       <div>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Folder's Tracks</Label>
         <h1>{pl.title}</h1>
@@ -214,7 +214,7 @@ class FolderList extends Component {
           onPlay={this.handlerReadTrack}
         />
       </div>
-      }</div>
+      }</section>
     );
   }
 }

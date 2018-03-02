@@ -142,7 +142,7 @@ class Playlist extends Component {
     let label_mode = 'Playlist';
 
     return (
-      <div>
+      <section>
         <Label color='teal' style={{textTransform: 'uppercase'}}>{label_mode}</Label>
         <h1>{playlist.title}</h1>
 
@@ -173,7 +173,7 @@ class Playlist extends Component {
           onDelete={this.handlerDeleteTrack}
           onPlay={this.handlerReadFile}
         />
-      </div>
+      </section>
     );
   }
 }

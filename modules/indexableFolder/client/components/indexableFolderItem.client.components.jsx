@@ -54,8 +54,9 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
   };
 
   return (
-    <UploadZone isFile={item.isFile} targetPath={item.path}>
-      <div className={classes.join(' ')}>
+    <li className={classes && classes.join(' ')}>
+     <UploadZone isFile={item.isFile} targetPath={item.path}>
+
 
         <a onClick={(e) => onClick(e, item)} href='#' className='fol-item-inner'>
           <span aria-hidden="true" className={`icon icon-l ${iconName}`} />
@@ -65,9 +66,8 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
         </a>
         <ItemMenu />
 
-
-      </div>
-    </UploadZone>
+      </UploadZone>
+    </li>
   );
 };
 

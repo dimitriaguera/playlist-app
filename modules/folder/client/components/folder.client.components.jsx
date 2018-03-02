@@ -281,7 +281,7 @@ class Folder extends Component {
     // }
 
     return (
-      <div>
+      <section>
         <h1>Music Folders</h1>
         <Divider />
 
@@ -336,7 +336,7 @@ class Folder extends Component {
         {/* </Button> */}
         {/* </Modal.Actions> */}
         {/* </Modal> */}
-      </div>
+      </section>
     );
   }
 }

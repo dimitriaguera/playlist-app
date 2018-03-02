@@ -122,7 +122,7 @@ class AllPlaylist extends Component {
     });
 
     return (
-      <div>
+      <section>
         <h1>Playlists</h1>
         <Divider />
 
@@ -135,7 +135,7 @@ class AllPlaylist extends Component {
             {playLists}
           </Grid>
         </Segment>
-      </div>
+      </section>
     );
   }
 }

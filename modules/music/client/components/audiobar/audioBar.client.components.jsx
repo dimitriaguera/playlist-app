@@ -109,7 +109,8 @@ class AudioBar extends Component {
 
     return (
       !!onPlay.path &&
-      <div style={{width: '100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
+
+      <section style={{width: '100%', position: 'fixed', bottom: '0'}} className={classes.join(' ')}>
 
         <ReactAudioPlayer preload='auto' autoPlay
           onEnded={this.onEndedHandler}
@@ -153,7 +154,7 @@ class AudioBar extends Component {
           </div>
 
         </div>
-      </div>
+      </section>
     );
   }
 }

@@ -370,7 +370,7 @@ class IndexableFolder extends Component {
     }
 
     return (
-      <div>
+      <section>
         <h1>Music Folders</h1>
         <Divider />
 
@@ -383,24 +383,29 @@ class IndexableFolder extends Component {
           </Segment>
         )}
 
-        <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
+        <nav>
+          <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
+        </nav>
+
 
         {(!error) &&
-                    nodes.map((item, i) => {
-                      return (
-                        <IndexableFolderItem
-                          key={i}
-                          item={item}
-                          user={user}
-                          onClick={this.handlerClickOnFile}
-                          onGetFiles={this.handlerGetAllFiles}
-                          onAddItem={this.handlerAddItem}
-                          onPlayFolder={this.handlerPlayFolder}
-                          onListTracks={this.onListTracks}
-                          onEditMetaTag={this.onEditMetaTag}
-                        />
-                      )
-                    })
+          <ul className='unstyled'>
+            {nodes.map((item, i) => {
+              return (
+                <IndexableFolderItem
+                  key={i}
+                  item={item}
+                  user={user}
+                  onClick={this.handlerClickOnFile}
+                  onGetFiles={this.handlerGetAllFiles}
+                  onAddItem={this.handlerAddItem}
+                  onPlayFolder={this.handlerPlayFolder}
+                  onListTracks={this.onListTracks}
+                  onEditMetaTag={this.onEditMetaTag}
+                />
+              )
+            })}
+          </ul>
         }
 
         {this.state.showEditMetaTagModal &&
@@ -430,7 +435,7 @@ class IndexableFolder extends Component {
             </Button>
           </Modal.Actions>
         </Modal>
-      </div>
+      </section>
     );
   }
 }

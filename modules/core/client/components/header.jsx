@@ -18,11 +18,11 @@ class Header extends Component {
     const { menuItems } = this.state;
 
     return (
-      <header className='app-header-container' style={{zIndex: 1002, position: 'relative'}}>
+      <aside>
         <Menu as='nav' fixed='top' size='large' inverted color='teal'>
           {buildMenuItems(menuItems, user)}
         </Menu>
-      </header>
+      </aside>
     )
   }
 }
