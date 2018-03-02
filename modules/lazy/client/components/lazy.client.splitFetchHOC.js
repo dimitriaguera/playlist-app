@@ -62,11 +62,13 @@ function splitFetchHOC (params, fetchActions) {
 
       onResizeHandle () {
         // Get component container size.
-        const height = this.container.getBoundingClientRect().height;
-        // Get window height.
-        const screenY = window.innerHeight;
-        // Store it.
-        this.setState({height: height, screenY: screenY});
+        if (this.container) {
+          const height = (this.container) ? this.container.getBoundingClientRect().height : null;
+          // Get window height.
+          const screenY = window.innerHeight;
+          // Store it.
+          this.setState({height: height, screenY: screenY});
+        }
       }
 
       onScrollHandle (e) {
