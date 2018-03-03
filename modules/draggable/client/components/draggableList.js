@@ -189,7 +189,7 @@ class DraggableList extends Component {
                     <div className='dl-hand-right'
                       onMouseDown={this.handleMouseDown.bind(this, realIndex, id, y)}
                       onTouchStart={this.handleTouchStart.bind(this, realIndex, id, y)}>
-                      <Icon className='pli-move' name='move' color='grey' />
+                      <i aria-hidden="true" className='icon icon-move'/>
                     </div>
                     }
                   </div>

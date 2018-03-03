@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Divider, Button, Modal, Icon, Segment, Label, Step, Header } from 'semantic-ui-react'
+import { Modal, Label, Header } from 'semantic-ui-react'
 import { get, post } from 'core/client/services/core.api.services'
 import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import TransitionList from 'transitionList/client/components/transitionList'
@@ -371,21 +371,23 @@ class IndexableFolder extends Component {
 
     return (
       <section>
-        <h1>Music Folders</h1>
-        <Divider />
+        <header>
+          <h1>Music Folders</h1>
 
-        {user && (
-          <Segment>
-            <Header icon='pencil' content='Editing playlist' />
-            <SelectPlaylist defaultValue={params ? params.get('pl') : null} />
-            {activePlaylist && <Label as={Link} to={pathUrl} color='teal'
-              tag>{`${activePlaylist.length} tracks`}</Label>}
-          </Segment>
-        )}
+          {user && (
+            <section>
+              <Header icon='pencil' content='Editing playlist' />
+              <SelectPlaylist defaultValue={params ? params.get('pl') : null} />
+              {activePlaylist && <Label as={Link} to={pathUrl} color='teal'
+                                        tag>{`${activePlaylist.length} tracks`}</Label>}
+            </section>
+          )}
 
-        <nav>
+
           <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
-        </nav>
+
+        </header>
+
 
 
         {(!error) &&
@@ -427,12 +429,12 @@ class IndexableFolder extends Component {
             <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
           </Modal.Content>
           <Modal.Actions>
-            <Button inverted onClick={this.handleModalCancel}>
-              <Icon name='remove' /> No
-            </Button>
-            <Button color='teal' inverted onClick={this.handleModalConfirm}>
-              <Icon name='checkmark' /> Yes
-            </Button>
+            <button onClick={this.handleModalCancel}>
+              <i aria-hidden="true" className="icon icon-x" /> No
+            </button>
+            <button color='teal' onClick={this.handleModalConfirm}>
+              <i aria-hidden="true" className="icon icon-check" /> Yes
+            </button>
           </Modal.Actions>
         </Modal>
       </section>
@@ -497,24 +499,44 @@ const IndexableFolderContainer = connect(
 
 function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
   const stepWidth = `calc(${100 / path.length}% - ${(70 / path.length)}px)`;
+  const l = path.length;
 
   return (
-    <Step.Group size='mini' unstackable>
-      <Step link onClick={handlerRootFolder} style={{maxWidth: '70px'}}>
-        <Step.Content>
-          <Step.Title><span aria-hidden="true" className='icon icon-home icon-m' /></Step.Title>
-        </Step.Content>
-      </Step>
-      {path.map((item, i) => {
-        return (
-          <Step link key={i} active={i === path.length - 1} onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))} style={{maxWidth: stepWidth}}>
-            <Step.Content>
-              <Step.Title>{item}</Step.Title>
-            </Step.Content>
-          </Step>
-        );
-      })}
-    </Step.Group>
+    <nav>
+      <ul className="unstyled breadcrumb-ul flex-container">
+        <li key='0' className="breadcrumb-li" style={{'cursor': 'pointer'}}>
+          <a onClick={handlerRootFolder} title='Home' className="breadcrumb-a">
+            <i aria-hidden="true" className='icon icon-home icon-m' />
+            { (l>0) && <i aria-hidden="true" className='icon icon-chevron-right icon-m' />}
+          </a>
+        </li>
+        {path.map((item, i) => {
+
+              // Check if not last item
+              if (l !== i + 1) {
+                return (
+                  <li key={i+1} className="breadcrumb-li" onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))} style={{'cursor': 'pointer'}}>
+                    <a title={item} className="breadcrumb-a">
+                      {item}
+                      <i aria-hidden="true" className='icon icon-chevron-right icon-m' />
+                    </a>
+
+                  </li>
+                );
+              } else {
+                return (
+                  <li key={i+1} className="breadcrumb-li">
+                    <span title={item} className="breadcrumb-a">
+                      {item}
+                    </span>
+                  </li>
+                );
+              }
+
+
+            })}
+      </ul>
+    </nav>
   )
 }
 

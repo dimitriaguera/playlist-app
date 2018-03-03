@@ -9,7 +9,7 @@ import {removeLast} from 'core/client/services/core.path.services'
 import style from './style/uploadZone.scss'
 
 
-class DropZone extends Component {
+class UploadZone extends Component {
   constructor () {
     super();
 
@@ -246,23 +246,18 @@ class DropZone extends Component {
   }
 
   render () {
-    const classes = this.state.isHovered ? 'dragZone dragOver' : 'dragZone';
-
+    const classes = this.state.isHovered ? `upload-zone drag-over ${this.props.className}` : `upload-zone ${this.props.className}`;
 
     return (
-      <div className={classes} multiple onDrop={this.onDrop} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave}>
+      <span className={classes} multiple onDrop={this.onDrop} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave}>
         {this.props.children}
         {this.state.input &&
           <form method='post' encType='multipart/form-data'>
-            {/* <div> */}
-            {/* <label htmlFor="file">Sélectionner le fichier à envoyer</label> */}
-            {/* <input type="file" id="file" name="file" multiple/> */}
-            {/* </div> */}
           </form>
         }
-      </div>
+      </span>
     );
   }
 }
 
-export default DropZone
+export default UploadZone

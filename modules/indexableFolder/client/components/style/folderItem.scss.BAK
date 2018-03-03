@@ -6,9 +6,12 @@ $color-link-hover: rgba(0, 0, 0, 0.87);
 $color-icon: rgba(0, 0, 0, 0.87);
 
 .fol-item {
+  display: block;
   width: 100%;
+  position: relative;
   background: $color-bg-item;
   border-bottom: #{$border-item};
+  padding: 0 60px 0 20px;
 
   & > a {
     color: $color-link;
