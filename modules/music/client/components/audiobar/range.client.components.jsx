@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import style from './style/range.scss'
 
 class RangeSlider extends Component {
   constructor () {

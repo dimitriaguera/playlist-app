@@ -1,0 +1,99 @@
+/**
+ * Created by Marc Foletto on 27/02/2017.
+ * Modals file
+ */
+
+$color-bg-modal: rgba(0, 0, 0, 0.75);
+$color-txt-modal: $white;
+
+$color-bg-btn-yes-modal: transparent;
+$color-txt-btn-yes-modal: $color-primary;
+
+$color-bg-btn-yes-modal-hover: $color-primary-hover;
+$color-txt-btn-yes-modal-hover: rgba(0, 0, 0, 0.8);
+
+$color-bg-btn-no-modal: transparent;
+$color-txt-btn-no-modal: $white;
+
+$color-bg-btn-no-modal-hover: $white;
+$color-txt-btn-no-modal-hover: rgba(0, 0, 0, 0.8);
+
+// Style of the overlay
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: $zindex-modal;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  background-color: $color-bg-modal;
+  color: $color-txt-modal;
+}
+
+// Style of the modal itself
+//.modal {
+//
+//}
+
+
+// Style of the modal title
+.modal-title {
+  & > i {
+    padding-right: 1rem;
+  }
+}
+
+// Style of the modal content
+//.modal-content{
+//
+//}
+
+// Style of the modal button
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  margin-left: 1rem;
+  width: 9rem;
+
+  &.btn-no {
+    background: $color-bg-btn-no-modal;
+    box-shadow: inset 0 0 0 2px $color-txt-btn-no-modal !important;
+    color: $color-txt-btn-no-modal;
+
+    &:hover {
+      background: $color-bg-btn-no-modal-hover;
+      box-shadow: none !important;
+      color: $color-txt-btn-no-modal-hover;
+    }
+  }
+
+  &.btn-yes {
+    background: $color-bg-btn-yes-modal;
+    box-shadow: inset 0 0 0 2px $color-txt-btn-yes-modal !important;
+    color: $color-txt-btn-yes-modal;
+
+    &:hover {
+      background-color: $color-bg-btn-no-modal-hover;
+      box-shadow: none !important;
+      color: $color-txt-btn-yes-modal-hover;
+    }
+  }
+}
+
+.modal-btn-icon {
+  position: relative;
+  top: -2px;
+  font-size: 2rem;
+  padding-right: 1rem;
+}

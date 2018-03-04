@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 
-import style from './style/range.scss'
-
 class RangeVolume extends Component {
   constructor () {
     super();

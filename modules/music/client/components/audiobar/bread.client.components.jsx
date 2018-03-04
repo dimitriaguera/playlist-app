@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import ps from 'core/client/services/core.path.services'
 import config from 'env/config.client'
 import { Link } from 'react-router-dom'
-import { Icon, Popup } from 'semantic-ui-react'
+import { Popup } from 'semantic-ui-react'
 
 import style from './style/bread.scss'
 
@@ -42,7 +42,11 @@ class Bread extends Component {
         return (
           <Popup
             key={i}
-            trigger={<span className='meta-track-bread-link'><Link to={`/music/${item.path}`} style={{maxWidth: width}}>{item.content}</Link><Icon name='angle right' /></span>}
+            trigger={
+              <span className='meta-track-bread-link'>
+                <Link to={`/music/${item.path}`} style={{maxWidth: width}}>{item.content}</Link>
+                <i aria-hidden="true" className='icon icon-chevron-right'/>
+              </span>}
             content={item.content}
             inverted
           />

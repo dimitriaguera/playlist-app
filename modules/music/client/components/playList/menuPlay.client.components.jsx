@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnPlaylist, playItem, pauseState, playState } from 'music/client/redux/actions'
-import { Menu, Icon } from 'semantic-ui-react'
+import { Menu } from 'semantic-ui-react'
 
 
 class PlayingControls extends Component {
@@ -71,13 +71,13 @@ class PlayingControls extends Component {
       // If active playlist and on play, display Pause button.
       if (isActive && !isPaused) { return (
         <Menu.Item onClick={this.onPauseHandler}>
-          <Icon name='pause' />
+          <i aria-hidden="true" className="icon icon-pause icon-disable" />
         </Menu.Item>
       ); }
       // Else display Play button.
       else { return (
         <Menu.Item disabled={disable} onClick={this.onPlayHandler}>
-          <Icon disabled={disable} name='play' />
+          <i aria-hidden="true" className="icon icon-play icon-disable" />
         </Menu.Item>
       ); }
     };
@@ -87,7 +87,7 @@ class PlayingControls extends Component {
         const disabled = (onPlayIndex === 0);
         return (
           <Menu.Item disabled={disabled} onClick={this.onPrevHandler}>
-            <Icon disabled={disabled} name='left chevron' />
+            <i aria-hidden="true" className="icon icon-play icon-chevron-left" />
           </Menu.Item>
         );
       }
@@ -99,7 +99,7 @@ class PlayingControls extends Component {
         const disabled = (onPlayIndex + 1 === playlist.length);
         return (
           <Menu.Item disabled={disabled} onClick={this.onNextHandler}>
-            <Icon disabled={disabled} name='right chevron' />
+            <i aria-hidden="true" className="icon icon-play icon-chevron-right" />
           </Menu.Item>
         );
       }

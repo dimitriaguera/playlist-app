@@ -3,8 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import {Motion, spring} from 'react-motion'
-import { Icon } from 'semantic-ui-react'
+import { Motion, spring} from 'react-motion'
 
 import style from './style/draggableList.scss'
 

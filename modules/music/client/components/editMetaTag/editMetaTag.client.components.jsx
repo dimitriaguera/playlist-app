@@ -1,15 +1,15 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {put, get} from 'core/client/services/core.api.services'
-import {Form, Message, Button, Input, Icon, Header, Modal, Dropdown, Label} from 'semantic-ui-react'
-
+import {Form, Message, Input, Dropdown, Label} from 'semantic-ui-react'
+import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
 
 import socketServices from 'core/client/services/core.socket.services'
 
 
 class EditMetaTag extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.handleClose = this.props.onClose.bind(this);
@@ -77,8 +77,12 @@ class EditMetaTag extends Component {
     };
   }
 
+  componentWillMount() {
+    // React Modal
+    Modal.setAppElement("#root");
+  }
 
-  initMeta (meta) {
+  initMeta(meta) {
     if (meta) {
       return {
         title: meta.title || '',
@@ -118,7 +122,7 @@ class EditMetaTag extends Component {
    * @param str
    * @returns {*}
    */
-  checkStringReturnArray (str) {
+  checkStringReturnArray(str) {
     if (typeof str === 'string' || str instanceof String) {
       if (str.length) return str.split(/\s*[,;\/]\s*/);
       return [];
@@ -132,7 +136,7 @@ class EditMetaTag extends Component {
    * @param replacer
    * @param first if true replace first occurrence if false replace all occurrence
    */
-  changeEmptyValInArray (arr, replacer, first) {
+  changeEmptyValInArray(arr, replacer, first) {
     if (!first) {
       for (let i = 0, li = arr.length; i < li; i++) {
         if (arr[i] === '') arr = replacer;
@@ -149,12 +153,12 @@ class EditMetaTag extends Component {
    * @param arr
    * @returns {[null]}
    */
-  uniq (arr) {
+  uniq(arr) {
     return [...new Set(arr)];
   }
 
 
-  cleanMeta (meta) {
+  cleanMeta(meta) {
     let cleanMeta = Object.assign({}, meta);
 
     cleanMeta.genre = this.checkStringReturnArray(cleanMeta.genre);
@@ -163,7 +167,7 @@ class EditMetaTag extends Component {
   }
 
 
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
 
     // If other user modify meta on the same file print error.
@@ -184,13 +188,15 @@ class EditMetaTag extends Component {
     } else {
       // Get all files in the dir
       _self.props.fetchFiles(ps.urlEncode(_self.props.item.path)).then((nodes) => {
-        if (!nodes.success) { return _self.setState(
-          {
-            error: true,
-            loading: false,
-            message: 'Issue when loading files !'
-          }
-        ); }
+        if (!nodes.success) {
+          return _self.setState(
+            {
+              error: true,
+              loading: false,
+              message: 'Issue when loading files !'
+            }
+          );
+        }
 
         let bulkMeta = {
           title: [],
@@ -256,12 +262,12 @@ class EditMetaTag extends Component {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.socket.removeListener('save:meta', this.updateNodeMetaOnSocketEvent);
   }
 
   // If other user modify meta on the same file print error.
-  updateNodeMetaOnSocketEvent (data) {
+  updateNodeMetaOnSocketEvent(data) {
     let oldNode = Object.assign([], this.props.item);
 
     // Find if it is the same file
@@ -277,7 +283,7 @@ class EditMetaTag extends Component {
     }
   }
 
-  handleChange (e) {
+  handleChange(e) {
     let name = e.target.name, value = e.target.value;
 
     let oldMeta = Object.assign({}, this.state.meta);
@@ -289,7 +295,7 @@ class EditMetaTag extends Component {
     })
   }
 
-  handleChangeDropDown (e, {name, value}) {
+  handleChangeDropDown(e, {name, value}) {
     let oldMetaAction = Object.assign({}, this.state.metaAction);
 
     oldMetaAction[name] = value;
@@ -300,7 +306,7 @@ class EditMetaTag extends Component {
   }
 
 
-  submitForm (e) {
+  submitForm(e) {
     const _self = this;
 
     _self.setState({loading: true});
@@ -337,25 +343,31 @@ class EditMetaTag extends Component {
       });
   }
 
-  render () {
+  render() {
     return (
       <Modal
-        open={this.props.open}
-        onClose={this.handleClose}
+        isOpen={this.props.open}
+        onRequestClose={this.handleClose}
         onSubmit={(e) => this.submitForm(e)}
-        basic size='small'
+        className="modal"
+        overlayClassName="modal-overlay"
       >
-        <Header content='Edit Metatag' />
 
-        <Modal.Content>
+        <h2>
+          <i aria-hidden="true" className="icon icon-edit icon-xl"/>
+          Edit Metatag
+        </h2>
+
+
+        <div className="modal-content">
 
           <Form error success loading={this.state.loading}>
 
             {this.state.error ? (
-              <Message error content={this.state.message} />
-            )
+                <Message error content={this.state.message}/>
+              )
               : (
-                <Message success content={this.state.message} />
+                <Message success content={this.state.message}/>
               )
             }
 
@@ -369,9 +381,9 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.title}>
                 <Label>Title</Label>
-                <input />
+                <input/>
                 <Label>
-                  <Dropdown name='titleDropDown' defaultValue='donothing' options={this.dropDownOpt} />
+                  <Dropdown name='titleDropDown' defaultValue='donothing' options={this.dropDownOpt}/>
                 </Label>
               </Input>
 
@@ -387,10 +399,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.artist}>
                 <Label>Artist</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='artist' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.artist}</div>
@@ -405,10 +417,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.album}>
                 <Label>Album</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='album' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.album}</div>
@@ -423,10 +435,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.albumartist}>
                 <Label>Album Artist</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='albumartist' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.albumartist}</div>
@@ -442,10 +454,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.year}>
                 <Label>Year</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='year' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.year}</div>
@@ -460,10 +472,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.genre}>
                 <Label>Genre</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='genre' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.genre}</div>
@@ -477,10 +489,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.composer}>
                 <Label>Composer</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='composer' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.composer}</div>
@@ -495,10 +507,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.trackno}>
                 <Label>Track n°</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='trackno' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.trackno}</div>
@@ -512,10 +524,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.trackof}>
                 <Label>Track of</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='trackof' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.trackof}</div>
@@ -532,10 +544,10 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.diskno}>
                 <Label>Disc n°</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='diskno' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
               </Input>
               <div>{this.state.existingMetaBulk.diskno}</div>
@@ -548,30 +560,25 @@ class EditMetaTag extends Component {
                 onChange={this.handleChange}
                 disabled={this.state.inputDisable.diskof}>
                 <Label>Disc of</Label>
-                <input />
+                <input/>
                 <Label>
                   <Dropdown name='diskof' defaultValue='donothing' options={this.dropDownOpt}
-                    onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})} />
+                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
                 </Label>
                 <div>{this.state.existingMetaBulk.diskof}</div>
               </Input>
             </Form.Field>
-
-            <div>
-              <Button type='button' onClick={this.handleClose} basic color='red' inverted>
-                <Icon name='remove' /> No
-              </Button>
-              <Button type='submit' color='green' inverted>
-                <Icon name='checkmark' /> Yes
-              </Button>
-            </div>
-
           </Form>
-
-        </Modal.Content>
-
+        </div>
+        <div className="modal-actions">
+          <button onClick={this.handleClose} className="btn btn-no btn-inverted modal-btn">
+            <i aria-hidden="true" className="icon icon-x modal-btn-icon"/>No
+          </button>
+          <button type='submit' className="btn btn-yes btn-inverted modal-btn">
+            <i aria-hidden="true" className="icon icon-check modal-btn-icon"/>Yes
+          </button>
+        </div>
       </Modal>
-
     );
   }
 }

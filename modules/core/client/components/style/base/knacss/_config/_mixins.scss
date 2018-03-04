@@ -1,0 +1,100 @@
+// font-size Mixin
+// compiles to font-size mobile + font-size desktop on small-plus devices
+// ex. h2 { @include font-size(h2);}
+@mixin font-size($elem) {
+  $q: map-get($font-sizes, $elem);
+  $mob: map-get($q, "mobile");
+  $desk: map-get($q, "desktop");
+  font-size: $mob;
+  @include respond-to("small-up") {
+    font-size: $desk;
+  }
+}
+
+// Grid Mixin
+// arguments are : columns number, gutter, min-breakpoint
+// ex. .ingrid { @include grid(4, 1rem, 640px); }
+@mixin grid($number:1, $gutter:0, $breakpoint:0) {
+  @media (min-width: $breakpoint) {
+    display: grid;
+    grid-template-columns: repeat($number, 1fr);
+    grid-gap: $gutter;
+  }
+}
+
+// Additionnal "utility" breakpoints aliases
+// ex. @include respond-to("medium-up") {...}
+$bp-aliases: (
+  'tiny'   : (max-width: #{$tiny - 1}),
+  'small'  : (max-width: #{$small - 1}),
+  'medium' : (max-width: #{$medium - 1}),
+  'large' : (max-width: #{$large - 1}),
+  'extra-large'  : (max-width: #{$extra-large - 1}),
+  'tiny-up'   : (min-width: #{$tiny}),
+  'small-up'  : (min-width: #{$small}),
+  'medium-up' : (min-width: #{$medium}),
+  'large-up' : (min-width: #{$large}),
+  'extra-large-up' : (min-width: #{$extra-large}),
+  'retina' : (min-resolution: 2dppx)
+);
+
+// Source : https://www.sitepoint.com/managing-responsive-breakpoints-sass/
+@mixin respond-to($name) {
+  // If the key exists in the map
+  @if map-has-key($bp-aliases, $name) {
+    // Prints a media query based on the value
+    @media #{inspect(map-get($bp-aliases, $name))} {
+      @content;
+    }
+  }
+
+  // If the key doesn't exist in the map
+  @else {
+    @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
+        + "Please make sure it is defined in `$breakpoints` map.";
+  }
+}
+
+
+@mixin font-face($font-family, $file-path, $font-format, $file-suffix: null, $font-weight: null, $font-style: null) {
+  @font-face {
+    font-family: $font-family;
+
+    @if (index($font-format, eot)) {
+      src: url('#{$file-path}.eot#{$file-suffix}');
+    }
+
+    @if (index($font-format, eot)) {
+      src: url('#{$file-path}.eot#{$file-suffix}#iefix') format('embedded-opentype');
+    }
+
+    @if (index($font-format, woff2)) {
+      src: url('#{$file-path}.woff2#{$file-suffix}') format('woff2');
+    }
+
+    @if (index($font-format, woff)) {
+      src: url('#{$file-path}.woff#{$file-suffix}') format('woff');
+    }
+
+    @if (index($font-format, ttf)) {
+      src: url('#{$file-path}.ttf#{$file-suffix}') format('truetype');
+    }
+
+    @if (index($font-format, svg)) {
+      src: url('#{$file-path}.svg#{$file-suffix}##{$font-family}') format('svg');
+    }
+
+    font-weight: $font-weight;
+    font-style: $font-style;
+  }
+
+  @if (index($font-format, svg)) {
+    // Chrome for Windows rendering fix: http://www.adtrak.co.uk/blog/font-face-chrome-rendering/
+    @media screen and (-webkit-min-device-pixel-ratio: 0) {
+      @font-face {
+        font-family: $font-family;
+        src: url('#{$file-path}.svg#{$file-suffix}##{$font-family}') format('svg');
+      }
+    }
+  }
+}

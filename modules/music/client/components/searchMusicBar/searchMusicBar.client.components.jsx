@@ -2,9 +2,6 @@ import React, { Component } from 'react'
 import Rx from 'rx'
 import ps from 'core/client/services/core.path.services'
 import { forgeResquest } from 'core/client/services/core.api.services'
-import { Icon } from 'semantic-ui-react'
-
-import style from './style/searchBar.scss'
 
 const KEY = {
   ESC: 27,
@@ -416,7 +413,7 @@ class SearchMusicBar extends Component {
                     {item.tag || item.text}<br />
                     <span>{item._type}</span>
                   </span>
-                  <Icon name='remove' />
+                  <i aria-hidden="true" className="icon icon-x" />
                 </li>
               )}
             </ul>
@@ -464,7 +461,7 @@ class SearchMusicBar extends Component {
             <div className='sb-filter-menu'>
               {filtersMapping.album
                 ? <label htmlFor='filter0'>Album</label>
-                : <label className='no-click'><Icon name='filter' /></label>
+                : <label className='no-click'><i aria-hidden="true" className="icon icon-crosshair" /></label>
               }
               {filtersMapping.artist &&
               <label htmlFor='filter1'>Artist</label>

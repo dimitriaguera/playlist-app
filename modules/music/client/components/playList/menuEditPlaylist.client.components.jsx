@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { del } from 'core/client/services/core.api.services'
 import { activatePlaylist, addPlaylistToPlay } from 'music/client/redux/actions'
-import { Menu, Icon } from 'semantic-ui-react'
+import { Menu } from 'semantic-ui-react'
 
 class MenuEditPlaylist extends Component {
   constructor () {
@@ -46,8 +46,8 @@ class MenuEditPlaylist extends Component {
 
     return (
       <Menu>
-        <Menu.Item onClick={(e) => history.push(`/music?pl=${target.title}`)}>
-          <Icon name='plus' color='teal' />Add Tracks
+        <Menu.Item onClick={() => history.push(`/music?pl=${target.title}`)}>
+          <i aria-hidden="true" className="icon icon-plus" />Add Tracks
         </Menu.Item>
         <Menu.Menu position='right'>
           <Menu.Item onClick={this.deleteHandler}>

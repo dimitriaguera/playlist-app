@@ -6,7 +6,7 @@ import SearchMusicBar from 'music/client/components/searchMusicBar/searchMusicBa
 import Img from 'music/client/components/image/image.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import ps from 'core/client/services/core.path.services'
-import { Divider, Icon } from 'semantic-ui-react'
+import { Divider } from 'semantic-ui-react'
 
 import style from './style/allTracks.scss'
 
@@ -56,7 +56,7 @@ class AllTracks extends Component {
                     defaultSrc='/static/images/default_cover.png'
                     width='50' height='50'
                   />
-                  <span aria-hidden='true' className='icon icon-l white icon-play'/>
+                  <i aria-hidden='true' className='icon icon-l white icon-play'/>
                 </div>
                 <div className='tracks-item-info'>
                   <div className='name'>{item.meta.title}</div>

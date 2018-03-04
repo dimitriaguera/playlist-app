@@ -5,7 +5,7 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from 'music/client/components/playList/menuPlay.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Card, Segment, Icon, Grid } from 'semantic-ui-react'
+import { Divider, Card, Segment, Grid } from 'semantic-ui-react'
 
 class AllPlaylist extends Component {
   constructor (props) {
@@ -113,7 +113,7 @@ class AllPlaylist extends Component {
             </Card.Content>
             <Card.Content>
               <Card.Meta>
-                <Icon name='music' /> {item.length} tracks
+                <i aria-hidden="true" className="icon icon-music" /> {item.length} tracks
               </Card.Meta>
             </Card.Content>
           </Card>

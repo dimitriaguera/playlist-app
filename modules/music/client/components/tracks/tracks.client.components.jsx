@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Icon, Button } from 'semantic-ui-react'
+import { Button } from 'semantic-ui-react'
 import InfoPath from 'music/client/components/infoPath/infoPath.client.components'
 
 import style from './style/tracks.scss'
@@ -32,7 +32,7 @@ class Tracks extends Component {
 
     return (
       <span className={classes.join(' ')}>
-        {active && <div className='pli-inner-left'><Icon className='pli-play' inverted name={iconName} /></div>}
+        {active && <div className='pli-inner-left'><i aria-hidden="true" className={`pli-play icon icon-${iconName}`} /></div>}
         <a className='pli-inner' onClick={onPlay(index)} href='#'>
           <span className='pli-number'>{index + 1}.</span>
           <span className='pli-info'>
@@ -43,7 +43,7 @@ class Tracks extends Component {
         {(onDelete && canEdit) &&
         <span className='pli-menu'>
           <Button onClick={onDelete(index)} icon basic size='mini' color='teal'>
-            <Icon name='minus' />
+            <i aria-hidden="true" className="icon icon-minus" />
           </Button>
         </span>
         }

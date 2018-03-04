@@ -1,8 +1,5 @@
 import React from 'react'
-import { button, Icon } from 'semantic-ui-react'
 import UploadZone from 'uploadZone/client/components/uploadZone.client.components'
-
-import style from './style/folderItem.scss'
 
 const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, onEditMetaTag, item, user, onAddItem }) => {
   const name = item.publicName || item.name;
@@ -21,20 +18,18 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
     if (!item.isFile) {
       return (
         <span className='fol-item-menu'>
-          <span className='fol-item-menu-inner'>
             <button onClick={(e) => onPlayFolder(e, item)} className="btn btn-icon">
-              <i aria-hidden="true" className='icon icon-m icon-play' />
+              <i aria-hidden="true" className='icon icon-l icon-play' />
             </button>
             <button onClick={(e) => onListTracks(e, item)} className="btn btn-icon">
-              <i aria-hidden="true" className='icon icon-m icon-list' />
+              <i aria-hidden="true" className='icon icon-l icon-list' />
             </button>
             <button onClick={(e) => onGetFiles(e, item)} className="btn btn-icon">
-              <i aria-hidden="true" className='icon icon-m icon-plus' />
+              <i aria-hidden="true" className='icon icon-l icon-plus' />
             </button>
             <button onClick={(e) => onEditMetaTag(e, item)} className="btn btn-icon">
-              <i aria-hidden="true" className='icon icon-m icon-tag' />
+              <i aria-hidden="true" className='icon icon-l icon-tag' />
             </button>
-          </span>
         </span>
       );
     }
@@ -42,27 +37,23 @@ const IndexableFolderItem = ({ onClick, onGetFiles, onPlayFolder, onListTracks, 
     else {
       return (
         <span className='fol-item-menu'>
-          <span className='fol-item-menu-inner'>
             <button onClick={(e) => onAddItem(e, item)} className="btn btn-icon">
-              <i aria-hidden="true" className='icon icon-m icon-plus' />
+              <i aria-hidden="true" className='icon icon-l icon-plus' />
             </button>
             <button onClick={(e) => onEditMetaTag(e, item)} className="btn btn-icon">
-              <i aria-hidden="true" className='icon icon-m icon-tag' />
+              <i aria-hidden="true" className='icon icon-l icon-tag' />
             </button>
-          </span>
         </span>
       );
     }
   };
 
   return (
-    <li className={classes && classes.join(' ')}>
-     <UploadZone isFile={item.isFile} targetPath={item.path} className="grid-3">
-        <i aria-hidden="true" className={`icon icon-l ${iconName}`} aria-label={type}/>
-        <a onClick={(e) => onClick(e, item)} className='fol-item-inner'>
-          <span className='fol-item-title'>
+    <li>
+     <UploadZone isFile={item.isFile} targetPath={item.path} className={classes && classes.join(' ')}>
+        <i aria-hidden="true" className={`icon icon-l ${iconName} fol-item-icon`} aria-label={type}/>
+        <a href="#" onClick={(e) => onClick(e, item)} className='fol-item-title'>
             {name}
-          </span>
         </a>
         <ItemMenu />
       </UploadZone>

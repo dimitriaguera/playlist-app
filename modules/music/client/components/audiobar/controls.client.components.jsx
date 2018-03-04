@@ -15,11 +15,11 @@ class Controls extends Component {
     const playPauseBtn = () => {
       // If active playlist and on play, display Pause button.
       if (!isPaused) { return (
-        <button onClick={onPauseHandler} className='btn btn-center'><span className='icon icon-l icon-pause'/></button>
+        <button onClick={onPauseHandler} className='btn btn-center'><i aria-hidden="true" className='icon icon-l icon-pause'/></button>
       ); }
       // Else display Play button.
       else { return (
-        <button onClick={onPlayHandler} className='btn btn-center'><span className='icon icon-l icon-play'/></button>
+        <button onClick={onPlayHandler} className='btn btn-center'><i aria-hidden="true" className='icon icon-l icon-play'/></button>
       ); }
     };
 
@@ -27,7 +27,7 @@ class Controls extends Component {
       if (pl) {
         const disabled = (onPlayIndex === 0);
         return (
-          <button disabled={disabled} className='btn' onClick={onPrevHandler} ><span className='icon icon-l icon-skip-back'/></button>
+          <button disabled={disabled} className='btn' onClick={onPrevHandler} ><i aria-hidden="true" className='icon icon-l icon-skip-back'/></button>
         );
       }
       return null;
@@ -37,7 +37,7 @@ class Controls extends Component {
       if (pl) {
         const disabled = (onPlayIndex + 1 === pl.tracks.length);
         return (
-          <button disabled={disabled} className='btn' onClick={onNextHandler} ><span className='icon icon-l icon-skip-forward'/></button>
+          <button disabled={disabled} className='btn' onClick={onNextHandler} ><i aria-hidden="true" className='icon icon-l icon-skip-forward'/></button>
         );
       }
       return null;

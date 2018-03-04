@@ -1,10 +1,28 @@
-$side-larger: 200px;
+$side-larger: 20rem;
+$main-padding: 2rem;
 
 $color-bg-side-bar: $black;
 $color-font-side-bar: $white;
 
 $color-bg-side-bar-phone: $black;
 $color-font-side-bar-phone: $white;
+
+$color-bg-body: $white;
+
+/////// Body Init
+
+html,
+body,
+#root {
+  display: block;
+  position: relative;
+  height: 100%;
+}
+
+body {
+  background: url('../../../../../public/images/ginkgo_gris.png') no-repeat center fixed;
+  background-color: $color-bg-body;
+}
 
 //////////////////////////// LAYOUT
 
@@ -84,10 +102,10 @@ $color-font-side-bar-phone: $white;
   overflow: auto;
   height: 100%;
   transition: padding 1s;
-  padding-left: 0;
+  padding: $main-padding;
 
   @include respond-to("medium-up") {
-    padding-left: $side-larger;
+    padding-left: #{$side-larger + $main-padding};
   }
 }
 

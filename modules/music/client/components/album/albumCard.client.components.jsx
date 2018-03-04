@@ -6,8 +6,6 @@ import ps from 'core/client/services/core.path.services'
 import Img from 'music/client/components/image/image.client.components'
 import AlbumTracks from 'music/client/components/album/albumTracks.client.components'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
-import { Icon } from 'semantic-ui-react'
-
 
 import style from './style/albumCard.scss'
 
@@ -192,8 +190,8 @@ class AlbumCard extends Component {
             style={imageStyle}
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
-          <span aria-hidden='true' className='icon icon-l white icon-play' />
-          <span aria-hidden='true' className='icon icon-l white icon-plus' onClick={this.handlerAddTracks} />
+          <i aria-hidden='true' className='icon icon-l white icon-play' />
+          <i aria-hidden='true' className='icon icon-l white icon-plus' onClick={this.handlerAddTracks} />
         </div>
 
         <div className='albums-item-info' onClick={this.handlerOpenTab}>

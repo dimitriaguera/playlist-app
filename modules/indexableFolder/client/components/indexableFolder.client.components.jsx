@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import Modal from 'react-modal';
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Modal, Label, Header } from 'semantic-ui-react'
+import { Label, Header } from 'semantic-ui-react'
 import { get, post } from 'core/client/services/core.api.services'
 import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/redux/actions'
 import TransitionList from 'transitionList/client/components/transitionList'
@@ -69,6 +70,9 @@ class IndexableFolder extends Component {
   componentWillMount () {
     const _self = this;
     const { fetchFolder, searchNodes, location, match } = _self.props;
+
+    // React Modal
+    Modal.setAppElement("#root");
 
     // Update node when someone change meta
     // on Socket Event
@@ -368,29 +372,29 @@ class IndexableFolder extends Component {
         pathUrl = `/playlist/${activePlaylist.title}`;
       }
     }
+      return (
+        <section>
+          <header>
+            <h1>Music Folders</h1>
 
-    return (
-      <section>
-        <header>
-          <h1>Music Folders</h1>
-
-          {user && (
-            <section>
-              <Header icon='pencil' content='Editing playlist' />
-              <SelectPlaylist defaultValue={params ? params.get('pl') : null} />
-              {activePlaylist && <Label as={Link} to={pathUrl} color='teal'
-                                        tag>{`${activePlaylist.length} tracks`}</Label>}
-            </section>
-          )}
-
-
-          <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
-
-        </header>
+            {/* Remove playlist Element here*/}
+            {/*{user && (*/}
+              {/*<section>*/}
+                {/*<Header icon='pencil' content='Editing playlist' />*/}
+                {/*<SelectPlaylist defaultValue={params ? params.get('pl') : null} />*/}
+                {/*{activePlaylist && <Label as={Link} to={pathUrl} color='teal'*/}
+                                          {/*tag>{`${activePlaylist.length} tracks`}</Label>}*/}
+              {/*</section>*/}
+            {/*)}*/}
 
 
+            <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
 
-        {(!error) &&
+          </header>
+
+
+
+          {(!error) &&
           <ul className='unstyled'>
             {nodes.map((item, i) => {
               return (
@@ -408,38 +412,46 @@ class IndexableFolder extends Component {
               )
             })}
           </ul>
-        }
+          }
 
-        {this.state.showEditMetaTagModal &&
-        <EditMetaTag
-          open={this.state.showEditMetaTagModal}
-          item={this.state.editMetaTagItem}
-          onClose={() => this.setState({showEditMetaTagModal: false})}
-        />
-        }
+          {this.state.showEditMetaTagModal &&
+          <EditMetaTag
+            open={this.state.showEditMetaTagModal}
+            item={this.state.editMetaTagItem}
+            onClose={() => this.setState({showEditMetaTagModal: false})}
+          />
+          }
 
-        <Modal
-          open={modal.open}
-          onClose={this.handleModalCancel}
-          basic
-          size='small'
-        >
-          <Header icon='pencil' content={`Add ${modal.addTracks.length} tracks ?`} />
-          <Modal.Content>
-            <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
-          </Modal.Content>
-          <Modal.Actions>
-            <button onClick={this.handleModalCancel}>
-              <i aria-hidden="true" className="icon icon-x" /> No
-            </button>
-            <button color='teal' onClick={this.handleModalConfirm}>
-              <i aria-hidden="true" className="icon icon-check" /> Yes
-            </button>
-          </Modal.Actions>
-        </Modal>
-      </section>
-    );
-  }
+          <Modal
+            isOpen={modal.open}
+            onRequestClose={this.handleModalCancel}
+            className="modal"
+            overlayClassName="modal-overlay"
+          >
+
+             <h2 className="modal-title">
+               <i aria-hidden="true" className="icon icon-edit icon-xl "/>
+               {`Add ${modal.addTracks.length} tracks ?`}
+             </h2>
+
+              <div className="modal-content">
+                <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
+              </div>
+
+              <div className="modal-actions">
+                <button onClick={this.handleModalCancel} className="btn btn-no btn-inverted modal-btn">
+                  <i aria-hidden="true" className="icon icon-x modal-btn-icon" />No
+                </button>
+                <button onClick={this.handleModalConfirm} className="btn btn-yes btn-inverted modal-btn">
+                  <i aria-hidden="true" className="icon icon-check modal-btn-icon" />Yes
+                </button>
+              </div>
+
+
+          </Modal>
+        </section>
+      );
+    }
 }
 
 const mapStateToProps = state => {
@@ -498,25 +510,24 @@ const IndexableFolderContainer = connect(
 
 
 function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
-  const stepWidth = `calc(${100 / path.length}% - ${(70 / path.length)}px)`;
+
   const l = path.length;
 
   return (
     <nav>
       <ul className="unstyled breadcrumb-ul flex-container">
         <li key='0' className="breadcrumb-li" style={{'cursor': 'pointer'}}>
-          <a onClick={handlerRootFolder} title='Home' className="breadcrumb-a">
+          <a href="#" onClick={handlerRootFolder} title='Home' className="breadcrumb-a">
             <i aria-hidden="true" className='icon icon-home icon-m' />
             { (l>0) && <i aria-hidden="true" className='icon icon-chevron-right icon-m' />}
           </a>
         </li>
         {path.map((item, i) => {
-
               // Check if not last item
               if (l !== i + 1) {
                 return (
-                  <li key={i+1} className="breadcrumb-li" onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))} style={{'cursor': 'pointer'}}>
-                    <a title={item} className="breadcrumb-a">
+                  <li key={i+1} className="breadcrumb-li" style={{'cursor': 'pointer'}}>
+                    <a href="#" title={item} className="breadcrumb-a" onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))}>
                       {item}
                       <i aria-hidden="true" className='icon icon-chevron-right icon-m' />
                     </a>

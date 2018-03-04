@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import store from 'core/client/redux/store'
-import { Form, Button, Divider, Header, Message, Icon } from 'semantic-ui-react'
+import { Form, Button, Divider, Header, Message } from 'semantic-ui-react'
 import { registerNewUser } from 'users/client/redux/actions'
 
 

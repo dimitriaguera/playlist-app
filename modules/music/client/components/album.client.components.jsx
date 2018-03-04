@@ -4,7 +4,7 @@ import { get, put } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
 import Tracks from 'music/client/components/tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Label, Button, Modal, Header, Icon } from 'semantic-ui-react'
+import { Divider, Label, Button, Modal, Header } from 'semantic-ui-react'
 import ps from 'core/client/services/core.path.services'
 import InfoPanel from './infoPanel/infoPanel.client.components'
 

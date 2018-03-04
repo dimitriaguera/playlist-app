@@ -4,7 +4,6 @@ import { Motion, spring } from 'react-motion'
 import { post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
-import { Button, Icon } from 'semantic-ui-react'
 
 import style from './style/albumTracks.scss'
 
@@ -161,7 +160,7 @@ class AlbumTracks extends Component {
                     </span>
                     <span className='album-tracks-menu-inner'>
                       <button className='btn' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
-                        <span aria-hidden='true' className='icon white icon-plus'/>
+                        <i aria-hidden='true' className='icon icon-plus white'/>
                       </button>
                     </span>
                   </div>
