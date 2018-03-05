@@ -6,7 +6,7 @@ import Main from './main'
 import Loader from './loader'
 import AudioBar from 'music/client/components/audiobar/audioBar.client.components'
 
-import style from './style/general.scss'
+import style from 'styles/master.scss'
 
 const App = () => (
   <div id='app-container'>

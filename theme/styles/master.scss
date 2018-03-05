@@ -5,9 +5,9 @@
 @import "base/layout";
 
 // General Component
-@import "components/button";
-@import "components/breadcrumb";
-@import "components/modal";
+@import "base/misc/button";
+@import "base/misc/breadcrumb";
+@import "base/misc/modal";
 
 // React Component
-@import "reactComponents/all";
+@import "reactComponents/allComponents";

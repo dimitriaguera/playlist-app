@@ -1,9 +1,7 @@
 /**
  * Created by Dimitri Aguera on 20/09/2017.
  */
-/**
- * Created by Dimitri Aguera on 30/08/2017.
- */
+
 const path = require('path');
 
 // Plugins
@@ -20,6 +18,7 @@ module.exports = {
     modules: [
       path.resolve(__dirname, 'modules'),
       path.resolve(__dirname, 'config'),
+      path.resolve(__dirname, 'theme'),
       'node_modules'
     ]
   },

@@ -1,12 +1,6 @@
-$icomoon-font-path: "base/icomoon/fonts";
+$icomoon-font-path: "../assets/icomoon/fonts";
 
-@import "icomoon/style";
-
-
-/**
- * Created by Marc Foletto on 27/02/2017.
- * Color file
- */
+@import "../assets/icomoon/style";
 
 .icon {
   display: inline-block;

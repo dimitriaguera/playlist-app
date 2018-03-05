@@ -4,5 +4,5 @@
 /public/
 /test/
 /work/
-/modules/core/client/components/style/base/icomoon/style.scss
-/modules/core/client/components/style/base/knacss
+/theme/assets/icomoon/style.scss
+/theme/styles/base/knacss
