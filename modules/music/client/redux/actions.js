@@ -1,7 +1,6 @@
 /**
  * Created by Dimitri Aguera on 02/10/2017.
  */
-import { post } from 'core/client/services/core.api.services'
 
 export const ACTIVATE_PLAYLIST = 'ACTIVATE_PLAYLIST';
 export const UPDATE_ACTIVE_PLAYLIST = 'UPDATE_ACTIVE_PLAYLIST';
