@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { get, put } from 'core/client/services/core.api.services'
-import { addFolderToPlay, playOnFolder, updateFolderToPlay } from 'music/client/redux/actions'
+import React, {Component} from 'react'
+import {connect} from 'react-redux'
+import {get, put} from 'core/client/services/core.api.services'
+import {addFolderToPlay, playOnFolder, updateFolderToPlay} from 'music/client/redux/actions'
 import Tracks from 'music/client/components/tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Label, Button, Modal, Header } from 'semantic-ui-react'
+import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
 
 import DraggableList from 'draggable/client/components/draggableList'
 
 class FolderList extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -18,16 +18,28 @@ class FolderList extends Component {
       albumOfUrl: {
         pl: null,
         onPlayIndex: 0
-      }
+      },
+      modalIsOpen: false
     };
 
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerReadTrack = this.handlerReadTrack.bind(this);
+
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
   }
 
-  componentWillMount () {
+  openModal() {
+    this.setState({modalIsOpen: true});
+  }
+
+  closeModal() {
+    this.setState({modalIsOpen: false});
+  }
+
+  componentWillMount() {
     const _self = this;
-    const { history, fetchFiles, playingList } = _self.props;
+    const {history, fetchFiles, playingList} = _self.props;
 
     // Build folder path from url path.
     let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
@@ -66,10 +78,10 @@ class FolderList extends Component {
     }
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const _self = this;
-    const { playingList, fetchFiles, history } = nextProps;
-    const { albumOfUrl } = this.state;
+    const {playingList, fetchFiles, history} = nextProps;
+    const {albumOfUrl} = this.state;
 
     // Force re-rendering on props location change.
     if (_self.props.location.pathname !== nextProps.location.pathname) {
@@ -124,10 +136,10 @@ class FolderList extends Component {
     }
   }
 
-  handlerReadTrack (key) {
+  handlerReadTrack(key) {
     return (e) => {
-      const { albumOfUrl } = this.state;
-      const { pl } = albumOfUrl;
+      const {albumOfUrl} = this.state;
+      const {pl} = albumOfUrl;
 
       this.props.playTrackAlbum({
         pl: pl,
@@ -137,9 +149,9 @@ class FolderList extends Component {
     }
   }
 
-  handlerMoveItem (prevItems, nextItems) {
-    const { albumOfUrl } = this.state;
-    const { playingList } = this.props;
+  handlerMoveItem(prevItems, nextItems) {
+    const {albumOfUrl} = this.state;
+    const {playingList} = this.props;
 
     const oldTracks = prevItems;
     const newTracks = nextItems;
@@ -171,37 +183,46 @@ class FolderList extends Component {
     });
   }
 
-  render () {
-    const { albumOfUrl, isActive } = this.state;
-    const { isPaused, user, history } = this.props;
-    const { onPlayIndex, pl } = albumOfUrl;
+  render() {
+    const {albumOfUrl, isActive} = this.state;
+    const {isPaused, user, history} = this.props;
+    const {onPlayIndex, pl} = albumOfUrl;
+
+    if (!pl) return null;
 
     return (
-      <section>{ pl &&
-      <div>
-        <Label color='teal' style={{textTransform: 'uppercase'}}>Folder's Tracks</Label>
-        <h1>{pl.title}</h1>
+      <section className="folder-list">
+        <header>
+          <h1>Folder's Tracks</h1>
+          <h2>{pl.title}</h2>
+          {!!user && <div className="folder-list-save-cont">
+            <button className='btn' onClick={this.openModal}>Save As Playlist</button>
 
-        {!! user &&
-        <Modal trigger={
-          <Button icon basic inverted>
-                            Save As Playlist
-          </Button>
-        } basic size='small' closeIcon>
-          <Header icon='sound' content={`Save ${pl.title} as playlist ?`} />
-          <Modal.Content>
-            <p>Type the playlist's title you want to create.</p>
-            <AddPlaylist
-              history={history}
-              placeholder={`${pl.title}'s playlist`}
-              tracksId={pl.tracks}
-              validation='Save'
-              redirect
-            />
-          </Modal.Content>
-        </Modal>}
+            <Modal isOpen={this.state.modalIsOpen}
+                   onRequestClose={this.closeModal}
+                   className="modal"
+                   overlayClassName="modal-overlay"
+            >
 
-        <Divider />
+              <h2 className="modal-title">
+                <i aria-hidden="true" className="icon icon-music icon-xl"/>
+                {`Save ${pl.title} as playlist ?`}
+              </h2>
+
+              <div className="modal-content">
+                <p>Type the playlist's title you want to create.</p>
+              </div>
+
+              <AddPlaylist
+                history={history}
+                placeholder={`${pl.title}'s playlist`}
+                tracksId={pl.tracks}
+                validation='Save'
+                redirect
+              />
+            </Modal>
+          </div>}
+        </header>
 
         <DraggableList
           items={pl.tracks}
@@ -213,9 +234,9 @@ class FolderList extends Component {
           onPlayIndex={onPlayIndex}
           onPlay={this.handlerReadTrack}
         />
-      </div>
-      }</section>
-    );
+      </section>
+    )
+
   }
 }
 
@@ -250,7 +271,7 @@ const FolderListContainer = connect(
 
 
 // HELPER
-function getTrackIndexBySrc (path, array) {
+function getTrackIndexBySrc(path, array) {
   let l = array.length;
   for (let i = 0; i < l; i++) {
     if (array[i].path == path) return i;
