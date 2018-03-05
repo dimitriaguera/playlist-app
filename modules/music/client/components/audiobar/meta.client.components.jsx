@@ -2,9 +2,10 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 
 class MetaInfoPlaylist extends Component {
+
   shouldComponentUpdate (nextProps) {
-    const { onPlayIndex, pl } = nextProps;
-    return (pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex);
+    const { onPlayIndex, pl, onPlay } = nextProps;
+    return (pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex.path || onPlay !== this.props.onPlay.path);
   }
 
   render () {
