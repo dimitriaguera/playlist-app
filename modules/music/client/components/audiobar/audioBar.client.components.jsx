@@ -12,7 +12,7 @@ import Bread from './bread.client.components'
 import RangeVolume from './volume.client.components'
 import { MetaNameNextTracks, MetaNamePrevTracks } from './next.client.components'
 
-import style from './style/audioBar.scss'
+
 import defaultCover from 'assets/images/default_cover.png'
 
 class AudioBar extends Component {

@@ -6,9 +6,6 @@ import React, { Component } from 'react'
 import config from 'env/config.client'
 import {removeLast} from 'core/client/services/core.path.services'
 
-import style from './style/uploadZone.scss'
-
-
 class UploadZone extends Component {
   constructor () {
     super();

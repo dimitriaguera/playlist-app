@@ -3,8 +3,6 @@
  */
 import React, { Component } from 'react'
 
-import style from './style/infoPath.scss'
-
 class InfoPath extends Component {
   render () {
     const { meta } = this.props;

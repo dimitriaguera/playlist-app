@@ -5,8 +5,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Motion, spring} from 'react-motion'
 
-import style from './style/draggableList.scss'
-
 const springConfig = {stiffness: 300, damping: 50};
 
 class DraggableList extends Component {

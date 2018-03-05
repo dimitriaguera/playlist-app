@@ -3,8 +3,6 @@ import { connect } from 'react-redux'
 import { get } from 'core/client/services/core.api.services'
 import Rx from 'rx'
 
-import style from './style/searchFolderBar.scss'
-
 class SearchFolderBar extends Component {
   constructor () {
     super();

@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 
-import style from './style/meta.scss'
-
 class MetaInfoPlaylist extends Component {
   shouldComponentUpdate (nextProps) {
     const { onPlayIndex, pl } = nextProps;

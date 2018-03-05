@@ -4,8 +4,6 @@
 import React, { Component } from 'react'
 import {Motion, spring} from 'react-motion'
 
-import style from './style/transitionList.scss'
-
 const springConfig = {stiffness: 300, damping: 50};
 
 class TransitionList extends Component {

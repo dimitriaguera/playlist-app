@@ -5,7 +5,6 @@ import { post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
-import style from './style/albumTracks.scss'
 
 class AlbumTracks extends Component {
   constructor (props) {

@@ -8,7 +8,6 @@ import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import ps from 'core/client/services/core.path.services'
 import { Divider } from 'semantic-ui-react'
 
-import style from './style/allTracks.scss'
 import defaultCover from 'assets/images/default_cover.png'
 
 class AllTracks extends Component {

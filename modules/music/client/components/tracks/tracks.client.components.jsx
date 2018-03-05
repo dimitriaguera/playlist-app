@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import { Button } from 'semantic-ui-react'
 import InfoPath from 'music/client/components/infoPath/infoPath.client.components'
 
-import style from './style/tracks.scss'
-
 class Tracks extends Component {
   shouldComponentUpdate (nextProps) {
     const nextActive = nextProps.isActivePlaylist && (nextProps.index === nextProps.onPlayIndex);

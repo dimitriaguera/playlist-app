@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux';
 import { pauseState, playState } from 'music/client/redux/actions'
-import style from './style/icon.play.anim.scss'
 
 class IconPlayAnim extends Component {
   clickHandler (e) {

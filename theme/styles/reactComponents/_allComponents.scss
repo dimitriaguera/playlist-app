@@ -1,8 +1,44 @@
+// Draggable
+@import "./modules/draggable/client/components/style/draggableList.scss";
+
+// Indexable Folder
 @import "./modules/indexableFolder/client/components/style/indexableFolderItem";
-@import "./modules/music/client/components/searchMusicBar/style/searchBar";
+@import "./modules/indexableFolder/client/components/style/searchFolderBar";
+
+// Album
+@import "./modules/music/client/components/album/style/albumCard";
+@import "./modules/music/client/components/album/style/albumTracks";
 
 // Audio Bar
+@import "./modules/music/client/components/audiobar/style/audioBar";
+@import "./modules/music/client/components/audiobar/style/bread";
+@import "./modules/music/client/components/audiobar/style/controls";
+@import "./modules/music/client/components/audiobar/style/meta";
+@import "./modules/music/client/components/audiobar/style/next";
 @import "./modules/music/client/components/audiobar/style/range";
 
-// Folder List
+// Icon Play Anim
+@import "./modules/music/client/components/iconPlayAnim/style/icon.play.anim";
+
+// Info Panel
+@import "./modules/music/client/components/infoPanel/style/infoPanel";
+
+// Info Path
+@import "./modules/music/client/components/infoPath/style/infoPath";
+
+// Search Bar
+@import "./modules/music/client/components/searchMusicBar/style/searchBar";
+
+// Tracks
+@import "./modules/client/components/tracks/style/tracks";
+
+// Style Page
 @import "./modules/music/client/components/style/folderList";
+@import "./modules/music/client/components/style/allTracks";
+@import "./modules/music/client/components/style/queue";
+
+// Transition List
+@import "./modules/transitionList/client/components/style/transitionList";
+
+// Upload Zone
+@import "./modules/uploadZone/client/components/style/uploadZone";

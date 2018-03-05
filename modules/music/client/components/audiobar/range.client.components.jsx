@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-
 class RangeSlider extends Component {
   constructor () {
     super();

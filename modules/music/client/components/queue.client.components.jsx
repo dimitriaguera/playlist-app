@@ -10,8 +10,6 @@ import { Divider, Label, Button, Modal, Header, Checkbox } from 'semantic-ui-rea
 
 import DraggableList from 'draggable/client/components/draggableList'
 
-import style from './style/queue.scss'
-
 class Queue extends Component {
   constructor (props) {
     super(props);

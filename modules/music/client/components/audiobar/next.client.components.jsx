@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import { Label } from 'semantic-ui-react'
 
-import style from './style/next.scss'
-
-
 class MetaNameNextTracks extends Component {
   shouldComponentUpdate (nextProps) {
     const { onPlayIndex, pl } = nextProps;

@@ -7,7 +7,6 @@ import Img from 'music/client/components/image/image.client.components'
 import AlbumTracks from 'music/client/components/album/albumTracks.client.components'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
-import style from './style/albumCard.scss'
 import defaultCover from 'assets/images/default_cover.png'
 
 class AlbumCard extends Component {

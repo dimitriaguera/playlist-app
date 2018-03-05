@@ -4,7 +4,6 @@ import config from 'env/config.client'
 import { Link } from 'react-router-dom'
 import { Popup } from 'semantic-ui-react'
 
-import style from './style/bread.scss'
 
 class Bread extends Component {
   shouldComponentUpdate (nextProps) {

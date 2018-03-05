@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 
-import style from './style/controls.scss'
-
 class Controls extends Component {
   shouldComponentUpdate (nextProps) {
     const { isPaused, pl, onPlay } = nextProps;
