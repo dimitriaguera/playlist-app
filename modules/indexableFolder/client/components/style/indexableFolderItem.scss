@@ -13,7 +13,7 @@ $color-icon-fol-item-hover: $color-primary-hover;
   display: grid;
   grid-template-areas: "icon title" "menu menu";
   grid-template-columns: auto 1fr;
-  grid-template-rows: 50px;
+  grid-template-rows: minmax(50px, 1fr);;
   align-items: center;
 
   &:hover {
@@ -39,6 +39,10 @@ $color-icon-fol-item-hover: $color-primary-hover;
   grid-area: title;
   color: $color-link-fol-item;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  word-break: break-all;
 }
 
 .fol-item-menu {
