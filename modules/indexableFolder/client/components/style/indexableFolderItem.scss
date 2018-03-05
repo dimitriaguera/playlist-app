@@ -13,6 +13,7 @@ $color-icon-fol-item-hover: $color-primary-hover;
   display: grid;
   grid-template-areas: "icon title" "menu menu";
   grid-template-columns: auto 1fr;
+  grid-template-rows: 50px;
   align-items: center;
 
   &:hover {

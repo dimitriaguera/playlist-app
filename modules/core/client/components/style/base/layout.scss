@@ -3,11 +3,14 @@ $main-padding: 2rem;
 
 $color-bg-side-bar: $black;
 $color-font-side-bar: $white;
+$color-font-side-bar-nav-selected: $color-primary;
 
 $color-bg-side-bar-phone: $black;
 $color-font-side-bar-phone: $white;
+$color-font-side-bar-nav-selected-phone: $color-primary;
 
 $color-bg-body: $white;
+
 
 /////// Body Init
 
@@ -21,6 +24,7 @@ body,
 
 body {
   background: url('../../../../../public/images/ginkgo_gris.png') no-repeat center fixed;
+  background-size: contain;
   background-color: $color-bg-body;
 }
 
@@ -76,6 +80,10 @@ body {
           display: inline-block;
           padding: 25px;
           color: $color-font-side-bar-phone;
+
+          &.nav-selected {
+            color: $color-font-side-bar-nav-selected-phone;
+          }
         }
       }
     }
@@ -87,6 +95,10 @@ body {
 
     & > nav > ul > li > a {
       color: $color-font-side-bar;
+
+      &.nav-selected {
+        color: $color-font-side-bar-nav-selected;
+      }
     }
   }
 
@@ -94,6 +106,7 @@ body {
     width: 100%;
     left: 0;
   }
+
 }
 
 #main-content {

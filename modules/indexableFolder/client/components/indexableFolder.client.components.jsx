@@ -300,10 +300,10 @@ class IndexableFolder extends Component {
 
   // Handler to add single track on playlist.
   handlerAddItem (e, item) {
-    const { user, history, activePlaylist, addPlaylistItems } = this.props;
+    const { user, history, activePlaylist, addPlaylistItems, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push('/login');
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname}});
 
     // May be an array of several tracks.
     let tracks = item;
@@ -430,7 +430,7 @@ class IndexableFolder extends Component {
           >
 
              <h2 className="modal-title">
-               <i aria-hidden="true" className="icon icon-edit icon-xl "/>
+               <i aria-hidden="true" className="icon icon-edit icon-xl"/>
                {`Add ${modal.addTracks.length} tracks ?`}
              </h2>
 
