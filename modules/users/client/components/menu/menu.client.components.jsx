@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 import { Dropdown } from 'semantic-ui-react'
 import { logoutUser } from 'users/client/redux/actions'
 
@@ -58,7 +58,7 @@ export const AccountItem = connect(
  */
 export const LoginItem = () => (
   <li>
-    <Link to='/Login'>Login</Link>
+    <NavLink to="/Login" activeClassName="nav-selected">Login</NavLink>
   </li>
 );
 
@@ -66,4 +66,4 @@ export const LoginItem = () => (
  * Users menu entry and sub-menu.
  *
  */
-export const UsersItem = () => <li><Link to='/users'>Users</Link></li>;
+export const UsersItem = () => <li><NavLink to='/users' activeClassName="nav-selected">Users</NavLink></li>;

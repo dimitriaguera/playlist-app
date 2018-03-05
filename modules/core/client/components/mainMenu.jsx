@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { logoutUser } from 'users/client/redux/actions'
 import { allowDisplayItem } from 'users/client/services/users.auth.services'
 import { getMenuLink } from 'core/client/services/core.menu.services'
 
@@ -32,7 +31,7 @@ class MainMenu extends Component {
       <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
         <nav>
           <ul className='unstyled' onClick={this.clickMenu}>
-          {buildMenuItems(menuItems, user)}
+            {buildMenuItems(menuItems, user)}
           </ul>
         </nav>
       </aside>
@@ -48,7 +47,11 @@ const mapStateToProps = state => {
 
 const MainMenuContainer = connect(
   mapStateToProps,
-  null
+  null,
+  null,
+  {
+    pure: false
+  }
 )(MainMenu);
 
 

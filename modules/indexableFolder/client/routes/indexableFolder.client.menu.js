@@ -3,10 +3,10 @@
  */
 
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 export const menuItems = [
   {
-    component: () => <li><Link to='/music'>Folder</Link></li>
+    component: () => <li><NavLink to='/music' activeClassName="nav-selected">Folder</NavLink></li>
   }
 ];

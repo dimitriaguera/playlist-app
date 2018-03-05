@@ -3,17 +3,18 @@
  */
 
 import React from 'react'
-import { Link } from 'react-router-dom'
-
+import { NavLink } from 'react-router-dom'
 
 export const menuItems = [
   {
-    component: () => <li><Link to='/'>Playlists</Link></li>
+    component: () => <li><NavLink to='/' exact activeClassName="nav-selected">Playlists</NavLink></li>
   },
   {
-    component: () => <li><Link to='/albums'>Albums</Link></li>
+    component: () => <li><NavLink to='/albums' activeClassName="nav-selected">Albums</NavLink></li>
   },
   {
-    component: () => <li><Link to='/tracks'>Tracks</Link></li>
+    component: () => <li><NavLink to='/tracks' activeClassName="nav-selected">Tracks</NavLink></li>
   }
 ];
+
+
