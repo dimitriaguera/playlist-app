@@ -15,8 +15,13 @@ class Img extends Component {
     }
   }
 
+  componentWillReceiveProps(){
+    this.flag = false;
+  }
+
   render () {
     const {defaultSrc, ...props} = this.props;
+
     return (
       <img ref={r => this.domEl = r} onError={this.handleError} {...props} >
         {props.children}

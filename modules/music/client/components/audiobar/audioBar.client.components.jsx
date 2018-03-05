@@ -13,6 +13,7 @@ import RangeVolume from './volume.client.components'
 import { MetaNameNextTracks, MetaNamePrevTracks } from './next.client.components'
 
 import style from './style/audioBar.scss'
+import defaultCover from 'assets/images/default_cover.png'
 
 class AudioBar extends Component {
   constructor (props) {
@@ -124,7 +125,7 @@ class AudioBar extends Component {
           <div className='audioBar-coll audioBar-img'>
             <Img title={`${onPlay.publicName} cover`}
                  src={'/pictures/' + cover + '/cover.jpg'}
-                 defaultSrc='/static/images/default_cover.png'
+                 defaultSrc={defaultCover}
             />
           </div>
 

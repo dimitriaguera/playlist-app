@@ -3,6 +3,7 @@ import ps from 'core/client/services/core.path.services'
 import Img from 'music/client/components/image/image.client.components'
 
 //import style from './style/infoPanel.scss'
+import defaultCover from 'assets/images/default_cover.png'
 
 const infoPanel = (props) => {
 
@@ -18,7 +19,7 @@ const infoPanel = (props) => {
       <div className='info-panel-img'>
         <Img title={`${meta.album || item.name} cover`}
              src={'/pictures/' + cover + '/cover.jpg'}
-             defaultSrc='/static/images/default_cover.png'
+             defaultSrc={defaultCover}
         />
       </div>
       <div className='info-panel-album'>

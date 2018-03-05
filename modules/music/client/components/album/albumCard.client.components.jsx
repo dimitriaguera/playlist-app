@@ -8,6 +8,7 @@ import AlbumTracks from 'music/client/components/album/albumTracks.client.compon
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
 import style from './style/albumCard.scss'
+import defaultCover from 'assets/images/default_cover.png'
 
 class AlbumCard extends Component {
   constructor (props) {
@@ -186,7 +187,7 @@ class AlbumCard extends Component {
         <div className={`albums-item-img`} style={innerStyle} onClick={this.handlerPlayAlbum}>
           <Img title={`${album.name} cover`}
             src={'/pictures/' + cover + '/cover.jpg'}
-            defaultSrc='/static/images/default_cover.png'
+            defaultSrc={defaultCover}
             style={imageStyle}
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
