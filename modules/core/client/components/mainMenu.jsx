@@ -30,7 +30,7 @@ class MainMenu extends Component {
     return (
       <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
         <nav>
-          <ul className='unstyled' onClick={this.clickMenu}>
+          <ul className='unstyled main-nav-ul' onClick={this.clickMenu}>
             {buildMenuItems(menuItems, user)}
           </ul>
         </nav>
@@ -57,7 +57,6 @@ const MainMenuContainer = connect(
 
 // HELPER
 function buildMenuItems (items, user) {
-  console.log('render header');
 
   return items.map((item, i) => {
     const { component: Component, isPrivate, hiddenOnAuth, roles } = item;

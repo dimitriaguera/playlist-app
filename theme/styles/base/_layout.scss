@@ -1,16 +1,16 @@
 $side-larger: 20rem;
 $main-padding: 2rem;
 
-$color-bg-side-bar: $black;
+$color-bg-side-bar: #535353;
 $color-font-side-bar: $white;
 $color-font-side-bar-nav-selected: $color-primary;
 
-$color-bg-side-bar-phone: $black;
+$color-bg-side-bar-phone: #535353;
 $color-font-side-bar-phone: $white;
 $color-font-side-bar-nav-selected-phone: $color-primary;
 
-$color-bg-body: $white;
-
+$color-bg-body: #535353;
+$color-border-aside: #707070;
 
 /////// Body Init
 
@@ -51,62 +51,17 @@ body {
   left: -$side-larger;
   width: $side-larger;
   z-index: $zindex-navigation-small;
-
-  & > nav {
-    position: relative;
-    height: 100%;
-
-    & > ul {
-      position: relative;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      align-content: flex-start;
-      align-items: stretch;
-
-      & > li {
-        position: relative;
-        text-align: center;
-
-        &:last-child {
-          margin-top: auto;
-          margin-bottom: 20px;
-        }
-
-        & > a {
-          width: 100%;
-          display: inline-block;
-          padding: 25px;
-          color: $color-font-side-bar-phone;
-
-          &.nav-selected {
-            color: $color-font-side-bar-nav-selected-phone;
-          }
-        }
-      }
-    }
-  }
+  border-right: solid 1px $color-border-aside;
 
   @include respond-to("medium-up") {
     left: 0;
     background: $color-bg-side-bar;
-
-    & > nav > ul > li > a {
-      color: $color-font-side-bar;
-
-      &.nav-selected {
-        color: $color-font-side-bar-nav-selected;
-      }
-    }
   }
 
   &.menu-is-open {
     width: 100%;
     left: 0;
   }
-
 }
 
 #main-content {
@@ -121,25 +76,3 @@ body {
     padding-left: #{$side-larger + $main-padding};
   }
 }
-
-//////////////////////////// NAV BTN
-
-$color-nav-btn: $black;
-$color-nav-btn-active: $white;
-
-.nav-button {
-  padding: 12px;
-  z-index: $zindex-navigation;
-  position: absolute;
-  right: 0;
-  color: $color-nav-btn;
-
-  &.is-active {
-    & > i::before,
-    & > i::after {
-      transition: background-color 1s;
-      background: $color-nav-btn-active;
-    }
-  }
-}
-

@@ -1,11 +1,11 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import { NavLink, Link } from 'react-router-dom'
-import { Dropdown } from 'semantic-ui-react'
-import { logoutUser } from 'users/client/redux/actions'
+import {connect} from 'react-redux'
+import {NavLink, Link} from 'react-router-dom'
+import {Dropdown} from 'semantic-ui-react'
+import {logoutUser} from 'users/client/redux/actions'
 
 // AddExt.
-import { activatePlaylist } from 'music/client/redux/actions'
+import {activatePlaylist} from 'music/client/redux/actions'
 // End AddExt.
 
 /**
@@ -15,16 +15,22 @@ import { activatePlaylist } from 'music/client/redux/actions'
 const AccountItemInner = ({user, logoutHandler}) => {
   console.log('render account item');
   return (
-    <li>
-      <Dropdown text={user.username} pointing className='link item'>
-        <Dropdown.Menu>
-          <Dropdown.Item as={Link} to='/account'>My account</Dropdown.Item>
-          <Dropdown.Divider />
-          <Dropdown.Item as='a' href='#' onClick={logoutHandler}>Logout</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
+    <li className='main-nav-li'>
+      <ul className="unstyled main-nav-ul">
+        <span className="main-nav-logged-user">{user.username}</span>
+        <li className="main-nav-li">
+          <NavLink to='/account' activeClassName="nav-selected">
+            See my account
+          </NavLink>
+        </li>
+        <li className="main-nav-li">
+          <a href='#' onClick={logoutHandler}>
+            Logout
+          </a>
+        </li>
+      </ul>
     </li>
-  );
+  )
 };
 
 const mapStateToProps = state => {
@@ -48,7 +54,9 @@ const mapDispatchToProps = (dispatch) => {
 
 export const AccountItem = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
+  null,
+  {pure: false}
 )(AccountItemInner);
 
 
@@ -57,7 +65,7 @@ export const AccountItem = connect(
  *
  */
 export const LoginItem = () => (
-  <li>
+  <li className='main-nav-li'>
     <NavLink to="/Login" activeClassName="nav-selected">Login</NavLink>
   </li>
 );
@@ -66,4 +74,4 @@ export const LoginItem = () => (
  * Users menu entry and sub-menu.
  *
  */
-export const UsersItem = () => <li><NavLink to='/users' activeClassName="nav-selected">Users</NavLink></li>;
+export const UsersItem = () => <li className='main-nav-li'><NavLink to='/users' activeClassName="nav-selected">Users</NavLink></li>;

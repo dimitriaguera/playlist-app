@@ -7,13 +7,13 @@ import { NavLink } from 'react-router-dom'
 
 export const menuItems = [
   {
-    component: () => <li><NavLink to='/' exact activeClassName="nav-selected">Playlists</NavLink></li>
+    component: () => <li className='main-nav-li'><NavLink to='/' exact activeClassName="nav-selected">Playlists</NavLink></li>
   },
   {
-    component: () => <li><NavLink to='/albums' activeClassName="nav-selected">Albums</NavLink></li>
+    component: () => <li className='main-nav-li'><NavLink to='/albums' activeClassName="nav-selected">Albums</NavLink></li>
   },
   {
-    component: () => <li><NavLink to='/tracks' activeClassName="nav-selected">Tracks</NavLink></li>
+    component: () => <li className='main-nav-li'><NavLink to='/tracks' activeClassName="nav-selected">Tracks</NavLink></li>
   }
 ];
 

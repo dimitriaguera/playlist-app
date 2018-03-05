@@ -135,8 +135,8 @@ $red-500    : #D9534F !default;
 
 // Semantic colors
 $color-brand          : $green-500;
-$color-primary        : $green-500;
-$color-primary-hover  : darken($green-500, 20%);
+$color-primary        : $orange-500;
+$color-primary-hover  : darken($color-primary, 20%);
 $color-success        : $green-500;
 $color-info           : $blue-300;
 $color-warning        : $orange-500;
