@@ -57,7 +57,7 @@ function splitFetchHOC (params, fetchActions) {
 
       // Avoid child wrapped component rendering out of data update.
       shouldComponentUpdate (nextProps, nextState) {
-        return (nextState.data !== this.state.data);
+        return (nextState.data !== this.state.data || nextProps !== this.props);
       }
 
       onResizeHandle () {

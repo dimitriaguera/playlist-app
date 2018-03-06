@@ -27,13 +27,13 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
         position: absolute;
         top: 0;
         left: 0;
-        width: 50%;
+        width: 40%;
       }
 
       &:nth-child(2) {
         position: relative;
         width: 100%;
-        padding-left: 50%;
+        padding-left: 40%;
         overflow-y: auto;
       }
 
