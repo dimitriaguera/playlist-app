@@ -20,7 +20,7 @@ class IconPlayAnim extends Component {
     if (pause) classes.push('pause');
 
     return (
-      <span className='icon-play-anim-container' style={wrapperStyle} onClick={e => this.clickHandler(e)}>
+      <span className='icon icon-play-anim-container' style={wrapperStyle} onClick={e => this.clickHandler(e)}>
         <span style={iconStyle} className={classes.join(' ')}>
           <span />
           <span />

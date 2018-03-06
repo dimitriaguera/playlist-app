@@ -149,7 +149,7 @@ class AlbumTracks extends Component {
             }}>
 
               <div className='album-tracks-col'>
-                <AlbumInfo album={album} handlerPlayAlbum={handlerPlayAlbum} handlerAddTracks={handlerAddTracks} />
+                <AlbumInfo album={album} albumIsPlaying={albumIsPlaying} handlerPlayAlbum={handlerPlayAlbum} handlerAddTracks={handlerAddTracks} />
               </div>
 
               <div className='album-tracks-col'>
@@ -160,7 +160,7 @@ class AlbumTracks extends Component {
                   return (
                     <li key={i}>
                       <a className={trackIsPlaying ? 'album-tracks-item playing' : 'album-tracks-item'} title='Play track' onClick={(e) => this.handlerPlayAlbum(e, i)}>
-                        {trackIsPlaying && <IconPlayAnim />}
+                        {trackIsPlaying && <i className='white'><IconPlayAnim /></i>}
                         {!trackIsPlaying && <span aria-hidden='true' className='icon white icon-play' />}
                         <span className='album-tracks-title'>
                           {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}

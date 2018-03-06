@@ -1,10 +1,34 @@
 import React from 'react'
-import Img from 'music/client/components/image/image.client.components'
-import defaultCover from 'assets/images/default_cover.png'
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
+import { playState, pauseState } from 'music/client/redux/actions'
+import {connect} from "react-redux";
 
-const AlbumInfo = ({album, handlerPlayAlbum, handlerAddTracks}) => {
+const AlbumInfo = ({album, handlerPlayAlbum, handlerAddTracks, albumIsPlaying, play, pause, isPaused}) => {
 
   const artist = album.albumartist || album.artist;
+
+  const getButton = () => {
+    if( albumIsPlaying ) {
+      if(isPaused){
+        return (
+        <button aria-label='resume play album' onClick={play} className='btn btn-icon big'>
+          <i aria-hidden='true' className='icon icon-pause'/>
+        </button>
+        )}
+      else {
+        return (
+        <button aria-label='pause album' onClick={pause} className='btn btn-icon big'>
+          <IconPlayAnim onClick={pause}/>
+        </button>
+        )}
+    }
+    else {
+      return (
+        <button aria-label='play album' onClick={handlerPlayAlbum} className='btn btn-icon big'>
+          <i aria-hidden='true' className='icon icon-play'/>
+        </button>
+      )}
+    };
 
   return (
     <div className='album-info'>
@@ -19,11 +43,29 @@ const AlbumInfo = ({album, handlerPlayAlbum, handlerAddTracks}) => {
         {(album.diskno && album.diskno !== '0') && <span className='diskno'>{`disk ${album.diskno} / ${album.diskof}`}</span>}
       </div>
       <div className='album-info-menu'>
-        <button aria-label='play album' onClick={handlerPlayAlbum} className='btn btn-icon big'><i aria-hidden='true' className='icon icon-play'/></button>
+        {getButton()}
         <button aria-label='add album tracks to playlist' onClick={handlerAddTracks} className='btn btn-icon big'><i aria-hidden='true' className='icon icon-plus'/></button>
       </div>
     </div>
   )
 };
 
-export default AlbumInfo
+const mapStateToProps = state => {
+  return {
+    isPaused: state.playlistStore.pause
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    play: () => dispatch(playState()),
+    pause: () => dispatch(pauseState())
+  }
+};
+
+const AlbumInfoContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AlbumInfo);
+
+export default AlbumInfoContainer
