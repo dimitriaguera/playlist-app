@@ -99,10 +99,10 @@ class AlbumTracks extends Component {
       e.stopPropagation();
       e.preventDefault();
     }
-    const { addPlaylistItems, activePlaylist, user } = this.props;
+    const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push('/login');
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
 
     // Add tracks into activated Playlist.
     if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});

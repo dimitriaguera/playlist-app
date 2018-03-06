@@ -129,6 +129,7 @@ class Albums extends Component {
               hookOpenTab={this.hookOpenTab}
               hookCloseTab={this.hookCloseTab}
               history={this.props.history}
+              location={this.props.location}
             />)}
         </div>
       </section>
