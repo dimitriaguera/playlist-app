@@ -17,6 +17,10 @@ function splitFetchHOC (params, fetchActions) {
           offset: params.offset || 0
         };
 
+        // Where the lazy client have to listen scroll event
+        // Must be an DomElmt with id
+        this.scrollContainerName = 'main-content';
+
         // Bind functions passed in HOC factory function.
         // All passed functions are bind on onStartChunk HOC method as first argument.
         const wrapFetchActions = (actions) => {
@@ -41,18 +45,32 @@ function splitFetchHOC (params, fetchActions) {
 
       componentDidMount () {
         // Event handlers.
-        window.addEventListener('resize', this.onResizeHandle);
-        window.addEventListener('scroll', this.onScrollHandle);
-        // Set scroll up to window.
-        if (window.scrollY) {
-          window.scroll(0, 0);
+        if (this.scrollContainerName === 'window'){
+          this.scrollContainer = window;
+        } else {
+          this.scrollContainer = document.getElementById(this.scrollContainerName);
         }
+
+        window.addEventListener('resize', this.onResizeHandle); // Just window have resize event
+        this.scrollContainer.addEventListener('scroll', this.onScrollHandle);
+
+        if (this.scrollContainerName === 'window'){
+          // Set scroll up to window.
+          if (window.scrollY) {
+            window.scroll(0, 0);
+          }
+        } else {
+          if (this.scrollContainer.scrollTop) {
+            this.scrollContainer.scroll(0, 0);
+          }
+        }
+
       }
 
       componentWillUnmount () {
         // Close event handlers.
         window.removeEventListener('resize', this.onResizeHandle);
-        window.removeEventListener('scroll', this.onScrollHandle);
+        this.scrollContainer.removeEventListener('scroll', this.onScrollHandle);
       }
 
       // Avoid child wrapped component rendering out of data update.
@@ -72,11 +90,18 @@ function splitFetchHOC (params, fetchActions) {
       }
 
       onScrollHandle (e) {
+
         // If all result done, exit.
         if (this.state.all) return null;
 
         const {height, screenY, offset} = this.state;
-        const scrollY = window.scrollY;
+        let scrollY;
+        if (this.scrollContainerName === 'window'){
+          scrollY = window.scrollY;
+        } else {
+          scrollY = this.scrollContainer.scrollTop;
+        }
+
 
         // If window scrolled down, get next chunk result.
         if ((scrollY + screenY) >= height - offset) {
