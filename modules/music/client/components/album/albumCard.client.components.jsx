@@ -190,8 +190,8 @@ class AlbumCard extends Component {
             style={imageStyle}
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
-          <i aria-hidden='true' className='icon icon-l white icon-play' />
-          <i aria-hidden='true' className='icon icon-l icon-plus' onClick={this.handlerAddTracks} />
+          <button className='btn btn-icon white'><i aria-hidden='true' className='icon icon-play' /></button>
+          <button className='btn btn-icon'><i aria-hidden='true' className='icon icon-plus' onClick={this.handlerAddTracks} /></button>
         </div>
 
         <div className='albums-item-info' onClick={this.handlerOpenTab} style={{height:tabHeight + 'px'}}>
