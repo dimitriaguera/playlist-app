@@ -95,14 +95,17 @@ class AlbumTracks extends Component {
   }
 
   handlerAddTrack (e, tracksId) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     const { addPlaylistItems, activePlaylist, user } = this.props;
 
     // User must be connected to add tracks.
     if (!user) return history.push('/login');
 
     // Add tracks into activated Playlist.
-    addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
-    if (e) e.preventDefault();
+    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
   }
 
   getStyle () {
