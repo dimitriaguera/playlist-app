@@ -109,10 +109,15 @@ class AllTracks extends Component {
                     </span>
 
                     <span className='tracks-item-info'>
-                      <span className='name'>{item.meta.title}</span>
+                      <span className='title'>{item.meta.title}</span>
                       <span className='artist'>{item.meta.artist}</span>
                       <span className='album'>{item.meta.artist}</span>
-                      <span className='date'>{item.meta.date}</span>
+                      <span className='albumartist'>{item.meta.albumartist}</span>
+                      <span className='track'>
+                        <span className='trackno'>{item.meta.trackno}</span>/
+                        <span className='trackof'>{item.meta.trackof}</span>
+                      </span>
+                      <span className='year'>{item.meta.year}</span>
                     </span>
 
                     <span className='tracks-item-menu'>
