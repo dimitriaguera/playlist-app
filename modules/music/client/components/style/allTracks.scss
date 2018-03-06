@@ -1,74 +1,93 @@
-$color-track: white;
-$color-bg: rgba(0, 0, 0, 0.7);
+$color-bg-track: $color-bg-row;
+$color-bg-track-hover: $color-bg-row-hover;
+$color-border-track: $border-row;
+
+$color-link-track: $link-color;
+$color-link-track-hover: $link-color-hover;
+
+$color-icon-track: $color-primary;
+$color-icon-track-hover: $color-primary-hover;
+
+$image-size-track: 60px;
 
 .alltracks-item-album {
-  margin-top: 1px;
-  //padding: 10px 0;
-  background-color: $color-bg;
-  line-height: 0;
-
-  .tracks-item-img {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-
-    img {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .icon {
-      opacity: 0;
-    }
-  }
+  display: grid;
+  grid-template-areas: "image title" "menu menu";
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  grid-column-gap: 1rem;
+  background-color: $color-bg-row;
+  color: $color-link-track;
+  border-bottom: #{$color-border-track};
 
   &:hover {
+    background-color: $color-bg-row-hover;
+    color: $color-link-track-hover;
+
     .tracks-item-img {
-      img {
+      & > img {
         opacity: 0.4;
       }
 
-      .icon {
-        position: relative;
+      & > i {
         opacity: 1;
       }
     }
   }
+}
 
-  .tracks-item-info {
-    vertical-align: top;
-    margin-left: 10px;
-    position: relative;
-    display: inline-block;
-    width: calc(100% - 60px);
-    color: $color-track;
+.tracks-item-img {
+  grid-area: image;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  & > img {
+    height: $image-size-track;
+    width: $image-size-track;
+  }
+
+  & > i {
+    position: absolute;
+    opacity: 0;
+    color: $color-icon-track;
+  }
+}
+
+.tracks-item-info {
+  grid-area: title;
+  word-break: break-all;
+
+  .name {
+    font-size: 1rem;
+  }
+
+  .date {
+    font-size: 0.8rem;
+  }
+
+  .artist {
+    margin-right: 10px;
+    width: 200px;
+    font-size: 0.9rem;
     white-space: nowrap;
     overflow: hidden;
-    line-height: 1.5;
+  }
+}
 
-    .name {
-      font-size: 1rem;
-    }
+.tracks-item-menu {
+  grid-area: menu;
 
-    .date {
-      font-size: 0.8rem;
-    }
+  & > .btn {
+    background: none;
+    color: $color-icon-fol-item;
+  }
+}
 
-    .artist {
-      margin-right: 10px;
-      width: 200px;
-      font-size: 0.9rem;
-      white-space: nowrap;
-      overflow: hidden;
-
-      span {
-        text-overflow: ellipsis;
-      }
-    }
+@include respond-to("small-up") {
+  .alltracks-item-album {
+    grid-template-areas: "image title menu";
+    grid-template-columns: auto 1fr auto;
   }
 }

@@ -1,6 +1,6 @@
-$color-bg-fol-item: rgba(200, 200, 200, 0.08);
-$color-bg-fol-item-hover: rgba(255, 255, 255, 0.85);
-$color-border-fol-item: "solid 1px #ffffff";
+$color-bg-fol-item: $color-bg-row;
+$color-bg-fol-item-hover: $color-bg-row-hover;
+$color-border-fol-item: $border-row;
 $color-link-fol-item: $link-color;
 $color-link-fol-item-hover: $link-color-hover;
 
