@@ -3,13 +3,37 @@
  * Color file
  */
 
-//
-//.btn {
-//  background: transparent;
-//  -webkit-appearance: none;
-//  border: none;
-//
-//  &:focus {
-//    outline: none;
-//  }
-//}
+button {
+  background: transparent;
+  -webkit-appearance: none;
+  border: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.btn {
+  display: inline-block;
+  background: transparent;
+  color: $color-primary;
+  padding: 1.5rem;
+
+  &.icon-btn {
+    .icon {
+      font-size: 2rem;
+    }
+
+    &.little {
+      .icon {
+        font-size: 1rem;
+      }
+    }
+
+    &.big {
+      .icon {
+        font-size: 5rem;
+      }
+    }
+  }
+}

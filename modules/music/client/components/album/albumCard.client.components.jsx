@@ -157,7 +157,7 @@ class AlbumCard extends Component {
 
   render () {
     const { openTab, style, renderTracksNow } = this.state;
-    const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey } = this.props;
+    const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey, infoHeight, tabHeight } = this.props;
 
     // Build cover path from album key.
     const cover = ps.changeSeparator(album.key, '___', '/');
@@ -191,10 +191,10 @@ class AlbumCard extends Component {
           />
           <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
           <i aria-hidden='true' className='icon icon-l white icon-play' />
-          <i aria-hidden='true' className='icon icon-l white icon-plus' onClick={this.handlerAddTracks} />
+          <i aria-hidden='true' className='icon icon-l icon-plus' onClick={this.handlerAddTracks} />
         </div>
 
-        <div className='albums-item-info' onClick={this.handlerOpenTab}>
+        <div className='albums-item-info' onClick={this.handlerOpenTab} style={{height:tabHeight + 'px'}}>
           <div className='name'>{album.name}</div>
           <div className='date'>{album.year}</div>
           <div className='artist'><span>{album.artist}</span></div>
@@ -205,8 +205,12 @@ class AlbumCard extends Component {
           index={index}
           card={card}
           grid={grid}
+          cover={cover}
+          tabHeight={tabHeight}
           renderTracksNow={renderTracksNow}
           getAlbumTracks={this.getAlbumTracks}
+          handlerPlayAlbum={this.handlerPlayAlbum}
+          handlerAddTracks={this.handlerAddTracks}
         />
         }
 

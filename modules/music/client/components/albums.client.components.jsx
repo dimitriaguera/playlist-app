@@ -7,15 +7,21 @@ import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import AlbumCard from 'music/client/components/album/albumCard.client.components'
 import { Divider } from 'semantic-ui-react'
 
+const COVER_SIZE = 220;
+const INFO_HEIGHT = 120;
+const SPACE_BETWEEN = 1;
+const TRACK_TAB_HEIGHT = 500;
+
 class Albums extends Component {
   constructor (props) {
     super(props);
     this.state = {
       card: {
-        width: 150,
-        height: 270,
-        margin: 1,
-        tabHeight: 500
+        width: COVER_SIZE,
+        height: COVER_SIZE + INFO_HEIGHT,
+        margin: SPACE_BETWEEN,
+        infoHeight: INFO_HEIGHT,
+        tabHeight: TRACK_TAB_HEIGHT
       },
       grid: {}
     };
@@ -79,7 +85,7 @@ class Albums extends Component {
   }
 
   render () {
-    const { card, grid } = this.state;
+    const { card, grid, infoHeight, tabHeight } = this.state;
 
     // Build default card style.
     // Done here to avoid re-calculate this in each albumCard rendering.
@@ -115,6 +121,8 @@ class Albums extends Component {
               album={item}
               card={card}
               grid={grid}
+               tabHeight={tabHeight}
+               infoHeight={infoHeight}
               wrapperStyle={cardDefaultStyle}
               innerStyle={innerStyle}
               imageStyle={imageStyle}

@@ -4,6 +4,7 @@ import { Motion, spring } from 'react-motion'
 import { post } from 'core/client/services/core.api.services'
 import { playOnAlbum } from 'music/client/redux/actions'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
+import AlbumInfo from './albumInfo.client.components'
 
 
 class AlbumTracks extends Component {
@@ -105,7 +106,7 @@ class AlbumTracks extends Component {
   }
 
   getStyle () {
-    const {index, grid, card} = this.props;
+    const {index, grid, card, tabHeight} = this.props;
 
     // Get Card position in his row.
     // Needed to know left style value, to position tab according tab position.
@@ -116,13 +117,14 @@ class AlbumTracks extends Component {
     // and Card position in his row.
     return {
       width: ((grid.row * card.width) - (card.margin * 2)) + 'px',
+      height: tabHeight + 'px',
       left: (-pos * card.width) + card.margin + 'px',
       top: card.height + 'px'
     }
   }
 
   render () {
-    const { album, user, onPlay, onPlayIndex } = this.props;
+    const { album, user, onPlay, onPlayIndex, cover, handlerPlayAlbum, handlerAddTracks } = this.props;
     const { tracks } = this.state;
 
     // Does this album is now playing ?
@@ -136,36 +138,46 @@ class AlbumTracks extends Component {
         {!!tracks.length &&
         <Motion defaultStyle={{o: 0, x: -20}} style={{o: spring(1), x: spring(0)}}>
           {({o, x}) =>
-            <div style={{
+            <div className='album-tracks-container'
+                 style={{
               WebkitTransform: `translate3d(${x}px, 0, 0)`,
               transform: `translate3d(${x}px, 0, 0)`,
               opacity: o
             }}>
-              {tracks.map((item, i) => {
-                const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
-                return (
-                  <div key={i} className={trackIsPlaying ? 'playing' : ''}>
-                    {trackIsPlaying &&
-                    <IconPlayAnim iconStyle={{width: '30px', height: '30px', padding: '7px'}} />
-                    }
-                    {!trackIsPlaying &&
-                    <button className='btn' onClick={(e) => this.handlerPlayAlbum(e, i)}>
-                      <span aria-hidden='true' className='icon white icon-play' />
-                    </button>
-                    }
-                    <span className='album-tracks-title'>
-                      {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
-                      {item.meta.title}
-                    </span>
-                    <span className='album-tracks-menu-inner'>
-                      <button className='btn' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
-                        <i aria-hidden='true' className='icon icon-plus white'/>
+
+              <div className='album-tracks-col'>
+                <AlbumInfo album={album} handlerPlayAlbum={handlerPlayAlbum} handlerAddTracks={handlerAddTracks} />
+              </div>
+
+              <div className='album-tracks-col'>
+                <div className='album-tracks-inner'>
+                {tracks.map((item, i) => {
+                  const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
+                  return (
+                    <div className='album-tracks-item' key={i} className={trackIsPlaying ? 'playing' : ''}>
+                      {trackIsPlaying &&
+                      <IconPlayAnim iconStyle={{width: '30px', height: '30px', padding: '7px'}} />
+                      }
+                      {!trackIsPlaying &&
+                      <button className='btn icon-btn little' onClick={(e) => this.handlerPlayAlbum(e, i)}>
+                        <span aria-hidden='true' className='icon white icon-play' />
                       </button>
-                    </span>
-                  </div>
-                )
-              })
-              }</div>}
+                      }
+                      <span className='album-tracks-title'>
+                        {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
+                        {item.meta.title}
+                      </span>
+                      <span className='album-tracks-menu-inner'>
+                        <button className='btn icon-btn' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
+                          <i aria-hidden='true' className='icon icon-plus'/>
+                        </button>
+                      </span>
+                    </div>
+                  )
+                })}
+                </div>
+              </div>
+            </div>}
         </Motion>}
       </div>
     );
