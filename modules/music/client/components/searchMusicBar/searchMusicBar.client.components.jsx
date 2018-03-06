@@ -254,7 +254,7 @@ class SearchMusicBar extends Component {
     let { inputDateFrom, inputDateTo } = this.state;
 
     // If inputDateTo < inputDateFrom inverse it
-    if(inputDateTo < inputDateFrom){
+    if(inputDateTo && (inputDateTo < inputDateFrom)){
       let tmp = inputDateTo;
       inputDateTo = inputDateFrom;
       inputDateFrom = tmp;
@@ -268,8 +268,21 @@ class SearchMusicBar extends Component {
       this.inputDateFrom.value = inputDateFrom;
     }
 
-    // If no start date, exit.
-    if (!inputDateFrom) return null;
+    // If no start date
+    if (!inputDateFrom) {
+      if (!inputDateTo) return null;
+
+      inputDateFrom = inputDateTo;
+      inputDateTo = null;
+
+      this.setState({
+        inputDateFrom: inputDateFrom,
+        inputDateTo: inputDateTo
+      });
+
+      this.inputDateFrom.value = inputDateFrom;
+      this.inputDateTo.value = inputDateTo;
+    }
 
     let value, tag;
 
