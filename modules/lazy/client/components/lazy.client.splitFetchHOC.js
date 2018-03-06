@@ -75,6 +75,7 @@ function splitFetchHOC (params, fetchActions) {
 
       // Avoid child wrapped component rendering out of data update.
       shouldComponentUpdate (nextProps, nextState) {
+        // @TODO check if nextProps shallow compare don't trigger render every time splitFetchWrapped render is called.
         return (nextState.data !== this.state.data || nextProps !== this.props);
       }
 
