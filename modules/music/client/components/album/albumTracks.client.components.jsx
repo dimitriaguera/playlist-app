@@ -151,30 +151,27 @@ class AlbumTracks extends Component {
 
               <div className='album-tracks-col'>
                 <div className='album-tracks-inner'>
+                  <ul className='unstyled'>
                 {tracks.map((item, i) => {
                   const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
                   return (
-                    <div className='album-tracks-item' key={i} className={trackIsPlaying ? 'playing' : ''}>
-                      {trackIsPlaying &&
-                      <IconPlayAnim iconStyle={{width: '30px', height: '30px', padding: '7px'}} />
-                      }
-                      {!trackIsPlaying &&
-                      <button className='btn icon-btn little' onClick={(e) => this.handlerPlayAlbum(e, i)}>
-                        <span aria-hidden='true' className='icon white icon-play' />
-                      </button>
-                      }
-                      <span className='album-tracks-title'>
-                        {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
-                        {item.meta.title}
-                      </span>
-                      <span className='album-tracks-menu-inner'>
-                        <button className='btn icon-btn' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
-                          <i aria-hidden='true' className='icon icon-plus'/>
-                        </button>
-                      </span>
-                    </div>
+                    <li key={i}>
+                      <a className={trackIsPlaying ? 'album-tracks-item playing' : 'album-tracks-item'} title='Play track' onClick={(e) => this.handlerPlayAlbum(e, i)}>
+                        {trackIsPlaying && <IconPlayAnim />}
+                        {!trackIsPlaying && <span aria-hidden='true' className='icon white icon-play' />}
+                        <span className='album-tracks-title'>
+                          {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
+                          {item.meta.title}
+                        </span>
+                        <span className='album-tracks-menu-inner'>
+                          <button className='btn btn-icon' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
+                            <i aria-hidden='true' className='icon icon-plus'/>
+                          </button>
+                        </span>
+                      </a>
+                    </li>
                   )
-                })}
+                })}</ul>
                 </div>
               </div>
             </div>}

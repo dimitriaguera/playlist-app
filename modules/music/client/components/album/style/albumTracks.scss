@@ -28,6 +28,7 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
         top: 0;
         left: 0;
         width: 40%;
+        z-index: 1;
       }
 
       &:nth-child(2) {
@@ -46,15 +47,31 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
           align-content: center;
           overflow: hidden;
           width: 100%;
-          padding: 2rem 0;
+          max-width: 700px;
+          padding: 0.5rem 0;
           line-height: 1;
+          cursor: pointer;
+
+          .icon-play {
+            opacity: 0;
+            transform: translateX(-5px);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+          }
 
           .album-tracks-title {
             flex-grow: 1;
+            padding-left: 1rem;
           }
 
           &.playing {
             background-color: $color-bg-playing;
+          }
+
+          &:hover {
+            .icon-play {
+              opacity: 1;
+              transform: translateX(0);
+            }
           }
         }
       }
