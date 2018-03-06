@@ -29,7 +29,7 @@ $image-size-track: 60px;
         opacity: 0.4;
       }
 
-      & > i {
+      & > .icon-play {
         opacity: 1;
       }
     }
@@ -48,11 +48,19 @@ $image-size-track: 60px;
     width: $image-size-track;
   }
 
-  & > i {
+  & > .icon-play {
     position: absolute;
     opacity: 0;
     color: $color-icon-track;
   }
+
+  & > .icon-play-anim-container,
+  & > .icon-pause {
+    position: absolute;
+    opacity: 1;
+    color: $color-icon-track;
+  }
+
 }
 
 .tracks-item-info {
