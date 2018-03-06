@@ -211,6 +211,8 @@ class AlbumCard extends Component {
           getAlbumTracks={this.getAlbumTracks}
           handlerPlayAlbum={this.handlerPlayAlbum}
           handlerAddTracks={this.handlerAddTracks}
+          history={this.props.history}
+          location={this.props.location}
         />
         }
 

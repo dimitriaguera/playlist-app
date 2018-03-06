@@ -303,7 +303,7 @@ class IndexableFolder extends Component {
     const { user, history, activePlaylist, addPlaylistItems, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push({pathname: '/login', state: {from: location.pathname}});
+    if (!user) return history.push({pathname: '/login', state: { from: location.pathname }});
 
     // May be an array of several tracks.
     let tracks = item;

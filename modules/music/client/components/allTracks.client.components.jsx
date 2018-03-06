@@ -6,10 +6,11 @@ import SearchMusicBar from 'music/client/components/searchMusicBar/searchMusicBa
 import Img from 'music/client/components/image/image.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import ps from 'core/client/services/core.path.services'
-import {Divider} from 'semantic-ui-react'
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
 import defaultCover from 'assets/images/default_cover.png'
-import {post} from "../../../core/client/services/core.api.services";
+import {post} from "core/client/services/core.api.services";
+import {pauseState, playState} from "../redux/actions";
 
 class AllTracks extends Component {
   constructor(props) {
@@ -17,7 +18,6 @@ class AllTracks extends Component {
 
     this.handlerPlayTracks = this.handlerPlayTracks.bind(this);
     this.handlerAddTrack = this.handlerAddTrack.bind(this);
-
   }
 
   componentDidMount() {
@@ -26,33 +26,46 @@ class AllTracks extends Component {
 
   // Handler to add recursively all tracks on playlist.
   handlerPlayTracks(e, item) {
-    // Build track item.
-    const play = item;
+    if (e) e.stopPropagation();
+
+    const { pause, onPlay, onPauseFunc, onPlayFunc } = this.props;
+
+    if (onPlay.tracksId === item.tracksId) {
+      if (pause) {
+        return onPlayFunc();
+      } else {
+        return onPauseFunc();
+      }
+    }
 
     // Change global state to start playing track.
-    this.props.readFile(play);
-    e.preventDefault();
+    this.props.readFile(item);
   }
 
   handlerAddTrack (e, tracksId) {
-    const { addPlaylistItems, activePlaylist, user } = this.props;
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push('/login');
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
 
     // Add tracks into activated Playlist.
-    addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
-    if (e) e.preventDefault();
+    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
   }
-
 
   render() {
     // const { nodes } = this.state;
     console.log('RENDER ALL TRACKS');
+    const { onPlay, pause, data, total, search} = this.props;
+
 
     return (
       <section>
-        <h1>Tracks</h1><span>{this.props.total} tracks on result</span>
+        <h1>Tracks</h1><span>{total} tracks on result</span>
         <SearchMusicBar indexName='tracks'
                         field={'meta.title'}
                         filtersMapping={{
@@ -62,13 +75,20 @@ class AllTracks extends Component {
                           album: 'meta.album'
                         }}
                         startLimit={0}
-                        searchAction={this.props.search}
+                        searchAction={search}
                         placeholder='search tracks...'
         />
 
         <ul className='unstyled'>
           {
-            this.props.data.map((item, i) => {
+            data.map((item, i) => {
+
+              let stateTrack = 'rien';
+              if (onPlay.tracksId === item.tracksId) {
+                stateTrack = 'play';
+                if (pause) stateTrack = 'pause';
+              }
+
               return (
                 <li key={i}>
                   <a className='alltracks-item-album' href='#' onClick={(e) => this.handlerPlayTracks(e, item)} title={`Play ${item.meta.title}`}>
@@ -77,7 +97,15 @@ class AllTracks extends Component {
                            src={'/pictures/' + ps.changeSeparator(item.albumKey, '___', '/') + '/cover.jpg'}
                            defaultSrc={defaultCover}
                       />
-                      <i aria-hidden='true' className='icon icon-l icon-play'/>
+                      {stateTrack === 'play' &&
+                        <IconPlayAnim/>
+                      }
+                      {stateTrack === 'rien' &&
+                        <i aria-hidden='true' className='icon icon-l icon-play'/>
+                      }
+                      {stateTrack === 'pause' &&
+                        <i aria-hidden='true' className='icon icon-l icon-pause'/>
+                      }
                     </span>
 
                     <span className='tracks-item-info'>
@@ -120,7 +148,8 @@ const mapStateToProps = state => {
     onPlay: state.playlistStore.onPlay,
     onPlayIndex: state.playlistStore.playingList.onPlayIndex,
     mode: state.playlistStore.mode,
-    activePlaylist: state.playlistStore.activePlaylist
+    activePlaylist: state.playlistStore.activePlaylist,
+    pause: state.playlistStore.pause
   }
 };
 
@@ -136,6 +165,12 @@ const mapDispatchToProps = dispatch => {
       post(`playlist/${title}`, {
         data: items
       })
+    ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
     )
   }
 };
