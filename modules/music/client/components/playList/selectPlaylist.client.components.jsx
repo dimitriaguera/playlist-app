@@ -36,10 +36,7 @@ class SelectPlaylist extends Component {
   }
 
   handleChange (data) {
-    const value = data.value;
-    const allPl = this.state.allPlaylist;
-    const pl = getValue(value, allPl);
-
+    const pl = getValue(data.value, this.state.allPlaylist);
     this.props.activatePlaylist(pl);
   }
 
