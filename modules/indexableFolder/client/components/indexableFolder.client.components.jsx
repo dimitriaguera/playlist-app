@@ -392,8 +392,15 @@ class IndexableFolder extends Component {
 
   render () {
     const { nodes, path, error, modal } = this.state;
+    const { activePlaylist } = this.props;
 
-      return (
+    let activePlaylistTitle = '';
+    if (activePlaylist) {
+      //  activePlaylist.defaultPlaylist => activePlaylist.publicTitle || activePlaylist.title;
+      activePlaylistTitle = activePlaylist.publicTitle || activePlaylist.title;
+    }
+
+    return (
         <section>
           <header>
             <h1>Music Folders</h1>
