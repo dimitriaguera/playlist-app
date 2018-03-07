@@ -3,6 +3,9 @@ import { connect } from 'react-redux'
 import { allowDisplayItem } from 'users/client/services/users.auth.services'
 import { getMenuLink } from 'core/client/services/core.menu.services'
 
+import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
+
+
 class MainMenu extends Component {
   constructor () {
     super();
@@ -32,8 +35,11 @@ class MainMenu extends Component {
         <nav>
           <ul className='unstyled main-nav-ul' onClick={this.clickMenu}>
             {buildMenuItems(menuItems, user)}
+
+            {user && <SelectPlaylist/>}
           </ul>
         </nav>
+
       </aside>
     )
   }

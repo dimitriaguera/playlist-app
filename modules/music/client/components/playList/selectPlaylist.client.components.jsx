@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get } from 'core/client/services/core.api.services'
 import { activatePlaylist } from 'music/client/redux/actions'
-import { Select } from 'semantic-ui-react'
+import { Link } from 'react-router-dom'
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 
 class SelectPlaylist extends Component {
   constructor (props) {
@@ -33,7 +35,7 @@ class SelectPlaylist extends Component {
       });
   }
 
-  handleChange (e, data) {
+  handleChange (data) {
     const value = data.value;
     const allPl = this.state.allPlaylist;
     const pl = getValue(value, allPl);
@@ -52,12 +54,44 @@ class SelectPlaylist extends Component {
       return {
         key: pl.title,
         value: pl.title,
-        text: title
+        label: title
       }
     });
 
+    let activePlaylistTitle = '';
+    let pathUrl = '';
+    if (activePlaylist) {
+      if (activePlaylist.defaultPlaylist) {
+        activePlaylistTitle = activePlaylist.publicTitle;
+        pathUrl = '/queue'
+      }
+      else {
+        activePlaylistTitle = activePlaylist.title;
+        pathUrl = `/playlist/${activePlaylist.title}`;
+      }
+    }
+
     return (
-      <Select placeholder='Select your playlist' onChange={this.handleChange} value={defaultValue} options={playlistOptions} />
+      <section>
+        <header>
+          <h3>Editing playlist</h3>
+        </header>
+          <Select
+            placeholder='Select your playlist'
+            onChange={this.handleChange}
+            value={defaultValue}
+            options={playlistOptions}
+            clearable={false}
+          />
+
+        {activePlaylist &&
+          <Link to={pathUrl} title='Go to active playlist'>
+            {`${activePlaylistTitle} has ${activePlaylist.length} tracks`}
+          </Link>
+        }
+
+      </section>
+
     );
   }
 }
