@@ -1,5 +1,3 @@
-import SearchFolderBar from './SearchFolderBar.client.components'
-import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
 /**
  * Folder is the file explorator component.
  * The folder's path to open is get with component URL, via react-router v4.
@@ -25,6 +23,7 @@ import Modal from 'react-modal';
 import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 
+// import SearchFolderBar from './SearchFolderBar.client.components'
 
 class IndexableFolder extends Component {
   constructor () {
@@ -129,12 +128,12 @@ class IndexableFolder extends Component {
     const { query, modal, nodes } = nextState;
     return (
       query !== this.state.query ||
-            modal !== this.state.modal ||
-            nodes !== this.state.nodes ||
-            nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
-            activePlaylist !== this.props.activePlaylist ||
-            pause !== this.props.pause ||
-            onPlay._id !== this.props.onPlay._id
+      modal !== this.state.modal ||
+      nodes !== this.state.nodes ||
+      nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
+      activePlaylist !== this.props.activePlaylist ||
+      pause !== this.props.pause ||
+      onPlay._id !== this.props.onPlay._id
     );
   }
 
@@ -392,43 +391,14 @@ class IndexableFolder extends Component {
 
 
   render () {
-    const { nodes, path, error, params, modal } = this.state;
-    const { activePlaylist, user } = this.props;
+    const { nodes, path, error, modal } = this.state;
 
-    let activePlaylistTitle = '';
-    let pathUrl = '';
-
-    if (activePlaylist) {
-      if (activePlaylist.defaultPlaylist) {
-        activePlaylistTitle = activePlaylist.publicTitle;
-        pathUrl = '/queue'
-      }
-      else {
-        activePlaylistTitle = activePlaylist.title;
-        pathUrl = `/playlist/${activePlaylist.title}`;
-      }
-    }
       return (
         <section>
           <header>
             <h1>Music Folders</h1>
-
-            {/* Remove playlist Element here*/}
-            {/*{user && (*/}
-              {/*<section>*/}
-                {/*<Header icon='pencil' content='Editing playlist' />*/}
-                {/*<SelectPlaylist defaultValue={params ? params.get('pl') : null} />*/}
-                {/*{activePlaylist && <Label as={Link} to={pathUrl} color='teal'*/}
-                                          {/*tag>{`${activePlaylist.length} tracks`}</Label>}*/}
-              {/*</section>*/}
-            {/*)}*/}
-
-
             <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
-
           </header>
-
-
 
           {(!error) &&
           <ul className='unstyled'>
