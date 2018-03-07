@@ -15,12 +15,33 @@ $color-icon-fol-item-hover: $color-primary-hover;
   grid-template-columns: auto 1fr;
   grid-template-rows: minmax(50px, 1fr);;
   align-items: center;
+  grid-column-gap: 1rem;
 
   &:hover {
     background: $color-bg-fol-item-hover;
 
-    & > .fol-item-icon {
-      color: $color-icon-fol-item-hover;
+    .fol-item-ico-wrap {
+
+      & > .fol-item-icon {
+        color: $color-icon-fol-item-hover;
+      }
+
+      & > .icon-music {
+        opacity: 0;
+      }
+
+      & > .icon-play {
+        opacity: 1;
+      }
+
+      & > .icon-play-anim-container {
+        opacity: 0;
+      }
+
+      & > .icon-pause-anim {
+        opacity: 1;
+      }
+
     }
 
     & > .fol-item-menu > .btn {
@@ -29,10 +50,25 @@ $color-icon-fol-item-hover: $color-primary-hover;
   }
 }
 
-.fol-item-icon {
+.fol-item-ico-wrap {
   grid-area: icon;
-  padding: 0 8px;
   color: $color-icon-fol-item;
+  display: inline-flex;
+
+  & > .icon-play {
+    position: absolute;
+    opacity: 0;
+  }
+
+  & > .icon-pause {
+    opacity: 1;
+  }
+
+  & > .icon-pause-anim {
+    position: absolute;
+    opacity: 0;
+  }
+
 }
 
 .fol-item-title {

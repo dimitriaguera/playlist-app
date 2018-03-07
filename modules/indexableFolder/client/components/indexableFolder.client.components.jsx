@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
 import Modal from 'react-modal';
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { Label, Header } from 'semantic-ui-react'
 import { get, post } from 'core/client/services/core.api.services'
 import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/redux/actions'
-import TransitionList from 'transitionList/client/components/transitionList'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
+
 import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
 import ps from 'core/client/services/core.path.services'
+
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
 import socketServices from 'core/client/services/core.socket.services'
 
 import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
+import {pauseState, playState} from "../../../music/client/redux/actions";
 
 
 /**
@@ -128,12 +129,13 @@ class IndexableFolder extends Component {
   shouldComponentUpdate (nextProps, nextState) {
     const { activePlaylist } = nextProps;
     const { query, modal, nodes } = nextState;
-    return (
-      query !== this.state.query ||
-            modal !== this.state.modal ||
-            nodes !== this.state.nodes ||
-            nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
-            activePlaylist !== this.props.activePlaylist);
+    // return (
+    //   query !== this.state.query ||
+    //         modal !== this.state.modal ||
+    //         nodes !== this.state.nodes ||
+    //         nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
+    //         activePlaylist !== this.props.activePlaylist);
+    return true;
   }
 
   // Force re-rendering on props location change.
@@ -242,6 +244,12 @@ class IndexableFolder extends Component {
 
   // Handler to get all files recursively in a folder.
   handlerGetAllFiles (e, item) {
+
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
     const _self = this;
     const {fetchFiles} = this.props;
 
@@ -277,6 +285,12 @@ class IndexableFolder extends Component {
 
   // Handler to looks at files as tracks list.
   onListTracks (e, item) {
+
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
     const { history } = this.props;
 
     // Go to album display mode.
@@ -286,20 +300,41 @@ class IndexableFolder extends Component {
 
   // Handler to play music file.
   handlerReadFile (e, item) {
-    // Build track item.
-    // const play = item;
+
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    const { pause, onPlay, onPauseFunc, onPlayFunc } = this.props;
+
+    if (onPlay._id === item._id) {
+      if (pause) {
+        return onPlayFunc();
+      } else {
+        return onPauseFunc();
+      }
+    }
 
     // Change global state to start playing track.
     this.props.readFile(item);
-    e.preventDefault();
+
   }
 
   onEditMetaTag (e, item) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     this.setState({editMetaTagItem: item, showEditMetaTagModal: true});
   }
 
   // Handler to add single track on playlist.
   handlerAddItem (e, item) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     const { user, history, activePlaylist, addPlaylistItems, location } = this.props;
 
     // User must be connected to add tracks.
@@ -313,17 +348,18 @@ class IndexableFolder extends Component {
       tracks = [item._id];
     }
 
-    const data = {
-      tracks: tracks
-    };
-
     // Add tracks into activated Playlist.
-    addPlaylistItems(activePlaylist.title, data);
-    if (e) e.preventDefault();
+    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
   }
 
   // Handler to add recursively all tracks on playlist.
   handlerPlayFolder (e, item) {
+
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
     const _self = this;
     const {fetchFiles, addFolderToPlay} = this.props;
 
@@ -401,13 +437,14 @@ class IndexableFolder extends Component {
                 <IndexableFolderItem
                   key={i}
                   item={item}
-                  user={user}
                   onClick={this.handlerClickOnFile}
                   onGetFiles={this.handlerGetAllFiles}
                   onAddItem={this.handlerAddItem}
                   onPlayFolder={this.handlerPlayFolder}
                   onListTracks={this.onListTracks}
                   onEditMetaTag={this.onEditMetaTag}
+                  onPlayTrackId={this.props.onPlay._id}
+                  pause={this.props.pause}
                 />
               )
             })}
@@ -456,8 +493,10 @@ class IndexableFolder extends Component {
 
 const mapStateToProps = state => {
   return {
+    user: state.authenticationStore._user,
     activePlaylist: state.playlistStore.activePlaylist,
-    user: state.authenticationStore._user
+    onPlay: state.playlistStore.onPlay,
+    pause: state.playlistStore.pause
   }
 };
 
@@ -470,24 +509,14 @@ const mapDispatchToProps = dispatch => {
     searchNodes: (query) => dispatch(
       get(`search/album?search=${query || ''}`)
     ),
-
     fetchFiles: (query) => dispatch(
       get(`nodes/q/files?path=${query || ''}`)
     ),
-
     addPlaylistItems: (title, items) => dispatch(
       post(`playlist/${title}`, {
         data: items
-        // types: {
-        //     HOOK_TYPE: ( data ) => {
-        //         return dispatch => {
-        //             dispatch(updateActivePlaylist(data.msg))
-        //         }
-        //     },
-        // }
       })
     ),
-
     addFolderToPlay: (item) => {
       // Search first track on list.
       const track = item.pl.tracks[0];
@@ -496,9 +525,14 @@ const mapDispatchToProps = dispatch => {
       // If track, play it.
       if (track) dispatch(playItem(track));
     },
-
     readFile: (item) => dispatch(
       playItem(item)
+    ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
     )
   }
 };
