@@ -1082,7 +1082,7 @@ function getFiltersFromQuery (query) {
   return splitFilters(filters);
 }
 
-exports.getAlbumByKeyFn = function(key, callback) {
+const getAlbumByKeyFn = function(key, callback) {
   const params = {
     index: 'album',
     body: {
@@ -1100,9 +1100,10 @@ exports.getAlbumByKeyFn = function(key, callback) {
     callback(null, album);
   });
 };
+exports.getAlbumByKeyFn = getAlbumByKeyFn;
 
 exports.getAlbumByKey = function(req, res, next, key) {
-  this.getAlbumByKeyFn( ps.clean(key), (err, data) => {
+  getAlbumByKeyFn( ps.clean(key), (err, data) => {
     if (err) return errorHandler.errorMessageHandler(err, req, res, next);
     req.album = data;
     next();

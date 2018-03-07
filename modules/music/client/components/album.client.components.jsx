@@ -79,10 +79,10 @@ class Album extends Component {
     if (_self.props.location.pathname !== nextProps.location.pathname) {
       // Test if album is already playing.
       // Get and clean path.
-      const key = ps.removeFirstSeparator(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
+      const oldKey = ps.removeFirstSeparator(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
 
       // If album playing, mount data from store.
-      if (playingList.pl && playingList.pl.key === key) {
+      if (playingList.pl && playingList.pl.key === oldKey) {
         return _self.setState({
           isActive: true,
           albumOfUrl: playingList
@@ -90,7 +90,7 @@ class Album extends Component {
       }
       // Else, query data from DB.
       else {
-        return fetchFiles(ps.urlEncode(key))
+        return fetchFiles(ps.urlEncode(playingList.pl.key))
           .then((data) => {
             if (!data.success) {
               return history.push('/not-found');
@@ -98,7 +98,7 @@ class Album extends Component {
 
             const album = {
               title: data.msg.name,
-              key: key,
+              key: playingList.pl.key,
               tracks: data.msg.tracks
             };
 
