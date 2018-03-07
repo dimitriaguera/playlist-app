@@ -15,7 +15,7 @@ const {splitTab, mergeUniqArray, difference, deepObjDifference, cloneDeep} = req
 const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
 const mongoose = require('mongoose');
 
-const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
+const metaTag = require(path.resolve('./modules/editMetaTag/server/services/metaTag.server.services'));
 
 
 const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
