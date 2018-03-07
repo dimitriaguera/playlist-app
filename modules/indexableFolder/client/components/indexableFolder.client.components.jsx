@@ -127,15 +127,17 @@ class IndexableFolder extends Component {
 
   // Re-render only if path array or modal state are modified.
   shouldComponentUpdate (nextProps, nextState) {
-    const { activePlaylist } = nextProps;
+    const { activePlaylist, pause, onPlay} = nextProps;
     const { query, modal, nodes } = nextState;
-    // return (
-    //   query !== this.state.query ||
-    //         modal !== this.state.modal ||
-    //         nodes !== this.state.nodes ||
-    //         nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
-    //         activePlaylist !== this.props.activePlaylist);
-    return true;
+    return (
+      query !== this.state.query ||
+            modal !== this.state.modal ||
+            nodes !== this.state.nodes ||
+            nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
+            activePlaylist !== this.props.activePlaylist ||
+            pause !== this.props.pause ||
+            onPlay._id !== this.props.onPlay._id
+    );
   }
 
   // Force re-rendering on props location change.
