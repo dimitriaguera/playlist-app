@@ -4,12 +4,18 @@
 import MenuModules from '../../../**/routes/*.client.menu.js';
 
 export const getMenuLink = function () {
-  const menuItems = [];
+  let filterMenu = {};
 
-  MenuModules.map(item => {
-    item.menuItems.map(menuItem => {
-      menuItems.push(menuItem);
-    });
-  });
-  return menuItems;
+  for ( let l = MenuModules.length, i = 0 ; i < l ; i++ ) {
+    let menuItems = MenuModules[i].menuItems;
+    for (let j = 0 , l2 = menuItems.length ; j < l2 ; j++ ) {
+      let tmp = menuItems[j];
+      if (!filterMenu[tmp.menuId]) {
+        filterMenu[tmp.menuId] = [];
+      }
+      filterMenu[tmp.menuId].push(tmp);
+    }
+  }
+
+  return filterMenu;
 };

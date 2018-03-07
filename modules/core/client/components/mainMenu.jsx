@@ -33,12 +33,22 @@ class MainMenu extends Component {
     return (
       <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
         <nav>
-          <ul className='unstyled main-nav-ul' onClick={this.clickMenu}>
-            {buildMenuItems(menuItems, user)}
-
-            {user && <SelectPlaylist/>}
+          <ul className='unstyled global-nav main-nav-ul' onClick={this.clickMenu}>
+            {buildMenuItems(menuItems.main, user, {li: 'global-nav-li main-nav-li', cpt: 'global-nav-cpt main-nav-cpt' })}
           </ul>
         </nav>
+
+        {user &&
+          <span className='global-nav-logged-user'>{user.username}</span>
+        }
+
+        <nav>
+          <ul className='unstyled global-nav main-nav user-nav-ul' onClick={this.clickMenu}>
+            {buildMenuItems(menuItems.user, user, {li: 'global-nav-li user-nav-li', cpt: 'global-nav-cpt user-nav-cpt' })}
+          </ul>
+        </nav>
+
+        {user && <SelectPlaylist/>}
 
       </aside>
     )
@@ -62,7 +72,7 @@ const MainMenuContainer = connect(
 
 
 // HELPER
-function buildMenuItems (items, user) {
+function buildMenuItems (items, user, classes) {
 
   return items.map((item, i) => {
     const { component: Component, isPrivate, hiddenOnAuth, roles } = item;
@@ -77,7 +87,7 @@ function buildMenuItems (items, user) {
     }
     // Else, render menu entry element.
     else {
-      return <Component key={i} />;
+      return <li className={classes.li} key={i}><Component className={classes.cpt}/></li>;
     }
   });
 }
