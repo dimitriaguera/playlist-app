@@ -1,22 +1,3 @@
-import React, { Component } from 'react'
-import Modal from 'react-modal';
-import { connect } from 'react-redux'
-import { get, post } from 'core/client/services/core.api.services'
-import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/redux/actions'
-import IndexableFolderItem from './indexableFolderItem.client.components'
-import SearchFolderBar from './SearchFolderBar.client.components'
-
-import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
-import ps from 'core/client/services/core.path.services'
-
-import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
-
-import socketServices from 'core/client/services/core.socket.services'
-
-import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
-import {pauseState, playState} from "../../../music/client/redux/actions";
-
-
 /**
  * Folder is the file explorator component.
  * The folder's path to open is get with component URL, via react-router v4.
@@ -28,6 +9,22 @@ import {pauseState, playState} from "../../../music/client/redux/actions";
  * will call component to display /amy_winhouse/bestOf/theBest folder's content.
  *
  */
+
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import ps from 'core/client/services/core.path.services'
+import socketServices from 'core/client/services/core.socket.services'
+import { get, post } from 'core/client/services/core.api.services'
+
+import { playItem, addFolderToPlay, pauseState, playState} from 'music/client/redux/actions'
+
+import Modal from 'react-modal';
+
+import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
+import IndexableFolderItem from './indexableFolderItem.client.components'
+
+// import SearchFolderBar from './SearchFolderBar.client.components'
+
 class IndexableFolder extends Component {
   constructor () {
     super();
@@ -127,15 +124,17 @@ class IndexableFolder extends Component {
 
   // Re-render only if path array or modal state are modified.
   shouldComponentUpdate (nextProps, nextState) {
-    const { activePlaylist } = nextProps;
+    const { activePlaylist, pause, onPlay} = nextProps;
     const { query, modal, nodes } = nextState;
-    // return (
-    //   query !== this.state.query ||
-    //         modal !== this.state.modal ||
-    //         nodes !== this.state.nodes ||
-    //         nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
-    //         activePlaylist !== this.props.activePlaylist);
-    return true;
+    return (
+      query !== this.state.query ||
+      modal !== this.state.modal ||
+      nodes !== this.state.nodes ||
+      nextState.showEditMetaTagModal !== this.state.showEditMetaTagModal ||
+      activePlaylist !== this.props.activePlaylist ||
+      pause !== this.props.pause ||
+      onPlay._id !== this.props.onPlay._id
+    );
   }
 
   // Force re-rendering on props location change.
@@ -349,7 +348,7 @@ class IndexableFolder extends Component {
     }
 
     // Add tracks into activated Playlist.
-    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+    if (activePlaylist) addPlaylistItems(activePlaylist.title, {tracks: tracks});
   }
 
   // Handler to add recursively all tracks on playlist.
@@ -392,43 +391,14 @@ class IndexableFolder extends Component {
 
 
   render () {
-    const { nodes, path, error, params, modal } = this.state;
-    const { activePlaylist, user } = this.props;
+    const { nodes, path, error, modal } = this.state;
 
-    let activePlaylistTitle = '';
-    let pathUrl = '';
-
-    if (activePlaylist) {
-      if (activePlaylist.defaultPlaylist) {
-        activePlaylistTitle = activePlaylist.publicTitle;
-        pathUrl = '/queue'
-      }
-      else {
-        activePlaylistTitle = activePlaylist.title;
-        pathUrl = `/playlist/${activePlaylist.title}`;
-      }
-    }
       return (
         <section>
           <header>
             <h1>Music Folders</h1>
-
-            {/* Remove playlist Element here*/}
-            {/*{user && (*/}
-              {/*<section>*/}
-                {/*<Header icon='pencil' content='Editing playlist' />*/}
-                {/*<SelectPlaylist defaultValue={params ? params.get('pl') : null} />*/}
-                {/*{activePlaylist && <Label as={Link} to={pathUrl} color='teal'*/}
-                                          {/*tag>{`${activePlaylist.length} tracks`}</Label>}*/}
-              {/*</section>*/}
-            {/*)}*/}
-
-
             <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
-
           </header>
-
-
 
           {(!error) &&
           <ul className='unstyled'>
@@ -542,7 +512,7 @@ const IndexableFolderContainer = connect(
   mapDispatchToProps
 )(IndexableFolder);
 
-
+//// Helper
 function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
 
   const l = path.length;
@@ -583,21 +553,6 @@ function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
       </ul>
     </nav>
   )
-}
-
-// HELPER
-// Return Array to feed Breadcrumb Semantic UI React Component.
-function buildBread (array, handler) {
-  const l = array.length - 1;
-
-  return array.map((item, i) => {
-    const link = { key: i, content: item };
-
-    if (i !== l) link.onClick = handler(array.slice(0, i + 1));
-    else link.active = true;
-
-    return link;
-  });
 }
 
 export default IndexableFolderContainer
