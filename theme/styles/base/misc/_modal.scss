@@ -23,7 +23,8 @@ $color-txt-btn-no-modal-hover: rgba(0, 0, 0, 0.8);
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
+  min-height: 100%;
+  padding: 2rem 2rem 2.5rem 2rem;
   width: 100%;
   z-index: $zindex-modal;
   display: flex;
@@ -54,6 +55,7 @@ $color-txt-btn-no-modal-hover: rgba(0, 0, 0, 0.8);
 
 // Style of the modal button
 .modal-actions {
+  margin-top: 1rem;
   display: flex;
   justify-content: flex-end;
 }
@@ -84,7 +86,7 @@ $color-txt-btn-no-modal-hover: rgba(0, 0, 0, 0.8);
     color: $color-txt-btn-yes-modal;
 
     &:hover {
-      background-color: $color-bg-btn-no-modal-hover;
+      background-color: $color-bg-btn-yes-modal-hover;
       box-shadow: none !important;
       color: $color-txt-btn-yes-modal-hover;
     }

@@ -1,10 +1,19 @@
 .form-row {
   border-bottom: solid 1px $color-primary;
   padding-bottom: 1rem;
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .meta-action {
   display: flex;
+  flex-direction: column;
+
+  @include respond-to('small-up'){
+    flex-direction: row;
+  }
 }
 
 .meta-input {
@@ -12,6 +21,12 @@
 }
 
 .meta-select {
-  max-width: 110px;
-  min-width: 110px;
+  max-width: 11rem;
+  min-width: 11rem;
+  margin-top: 1rem;
+
+  @include respond-to('small-up') {
+    margin-top: 0;
+  }
+
 }

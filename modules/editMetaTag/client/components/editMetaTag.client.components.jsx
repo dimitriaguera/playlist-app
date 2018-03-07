@@ -293,7 +293,11 @@ class EditMetaTag extends Component {
             options={this.selectOpt}/>
         </div>
 
-        <span className='meta-exists'>{this.state.existingMetaBulk[name]}</span>
+        {this.state.existingMetaBulk[name] &&
+          <span className='meta-exists'>
+            Existing values : {this.state.existingMetaBulk[name]}
+          </span>
+        }
 
       </div>
     );
