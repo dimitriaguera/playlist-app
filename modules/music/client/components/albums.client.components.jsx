@@ -5,11 +5,10 @@ import { get } from 'core/client/services/core.api.services'
 import SearchMusicBar from 'music/client/components/searchMusicBar/searchMusicBar.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
 import AlbumCard from 'music/client/components/album/albumCard.client.components'
-import { Divider } from 'semantic-ui-react'
 
 const COVER_SIZE = 220;
 const INFO_HEIGHT = 120;
-const SPACE_BETWEEN = 1;
+const SPACE_BETWEEN = 3;
 const TRACK_TAB_HEIGHT = 500;
 
 class Albums extends Component {
@@ -21,7 +20,7 @@ class Albums extends Component {
         height: COVER_SIZE + INFO_HEIGHT,
         margin: SPACE_BETWEEN,
         infoHeight: INFO_HEIGHT,
-        tabHeight: TRACK_TAB_HEIGHT
+        tabHeight: TRACK_TAB_HEIGHT,
       },
       grid: {}
     };
@@ -42,7 +41,10 @@ class Albums extends Component {
   componentDidMount () {
     window.addEventListener('resize', this.onResizeHandle);
     this.props.searchSized(`album?sort=keyName&fi=name&q=`);
+    //@TODO timeout on mount because this.domElmt width is not good directly on mount. Because of media query that change layout dimension and mobile first approach.
+    setTimeout(() => {
     this.setGrid();
+    }, 500);
   }
 
   componentWillUnmount () {
@@ -56,12 +58,8 @@ class Albums extends Component {
   setGrid () {
     const { card } = this.state;
     const totalCardWidth = card.width + (card.margin * 2);
-
-    //@TODO timeout on mount because this.domElmt width is not good directly on mount. Because of media query that change layout dimension and mobile first approach.
-    setTimeout(() => {
-      const nbPerRow = Math.floor(this.domElmt.offsetWidth / totalCardWidth);
-      this.setState({grid: {row: nbPerRow, width: nbPerRow * totalCardWidth}});
-    }, 500);
+    const nbPerRow = Math.floor(this.domElmt.offsetWidth / totalCardWidth);
+    this.setState({grid: {row: nbPerRow, width: nbPerRow * totalCardWidth}});
   }
 
   hookOpenTab (func, row) {

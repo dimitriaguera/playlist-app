@@ -1,11 +1,11 @@
 $side-larger: 20rem;
 $main-padding: 2rem;
 
-$color-bg-side-bar: #3e3e3e;
+$color-bg-side-bar: #131313;
 $color-font-side-bar: $white;
 $color-font-side-bar-nav-selected: $color-primary;
 
-$color-bg-side-bar-phone: #535353;
+$color-bg-side-bar-phone: #131313;
 $color-font-side-bar-phone: $white;
 $color-font-side-bar-nav-selected-phone: $color-primary;
 
@@ -51,13 +51,13 @@ body {
 #main-side {
   background: $color-bg-side-bar-phone;
   position: absolute;
-  display: inline-block;
+  display: block;
   height: 100%;
   transition: left 1s, background 1s, width 1s;
   left: -$side-larger;
   width: $side-larger;
   z-index: $zindex-navigation-small;
-  border-right: solid 1px $color-border-aside;
+  //border-right: solid 1px $color-border-aside;
 
   @include respond-to("medium-up") {
     left: 0;

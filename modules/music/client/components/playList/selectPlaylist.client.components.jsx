@@ -72,10 +72,15 @@ class SelectPlaylist extends Component {
     }
 
     return (
-      <section>
-        <header>
-          <h3>Editing playlist</h3>
-        </header>
+      <section className='select-playlist'>
+
+        {activePlaylist &&
+        <Link to={pathUrl} title='Go to active playlist' className='select-playlist-label'>
+            <span className='select-playlist-label-name'>Playlist active</span>
+            {`${activePlaylist.length} tracks`}
+        </Link>
+        }
+
           <Select
             placeholder='Select your playlist'
             onChange={this.handleChange}
@@ -83,12 +88,6 @@ class SelectPlaylist extends Component {
             options={playlistOptions}
             clearable={false}
           />
-
-        {activePlaylist &&
-          <Link to={pathUrl} title='Go to active playlist'>
-            {`${activePlaylistTitle} has ${activePlaylist.length} tracks`}
-          </Link>
-        }
 
       </section>
 
