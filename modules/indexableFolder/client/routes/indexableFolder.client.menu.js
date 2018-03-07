@@ -7,6 +7,7 @@ import { NavLink } from 'react-router-dom'
 
 export const menuItems = [
   {
-    component: () => <li className='main-nav-li'><NavLink to='/music' activeClassName="nav-selected">Folder</NavLink></li>
+    component: () => <NavLink to='/music' activeClassName="nav-selected">Folder</NavLink>,
+    menuId: 'main'
   }
 ];

@@ -9,14 +9,22 @@ export const menuItems = [
   {
     isPrivate: true,
     roles: [ADMIN_ROLE],
-    component: MenuItem.UsersItem
-  },
-  {
-    isPrivate: true,
-    component: MenuItem.AccountItem
+    component: MenuItem.UsersItem,
+    menuId: 'main'
   },
   {
     hiddenOnAuth: true,
-    component: MenuItem.LoginItem
+    component: MenuItem.LoginItem,
+    menuId: 'user'
+  },
+  {
+    isPrivate: true,
+    component: MenuItem.MyAccountItem,
+    menuId: 'user'
+  },
+  {
+    isPrivate: true,
+    component: MenuItem.LogoutItem,
+    menuId: 'user'
   }
 ];

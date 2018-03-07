@@ -9,14 +9,8 @@ $color-font-side-bar-nav-selected-phone: $color-primary;
 $color-nav-btn: $black;
 $color-nav-btn-active: $white;
 
-#main-side > nav {
+.global-nav-ul {
   position: relative;
-  height: 100%;
-}
-
-.main-nav-ul {
-  position: relative;
-  height: 100%;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -25,14 +19,9 @@ $color-nav-btn-active: $white;
   align-items: stretch;
 }
 
-.main-nav-li {
+.global-nav-li {
   position: relative;
   text-align: center;
-
-  &:last-child {
-    margin-top: auto;
-    margin-bottom: 20px;
-  }
 
   & > a {
     width: 100%;
@@ -54,7 +43,7 @@ $color-nav-btn-active: $white;
   }
 }
 
-.main-nav-logged-user{
+.global-nav-logged-user {
   color: $color-primary;
 }
 
