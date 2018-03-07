@@ -1,22 +1,5 @@
-import React, { Component } from 'react'
-import Modal from 'react-modal';
-import { connect } from 'react-redux'
-import { get, post } from 'core/client/services/core.api.services'
-import { playItem, addFolderToPlay, updateActivePlaylist } from 'music/client/redux/actions'
-import IndexableFolderItem from './indexableFolderItem.client.components'
 import SearchFolderBar from './SearchFolderBar.client.components'
-
 import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
-import ps from 'core/client/services/core.path.services'
-
-import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
-
-import socketServices from 'core/client/services/core.socket.services'
-
-import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
-import {pauseState, playState} from "../../../music/client/redux/actions";
-
-
 /**
  * Folder is the file explorator component.
  * The folder's path to open is get with component URL, via react-router v4.
@@ -28,6 +11,21 @@ import {pauseState, playState} from "../../../music/client/redux/actions";
  * will call component to display /amy_winhouse/bestOf/theBest folder's content.
  *
  */
+
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import ps from 'core/client/services/core.path.services'
+import socketServices from 'core/client/services/core.socket.services'
+import { get, post } from 'core/client/services/core.api.services'
+
+import { playItem, addFolderToPlay, pauseState, playState} from 'music/client/redux/actions'
+
+import Modal from 'react-modal';
+
+import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
+import IndexableFolderItem from './indexableFolderItem.client.components'
+
+
 class IndexableFolder extends Component {
   constructor () {
     super();
