@@ -544,7 +544,7 @@ const IndexableFolderContainer = connect(
   mapDispatchToProps
 )(IndexableFolder);
 
-
+//// Helper
 function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
 
   const l = path.length;
@@ -585,21 +585,6 @@ function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
       </ul>
     </nav>
   )
-}
-
-// HELPER
-// Return Array to feed Breadcrumb Semantic UI React Component.
-function buildBread (array, handler) {
-  const l = array.length - 1;
-
-  return array.map((item, i) => {
-    const link = { key: i, content: item };
-
-    if (i !== l) link.onClick = handler(array.slice(0, i + 1));
-    else link.active = true;
-
-    return link;
-  });
 }
 
 export default IndexableFolderContainer
