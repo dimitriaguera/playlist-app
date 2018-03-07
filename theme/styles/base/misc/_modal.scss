@@ -36,10 +36,9 @@ $color-txt-btn-no-modal-hover: rgba(0, 0, 0, 0.8);
 }
 
 // Style of the modal itself
-//.modal {
-//
-//}
-
+.modal {
+  max-width: 90rem;
+}
 
 // Style of the modal title
 .modal-title {
