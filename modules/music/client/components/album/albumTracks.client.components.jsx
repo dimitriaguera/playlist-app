@@ -153,8 +153,7 @@ class AlbumTracks extends Component {
               </div>
 
               <div className='album-tracks-col'>
-                <div className='album-tracks-inner'>
-                  <ul className='unstyled'>
+                <ul className='album-tracks-inner unstyled'>
                 {tracks.map((item, i) => {
                   const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
                   return (
@@ -174,8 +173,8 @@ class AlbumTracks extends Component {
                       </a>
                     </li>
                   )
-                })}</ul>
-                </div>
+                })}
+                </ul>
               </div>
             </div>}
         </Motion>}

@@ -67,6 +67,7 @@ body {
 
 #main-content {
   display: inline-block;
+  position: relative;
   width: 100%;
   overflow: auto;
   height: 100%;
@@ -74,6 +75,7 @@ body {
   padding: $main-padding;
 
   @include respond-to("medium-up") {
+    transition: none;
     padding-left: #{$side-larger + $main-padding};
   }
 }

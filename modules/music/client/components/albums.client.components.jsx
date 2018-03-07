@@ -56,9 +56,12 @@ class Albums extends Component {
   setGrid () {
     const { card } = this.state;
     const totalCardWidth = card.width + (card.margin * 2);
-    const nbPerRow = Math.floor(this.domElmt.getBoundingClientRect().width / totalCardWidth);
 
-    this.setState({grid: {row: nbPerRow, width: nbPerRow * totalCardWidth}});
+    //@TODO timeout on mount because this.domElmt width is not good directly on mount. Because of media query that change layout dimension and mobile first approach.
+    setTimeout(() => {
+      const nbPerRow = Math.floor(this.domElmt.offsetWidth / totalCardWidth);
+      this.setState({grid: {row: nbPerRow, width: nbPerRow * totalCardWidth}});
+    }, 500);
   }
 
   hookOpenTab (func, row) {
@@ -103,7 +106,7 @@ class Albums extends Component {
     console.log('RENDER ALL ALBUMS');
 
     return (
-      <section ref={r => { this.domElmt = r }}>
+      <section>
         <h1>Albums</h1>
         <span>{this.props.total} albums on result</span>
         <SearchMusicBar indexName='album'
@@ -112,9 +115,8 @@ class Albums extends Component {
           filtersMapping={{artist: 'artist', genre: 'genre', date: 'range.year'}}
           placeholder='search album...'
         />
-        <Divider />
 
-        <div>
+        <div ref={r => { this.domElmt = r }} className='album-card-container' style={{width:'100%'}}>
           {this.props.data.map((item, i) =>
             <AlbumCard key={item.key}
               index={i}

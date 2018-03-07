@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 import { playState, pauseState } from 'music/client/redux/actions'
 import {connect} from "react-redux";
@@ -45,6 +46,7 @@ const AlbumInfo = ({album, handlerPlayAlbum, handlerAddTracks, albumIsPlaying, p
       <div className='album-info-menu'>
         {getButton()}
         <button aria-label='add album tracks to playlist' onClick={handlerAddTracks} className='btn btn-icon big'><i aria-hidden='true' className='icon icon-plus'/></button>
+        <Link to={`/album/${album.key}`} title='to album page' className='btn btn-icon big'><i aria-hidden='true' className='icon icon-eye'/></Link>
       </div>
     </div>
   )
