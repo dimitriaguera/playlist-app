@@ -22,7 +22,8 @@ $font-family-headings  : Numito, sans-serif !default; // font for h1, h2.. h6
 $font-family-monospace : consolas, courier, monospace !default; // font for code and samples
 
 // Font sizes (1.6rem value is "16px" equivalent)
-$font-size-base : 1.6rem !default;
+$font-size-base : 1.4rem !default;
+$font-size-large: 1.6rem;
 
 $font-sizes: (
   base: (
@@ -145,10 +146,13 @@ $color-inverse        : $gray-800;
 $color-ghost          : transparent;
 $color-muted          : $gray-200;
 
-$color-base      : $gray-900;
-$background-base : $white;
+$color-base      : $gray-500;
+$background-base : $gray-900;
 
 $forms-color     : $gray-800;
+
+// Components React
+$color-bg-panels: rgba(0, 0, 0, 0.4);
 
 // ---------------
 // Components zone

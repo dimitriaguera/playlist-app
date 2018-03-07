@@ -1,7 +1,7 @@
 $side-larger: 20rem;
 $main-padding: 2rem;
 
-$color-bg-side-bar: #535353;
+$color-bg-side-bar: #3e3e3e;
 $color-font-side-bar: $white;
 $color-font-side-bar-nav-selected: $color-primary;
 
@@ -9,7 +9,7 @@ $color-bg-side-bar-phone: #535353;
 $color-font-side-bar-phone: $white;
 $color-font-side-bar-nav-selected-phone: $color-primary;
 
-$color-bg-body: #535353;
+$color-bg-body: $background-base;
 $color-border-aside: #707070;
 
 /////// Body Init
@@ -27,6 +27,11 @@ body {
   background: url('../assets/images/ginkgo_gris.png') no-repeat center fixed;
   background-size: contain;
   background-color: $color-bg-body;
+  color: $color-base;
+
+  @include respond-to(large-up) {
+    font-size: $font-size-large;
+  }
 }
 
 //////////////////////////// LAYOUT

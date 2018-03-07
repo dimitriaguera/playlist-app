@@ -198,6 +198,7 @@ class AlbumCard extends Component {
           <div className='name'>{album.name}</div>
           <div className='date'>{album.year}</div>
           <div className='artist'><span>{album.artist}</span></div>
+          <div className='pointer' />
         </div>
 
         {openTab &&
