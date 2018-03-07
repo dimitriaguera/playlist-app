@@ -351,7 +351,7 @@ class IndexableFolder extends Component {
     }
 
     // Add tracks into activated Playlist.
-    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+    if (activePlaylist) addPlaylistItems(activePlaylist.title, {tracks: tracks});
   }
 
   // Handler to add recursively all tracks on playlist.
