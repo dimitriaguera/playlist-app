@@ -16,7 +16,7 @@ const {splitTab} = require(path.resolve('./modules/core/server/services/obj.serv
 const config = require(path.resolve('./config/env/config.server'));
 const rootOK = ps.removeLastSeparator(ps.conformPathToOs(config.musicFolder));
 
-const metaTag = require(path.resolve('./modules/music/server/services/metaTag.server.services'));
+const metaTag = require(path.resolve('./modules/editMetaTag/server/services/metaTag.server.services'));
 
 const {getNodeFromPath, saveInDb} = require(path.resolve('./modules/indexableFolder/server/controllers/nodes.server.controllers'));
 const {runElasticUpdates} = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));

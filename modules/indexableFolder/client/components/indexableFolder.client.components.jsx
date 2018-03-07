@@ -20,7 +20,7 @@ import { playItem, addFolderToPlay, pauseState, playState} from 'music/client/re
 
 import Modal from 'react-modal';
 
-import EditMetaTag from 'music/client/components/editMetaTag/editMetaTag.client.components'
+import EditMetaTag from 'editMetaTag/client/components/editMetaTag.client.components'
 import IndexableFolderItem from './indexableFolderItem.client.components'
 
 // import SearchFolderBar from './SearchFolderBar.client.components'
