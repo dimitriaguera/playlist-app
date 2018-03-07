@@ -1,0 +1,17 @@
+.form-row {
+  border-bottom: solid 1px $color-primary;
+  padding-bottom: 1rem;
+}
+
+.meta-action {
+  display: flex;
+}
+
+.meta-input {
+  flex-grow: 2;
+}
+
+.meta-select {
+  max-width: 110px;
+  min-width: 110px;
+}

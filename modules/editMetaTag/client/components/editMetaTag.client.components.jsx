@@ -2,7 +2,8 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {put, get} from 'core/client/services/core.api.services'
 import {Form, Message, Input, Dropdown, Label} from 'semantic-ui-react'
-import Modal from 'react-modal';
+import Select from 'react-select'
+import Modal from 'react-modal'
 import ps from 'core/client/services/core.path.services'
 
 import socketServices from 'core/client/services/core.socket.services'
@@ -23,11 +24,11 @@ class EditMetaTag extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeDropDown = this.handleChangeDropDown.bind(this);
 
-    this.dropDownOpt = [
-      {key: 'donothing', text: 'donothing', value: 'donothing'},
-      {key: 'override', text: 'override', value: 'override'},
-      {key: 'remove', text: 'remove', value: 'remove'},
-      {key: 'add', text: 'add', value: 'add'}
+    this.selectOpt = [
+      {key: 'donothing', label: 'donothing', value: 'donothing'},
+      {key: 'override', label: 'override', value: 'override'},
+      {key: 'remove', label: 'remove', value: 'remove'},
+      {key: 'add', label: 'add', value: 'add'}
     ];
 
 
@@ -35,7 +36,7 @@ class EditMetaTag extends Component {
       error: false,
       loading: false,
       message: null,
-      meta: this.initMeta(props.item.meta),
+      meta: initMeta(props.item.meta),
       metaAction: { // donothing, override, remove, add
         title: 'donothing',
         artist: 'donothing',
@@ -77,98 +78,14 @@ class EditMetaTag extends Component {
     };
   }
 
-  componentWillMount() {
-    // React Modal
-    Modal.setAppElement("#root");
-  }
 
-  initMeta(meta) {
-    if (meta) {
-      return {
-        title: meta.title || '',
-        artist: meta.artist || '',
-        album: meta.album || '',
-        albumartist: meta.albumartist || '',
-        year: meta.year || '',
-        genre: (meta.genre) ? meta.genre.join(', ') : '',
-        composer: meta.composer || '',
-        trackno: meta.trackno || '',
-        trackof: meta.trackof || '',
-        diskno: meta.diskno || '',
-        diskof: meta.diskof || ''
-      }
-    }
-
-    return {
-      title: '',
-      artist: '',
-      album: '',
-      albumartist: '',
-      year: '',
-      genre: '',
-      composer: '',
-      trackno: '',
-      trackof: '',
-      diskno: '',
-      diskof: ''
-    }
-  }
-
-
-  /**
-   * Giving a string return an array split by , ; /
-   * If the input is not a string return it
-   *
-   * @param str
-   * @returns {*}
-   */
-  checkStringReturnArray(str) {
-    if (typeof str === 'string' || str instanceof String) {
-      if (str.length) return str.split(/\s*[,;\/]\s*/);
-      return [];
-    }
-    return str;
-  }
-
-  /**
-   * Replace In arr empty string
-   * @param arr
-   * @param replacer
-   * @param first if true replace first occurrence if false replace all occurrence
-   */
-  changeEmptyValInArray(arr, replacer, first) {
-    if (!first) {
-      for (let i = 0, li = arr.length; i < li; i++) {
-        if (arr[i] === '') arr = replacer;
-      }
-    } else {
-      let index = arr.indexOf('');
-      if (index !== -1) arr[index] = replacer;
-    }
-    return arr;
-  }
-
-  /**
-   * Remove duplicate value form an array
-   * @param arr
-   * @returns {[null]}
-   */
-  uniq(arr) {
-    return [...new Set(arr)];
-  }
-
-
-  cleanMeta(meta) {
-    let cleanMeta = Object.assign({}, meta);
-
-    cleanMeta.genre = this.checkStringReturnArray(cleanMeta.genre);
-
-    return cleanMeta;
-  }
 
 
   componentWillMount() {
     const _self = this;
+
+    // React Modal
+    Modal.setAppElement("#root");
 
     // If other user modify meta on the same file print error.
     _self.socket.on('save:meta', _self.updateNodeMetaOnSocketEvent);
@@ -223,14 +140,14 @@ class EditMetaTag extends Component {
         // for instead of forEach for perf.
         for (jKeys = 0; jKeys < ljKeys; jKeys++) {
           for (iNodes = 0; iNodes < liNodes; iNodes++) {
-            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(this.checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]]));
+            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]]));
           }
-          bulkMeta[keys[jKeys]] = this.changeEmptyValInArray(this.uniq(bulkMeta[keys[jKeys]]), 'NOT MET', true);
+          bulkMeta[keys[jKeys]] = changeEmptyValInArray(uniq(bulkMeta[keys[jKeys]]), 'NOT MET', true);
         }
 
         // Fill state.meta if is unique and
         // fill state.existingMetaBulk is not
-        let newMeta = _self.initMeta();
+        let newMeta = initMeta();
         let newExistingMetaBulk = {};
         for (jKeys = 0; jKeys < ljKeys; jKeys++) {
           if (bulkMeta[keys[jKeys]].length === 1) {
@@ -295,10 +212,10 @@ class EditMetaTag extends Component {
     })
   }
 
-  handleChangeDropDown(e, {name, value}) {
+  handleChangeDropDown(selected, name) {
     let oldMetaAction = Object.assign({}, this.state.metaAction);
 
-    oldMetaAction[name] = value;
+    oldMetaAction[name] = selected.value;
 
     this.setState({
       metaAction: oldMetaAction
@@ -306,7 +223,7 @@ class EditMetaTag extends Component {
   }
 
 
-  submitForm(e) {
+  submitForm() {
     const _self = this;
 
     _self.setState({loading: true});
@@ -326,7 +243,7 @@ class EditMetaTag extends Component {
     // }
 
     let newNode = Object.assign({}, _self.props.item);
-    newNode.meta = _self.cleanMeta(_self.state.meta);
+    newNode.meta = cleanMeta(_self.state.meta);
 
     newNode.metaAction = _self.state.metaAction;
 
@@ -343,12 +260,51 @@ class EditMetaTag extends Component {
       });
   }
 
+
+  buildFieldForm(name, label, placeholder, inputType){
+
+    inputType = (inputType) ? inputType : 'text';
+
+    return(
+
+      <div className='form-row'>
+
+        <label className='meta-label h3-like' htmlFor={name}>{label}</label>
+
+        <div className='meta-action'>
+          <input
+            id={name}
+            type={inputType}
+            className='meta-input'
+            placeholder={placeholder}
+            name={name}
+            value={this.state.meta[name]}
+            onChange={this.handleChange}
+            disabled={this.state.inputDisable[name]}
+          >
+          </input>
+
+          <Select
+            name={name}
+            className='meta-select'
+            clearable={false}
+            onChange={(selectedOpt) => this.handleChangeDropDown(selectedOpt, name)}
+            value={this.state.metaAction[name]}
+            options={this.selectOpt}/>
+        </div>
+
+        <span className='meta-exists'>{this.state.existingMetaBulk[name]}</span>
+
+      </div>
+    );
+
+  }
+
   render() {
     return (
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.handleClose}
-        onSubmit={(e) => this.submitForm(e)}
         className="modal"
         overlayClassName="modal-overlay"
       >
@@ -371,210 +327,25 @@ class EditMetaTag extends Component {
               )
             }
 
-            <Form.Field inline>
+            {this.buildFieldForm('title', 'Title', 'Title')}
+            {this.buildFieldForm('artist', 'Artist', 'Artist')}
+            {this.buildFieldForm('album', 'Album', 'Album')}
+            {this.buildFieldForm('albumartist', 'Album Artist', 'Album Artist')}
+            {this.buildFieldForm('year', 'Year', 'Year', 'number')}
+            {this.buildFieldForm('genre', 'Genre', 'Genre')}
+            {this.buildFieldForm('composer', 'Composer', 'Composer')}
+            {this.buildFieldForm('trackno', 'Track n°', 'Track n°', 'number')}
+            {this.buildFieldForm('trackof', 'Track of', 'Track of', 'number')}
+            {this.buildFieldForm('diskno', 'Disk n°', 'Disk n°', 'number')}
+            {this.buildFieldForm('diskof', 'Disk of', 'Disk of', 'number')}
 
-              <Input
-                labelPosition='left'
-                placeholder='Title'
-                name='title'
-                value={this.state.meta.title}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.title}>
-                <Label>Title</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='titleDropDown' defaultValue='donothing' options={this.dropDownOpt}/>
-                </Label>
-              </Input>
-
-              <div>{this.state.existingMetaBulk.title}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                placeholder='Artist'
-                name='artist'
-                value={this.state.meta.artist}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.artist}>
-                <Label>Artist</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='artist' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.artist}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                placeholder='Album'
-                name='album'
-                value={this.state.meta.album}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.album}>
-                <Label>Album</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='album' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.album}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                placeholder='Album Artist'
-                name='albumartist'
-                value={this.state.meta.albumartist}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.albumartist}>
-                <Label>Album Artist</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='albumartist' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.albumartist}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                type='number'
-                placeholder='Year'
-                name='year'
-                value={this.state.meta.year}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.year}>
-                <Label>Year</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='year' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.year}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                placeholder='Genre'
-                name='genre'
-                value={this.state.meta.genre}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.genre}>
-                <Label>Genre</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='genre' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.genre}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                placeholder='Composer' name='composer'
-                value={this.state.meta.composer}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.composer}>
-                <Label>Composer</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='composer' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.composer}</div>
-            </Form.Field>
-
-            <Form.Field inline>
-              <Input
-                labelPosition='left'
-                type='number'
-                name='trackno'
-                value={this.state.meta.trackno}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.trackno}>
-                <Label>Track n°</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='trackno' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.trackno}</div>
-
-
-              <Input
-                labelPosition='left'
-                type='number'
-                name='trackof'
-                value={this.state.meta.trackof}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.trackof}>
-                <Label>Track of</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='trackof' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.trackof}</div>
-
-            </Form.Field>
-
-            <Form.Field inline>
-
-              <Input
-                labelPosition='left'
-                type='number'
-                name='diskno'
-                value={this.state.meta.diskno}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.diskno}>
-                <Label>Disc n°</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='diskno' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-              </Input>
-              <div>{this.state.existingMetaBulk.diskno}</div>
-
-              <Input
-                labelPosition='left'
-                type='number'
-                name='diskof'
-                value={this.state.meta.diskof}
-                onChange={this.handleChange}
-                disabled={this.state.inputDisable.diskof}>
-                <Label>Disc of</Label>
-                <input/>
-                <Label>
-                  <Dropdown name='diskof' defaultValue='donothing' options={this.dropDownOpt}
-                            onChange={(e, {name, value}) => this.handleChangeDropDown(e, {name, value})}/>
-                </Label>
-                <div>{this.state.existingMetaBulk.diskof}</div>
-              </Input>
-            </Form.Field>
           </Form>
         </div>
         <div className="modal-actions">
           <button onClick={this.handleClose} className="btn btn-no btn-inverted modal-btn">
             <i aria-hidden="true" className="icon icon-x modal-btn-icon"/>No
           </button>
-          <button type='submit' className="btn btn-yes btn-inverted modal-btn">
+          <button type='submit' onClick={this.submitForm} className="btn btn-yes btn-inverted modal-btn">
             <i aria-hidden="true" className="icon icon-check modal-btn-icon"/>Yes
           </button>
         </div>
@@ -608,3 +379,89 @@ const EditMetaTagContainer = connect(
 )(EditMetaTag);
 
 export default EditMetaTagContainer
+
+
+// HELPER
+function initMeta(meta) {
+  if (meta) {
+    return {
+      title: meta.title || '',
+      artist: meta.artist || '',
+      album: meta.album || '',
+      albumartist: meta.albumartist || '',
+      year: meta.year || '',
+      genre: (meta.genre) ? meta.genre.join(', ') : '',
+      composer: meta.composer || '',
+      trackno: meta.trackno || '',
+      trackof: meta.trackof || '',
+      diskno: meta.diskno || '',
+      diskof: meta.diskof || ''
+    }
+  }
+
+  return {
+    title: '',
+    artist: '',
+    album: '',
+    albumartist: '',
+    year: '',
+    genre: '',
+    composer: '',
+    trackno: '',
+    trackof: '',
+    diskno: '',
+    diskof: ''
+  }
+}
+
+
+/**
+ * Giving a string return an array split by , ; /
+ * If the input is not a string return it
+ *
+ * @param str
+ * @returns {*}
+ */
+function checkStringReturnArray(str) {
+  if (typeof str === 'string' || str instanceof String) {
+    if (str.length) return str.split(/\s*[,;\/]\s*/);
+    return [];
+  }
+  return str;
+}
+
+/**
+ * Replace In arr empty string
+ * @param arr
+ * @param replacer
+ * @param first if true replace first occurrence if false replace all occurrence
+ */
+function changeEmptyValInArray(arr, replacer, first) {
+  if (!first) {
+    for (let i = 0, li = arr.length; i < li; i++) {
+      if (arr[i] === '') arr = replacer;
+    }
+  } else {
+    let index = arr.indexOf('');
+    if (index !== -1) arr[index] = replacer;
+  }
+  return arr;
+}
+
+/**
+ * Remove duplicate value form an array
+ * @param arr
+ * @returns {[null]}
+ */
+function uniq(arr) {
+  return [...new Set(arr)];
+}
+
+
+function cleanMeta(meta) {
+  let cleanMeta = Object.assign({}, meta);
+
+  cleanMeta.genre = checkStringReturnArray(cleanMeta.genre);
+
+  return cleanMeta;
+}
