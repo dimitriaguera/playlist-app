@@ -32,24 +32,24 @@ class MainMenu extends Component {
 
     return (
       <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
-        <nav>
-          <ul className='unstyled global-nav main-nav-ul' onClick={this.clickMenu}>
-            {buildMenuItems(menuItems.main, user, {li: 'global-nav-li main-nav-li', cpt: 'global-nav-cpt main-nav-cpt' })}
-          </ul>
-        </nav>
+        <div className='aside-menu-wrapper'>
+          <nav>
+            <ul className='unstyled global-nav-ul main-nav-ul' onClick={this.clickMenu}>
+              {buildMenuItems(menuItems.main, user, {li: 'global-nav-li main-nav-li', cpt: 'global-nav-cpt main-nav-cpt' })}
+            </ul>
+          </nav>
 
-        {user &&
-          <span className='global-nav-logged-user'>{user.username}</span>
-        }
+          <div className='user-menu-wrapper'>
+            {user && <span className='global-nav-logged-user'>{user.username}</span>}
+            <nav>
+              <ul className='unstyled global-nav-ul user-nav-ul' onClick={this.clickMenu}>
+                {buildMenuItems(menuItems.user, user, {li: 'global-nav-li user-nav-li', cpt: 'global-nav-cpt user-nav-cpt' })}
+              </ul>
+            </nav>
+          </div>
 
-        <nav>
-          <ul className='unstyled global-nav main-nav user-nav-ul' onClick={this.clickMenu}>
-            {buildMenuItems(menuItems.user, user, {li: 'global-nav-li user-nav-li', cpt: 'global-nav-cpt user-nav-cpt' })}
-          </ul>
-        </nav>
-
-        {user && <SelectPlaylist/>}
-
+          {user && <SelectPlaylist/>}
+        </div>
       </aside>
     )
   }

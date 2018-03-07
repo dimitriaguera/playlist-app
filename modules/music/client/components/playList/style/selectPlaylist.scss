@@ -1,0 +1,32 @@
+.select-playlist {
+  width: 100%;
+
+  .select-playlist-label {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 1rem;
+    text-align: center;
+    background-color: $gray-800;
+    color: $white;
+
+    .select-playlist-label-name {
+      display: block;
+      text-transform: uppercase;
+    }
+  }
+
+  .Select-control {
+    border-radius: 0;
+    background-color: $gray-800;
+  }
+
+  .Select-placeholder,
+  .Select--single > .Select-control .Select-value {
+    border-radius: 0;
+  }
+
+  .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label {
+    color: $white;
+  }
+}
