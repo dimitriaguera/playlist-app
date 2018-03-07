@@ -150,10 +150,8 @@ const AllTracksSplitFetchWrapped = splitFetchHOC(
 const mapStateToProps = state => {
   return {
     user: state.authenticationStore._user,
-    onPlay: state.playlistStore.onPlay,
-    onPlayIndex: state.playlistStore.playingList.onPlayIndex,
-    mode: state.playlistStore.mode,
     activePlaylist: state.playlistStore.activePlaylist,
+    onPlay: state.playlistStore.onPlay,
     pause: state.playlistStore.pause
   }
 };
