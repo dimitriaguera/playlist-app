@@ -13,6 +13,10 @@ $color-txt-playlist: $white;
     background-color: $color-bg-playlist;
     color: $color-txt-playlist;
 
+    &:hover {
+      background-color: $color-primary;
+    }
+
     .select-playlist-label-name {
       display: block;
       text-transform: uppercase;

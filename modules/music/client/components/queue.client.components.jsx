@@ -151,7 +151,7 @@ class Queue extends Component {
     const isActivePlaylist = mustUpdate(pl, playlist);
 
     return (
-      <section>
+      <section className='pal'>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Queue</Label>
         <h1>{user.username}</h1>
 

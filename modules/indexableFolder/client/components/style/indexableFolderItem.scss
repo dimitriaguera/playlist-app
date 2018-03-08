@@ -4,21 +4,26 @@ $color-border-fol-item: $border-row;
 $color-link-fol-item: $link-color;
 $color-link-fol-item-hover: $link-color-hover;
 
-$color-icon-fol-item: $color-primary;
+$color-icon-fol-item: $gray-100;
 $color-icon-fol-item-hover: $color-primary-hover;
 
 .fol-item {
-  background: $color-bg-fol-item;
-  border-bottom: #{$color-border-fol-item};
+  //background: $color-bg-fol-item;
+  border-bottom: 1px solid $gray-ghost;
   display: grid;
   grid-template-areas: "icon title" "menu menu";
   grid-template-columns: auto 1fr;
   grid-template-rows: minmax(50px, 1fr);
   align-items: center;
   grid-column-gap: 1rem;
+  padding: 1rem 0;
+  max-width: 1000px;
+  transition: transform 0.7s ease;
 
   &:hover {
-    background: $color-bg-fol-item-hover;
+    //background: $color-bg-fol-item-hover;
+    border-bottom: #{$color-border-fol-item};
+    transform: scale3d(1.05, 1.05, 1);
 
     .fol-item-ico-wrap {
 
@@ -74,6 +79,7 @@ $color-icon-fol-item-hover: $color-primary-hover;
 .fol-item-title {
   grid-area: title;
   color: $color-link-fol-item;
+  padding-left: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -86,7 +92,7 @@ $color-icon-fol-item-hover: $color-primary-hover;
 
   & > .btn {
     background: none;
-    color: $color-icon-fol-item;
+    //color: $color-icon-fol-item;
   }
 }
 

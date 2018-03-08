@@ -142,7 +142,7 @@ class Playlist extends Component {
     let label_mode = 'Playlist';
 
     return (
-      <section>
+      <section className='pal'>
         <Label color='teal' style={{textTransform: 'uppercase'}}>{label_mode}</Label>
         <h1>{playlist.title}</h1>
 

@@ -122,7 +122,7 @@ class AllPlaylist extends Component {
     });
 
     return (
-      <section>
+      <section className='pal'>
         <h1>Playlists</h1>
         <Divider />
 
