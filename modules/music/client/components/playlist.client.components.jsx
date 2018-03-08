@@ -5,9 +5,9 @@ import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks/tracks.client.components'
-import { Divider, Label, Button } from 'semantic-ui-react'
 
 import DraggableList from 'draggable/client/components/draggableList'
+import {activatePlaylist} from 'music/client/redux/actions';
 
 class Playlist extends Component {
   constructor (props) {
@@ -18,6 +18,7 @@ class Playlist extends Component {
     this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerDeletePlaylist = this.handlerDeletePlaylist.bind(this);
+    this.handlerAddTracks = this.handlerAddTracks.bind(this);
 
     this.socket = socketServices.getPublicSocket();
     this.state = {
@@ -132,6 +133,12 @@ class Playlist extends Component {
       });
   }
 
+  handlerAddTracks() {
+    this.props.activatePlaylist(this.state.playlist);
+    this.props.history.push('/music');
+  }
+
+
   render () {
     const { playlist } = this.state;
     const { playingList, isPaused, user, history } = this.props;
@@ -143,23 +150,26 @@ class Playlist extends Component {
 
     return (
       <section className='pal'>
-        <Label color='teal' style={{textTransform: 'uppercase'}}>{label_mode}</Label>
+
+        <span className='pl-mode'>{label_mode}</span>
         <h1>{playlist.title}</h1>
 
+        <span className='pl-tracks-nb'>Number of tracks : {playlist.tracks.length}</span>
+
         {isAuthor &&
-        <div>
-          {/* Add tracks button. */}
-          <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
-                        Add tracks
-          </Button>
+          <div className='pl-action-cont'>
+            <button className='btn' onClick={this.handlerAddTracks}>
+              Add tracks
+            </button>
+            <button className='btn' onClick={this.handlerClearPlaylist}>
+              Remove all tracks
+            </button>
+            <button className='btn' onClick={this.handlerDeletePlaylist}>
+              Delete Playlist
+            </button>
+          </div>
+        }
 
-          {/* Clear all tracks button. */}
-          <Button onClick={this.handlerClearPlaylist} icon basic inverted>
-                        Clear all
-          </Button>
-        </div>}
-
-        <Divider />
 
         <DraggableList
           items={playlist.tracks}
@@ -172,6 +182,7 @@ class Playlist extends Component {
           callbackMouseUp={this.handlerMoveItem}
           onDelete={this.handlerDeleteTrack}
           onPlay={this.handlerReadFile}
+          scrollContainerName='main-content'
         />
       </section>
     );
@@ -203,6 +214,9 @@ const mapDispatchToProps = dispatch => {
     ),
     deletePlaylist: (title) => dispatch(
       del(`playlist/${title}`)
+    ),
+    activatePlaylist: (item) => dispatch(
+      activatePlaylist(item)
     )
   }
 };

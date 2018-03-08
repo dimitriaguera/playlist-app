@@ -31,17 +31,22 @@
 # Package.json
 
 * add/remove react-notification-system
-* nouislider is it used ? => I have remove it
+
+# DraggableList
+* Why is connect to store with null, null ?
 
 # Webpack
 
 * Check why webpack doesn't put all style in modules/core/client/components/style in the css file
   instead it put it in the bundle.js
   
-  
 # UX
+
+# Search Bar 
+* suggestion pass under album track
+
 
 ## Albums
 
-* + doesn't work
-* click on the whole track line not only on the small btn 
+* Click On track line must be Pause
+

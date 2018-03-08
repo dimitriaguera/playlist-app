@@ -5,12 +5,15 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from 'music/client/components/playList/menuPlay.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Card, Segment, Grid } from 'semantic-ui-react'
+import {activatePlaylist} from 'music/client/redux/actions';
 
 class AllPlaylist extends Component {
   constructor (props) {
     super(props);
     this.socket = socketServices.getPublicSocket();
+
+    this.handlerAddTracks = this.handlerAddTracks.bind(this);
+
     this.state = {
       allPlaylist: []
     }
@@ -59,6 +62,11 @@ class AllPlaylist extends Component {
     }
   }
 
+  handlerAddTracks(e, item){
+    e.preventDefault();
+    this.props.activatePlaylist(item);
+    this.props.history.push('/music');
+  }
 
   // On unmount component, disconnect Socket.io.
   componentWillUnmount () {
@@ -98,43 +106,29 @@ class AllPlaylist extends Component {
       }
 
       return (
-        <Grid.Column key={i}>
-          <Card>
-            {/* <Image src='/static/images/test.jpg' /> */}
-            <Card.Content>
-              <Card.Header as={Link} to={path}>
-                {title}
-              </Card.Header>
-              <Card.Meta>{author}</Card.Meta>
-              {isAuthor && <Link as='a' to={`/music?pl=${item.title}`}>+ add tracks</Link>}
-            </Card.Content>
-            <Card.Content extra>
-              <MenuPlay playlist={item} />
-            </Card.Content>
-            <Card.Content>
-              <Card.Meta>
-                <i aria-hidden="true" className="icon icon-music" /> {item.length} tracks
-              </Card.Meta>
-            </Card.Content>
-          </Card>
-        </Grid.Column>
+          <li className='allpl-li' key={i}>
+            <Link className='allpl-a' to={path} title={`Go to Playlist ${title}`}>
+              <span className='allpl-title'>{title}</span>
+              <span className='allpl-tracks'><i aria-hidden="true" className="icon icon-music" />{item.length} tracks</span>
+              <span className='allpl-author'>{author}</span>
+              {isAuthor &&
+                <button title='Add tracks' onClick={(e) => this.handlerAddTracks(e, item)} className='btn'>Add tracks</button>
+              }
+                {/*<MenuPlay playlist={item} />*/}
+            </Link>
+          </li>
       );
     });
 
     return (
-      <section className='pal'>
-        <h1>Playlists</h1>
-        <Divider />
-
-        <Segment basic>
+      <section className='allpl pal'>
+        <header>
+          <h1>Playlists</h1>
           <AddPlaylist history={history} />
-        </Segment>
-
-        <Segment basic>
-          <Grid columns='3' doubling stackable>
-            {playLists}
-          </Grid>
-        </Segment>
+        </header>
+        <ul className='unstyled allpl-ul'>
+          {playLists}
+        </ul>
       </section>
     );
   }
@@ -153,6 +147,9 @@ const mapDispatchToProps = dispatch => {
     ),
     getAllPlaylist: () => dispatch(
       get(`playlist`)
+    ),
+    activatePlaylist: (item) => dispatch(
+      activatePlaylist(item)
     )
   }
 };
@@ -177,18 +174,18 @@ function updateAllPlaylist (arr, item) {
   return array;
 }
 
-function updateDefaultPlaylist (arr, item) {
-  const array = arr.slice(0);
-
-  for (let i = 0; i < array.length; i++) {
-    if (array[i].defaultPlaylist) {
-      array[i] = item;
-      return array;
-    }
-  }
-  array.unshift(item);
-  return array;
-}
+// function updateDefaultPlaylist(arr, item) {
+//   const array = arr.slice(0);
+//
+//   for (let i = 0; i < array.length; i++) {
+//     if (array[i].defaultPlaylist) {
+//       array[i] = item;
+//       return array;
+//     }
+//   }
+//   array.unshift(item);
+//   return array;
+// }
 
 function deleteDefaultPlaylist (arr) {
   const array = arr.slice(0);

@@ -19,6 +19,7 @@ function splitFetchHOC (params, fetchActions) {
 
         // Where the lazy client have to listen scroll event
         // Must be an DomElmt with id
+        // @todo put this in props
         this.scrollContainerName = 'main-content';
 
         // Bind functions passed in HOC factory function.
@@ -102,7 +103,6 @@ function splitFetchHOC (params, fetchActions) {
         } else {
           scrollY = this.scrollContainer.scrollTop;
         }
-
 
         // If window scrolled down, get next chunk result.
         if ((scrollY + screenY) >= height - offset) {

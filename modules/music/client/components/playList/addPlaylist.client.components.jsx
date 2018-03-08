@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { post } from 'core/client/services/core.api.services'
-import { Form, Message } from 'semantic-ui-react'
+import { Message } from 'semantic-ui-react'
 
 class AddPlaylist extends Component {
   constructor (props) {
@@ -26,6 +26,8 @@ class AddPlaylist extends Component {
   }
 
   submitForm (e) {
+    e.preventDefault();
+
     const _self = this;
     const { user, createPlaylist, history, tracksId, redirect, onSave } = this.props;
     const { title } = this.state;
@@ -70,20 +72,20 @@ class AddPlaylist extends Component {
 
   render () {
     const { error, message, title } = this.state;
-    const { placeholder = 'Playlist Title...', validation = 'Create' } = this.props;
 
     return (
-      <Form error={error} onSubmit={this.submitForm}>
-        <Message error content={message} />
-        <Form.Input
-          action={{ color: 'teal', labelPosition: 'left', icon: 'list layout', content: validation }}
-          actionPosition='left'
-          placeholder={placeholder}
+      <form className='allpl-form' onSubmit={this.submitForm}>
+        <input className='allpl-create' type="submit" value="Create" className='btn'/>
+        <input
+          placeholder='Playlist Title...'
           name='title'
           value={title}
           onChange={this.handleInputChange}
+          aria-describedby="Playlist name to create"
+          className='allpl-title'
         />
-      </Form>
+        <Message className='allpl-message' error content={message} />
+      </form>
     );
   }
 }

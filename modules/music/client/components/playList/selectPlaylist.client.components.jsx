@@ -36,8 +36,12 @@ class SelectPlaylist extends Component {
   }
 
   handleChange (data) {
-    const pl = getValue(data.value, this.state.allPlaylist);
-    this.props.activatePlaylist(pl);
+    this.props.getOnePlaylist(data.value)
+      .then(rps => {
+        if (rps.success) {
+          this.props.activatePlaylist(rps.msg);
+        }
+      });
   }
 
   render () {
@@ -106,6 +110,9 @@ const mapDispatchToProps = dispatch => {
     ),
     getAllPlaylistName: () => dispatch(
       get('ownedPlaylist')
+    ),
+    getOnePlaylist: (plTitle) => dispatch(
+      get('playlist/' + plTitle)
     )
   }
 };
