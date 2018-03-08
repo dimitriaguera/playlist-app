@@ -18,7 +18,7 @@ class DraggableList extends Component {
 
     this.state = {
       items: props.items,
-      range_array: getDisplayedItems(props.items, (props.height || 70)),
+      range_array: getDisplayedItems(null, props.items, (props.height || 70)),
       h: props.height || 70,
       delta: 0,
       mouseY: 0,
@@ -27,23 +27,35 @@ class DraggableList extends Component {
       originalIdOfLastPressed: null,
       currentRow: 0,
       containerHeight: `${props.items.length * (props.height || 70)}px`
-    }
+    };
+
+    this.scrollContainerName = this.props.scrollContainerName || 'window';
   }
 
+
+
   componentDidMount () {
-    window.addEventListener('scroll', this.handleOnScroll);
-    window.addEventListener('touchmove', this.handleTouchMove);
-    window.addEventListener('touchend', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove);
-    window.addEventListener('mouseup', this.handleMouseUp);
+
+    // Event handlers.
+    if (this.scrollContainerName === 'window'){
+      this.scrollContainer = window;
+    } else {
+      this.scrollContainer = document.getElementById(this.scrollContainerName);
+    }
+
+    this.scrollContainer.addEventListener('scroll', this.handleOnScroll);
+    this.scrollContainer.addEventListener('touchmove', this.handleTouchMove);
+    this.scrollContainer.addEventListener('touchend', this.handleMouseUp);
+    this.scrollContainer.addEventListener('mousemove', this.handleMouseMove);
+    this.scrollContainer.addEventListener('mouseup', this.handleMouseUp);
   };
 
   componentWillUnmount () {
-    window.removeEventListener('scroll', this.handleOnScroll, false);
-    window.removeEventListener('touchmove', this.handleTouchMove, false);
-    window.removeEventListener('touchend', this.handleMouseUp, false);
-    window.removeEventListener('mousemove', this.handleMouseMove, false);
-    window.removeEventListener('mouseup', this.handleMouseUp, false);
+    this.scrollContainer.removeEventListener('scroll', this.handleOnScroll, false);
+    this.scrollContainer.removeEventListener('touchmove', this.handleTouchMove, false);
+    this.scrollContainer.removeEventListener('touchend', this.handleMouseUp, false);
+    this.scrollContainer.removeEventListener('mousemove', this.handleMouseMove, false);
+    this.scrollContainer.removeEventListener('mouseup', this.handleMouseUp, false);
   }
 
   componentWillReceiveProps (nextProps) {
@@ -52,7 +64,7 @@ class DraggableList extends Component {
     if (items !== this.props.items) {
       this.setState({
         items: items,
-        range_array: getDisplayedItems(items, this.state.h),
+        range_array: getDisplayedItems(this.scrollContainer, items, this.state.h),
         containerHeight: `${items.length * this.state.h}px`
       });
     }
@@ -61,7 +73,7 @@ class DraggableList extends Component {
   handleOnScroll () {
     const { h, items } = this.state;
     this.setState({
-      range_array: getDisplayedItems(items, h)
+      range_array: getDisplayedItems(this.scrollContainer, items, h)
     });
   }
 
@@ -230,8 +242,15 @@ function clamp (n, min, max) {
   return Math.max(Math.min(n, max), min);
 }
 
-function getDisplayedItems (arr, h) {
-  const y = window.scrollY;
+function getDisplayedItems (scrollContainer, arr, h) {
+
+  let y;
+  if (scrollContainer && typeof scrollContainer.scrollTop === 'number') {
+    y = scrollContainer.scrollTop;
+  } else {
+    y = window.scrollY;
+  }
+
   const w = window.innerHeight;
 
   const indexStart = clamp(Math.round((y - 200) / h), 0, arr.length);

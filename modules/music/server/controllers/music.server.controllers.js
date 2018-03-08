@@ -257,7 +257,7 @@ exports.addTracks = function (req, res, next) {
   const user = req.user;
 
   // If authenticated user is not the author, bye.
-  if (pl.author.username !== user.username) {
+  if (pl.populated('author').toJSON() !== user._id.toJSON()) {
     res.status(401);
     return res.json({
       success: false,
@@ -291,7 +291,7 @@ exports.update = function (req, res, next) {
   const user = req.user;
 
   // If authenticated user is not the author, bye.
-  if (pl.author.username !== user.username) {
+  if (pl.populated('author').toJSON() !== user._id.toJSON()) {
     res.status(401);
     return res.json({
       success: false,
@@ -332,7 +332,7 @@ exports.delete = function (req, res, next) {
   }
 
   // If authenticated user is not the author, bye.
-  if (pl.author._id !== user._id) {
+  if (pl.populated('author').toJSON() !== user._id.toJSON()) {
     res.status(401);
     return res.json({
       success: false,
@@ -386,6 +386,5 @@ function getDefaultPlaylist (user, done) {
 
       done(null, pls);
     });
-};
-
+}
 exports.getDefaultPlaylist = getDefaultPlaylist;
