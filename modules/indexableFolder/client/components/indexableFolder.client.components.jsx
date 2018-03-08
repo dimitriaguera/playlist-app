@@ -401,12 +401,13 @@ class IndexableFolder extends Component {
     }
 
     return (
-        <section>
+        <section className='pal'>
           <header>
             <h1>Music Folders</h1>
             <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
           </header>
 
+          <div className='content-wrapper center w-max-l'>
           {(!error) &&
           <ul className='unstyled'>
             {nodes.map((item, i) => {
@@ -427,6 +428,7 @@ class IndexableFolder extends Component {
             })}
           </ul>
           }
+          </div>
 
           {this.state.showEditMetaTagModal &&
           <EditMetaTag

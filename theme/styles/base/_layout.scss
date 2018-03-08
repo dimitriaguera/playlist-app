@@ -1,11 +1,11 @@
 $side-larger: 20rem;
 $main-padding: 2rem;
 
-$color-bg-side-bar: #131313;
+$color-bg-side-bar: #0a0c0e;
 $color-font-side-bar: $white;
 $color-font-side-bar-nav-selected: $color-primary;
 
-$color-bg-side-bar-phone: #131313;
+$color-bg-side-bar-phone: #0a0c0e;
 $color-font-side-bar-phone: $white;
 $color-font-side-bar-nav-selected-phone: $color-primary;
 
@@ -24,7 +24,7 @@ body,
 }
 
 body {
-  background: url('../assets/images/ginkgo_gris.png') no-repeat center fixed;
+  //background: url('../assets/images/ginkgo_gris.png') no-repeat center fixed;
   background-size: contain;
   background-color: $color-bg-body;
   color: $color-base;
@@ -34,7 +34,17 @@ body {
   }
 }
 
+h1 {
+  color: $color-h1;
+}
+
 //////////////////////////// LAYOUT
+.w-max-l {
+  max-width: $width-max-l;
+}
+
+
+//////////// GRID
 
 #app-container {
   display: flex;
@@ -77,10 +87,9 @@ body {
   overflow: auto;
   height: 100%;
   transition: padding 1s;
-  padding: $main-padding;
 
   @include respond-to("medium-up") {
     transition: none;
-    padding-left: #{$side-larger + $main-padding};
+    padding-left: #{$side-larger};
   }
 }

@@ -64,7 +64,7 @@ class AllTracks extends Component {
 
 
     return (
-      <section>
+      <section className='pal'>
         <h1>Tracks</h1><span>{total} tracks on result</span>
         <SearchMusicBar indexName='tracks'
                         field={'meta.title'}

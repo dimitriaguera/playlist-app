@@ -127,6 +127,7 @@ $gray-700 : #454d5d !default;
 $gray-800 : #333 !default;
 $gray-900 : #171b1e !default;
 $black    : #000 !default;
+$gray-ghost: #2c2c2c;
 
 $blue-300   : #5BC0DE !default;
 $blue-500   : #0275D8 !default;
@@ -155,17 +156,26 @@ $forms-color     : $gray-800;
 $color-bg-panels: rgba(0, 0, 0, 0.4);
 
 // ---------------
+// Layout zone
+// ---------------
+$width-max-l: 100rem;
+
+
+// ---------------
 // Components zone
 // ---------------
 
 // Component: links
-$link-color            : $gray-800;
-$link-color-hover      : darken($link-color, 50%);
+$link-color            : $gray-100;
+$link-color-hover      : lighten($link-color, 50%);
 $link-decoration       : none;
 $link-decoration-hover : none;
 
 $color-link: $link-color;
 $color-link-hover: $link-color-hover;
+
+// Titles color
+$color-h1: $white;
 
 // Global border-radius
 $border-radius: 0 !default;

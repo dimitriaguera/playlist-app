@@ -191,7 +191,7 @@ class FolderList extends Component {
     if (!pl) return null;
 
     return (
-      <section className="folder-list">
+      <section className="folder-list pal">
         <header>
           <h1>Folder's Tracks</h1>
           <h2>{pl.title}</h2>

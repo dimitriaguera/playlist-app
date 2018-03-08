@@ -104,7 +104,7 @@ class Albums extends Component {
     console.log('RENDER ALL ALBUMS');
 
     return (
-      <section>
+      <section className='pal'>
         <h1>Albums</h1>
         <span>{this.props.total} albums on result</span>
         <SearchMusicBar indexName='album'

@@ -180,7 +180,7 @@ class Album extends Component {
     const { onPlayIndex, pl } = albumOfUrl;
 
     return (
-      <section>{ pl &&
+      <section className='pal'>{ pl &&
 
       <div>
         <Label color='teal' style={{textTransform: 'uppercase'}}>Album</Label>
