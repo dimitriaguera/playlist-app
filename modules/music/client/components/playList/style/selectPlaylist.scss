@@ -1,3 +1,6 @@
+$color-bg-playlist: $gray-800;
+$color-txt-playlist: $white;
+
 .select-playlist {
   width: 100%;
 
@@ -7,8 +10,8 @@
     margin: 0;
     padding: 1rem;
     text-align: center;
-    background-color: $gray-800;
-    color: $white;
+    background-color: $color-bg-playlist;
+    color: $color-txt-playlist;
 
     .select-playlist-label-name {
       display: block;
@@ -18,7 +21,7 @@
 
   .Select-control {
     border-radius: 0;
-    background-color: $gray-800;
+    background-color: $color-bg-playlist;
   }
 
   .Select-placeholder,
@@ -26,7 +29,66 @@
     border-radius: 0;
   }
 
-  .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label {
-    color: $white;
+  ///////////////////////// Arrow
+  .Select {
+    // Not Open Not Hover
+    .Select-arrow {
+      border-color: $color-primary transparent transparent;
+    }
+
+    // Not Open Hover
+    .Select-arrow-zone:hover > .Select-arrow {
+      border-color: $color-primary-hover transparent transparent;
+    }
+
+    &.is-open .Select-arrow-zone {
+
+      // Open Not Hover
+      .Select-arrow {
+        border-color: transparent transparent $color-primary;
+      }
+
+      // Open Hover
+      &:hover > .Select-arrow {
+        border-color: transparent transparent $color-primary-hover;
+      }
+    }
+  }
+  //////////////////////////
+
+
+
+  // list OPEN (select zone on the top)
+  .Select.is-focused > .Select-control {
+    background: $color-bg-playlist;
+  }
+
+  // Color after you have click on en element in list
+  // and the list is close
+  .Select {
+    &.is-focused:not(.is-open) > .Select-control {
+      border-color: #007eff;
+      background: $color-bg-playlist;
+    }
+
+    &.has-value.Select--single > .Select-control .Select-value .Select-value-label {
+      color: $color-txt-playlist;
+    }
+  }
+
+  // Color where you choose element in the list
+  .Select-option {
+    background: $color-bg-playlist;
+    color: $color-txt-playlist;
+
+    // Color of the element already selected.
+    &.is-selected {
+      background-color: darken($color-bg-playlist, 10%);
+      color: $color-txt-playlist;
+    }
+
+    &.is-focused {
+      border: solid 1px #007eff;
+    }
   }
 }

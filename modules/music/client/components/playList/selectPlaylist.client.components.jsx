@@ -78,13 +78,14 @@ class SelectPlaylist extends Component {
         </Link>
         }
 
-          <Select
-            placeholder='Select your playlist'
-            onChange={this.handleChange}
-            value={defaultValue}
-            options={playlistOptions}
-            clearable={false}
-          />
+        <Select
+          placeholder='Select your playlist'
+          aria-describedby='Choose the active playlist here'
+          onChange={this.handleChange}
+          value={defaultValue}
+          options={playlistOptions}
+          clearable={false}
+        />
 
       </section>
 
