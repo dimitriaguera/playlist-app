@@ -181,7 +181,10 @@ class DraggableList extends Component {
               }}
               key={id}>
               {({scale, shadow, y, opacity}) => {
-                if (scale > 1) classes.push('dl-dragged');
+
+                if (scale > 1 && classes.indexOf('dl-dragged') === -1) {
+                  classes.push('dl-dragged');
+                }
 
                 return (
                   <div className={classes.join(' ')}
@@ -213,6 +216,7 @@ class DraggableList extends Component {
   }
 }
 
+// @todo remove this
 const mapStateToProps = state => {
   return {
   }
