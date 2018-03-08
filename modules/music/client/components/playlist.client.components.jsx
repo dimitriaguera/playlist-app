@@ -5,9 +5,9 @@ import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks/tracks.client.components'
-
 import DraggableList from 'draggable/client/components/draggableList'
 import {activatePlaylist} from 'music/client/redux/actions';
+import {pauseState, playState} from 'music/client/redux/actions.js';
 
 class Playlist extends Component {
   constructor (props) {
@@ -66,7 +66,18 @@ class Playlist extends Component {
   handlerReadFile (key) {
     const { playlist } = this.state;
 
+    const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
+
     return (e) => {
+
+      if (playlist.tracks[key]._id === onPlay._id) {
+        if (isPaused) {
+          return onPlayFunc();
+        } else {
+          return onPauseFunc();
+        }
+      }
+
       this.props.readFile({
         pl: playlist,
         onPlayIndex: key
@@ -217,6 +228,12 @@ const mapDispatchToProps = dispatch => {
     ),
     activatePlaylist: (item) => dispatch(
       activatePlaylist(item)
+    ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
     )
   }
 };

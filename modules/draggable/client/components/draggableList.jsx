@@ -141,7 +141,7 @@ class DraggableList extends Component {
   render () {
     const { h, mouseY, isPressed, originalIdOfLastPressed, range_array, containerHeight } = this.state;
     const { component: Component, dragActive = true, color, items, ...props } = this.props;
-    const classes = ['dl', 'dl-container'];
+    const classes = ['unstyled','dl', 'dl-container'];
 
     const range = items.slice(range_array[0], range_array[1]);
 
@@ -149,7 +149,7 @@ class DraggableList extends Component {
     if (color) classes.push(color);
 
     return (
-      <div className={classes.join(' ')} style={{minHeight: containerHeight}}>
+      <ul className={classes.join(' ')} style={{minHeight: containerHeight}}>
         {range.map((item, i) => {
           let id = item._id || item.name;
           let isDragged = isPressed && originalIdOfLastPressed === id;
@@ -187,7 +187,7 @@ class DraggableList extends Component {
                 }
 
                 return (
-                  <div className={classes.join(' ')}
+                  <li className={classes.join(' ')}
                     style={{
                       opacity: `${opacity}`,
                       boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
@@ -204,14 +204,14 @@ class DraggableList extends Component {
                       <i aria-hidden="true" className='icon icon-move'/>
                     </div>
                     }
-                  </div>
+                  </li>
                 ) }
               }
             </Motion>
           )
         })
         }
-      </div>
+      </ul>
     );
   }
 }

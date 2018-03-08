@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Button } from 'semantic-ui-react'
 import InfoPath from 'music/client/components/infoPath/infoPath.client.components'
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
 class Tracks extends Component {
   shouldComponentUpdate (nextProps) {
@@ -29,23 +29,31 @@ class Tracks extends Component {
     if (active) classes.push('active');
 
     return (
-      <span className={classes.join(' ')}>
-        {active && <div className='pli-inner-left'><i aria-hidden="true" className={`pli-play icon icon-${iconName}`} /></div>}
-        <a className='pli-inner' onClick={onPlay(index)} href='#'>
+      <a className={classes.join(' ')} onClick={onPlay(index)} href='#'>
+        {active &&
+          <div className='pli-inner-left'>
+            {isPaused ?
+              <i aria-hidden="true" className={`pli-play icon icon-pause`}/>
+              :
+              <IconPlayAnim/>
+            }
+          </div>
+        }
+        <span className='pli-inner'>
           <span className='pli-number'>{index + 1}.</span>
           <span className='pli-info'>
             <span className={'pli-title'}>{title || item.name}</span>
             <InfoPath meta={item.meta} />
           </span>
-        </a>
+        </span>
         {(onDelete && canEdit) &&
         <span className='pli-menu'>
-          <Button onClick={onDelete(index)} icon basic size='mini' color='teal'>
-            <i aria-hidden="true" className="icon icon-minus" />
-          </Button>
+          <button className='btn' onClick={onDelete(index)}>
+            <i aria-hidden="true" className="icon icon-trash-2" />
+          </button>
         </span>
         }
-      </span>
+      </a>
     );
   }
 }
