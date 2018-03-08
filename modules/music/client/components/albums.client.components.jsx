@@ -42,13 +42,14 @@ class Albums extends Component {
     window.addEventListener('resize', this.onResizeHandle);
     this.props.searchSized(`album?sort=keyName&fi=name&q=`);
     //@TODO timeout on mount because this.domElmt width is not good directly on mount. Because of media query that change layout dimension and mobile first approach.
-    setTimeout(() => {
+    this.timeout = setTimeout(() => {
     this.setGrid();
     }, 500);
   }
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.onResizeHandle);
+    window.clearTimeout(this.timeout);
   }
 
   onResizeHandle () {
