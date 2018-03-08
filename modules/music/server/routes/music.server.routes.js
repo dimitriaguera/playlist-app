@@ -25,7 +25,8 @@ module.exports = function (app) {
 
   // Unique playlist
   app.route('/api/playlist/:title')
-    .get(music.playlist).all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
+    .get(music.playlist)
+    .all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
     .post(music.addTracks)
     .put(music.update)
     .delete(music.delete);
