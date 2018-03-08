@@ -23,6 +23,7 @@ class EditMetaTag extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeDropDown = this.handleChangeDropDown.bind(this);
+    this.handleChangeCheckBox = this.handleChangeCheckBox.bind(this);
 
     this.selectOpt = [
       {key: 'donothing', label: 'donothing', value: 'donothing'},
@@ -37,49 +38,15 @@ class EditMetaTag extends Component {
       loading: false,
       message: null,
       meta: initMeta(props.item.meta),
-      metaAction: { // donothing, override, remove, add
-        title: 'donothing',
-        artist: 'donothing',
-        album: 'donothing',
-        albumartist: 'donothing',
-        year: 'donothing',
-        genre: 'donothing',
-        composer: 'donothing',
-        trackno: 'donothing',
-        trackof: 'donothing',
-        diskno: 'donothing',
-        diskof: 'donothing'
+      metaAction: initMetaAction(), // donothing, override, remove, add
+      saveCheckBox: {
+        updateDBES: true,
+        updateFiles: false
       },
-      inputDisable: {
-        title: false,
-        artist: false,
-        album: false,
-        albumartist: false,
-        year: false,
-        genre: false,
-        composer: false,
-        trackno: false,
-        trackof: false,
-        diskno: false,
-        diskof: false
-      },
-      existingMetaBulk: {
-        title: '',
-        artist: '',
-        album: '',
-        albumartist: '',
-        year: '',
-        genre: '',
-        composer: '',
-        trackno: '',
-        trackof: '',
-        disk: ''
-      }
+      inputDisable: initInput(),
+      existingMetaBulk: initMeta() // meta in array
     };
   }
-
-
-
 
   componentWillMount() {
     const _self = this;
@@ -115,19 +82,7 @@ class EditMetaTag extends Component {
           );
         }
 
-        let bulkMeta = {
-          title: [],
-          artist: [],
-          album: [],
-          albumartist: [],
-          year: [],
-          genre: [],
-          composer: [],
-          trackno: [],
-          trackof: [],
-          diskno: [],
-          diskof: []
-        };
+        let bulkMeta = initBulkMeta();
 
 
         // Helper for loop on nodes
@@ -222,6 +177,17 @@ class EditMetaTag extends Component {
     })
   }
 
+  handleChangeCheckBox(e){
+
+    let oldSaveCheckBox = Object.assign({}, this.state.saveCheckBox);
+
+    oldSaveCheckBox[e.target.name] = e.target.checked;
+
+    this.setState({
+      saveCheckBox: oldSaveCheckBox
+    })
+
+  }
 
   submitForm() {
     const _self = this;
@@ -246,6 +212,8 @@ class EditMetaTag extends Component {
     newNode.meta = cleanMeta(_self.state.meta);
 
     newNode.metaAction = _self.state.metaAction;
+
+    newNode.opts = _self.state.saveCheckBox;
 
     // User authenticated on any role can create playlist.
     _self.props.updateNode(newNode)
@@ -343,6 +311,19 @@ class EditMetaTag extends Component {
             {this.buildFieldForm('diskno', 'Disk n°', 'Disk n°', 'number')}
             {this.buildFieldForm('diskof', 'Disk of', 'Disk of', 'number')}
 
+            <div className='form-row'>
+              <ul className='unstyled'>
+                <li>
+                  <input id='updateDBES' name='updateDBES' className='checkbox' type='checkbox' checked={this.state.saveCheckBox.updateDBES} onChange={this.handleChangeCheckBox}/>
+                  <label htmlFor='updateDBES'>Save meta in DataBase</label>
+                </li>
+                <li>
+                  <input name='updateFiles' className='checkbox' type='checkbox' checked={this.state.saveCheckBox.updateFiles} onChange={this.handleChangeCheckBox}/>
+                  <label htmlFor='updateFiles'>Save meta in files</label>
+                </li>
+              </ul>
+            </div>
+
           </Form>
         </div>
         <div className="modal-actions">
@@ -386,6 +367,33 @@ export default EditMetaTagContainer
 
 
 // HELPER
+function initMetaWrap(stringType, value){
+  let generate;
+  if (stringType === 'array') {
+    generate = () => [];
+  } else if (stringType === 'object') {
+    generate = () => {};
+  } else if (stringType === 'boolean') {
+    generate = () => (value) ? value : false;
+  } else {
+    generate = () => (value) ? value : '';
+  }
+  return {
+    title: generate(),
+    artist: generate(),
+    album: generate(),
+    albumartist: generate(),
+    year: generate(),
+    genre: generate(),
+    composer: generate(),
+    trackno: generate(),
+    trackof: generate(),
+    diskno: generate(),
+    diskof: generate()
+  }
+}
+
+
 function initMeta(meta) {
   if (meta) {
     return {
@@ -403,21 +411,21 @@ function initMeta(meta) {
     }
   }
 
-  return {
-    title: '',
-    artist: '',
-    album: '',
-    albumartist: '',
-    year: '',
-    genre: '',
-    composer: '',
-    trackno: '',
-    trackof: '',
-    diskno: '',
-    diskof: ''
-  }
+  return initMetaWrap('string');
 }
 
+function initBulkMeta(){
+  return initMetaWrap('array');
+}
+
+function initInput() {
+  return initMetaWrap('boolean');
+}
+
+function initMetaAction(){
+  // donothing, override, remove, add
+  return initMetaWrap('string', 'donothing');
+}
 
 /**
  * Giving a string return an array split by , ; /

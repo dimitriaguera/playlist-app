@@ -473,13 +473,18 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
   opts = Object.assign(
     {},
     {
-      updateDB: true,
-      updateES: true,
+      updateDB: false,
+      updateES: false,
       updateFiles: false
     },
     req.body.opts,
     opts
   );
+
+  if (req.body.opts.updateDBES === true) {
+    opts.updateDB = true;
+    opts.updateES = true;
+  }
 
   let msg = {error: '', msg: ''};
 

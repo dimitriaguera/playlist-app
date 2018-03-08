@@ -37,7 +37,11 @@ $color-txt-btn-no-modal-hover: rgba(0, 0, 0, 0.8);
 
 // Style of the modal itself
 .modal {
-  max-width: 90rem;
+  width: 100%;
+  @include respond-to('small-up') {
+    max-width: 90rem;
+    min-width: 50rem;
+  }
 }
 
 // Style of the modal title

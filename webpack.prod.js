@@ -62,14 +62,7 @@ module.exports = merge(common, {
       cssProcessorOptions: { discardComments: { removeAll: true } }
     }),
     new UglifyJSPlugin({
-      sourceMap: true,
-      compress: {
-        warnings: false,
-        drop_console: true
-      },
-      output: {
-        comments: false
-      }
+      sourceMap: true
     })
   ]
 });
