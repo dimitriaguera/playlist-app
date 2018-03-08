@@ -65,6 +65,7 @@ class AllTracks extends Component {
 
     return (
       <section className='pal'>
+        <header>
         <h1>Tracks</h1><span>{total} tracks on result</span>
         <SearchMusicBar indexName='tracks'
                         field={'meta.title'}
@@ -78,59 +79,66 @@ class AllTracks extends Component {
                         searchAction={search}
                         placeholder='search tracks...'
         />
+        </header>
+        <div className='content-wrapper center w-max-l'>
 
-        <ul className='unstyled'>
-          {
-            data.map((item, i) => {
+          <div className='tracks-items-row-header'>
+            <span className='tracks-item-img'></span>
+            <span className='title'>Title</span>
+            <span className='artist'>Artist</span>
+            <span className='album'>Album</span>
+            <span className='tracks-item-menu'>Add</span>
+          </div>
 
-              let stateTrack = 'rien';
-              if (onPlay.tracksId === item.tracksId) {
-                stateTrack = 'play';
-                if (pause) stateTrack = 'pause';
-              }
+          <ul className='unstyled'>
+            {
+              data.map((item, i) => {
 
-              return (
-                <li key={i}>
-                  <a className='alltracks-item-album' href='#' onClick={(e) => this.handlerPlayTracks(e, item)} title={`Play ${item.meta.title}`}>
-                    <span className='tracks-item-img'>
-                      <Img title={`${item.meta.album} Cover`}
-                           src={'/pictures/' + ps.changeSeparator(item.albumKey, '___', '/') + '/cover.jpg'}
-                           defaultSrc={defaultCover}
-                      />
-                      {stateTrack === 'play' &&
-                        <IconPlayAnim/>
-                      }
-                      {stateTrack === 'rien' &&
-                        <i aria-hidden='true' className='icon icon-l icon-play'/>
-                      }
-                      {stateTrack === 'pause' &&
-                        <i aria-hidden='true' className='icon icon-l icon-pause'/>
-                      }
-                    </span>
+                let stateTrack = 'rien';
+                if (onPlay.tracksId === item.tracksId) {
+                  stateTrack = 'play';
+                  if (pause) stateTrack = 'pause';
+                }
 
-                    <span className='tracks-item-info'>
-                      <span className='title'>{item.meta.title}</span>
-                      <span className='artist'>{item.meta.artist}</span>
-                      <span className='album'>{item.meta.artist}</span>
-                      <span className='albumartist'>{item.meta.albumartist}</span>
-                      <span className='track'>
-                        <span className='trackno'>{item.meta.trackno}</span>/
-                        <span className='trackof'>{item.meta.trackof}</span>
+                const artist = item.meta.artist ? item.meta.artist : item.meta.albumartist;
+
+                return (
+                  <li key={i}>
+                    <a className='alltracks-item-album' href='#' onClick={(e) => this.handlerPlayTracks(e, item)} title={`Play ${item.meta.title}`}>
+                      <span className='tracks-item-img'>
+                        <Img title={`${item.meta.album} Cover`}
+                             src={'/pictures/' + ps.changeSeparator(item.albumKey, '___', '/') + '/cover.jpg'}
+                             defaultSrc={defaultCover}
+                        />
+                        {stateTrack === 'play' &&
+                          <IconPlayAnim/>
+                        }
+                        {stateTrack === 'rien' &&
+                          <i aria-hidden='true' className='icon icon-l icon-play'/>
+                        }
+                        {stateTrack === 'pause' &&
+                          <i aria-hidden='true' className='icon icon-l icon-pause'/>
+                        }
                       </span>
-                      <span className='year'>{item.meta.year}</span>
-                    </span>
 
-                    <span className='tracks-item-menu'>
-                      <button onClick={(e) => this.handlerAddTrack(e, item.tracksId)} className="btn btn-icon">
-                        <i aria-hidden="true" className='icon icon-l icon-plus'/>
-                      </button>
-                    </span>
-                  </a>
-                </li>
-              );
-            })
-          }
-        </ul>
+                      <span className='title'>{item.meta.title}</span>
+                      {artist && <span className='artist'>{artist}</span>}
+                      {item.meta.album && <span className='album'>{item.meta.album}</span>}
+                      {/*{(item.meta.trackno && item.meta.trackno !== '0') && <span className='track'>track {item.meta.trackno}</span>}*/}
+                      {/*{artist && <span className='year'>{item.meta.year}</span>}*/}
+
+                      <span className='tracks-item-menu'>
+                        <button onClick={(e) => this.handlerAddTrack(e, item.tracksId)} className="btn btn-icon">
+                          <i aria-hidden="true" className='icon icon-l icon-plus'/>
+                        </button>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </div>
       </section>
     );
   }
