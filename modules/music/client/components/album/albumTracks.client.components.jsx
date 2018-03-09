@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Motion, spring } from 'react-motion'
 import { post } from 'core/client/services/core.api.services'
-import { playOnAlbum } from 'music/client/redux/actions'
+import { playOnAlbum, pauseState, playState } from 'music/client/redux/actions'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 import AlbumInfo from './albumInfo.client.components'
 
@@ -69,13 +69,24 @@ class AlbumTracks extends Component {
   }
 
   // Handler to add recursively all tracks on playlist.
-  handlerPlayAlbum (e, i) {
-    const {album, mode, onPlay, addAlbumToPlay} = this.props;
+  handlerPlayAlbum (e, i, item) {
+    const {pause, album, mode, onPauseFunc, onPlayFunc, onPlay, addAlbumToPlay} = this.props;
 
     // If this album already playing.
     if (mode === 'album' && onPlay.albumKey === album.key) {
+
+      if (onPlay.tracksId === item.tracksId) {
+        if (pause) {
+          return onPlayFunc();
+        } else {
+          return onPauseFunc();
+        }
+      }
+
+
       // Just store index track in playing queue.
       addAlbumToPlay({onPlayIndex: i});
+
     }
 
     // Else, play this album.
@@ -158,7 +169,7 @@ class AlbumTracks extends Component {
                   const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
                   return (
                     <li key={i}>
-                      <a className={trackIsPlaying ? 'album-tracks-item playing' : 'album-tracks-item'} title='Play track' onClick={(e) => this.handlerPlayAlbum(e, i)}>
+                      <a className={trackIsPlaying ? 'album-tracks-item playing' : 'album-tracks-item'} title='Play track' onClick={(e) => this.handlerPlayAlbum(e, i, item)}>
                         {trackIsPlaying && <i className='white'><IconPlayAnim /></i>}
                         {!trackIsPlaying && <span aria-hidden='true' className='icon white icon-play' />}
                         <span className='album-tracks-title'>
@@ -189,7 +200,8 @@ const mapStateToProps = state => {
     onPlay: state.playlistStore.onPlay,
     onPlayIndex: state.playlistStore.playingList.onPlayIndex,
     mode: state.playlistStore.mode,
-    activePlaylist: state.playlistStore.activePlaylist
+    activePlaylist: state.playlistStore.activePlaylist,
+    pause: state.playlistStore.pause
   }
 };
 
@@ -202,6 +214,12 @@ const mapDispatchToProps = dispatch => {
       post(`playlist/${title}`, {
         data: items
       })
+    ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
     )
   }
 };
