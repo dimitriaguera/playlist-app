@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, put, del } from 'core/client/services/core.api.services'
-import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
+import {
+  playOnPlaylist,
+  updatePlaylistToPlay,
+  activatePlaylist,
+  pauseState,
+  playState
+} from 'music/client/redux/actions'
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks/tracks.client.components'
 import DraggableList from 'draggable/client/components/draggableList'
-import {activatePlaylist} from 'music/client/redux/actions';
-import {pauseState, playState} from 'music/client/redux/actions.js';
+
 
 class Playlist extends Component {
   constructor (props) {
@@ -152,7 +157,7 @@ class Playlist extends Component {
 
   render () {
     const { playlist } = this.state;
-    const { playingList, isPaused, user, history } = this.props;
+    const { playingList, isPaused, user } = this.props;
     const { onPlayIndex, pl } = playingList;
     const isActivePlaylist = mustUpdate(pl, playlist);
     const isAuthor = user && (playlist.author.username === user.username);

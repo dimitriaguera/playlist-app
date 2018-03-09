@@ -1,25 +1,33 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, put, del } from 'core/client/services/core.api.services'
-import { playOnPlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
+import {
+  playOnPlaylist,
+  updatePlaylistToPlay,
+  activatePlaylist,
+  pauseState,
+  playState
+} from 'music/client/redux/actions'
+
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Label, Button, Modal, Header, Checkbox } from 'semantic-ui-react'
-
 import DraggableList from 'draggable/client/components/draggableList'
+import Modal from 'react-modal'
+
 
 class Queue extends Component {
   constructor (props) {
     super(props);
 
-    this.handleCheckChange = this.handleCheckChange.bind(this);
+    this.handleChangeCheckBox = this.handleChangeCheckBox.bind(this);
     this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
     this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
     this.handlerReadFile = this.handlerReadFile.bind(this);
     this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
+    this.handlerAddTracks = this.handlerAddTracks.bind(this);
 
     this.socket = socketServices.getPublicSocket();
     this.state = {
@@ -27,13 +35,18 @@ class Queue extends Component {
       playlist: {
         title: '',
         tracks: []
-      }
+      },
+      modalIsOpen: false,
+
     }
   }
 
   componentWillMount () {
     const _self = this;
     const { history, user } = _self.props;
+
+    // React Modal
+    Modal.setAppElement("#root");
 
     if (!user) {
       return history.push('/not-found');
@@ -68,24 +81,36 @@ class Queue extends Component {
   }
 
   // Make Form input controlled.
-  handleCheckChange (e, data) {
-    const value = data.checked;
-    const name = data.name;
-
-    this.setState({[name]: value});
+  handleChangeCheckBox(e){
+    this.setState({
+      clearAfterSave: e.target.checked
+    })
   }
+
 
   // Play a track in queue.
   handlerReadFile (key) {
     const { playlist } = this.state;
 
+    const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
+
     return (e) => {
+
+      if (playlist.tracks[key]._id === onPlay._id) {
+        if (isPaused) {
+          return onPlayFunc();
+        } else {
+          return onPauseFunc();
+        }
+      }
+
       this.props.readFile({
         pl: playlist,
         onPlayIndex: key
       });
       e.preventDefault();
     }
+
   }
 
   // Delete a track in queue.
@@ -144,53 +169,78 @@ class Queue extends Component {
       });
   }
 
+  handlerAddTracks() {
+    this.props.activatePlaylist(this.state.playlist);
+    this.props.history.push('/music');
+  }
+
   render () {
-    const { playlist } = this.state;
+    const { playlist, modalIsOpen } = this.state;
     const { playingList, isPaused, isAuthenticated, user, history } = this.props;
     const { onPlayIndex, pl } = playingList;
     const isActivePlaylist = mustUpdate(pl, playlist);
 
     return (
       <section className='pal'>
-        <Label color='teal' style={{textTransform: 'uppercase'}}>Queue</Label>
-        <h1>{user.username}</h1>
+
+        <span className='pl-mode'>Queue</span>
+        <h1>Queue - {user.username}</h1>
+
+        <span className='pl-tracks-nb'>Number of tracks : {playlist.tracks.length}</span>
 
 
-        <div className='queue-menu'>
+        <div className='pl-action-cont'>
           {/* Save as playlist displayed only for Queue. */}
           {!!playlist.tracks.length &&
-          <Modal trigger={
-            <Button onClick={() => this.handlerSaveAsPlaylist} icon basic inverted>
-                                Save As Playlist
-            </Button>
-          } basic size='small' closeIcon>
-            <Header icon='sound' content={`Save current queue as playlist ?`} />
-            <Modal.Content>
-              <p>Type the playlist's title you want to create.</p>
-              <AddPlaylist
-                history={history}
-                tracksId={playlist.tracks}
-                validation='Save'
-                redirect
-                onSave={this.handlerSavePlaylist}
-              />
-            </Modal.Content>
-            <Modal.Actions><Checkbox name='clearAfterSave' label='Clear queue after save.'
-              onChange={this.handleCheckChange} /></Modal.Actions>
-          </Modal>
+              <span>
+                <button className='btn' onClick={() => this.setState({modalIsOpen: true})}>
+                  Save As Playlist
+                </button>
+
+                <Modal
+                  isOpen={modalIsOpen}
+                  onRequestClose={() => this.setState({modalIsOpen: false})}
+                  className="modal"
+                  overlayClassName="modal-overlay"
+                >
+
+                  <h2 className="modal-title">
+                    <i aria-hidden="true" className="icon icon-sound icon-xl"/>
+                    Save current queue as playlist ?
+                  </h2>
+
+                  <div className="modal-content">
+                    <p>Type the playlist's title you want to create.</p>
+                  </div>
+
+                  <div className="modal-actions-left">
+                    <AddPlaylist
+                      history={history}
+                      tracksId={playlist.tracks}
+                      validation='Save'
+                      redirect
+                      onSave={this.handlerSavePlaylist}/>
+                    <input
+                      id='clearAfterSave'
+                      name='clearAfterSave'
+                      className='checkbox'
+                      type='checkbox'
+                      checked={this.state.clearAfterSave}
+                      onChange={this.handleChangeCheckBox}
+                    />
+                    <label htmlFor='clearAfterSave'>Clear queue after save</label>
+                  </div>
+
+                </Modal>
+              </span>
           }
-          {/* Add tracks button. */}
-          <Button onClick={() => history.push(`/music?pl=${playlist.title}`)} icon basic inverted>
-                        Add tracks
-          </Button>
-
-          {/* Clear all tracks button. */}
-          <Button onClick={this.handlerClearPlaylist} icon basic inverted>
-                        Clear all
-          </Button>
+          <button className='btn' onClick={this.handlerAddTracks}>
+            Add tracks
+          </button>
+          <button className='btn' onClick={this.handlerClearPlaylist}>
+            Remove all tracks
+          </button>
         </div>
-
-        <Divider />
 
         <DraggableList
           items={playlist.tracks}
@@ -203,6 +253,7 @@ class Queue extends Component {
           onPlayIndex={onPlayIndex}
           onDelete={this.handlerDeleteTrack}
           onPlay={this.handlerReadFile}
+          scrollContainerName='main-content'
         />
       </section>
     );
@@ -235,6 +286,15 @@ const mapDispatchToProps = dispatch => {
     ),
     deletePlaylist: (title) => dispatch(
       del(`playlist/${title}`)
+    ),
+    activatePlaylist: (item) => dispatch(
+      activatePlaylist(item)
+    ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
     )
   }
 };
