@@ -3,6 +3,12 @@
   position: relative;
   font-size: 1.5rem;
 
+  .grid-target {
+    @include respond-to('extra-large-up') {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+
   .allpl-li {
     .allpl-a {
       cursor: pointer;

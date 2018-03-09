@@ -186,7 +186,7 @@ class AllPlaylist extends Component {
           <AddPlaylist history={history} />
         </header>
         <div className='content-wrapper'>
-          <ul className='unstyled autogrid grid-6 has-gutter-l'>
+          <ul className='grid-target unstyled grid-3 has-gutter-xl'>
             {playLists}
           </ul>
         </div>
