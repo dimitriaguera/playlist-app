@@ -10,6 +10,43 @@
   }
 
   .allpl-li {
+    &:nth-child(5n + 1) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_1.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+    &:nth-child(5n + 2) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_2.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+    &:nth-child(5n + 3) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_3.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+    &:nth-child(5n + 4) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_4.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+    &:nth-child(5n + 5) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_5.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+    &:nth-child(5n + 6) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_6.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+
     .allpl-a {
       cursor: pointer;
     }
@@ -34,14 +71,9 @@
         transition: transform 1s ease, opacity 0.5s ease;
       }
 
-      .allpl-img-inner {
-        background: url('../assets/images/default_cover.png') no-repeat center center;
-        background-size: cover;
-      }
-
       .allpl-img-overlay {
         background: $black;
-        opacity: 0;
+        opacity: 0.1;
       }
 
       .menu-play,
