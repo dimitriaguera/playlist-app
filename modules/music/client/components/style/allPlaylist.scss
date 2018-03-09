@@ -1,0 +1,82 @@
+.allpl {
+  display: block;
+  position: relative;
+  font-size: 1.5rem;
+
+  .allpl-li {
+    .allpl-a {
+      cursor: pointer;
+    }
+
+    .allpl-img-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 20rem;
+      overflow: hidden;
+
+      .allpl-img-inner,
+      .allpl-img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        transition: transform 1s ease, opacity 0.5s ease;
+      }
+
+      .allpl-img-inner {
+        background: url('../assets/images/default_cover.png') no-repeat center center;
+        background-size: cover;
+      }
+
+      .allpl-img-overlay {
+        background: $black;
+        opacity: 0;
+      }
+
+      .menu-play,
+      .menu-add {
+        position: relative;
+        opacity: 0;
+      }
+    }
+
+    .allpl-title,
+    .allpl-tracks,
+    .allpl-author {
+      padding: 0 1rem;
+    }
+
+    .allpl-title {
+      font-size: 2em;
+      color: $white;
+    }
+
+    .allpl-tracks {
+      font-size: 1rem;
+    }
+
+    &:hover,
+    &.is-playing {
+      .allpl-img-wrapper {
+        .allpl-img-inner {
+          transform: scale(1.2);
+        }
+
+        .allpl-img-overlay {
+          opacity: 0.8;
+        }
+
+
+        .menu-play,
+        .menu-add {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnPlaylist, playItem, pauseState, playState } from 'music/client/redux/actions'
-import { Menu } from 'semantic-ui-react'
-
 
 class PlayingControls extends Component {
   constructor () {
@@ -16,6 +14,8 @@ class PlayingControls extends Component {
   }
 
   onPlayHandler (e) {
+    e.preventDefault();
+
     const _self = this;
     const pl = this.props.playlist;
 
@@ -36,10 +36,13 @@ class PlayingControls extends Component {
   }
 
   onPauseHandler (e) {
+    e.preventDefault();
     this.props.pause();
   }
 
   onNextHandler (e) {
+    e.preventDefault();
+
     const { nextTracks, playingList, playlist } = this.props;
     const { onPlayIndex } = playingList;
 
@@ -50,6 +53,8 @@ class PlayingControls extends Component {
   }
 
   onPrevHandler (e) {
+    e.preventDefault();
+
     const { nextTracks, playingList, playlist } = this.props;
     const { onPlayIndex } = playingList;
 
@@ -70,15 +75,15 @@ class PlayingControls extends Component {
     const playPauseBtn = () => {
       // If active playlist and on play, display Pause button.
       if (isActive && !isPaused) { return (
-        <Menu.Item onClick={this.onPauseHandler}>
-          <i aria-hidden="true" className="icon icon-pause icon-disable" />
-        </Menu.Item>
+        <button className='btn btn-icon big' onClick={this.onPauseHandler} aria-label='pause'>
+          <i aria-hidden='true' className='icon icon-pause' />
+        </button>
       ); }
       // Else display Play button.
       else { return (
-        <Menu.Item disabled={disable} onClick={this.onPlayHandler}>
-          <i aria-hidden="true" className="icon icon-play icon-disable" />
-        </Menu.Item>
+        <button disabled={disable} className='btn btn-icon big' aria-label='play' onClick={this.onPlayHandler}>
+          <i aria-hidden='true' className='icon icon-play' />
+        </button>
       ); }
     };
 
@@ -86,9 +91,9 @@ class PlayingControls extends Component {
       if (isActive) {
         const disabled = (onPlayIndex === 0);
         return (
-          <Menu.Item disabled={disabled} onClick={this.onPrevHandler}>
-            <i aria-hidden="true" className="icon icon-play icon-chevron-left" />
-          </Menu.Item>
+          <button disabled={disabled} className='btn btn-icon' aria-label='prev track' onClick={this.onPrevHandler}>
+            <i aria-hidden='true' className='icon icon-play icon-skip-back' />
+          </button>
         );
       }
       return null;
@@ -98,20 +103,20 @@ class PlayingControls extends Component {
       if (isActive) {
         const disabled = (onPlayIndex + 1 === playlist.length);
         return (
-          <Menu.Item disabled={disabled} onClick={this.onNextHandler}>
-            <i aria-hidden="true" className="icon icon-play icon-chevron-right" />
-          </Menu.Item>
+          <button disabled={disabled} className='btn btn-icon' aria-label='next track' onClick={this.onNextHandler}>
+            <i aria-hidden='true' className='icon icon-play icon-skip-forward' />
+          </button>
         );
       }
       return null;
     };
 
     return (
-      <Menu color='blue' secondary inverted={isActive}>
+      <div className='menu-play'>
         {leftBtn()}
         {playPauseBtn()}
         {rightBtn()}
-      </Menu>
+      </div>
     );
   }
 }

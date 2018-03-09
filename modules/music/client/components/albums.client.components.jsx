@@ -106,14 +106,16 @@ class Albums extends Component {
 
     return (
       <section className='pal'>
-        <h1>Albums</h1>
-        <span>{this.props.total} albums on result</span>
-        <SearchMusicBar indexName='album'
-          startLimit={0}
-          searchAction={this.props.searchSized}
-          filtersMapping={{artist: 'artist', genre: 'genre', date: 'range.year'}}
-          placeholder='search album...'
-        />
+        <header>
+          <h1>Albums</h1>
+          <span>{this.props.total} albums on result</span>
+          <SearchMusicBar indexName='album'
+            startLimit={0}
+            searchAction={this.props.searchSized}
+            filtersMapping={{artist: 'artist', genre: 'genre', date: 'range.year'}}
+            placeholder='search album...'
+          />
+        </header>
 
         <div ref={r => { this.domElmt = r }} className='album-card-container' style={{width:'100%'}}>
           {this.props.data.map((item, i) =>

@@ -5,7 +5,7 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from 'music/client/components/playList/menuPlay.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import {activatePlaylist} from 'music/client/redux/actions';
+import { activatePlaylist, playOnPlaylist } from 'music/client/redux/actions';
 
 class AllPlaylist extends Component {
   constructor (props) {
@@ -13,6 +13,7 @@ class AllPlaylist extends Component {
     this.socket = socketServices.getPublicSocket();
 
     this.handlerAddTracks = this.handlerAddTracks.bind(this);
+    this.handlerOnPlay = this.handlerOnPlay.bind(this);
 
     this.state = {
       allPlaylist: []
@@ -62,6 +63,28 @@ class AllPlaylist extends Component {
     }
   }
 
+  handlerOnPlay (e, item) {
+    e.preventDefault();
+
+    const _self = this;
+    const pl = item;
+
+    if (this.props.playingList.pl === pl) {
+      this.props.play();
+    }
+    else {
+      this.props.getPlaylist(pl.title)
+        .then((data) => {
+          if (data.success) {
+            _self.props.onPlay({
+              pl: data.msg,
+              onPlayIndex: 0
+            });
+          }
+        });
+    }
+  }
+
   handlerAddTracks(e, item){
     e.preventDefault();
     this.props.activatePlaylist(item);
@@ -76,7 +99,7 @@ class AllPlaylist extends Component {
 
   render () {
     const { allPlaylist } = this.state;
-    const { history, user } = this.props;
+    const { history, user, playingList } = this.props;
 
     const getAuthor = function (item) {
       if (!item.author) {
@@ -105,30 +128,68 @@ class AllPlaylist extends Component {
         isAuthor = true;
       }
 
+      const isPlaying = playingList.pl && (playingList.pl.title === item.title);
+      const classes = ['allpl-li'];
+      if( isPlaying ) classes.push('is-playing');
+
       return (
-          <li className='allpl-li' key={i}>
-            <Link className='allpl-a' to={path} title={`Go to Playlist ${title}`}>
-              <span className='allpl-title'>{title}</span>
-              <span className='allpl-tracks'><i aria-hidden="true" className="icon icon-music" />{item.length} tracks</span>
-              <span className='allpl-author'>{author}</span>
+        <li className={classes.join(' ')} key={i}>
+        {(item.length !== 0) &&
+            <div className='allpl-a' onClick={e => this.handlerOnPlay(e, item)} aria-label={`Play playlist ${title}`}>
+              <div className='allpl-img-wrapper'>
+                <span className='allpl-img-inner'/>
+                <span className='allpl-img-overlay'/>
+                <MenuPlay playlist={item}/>
+              </div>
+              <div className='allpl-title'>{title}</div>
+              <div className='allpl-author'>{author}</div>
+              <div className='allpl-tracks'>{item.length} tracks</div>
               {isAuthor &&
-                <button title='Add tracks' onClick={(e) => this.handlerAddTracks(e, item)} className='btn'>Add tracks</button>
+              <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)} className='btn btn-icon medium'>
+                <i aria-hidden='true' className='icon icon-plus'/>
+              </button>
               }
-                {/*<MenuPlay playlist={item} />*/}
+              <Link to={path} title='to playlist page' className='btn btn-icon medium'>
+                <i aria-hidden='true' className='icon icon-eye'/>
+              </Link>
+            </div>
+        }{(item.length === 0) &&
+          <div className='allpl-noa'>
+            <div className='allpl-img-wrapper'>
+              <span className='allpl-img-inner'/>
+              <span className='allpl-img-overlay'/>
+              <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)} className='menu-add btn btn-icon big'>
+                <i aria-hidden='true' className='icon icon-plus big'/>
+              </button>
+            </div>
+            <div className='allpl-title'>{title}</div>
+            <div className='allpl-author'>{author}</div>
+            <div className='allpl-tracks'>{item.length} tracks</div>
+            {isAuthor &&
+            <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)} className='btn btn-icon medium'>
+              <i aria-hidden='true' className='icon icon-plus'/>
+            </button>
+            }
+            <Link to={path} title='to playlist page' className='btn btn-icon medium'>
+              <i aria-hidden='true' className='icon icon-eye'/>
             </Link>
-          </li>
+          </div>
+        }
+        </li>
       );
     });
 
     return (
-      <section className='allpl pal'>
+      <section className='pal allpl'>
         <header>
           <h1>Playlists</h1>
           <AddPlaylist history={history} />
         </header>
-        <ul className='unstyled allpl-ul'>
-          {playLists}
-        </ul>
+        <div className='content-wrapper'>
+          <ul className='unstyled autogrid grid-6 has-gutter-l'>
+            {playLists}
+          </ul>
+        </div>
       </section>
     );
   }
@@ -136,7 +197,8 @@ class AllPlaylist extends Component {
 
 const mapStateToProps = state => {
   return {
-    user: state.authenticationStore._user
+    user: state.authenticationStore._user,
+    playingList: state.playlistStore.playingList
   }
 };
 
@@ -148,9 +210,15 @@ const mapDispatchToProps = dispatch => {
     getAllPlaylist: () => dispatch(
       get(`playlist`)
     ),
+    getPlaylist: (title) => dispatch(
+      get(`playlist/${title}`)
+    ),
     activatePlaylist: (item) => dispatch(
       activatePlaylist(item)
-    )
+    ),
+    onPlay: (item) => dispatch(
+      playOnPlaylist(item)
+    ),
   }
 };
 
