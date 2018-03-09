@@ -187,7 +187,7 @@
   input[id=filter1]:checked ~ .sb-filter-panel label[for=filter1],
   input[id=filter2]:checked ~ .sb-filter-panel label[for=filter2],
   input[id=filter3]:checked ~ .sb-filter-panel label[for=filter3] {
-    background-color: $color-primary;
+    background-color: $color-primary-hover;
   }
 
   input[id=filter3]:checked ~ .sb-filter-panel .sb-filter-input {

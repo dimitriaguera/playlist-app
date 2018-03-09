@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
 import { get } from 'core/client/services/core.api.services'
-import { getLocalToken } from 'users/client/services/users.storage.services'
 import { getRoleNames } from 'users/client/services/users.auth.services'
-import { Divider } from 'semantic-ui-react'
 
 import dateFormat from 'dateformat'
 
@@ -38,23 +36,32 @@ class User extends Component {
   render () {
     const { user, rolesNames } = this.state;
 
+    if (!user) return null;
+
     return (
-      <div>
-        { !!user && (
-          <div>
-            <h1>{user.username}'s User Page</h1>
-            <Divider />
-            <h3>Account name</h3>
-            <p>{user.username}</p>
-            <h3>Authorizations</h3>
-            <p>{rolesNames}</p>
-            <h3>Creation</h3>
-            <p>{dateFormat(new Date(user.created), 'dd mmm yyyy - H:MM:ss')}</p>
-            <h3>Last update</h3>
-            <p>{user.updated ? dateFormat(new Date(user.updated), 'dd mmm yyyy - H:MM:ss') : 'never updated'}</p>
-          </div>
-        )}
-      </div>
+      <section className='pal'>
+        <header>
+          <h1>{user.username}'s User Page</h1>
+        </header>
+        <div className='wrapper-content'>
+          <dl>
+            <dt><h3>Account name</h3></dt>
+            <dd><p>{user.username}</p></dd>
+          </dl>
+          <dl>
+            <dt><h3>Authorizations</h3></dt>
+            <dd><p>{rolesNames}</p></dd>
+          </dl>
+          <dl>
+            <dt><h3>Creation</h3></dt>
+            <dd><p>{dateFormat(new Date(user.created), 'dd mmm yyyy - H:MM:ss')}</p></dd>
+          </dl>
+          <dl>
+            <dt><h3>Last update</h3></dt>
+            <dd><p>{user.updated ? dateFormat(new Date(user.updated), 'dd mmm yyyy - H:MM:ss') : 'never updated'}</p></dd>
+          </dl>
+        </div>
+      </section>
     );
   }
 }

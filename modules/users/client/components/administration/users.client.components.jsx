@@ -3,12 +3,11 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import update from 'immutability-helper'
 import { ADMIN_ROLE, ALL_ROLE } from 'users/commons/roles'
-import { get, put, del } from 'core/client/services/core.api.services'
-import { getLocalToken } from 'users/client/services/users.storage.services'
+import { get, del } from 'core/client/services/core.api.services'
 import { hasRole } from 'users/client/services/users.auth.services'
-import { setUsers } from 'users/client/redux/actions'
 import { List, Confirm, Button, Divider } from 'semantic-ui-react'
 import socketServices from 'core/client/services/core.socket.services'
+import Modal from 'react-modal'
 
 import dateFormat from 'dateformat'
 
@@ -19,6 +18,8 @@ class Users extends Component {
     this.handleOpen = this.handleOpen.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleConfirm = this.handleConfirm.bind(this);
+    this.handleSettings = this.handleSettings.bind(this);
+
     this.state = {
       users: [],
       modal: {
@@ -32,6 +33,9 @@ class Users extends Component {
   // Request API server on mounting component.
   componentWillMount () {
     const _self = this;
+
+    // React Modal
+    Modal.setAppElement("#root");
 
     // Fetch users.
     this.props.fetchUsers().then((data) => {
@@ -55,7 +59,10 @@ class Users extends Component {
   }
 
   // Handle func when open Confirm Box.
-  handleOpen (name, i) {
+  handleOpen (e, name, i) {
+    e.preventDefault();
+    e.stopPropagation();
+
     this.setState({modal: {
       open: true,
       name: name,
@@ -82,6 +89,13 @@ class Users extends Component {
     }});
   }
 
+  handleSettings(e, username) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.history.push('/user/edit/' + username);
+  }
+
+
   // Prepair and call deleteUser props func.
   deleteUser (name, i) {
     const _self = this;
@@ -98,28 +112,60 @@ class Users extends Component {
   render () {
     // Get state and props properties.
     const { users, modal } = this.state;
-    const { history, currentUser } = this.props;
+    const { currentUser } = this.props;
 
     // Build user list.
     const userList = users.map((user, index) => {
       return (
-        <UserListItem key={user._id} user={user} currentUser={currentUser} index={index} history={history} handleOpen={this.handleOpen} />
+        <UserListItem
+          key={user._id}
+          user={user}
+          currentUser={currentUser}
+          index={index}
+          handleOpen={this.handleOpen}
+          handleSettings={this.handleSettings}
+        />
       );
     });
 
     return (
-      <div>
-        <h1>All users</h1>
-        <Divider />
-        <List divided relaxed>
-          {userList}
-        </List>
-        <Confirm
-          open={modal.open}
-          onCancel={this.handleCancel}
-          onConfirm={this.handleConfirm}
-        />
-      </div>
+      <section className='pal'>
+        <header>
+          <h1>All users</h1>
+        </header>
+        <div className='wrapper-content'>
+          <ul className='unstyled'>
+            {userList}
+          </ul>
+
+
+          <Modal
+            isOpen={modal.open}
+            onRequestClose={this.handleCancel}
+            className="modal"
+            overlayClassName="modal-overlay"
+          >
+            <h2>
+              <i aria-hidden="true" className="icon icon-trash-2 icon-xl"/>
+              Are you sure ?
+            </h2>
+
+            <div className="modal-content">
+              <p>Do you whant to delete user : {this.state.modal.name}</p>
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={this.handleCancel} className="btn btn-no btn-inverted modal-btn">
+                <i aria-hidden="true" className="icon icon-x modal-btn-icon"/>No
+              </button>
+              <button onClick={this.handleConfirm} className="btn btn-yes btn-inverted modal-btn">
+                <i aria-hidden="true" className="icon icon-check modal-btn-icon"/>Yes
+              </button>
+            </div>
+
+          </Modal>
+        </div>
+      </section>
     );
   }
 }
@@ -148,6 +194,7 @@ const UsersContainer = connect(
 )(Users);
 
 class UserListItem extends Component {
+
   shouldComponentUpdate (nextProps) {
     return (
     // Re-render component if
@@ -158,7 +205,7 @@ class UserListItem extends Component {
   }
 
   render () {
-    const {user, index, handleOpen, history, currentUser} = this.props;
+    const {user, index, handleOpen, handleSettings, currentUser} = this.props;
     let roles = '';
 
     for (let i = 0; i < user.roles.length; i++) {
@@ -168,37 +215,41 @@ class UserListItem extends Component {
     }
 
     const deleteButton = () => {
-      if (hasRole(user, [ADMIN_ROLE]) && (currentUser.username === user.username)) {
+      if (!(hasRole(user, [ADMIN_ROLE]) && (currentUser.username === user.username))) {
         return (
-          <Button disabled
-            basic
-            color='grey'
-            icon='delete'
-            circular />
-        );
-      } else {
-        return (
-          <Button onClick={() => handleOpen(user.username, index)}
-            basic
-            color='grey'
-            icon='delete'
-            circular />
+          <button className='btn btn-icon' aria-label={`Delete user ${user.username}`} onClick={(e) => handleOpen(e, user.username, index)}>
+            <i aria-hidden="true" className='icon icon-trash-2'/>
+          </button>
         );
       }
+      return null;
     };
 
     console.log('RENDER LIST');
 
     return (
-      <List.Item>
-        <List.Content floated='right'>
-          <Button onClick={() => history.push('/user/edit/' + user.username)} basic color='grey' icon='setting' circular />
-          {deleteButton()}
-        </List.Content>
-        <List.Header as='h3'><Link to={`/user/${user.username}`}>{user.username}</Link></List.Header>
-        <List.Description>{roles}</List.Description>
-        <List.Description><span style={{color: '#21ba45'}}>{user.updated ? `Last update on ${dateFormat(new Date(user.updated), 'dd mmm yyyy - H:MM:ss')}` : `Created on ${dateFormat(new Date(user.created), 'dd mmm yyyy - H:MM:ss')}`}</span></List.Description>
-      </List.Item>
+      <li>
+        <Link to={`/user/${user.username}`}>
+
+          <h3 aria-label='User Name'>{user.username}</h3>
+
+          <div className='users-actions'>
+            <button className='btn btn-icon' aria-label={`Change user ${user.username} setting's`} onClick={(e) => handleSettings(e, user.username)}>
+              <i aria-hidden="true" className='icon icon-settings'/>
+            </button>
+            {deleteButton()}
+          </div>
+
+          <div className='users-roles'>
+            {roles}
+          </div>
+
+          <div className='users-updated'>
+            {user.updated ? `Last update on ${dateFormat(new Date(user.updated), 'dd mmm yyyy - H:MM:ss')}` : `Created on ${dateFormat(new Date(user.created), 'dd mmm yyyy - H:MM:ss')}`}
+          </div>
+
+        </Link>
+      </li>
     );
   }
 }

@@ -474,7 +474,7 @@ class SearchMusicBar extends Component {
             <div className='sb-filter-menu'>
               {filtersMapping.album
                 ? <label htmlFor='filter0'>Album</label>
-                : <label className='no-click'><i aria-hidden="true" className="icon icon-crosshair" /></label>
+                : <label className='no-click'><i aria-hidden="true" className="icon" /></label>
               }
               {filtersMapping.artist &&
               <label htmlFor='filter1'>Artist</label>
