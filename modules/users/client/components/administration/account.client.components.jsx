@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
 import { get } from 'core/client/services/core.api.services'
-import { getLocalToken } from 'users/client/services/users.storage.services'
 import { getRoleNames } from 'users/client/services/users.auth.services'
-import { Divider } from 'semantic-ui-react'
 
 import dateFormat from 'dateformat'
 

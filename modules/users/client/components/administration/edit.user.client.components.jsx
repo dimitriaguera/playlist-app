@@ -2,17 +2,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { put, get } from 'core/client/services/core.api.services'
 import { hasRole } from 'users/client/services/users.auth.services'
-import { getLocalToken } from 'users/client/services/users.storage.services'
 import { ALL_ROLE, ADMIN_ROLE, DEFAULT_AUTH_ROLE } from 'users/commons/roles'
-import { Form, Checkbox, Button, Header, Divider, Message } from 'semantic-ui-react'
+import { Message } from 'semantic-ui-react'
 
 import dateFormat from 'dateformat'
 
 class EditUser extends Component {
   constructor () {
     super();
-    this.handleCheckChange = this.handleCheckChange.bind(this);
+
     this.handleUpdateUser = this.handleUpdateUser.bind(this);
+
+    this.handleChangeCheckBox = this.handleChangeCheckBox.bind(this);
+
     this.state = {
       user: null,
       formRoles: {},
@@ -21,9 +23,9 @@ class EditUser extends Component {
   }
 
   // Make Form input controlled.
-  handleCheckChange (e, data) {
-    const value = data.checked;
-    const name = data.name;
+  handleChangeCheckBox (e) {
+    const value = e.target.checked;
+    const name = e.target.name;
 
     this.setState((prevState) => {
       const state = Object.assign({}, prevState);
@@ -101,9 +103,10 @@ class EditUser extends Component {
         }
 
         return (
-          <Form.Field key={index}>
-            <Checkbox {...props} name={role.id} label={role.name} onChange={this.handleCheckChange} />
-          </Form.Field>
+          <li key={index}>
+            <input id={role.id} name={role.id} className='checkbox' type='checkbox' checked={this.state.formRoles[name] || false} onChange={this.handleChangeCheckBox}/>
+            <label htmlFor={role.id}>{role.name}</label>
+          </li>
         );
       });
 
@@ -121,19 +124,21 @@ class EditUser extends Component {
 
       // Render form.
       return (
-        <div>
-          <div>
-            <Header as='h1'>Edit {user.username} account</Header>
-            <Divider />
+        <section className='pal'>
+          <header>
+            <h1>Edit {user.username} account</h1>
+          </header>
+          <div className='wrapper-content'>
             {renderMessage()}
-            <Header as='h2'>Authorizations</Header>
-            <Form onSubmit={this.handleUpdateUser}>
-              {rolesForm}
-              <Divider />
-              <Button type='submit' content='Save' color='blue' />
-            </Form>
+            <h2>Authorizations</h2>
+            <form onSubmit={this.handleUpdateUser}>
+              <ul className='unstyled'>
+                {rolesForm}
+              </ul>
+              <button className='btn' type='submit'>Save</button>
+            </form>
           </div>
-        </div>
+        </section>
       );
     } else {
       return null;

@@ -45,6 +45,9 @@
 # Search Bar 
 * suggestion pass under album track
 
+## User
+* check client route /user/:username what's the diff between my acount
+* bug to change user role on admin page
 
 ## Albums
 
