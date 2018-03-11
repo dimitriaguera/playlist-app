@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { get, put } from 'core/client/services/core.api.services'
+import { get } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
 import Tracks from 'music/client/components/tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Label, Button, Modal, Header } from 'semantic-ui-react'
+import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
 import InfoPanel from './infoPanel/infoPanel.client.components'
 
@@ -19,11 +19,28 @@ class Album extends Component {
       albumOfUrl: {
         pl: null,
         onPlayIndex: 0
-      }
+      },
+      modalIsOpen: false
     };
 
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerReadTrack = this.handlerReadTrack.bind(this);
+
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+  }
+
+  openModal() {
+    this.setState({modalIsOpen: true});
+  }
+
+  closeModal() {
+    this.setState({modalIsOpen: false});
+  }
+
+  componentDidMount () {
+    // React Modal
+    Modal.setAppElement("#root");
   }
 
   componentWillMount () {
@@ -179,34 +196,52 @@ class Album extends Component {
     const { isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = albumOfUrl;
 
+    if (!pl) return null;
+
     return (
-      <section className='pal'>{ pl &&
+      <section className='pal'>
 
-      <div>
-        <Label color='teal' style={{textTransform: 'uppercase'}}>Album</Label>
-        <InfoPanel item={pl}
-        />
+        <header>
+          <span className='pl-mode'>Album</span>
+          <h1>{pl.title}</h1>
+        </header>
 
-        {!! user &&
-        <Modal trigger={
-          <Button icon basic inverted>
-                            Save As Playlist
-          </Button>
-        } basic size='small' closeIcon>
-          <Header icon='sound' content={`Save ${pl.title} as playlist ?`} />
-          <Modal.Content>
-            <p>Type the playlist's title you want to create.</p>
-            <AddPlaylist
-              history={history}
-              placeholder={`${pl.title}'s playlist`}
-              tracksId={pl.tracks.map(t => t.tracksId)}
-              validation='Save'
-              redirect
-            />
-          </Modal.Content>
-        </Modal>}
+        <InfoPanel item={pl} />
 
-        <Divider />
+        {/*{@todo reimplemenb save as pl for album because
+        it couldn't working know (moogose wants tracks like node
+        and here is realy not a node)}*/}
+        {/*{!! user &&*/}
+          {/*<div className="album-list-save-cont">*/}
+            {/*<button className='btn' onClick={this.openModal}>Save As Playlist</button>*/}
+
+            {/*<Modal isOpen={this.state.modalIsOpen}*/}
+                   {/*onRequestClose={this.closeModal}*/}
+                   {/*className="modal"*/}
+                   {/*overlayClassName="modal-overlay"*/}
+            {/*>*/}
+
+              {/*<h2 className="modal-title">*/}
+                {/*<i aria-hidden="true" className="icon icon-music icon-xl"/>*/}
+                {/*{`Save ${pl.title} as playlist ?`}*/}
+              {/*</h2>*/}
+
+              {/*<div className="modal-content">*/}
+                {/*<p>Type the playlist's title you want to create.</p>*/}
+              {/*</div>*/}
+
+              {/*<AddPlaylist*/}
+                {/*history={history}*/}
+                {/*placeholder={`${pl.title}'s playlist`}*/}
+                {/*tracksId={pl.tracks}*/}
+                {/*validation='Save'*/}
+                {/*redirect*/}
+
+              {/*/>*/}
+
+            {/*</Modal>*/}
+          {/*</div>*/}
+        {/*}*/}
 
         <DraggableList
           items={pl.tracks}
@@ -218,8 +253,8 @@ class Album extends Component {
           onPlayIndex={onPlayIndex}
           onPlay={this.handlerReadTrack}
         />
-      </div>
-      }</section>
+
+      </section>
     );
   }
 }
@@ -258,7 +293,7 @@ const AlbumContainer = connect(
 function getTrackIndexBySrc (path, array) {
   let l = array.length;
   for (let i = 0; i < l; i++) {
-    if (array[i].path == path) return i;
+    if (array[i].path === path) return i;
   }
   return null;
 }

@@ -167,8 +167,11 @@ class Playlist extends Component {
     return (
       <section className='pal'>
 
-        <span className='pl-mode'>{label_mode}</span>
-        <h1>{playlist.title}</h1>
+        <header>
+          <span className='pl-mode'>{label_mode}</span>
+          <h1>{playlist.title}</h1>
+        </header>
+
 
         <span className='pl-tracks-nb'>Number of tracks : {playlist.tracks.length}</span>
 

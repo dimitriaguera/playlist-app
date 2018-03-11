@@ -37,6 +37,11 @@ class FolderList extends Component {
     this.setState({modalIsOpen: false});
   }
 
+  componentDidMount () {
+    // React Modal
+    Modal.setAppElement("#root");
+  }
+
   componentWillMount() {
     const _self = this;
     const {history, fetchFiles, playingList} = _self.props;
@@ -195,7 +200,10 @@ class FolderList extends Component {
         <header>
           <h1>Folder's Tracks</h1>
           <h2>{pl.title}</h2>
-          {!!user && <div className="folder-list-save-cont">
+        </header>
+
+        {!!user &&
+          <div className="folder-list-save-cont">
             <button className='btn' onClick={this.openModal}>Save As Playlist</button>
 
             <Modal isOpen={this.state.modalIsOpen}
@@ -221,8 +229,8 @@ class FolderList extends Component {
                 redirect
               />
             </Modal>
-          </div>}
-        </header>
+          </div>
+        }
 
         <DraggableList
           items={pl.tracks}
