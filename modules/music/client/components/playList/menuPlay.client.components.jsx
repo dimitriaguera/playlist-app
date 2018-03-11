@@ -15,7 +15,7 @@ class PlayingControls extends Component {
 
   onPlayHandler (e) {
     e.preventDefault();
-
+    e.stopPropagation();
     const _self = this;
     const pl = this.props.playlist;
 
@@ -43,24 +43,24 @@ class PlayingControls extends Component {
   onNextHandler (e) {
     e.preventDefault();
 
-    const { nextTracks, playingList, playlist } = this.props;
+    const { nextTracks, playingList } = this.props;
     const { onPlayIndex } = playingList;
 
     nextTracks({
       onPlayIndex: onPlayIndex + 1,
-      pl: playlist
+      pl: playingList.pl
     });
   }
 
   onPrevHandler (e) {
     e.preventDefault();
 
-    const { nextTracks, playingList, playlist } = this.props;
+    const { nextTracks, playingList } = this.props;
     const { onPlayIndex } = playingList;
 
     nextTracks({
       onPlayIndex: onPlayIndex - 1,
-      pl: playlist
+      pl: playingList.pl
     });
   }
 

@@ -9,8 +9,8 @@ import ps from 'core/client/services/core.path.services'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
 import defaultCover from 'assets/images/default_cover.png'
-import {post} from "core/client/services/core.api.services";
-import {pauseState, playState} from "../redux/actions";
+import {post} from 'core/client/services/core.api.services'
+import {pauseState, playState} from 'music/client/redux/actions'
 
 class AllTracks extends Component {
   constructor(props) {
@@ -26,7 +26,7 @@ class AllTracks extends Component {
 
   // Handler to add recursively all tracks on playlist.
   handlerPlayTracks(e, item) {
-    if (e) e.stopPropagation();
+    e.stopPropagation();
 
     const { pause, onPlay, onPauseFunc, onPlayFunc } = this.props;
 

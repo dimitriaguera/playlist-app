@@ -5,7 +5,8 @@ import { get, post } from 'core/client/services/core.api.services'
 import socketServices from 'core/client/services/core.socket.services'
 import MenuPlay from 'music/client/components/playList/menuPlay.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { activatePlaylist, playOnPlaylist } from 'music/client/redux/actions';
+import { activatePlaylist, playOnPlaylist, pauseState, playState } from 'music/client/redux/actions'
+
 
 class AllPlaylist extends Component {
   constructor (props) {
@@ -65,12 +66,23 @@ class AllPlaylist extends Component {
 
   handlerOnPlay (e, item) {
     e.preventDefault();
+    e.stopPropagation();
 
     const _self = this;
     const pl = item;
 
-    if (this.props.playingList.pl === pl) {
-      this.props.play();
+    const { playingList, onPauseFunc, onPlayFunc } = this.props;
+    const isPlaying = playingList.pl && (playingList.pl.title === item.title);
+
+    //@todo do something for pl have always an id
+    // and remove comparison with title
+    // this after that
+    if (
+      (playingList.pl && playingList.pl.title === pl.title)
+    ) {
+      if (isPlaying) return onPauseFunc();
+      return onPlayFunc();
+
     }
     else {
       this.props.getPlaylist(pl.title)
@@ -87,6 +99,14 @@ class AllPlaylist extends Component {
 
   handlerAddTracks(e, item){
     e.preventDefault();
+
+    const { user, history, location } = this.props;
+
+
+    // User must be connected to add tracks.
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+
+
     this.props.activatePlaylist(item);
     this.props.history.push('/music');
   }
@@ -120,7 +140,7 @@ class AllPlaylist extends Component {
         title = item.title;
         path = `/playlist/${item.title}`;
         author = getAuthor(item);
-        isAuthor = (user && item.author.username === user.username);
+        isAuthor = (user && item.author && item.author.username === user.username);
       } else {
         title = 'Queue';
         path = '/queue';
@@ -149,7 +169,7 @@ class AllPlaylist extends Component {
                 <i aria-hidden='true' className='icon icon-plus'/>
               </button>
               }
-              <Link to={path} title='to playlist page' className='btn btn-icon medium'>
+              <Link to={path} onClick={(e) => e.stopPropagation()} title='to playlist page' className='btn btn-icon medium'>
                 <i aria-hidden='true' className='icon icon-eye'/>
               </Link>
             </div>
@@ -158,9 +178,12 @@ class AllPlaylist extends Component {
             <div className='allpl-img-wrapper'>
               <span className='allpl-img-inner'/>
               <span className='allpl-img-overlay'/>
-              <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)} className='menu-add btn btn-icon big'>
-                <i aria-hidden='true' className='icon icon-plus big'/>
-              </button>
+              {isAuthor &&
+                <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)}
+                        className='menu-add btn btn-icon big'>
+                  <i aria-hidden='true' className='icon icon-plus big'/>
+                </button>
+              }
             </div>
             <div className='allpl-title'>{title}</div>
             <div className='allpl-author'>{author}</div>
@@ -219,6 +242,12 @@ const mapDispatchToProps = dispatch => {
     onPlay: (item) => dispatch(
       playOnPlaylist(item)
     ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
+    )
   }
 };
 

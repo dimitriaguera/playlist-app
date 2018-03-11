@@ -160,7 +160,7 @@ class Playlist extends Component {
     const { playingList, isPaused, user } = this.props;
     const { onPlayIndex, pl } = playingList;
     const isActivePlaylist = mustUpdate(pl, playlist);
-    const isAuthor = user && (playlist.author.username === user.username);
+    const isAuthor = user && playlist.author && playlist.author.username === user.username;
 
     let label_mode = 'Playlist';
 

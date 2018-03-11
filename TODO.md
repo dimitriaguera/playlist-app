@@ -53,3 +53,10 @@
 
 * Click On track line must be Pause
 
+## Playlist
+
+* Do something for pl have always an id
+
+## Make a service for play/pause/next
+
+* Check if components and sub-components don't call twice playhandler like in allPlaylist and menuPlay.
