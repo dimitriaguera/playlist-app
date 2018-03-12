@@ -131,7 +131,7 @@ class Register extends Component {
                   <div className='form-row'>
                     <label htmlFor='cfPassword'>Confirm Password</label>
                     <input required type='password' id='cfPassword' name='cfPassword' value={cfPassword} onBlur={this.checkPasswordOnBlur} onFocus={this.resetPwdError} onChange={this.handleInputChange} />
-                    <i aria-hidden="true" className={`icon ${icon}`}></i>
+                    <i aria-hidden="true" className={`icon ${icon}`} />
                   </div>
 
                   <button className='btn' type='submit'>Sign up</button>

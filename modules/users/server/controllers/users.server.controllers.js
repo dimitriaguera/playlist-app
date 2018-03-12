@@ -64,15 +64,19 @@ exports.login = function (req, res, next) {
 
 
 exports.register = function (req, res, next) {
-  const {username, password, roles} = req.body;
+  const {username, password, cfPassword, roles} = req.body;
 
-  if (!username || !password) {
+  if (!username || !password || !cfPassword) {
     res.json({
       success: false,
-      msg: 'Please pass name and password.'
+      msg: 'You must give a Username, password and confirmation password.'
     });
-  } else {
-    // Build user.
+  } else if (password !== cfPassword) {
+    res.json({
+      success: false,
+      msg: 'Your password and confirmation password do not match.'
+    });
+  } else {// Build user.
     const newUser = new User({
       username: username,
       password: password,
@@ -85,6 +89,13 @@ exports.register = function (req, res, next) {
         if (err.name === 'MongoError' && err.code === 11000) {
           res.status(202);
           return errorHandler.errorMessageHandler(err, req, res, next, `${username} already exist. Please choose an other account name.`);
+        } else if (err.name === 'ValidationError') {
+          let tmpMessage = '', fieldError;
+          for (fieldError in err.errors) {
+            tmpMessage +=  err.errors[fieldError].message + '\n';
+          }
+          res.status(202);
+          return errorHandler.errorMessageHandler(err, req, res, next, tmpMessage);
         }
         return errorHandler.errorMessageHandler(err, req, res, next);
       }

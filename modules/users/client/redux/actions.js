@@ -85,7 +85,7 @@ export function registerNewUser (creds) {
     creds.roles = [DEFAULT_AUTH_ROLE.id];
 
     // Request login on server.
-    return dispatch(post('register', {
+    return dispatch(post('users', {
       data: creds,
       types: {
         REQUEST_TYPE: registerRequest,

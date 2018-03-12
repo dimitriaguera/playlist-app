@@ -38,3 +38,16 @@ GET http://localhost:8082/api/task
 ### Test
 GET http://localhost:8082/api/elastic/test
 
+### Register a new user
+POST http://localhost:8082/api/users
+Content-Type: application/json; charset=UTF-8
+Authorization: Bearer MyPrevToken
+
+{
+"username":"a",
+"password":"a",
+"cfPassword":"a"
+}
+
+###
+

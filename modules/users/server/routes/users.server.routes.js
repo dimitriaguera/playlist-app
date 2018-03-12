@@ -15,16 +15,14 @@ module.exports = function (app) {
   // Login api
   app.route('/api/login').post(users.login);
 
-  // Register api
-  app.route('/api/register').post(users.register);
-
   // Account
   app.route('/api/account').all(passport.authenticate('jwt', { session: false }))
     .get(users.account);
 
-  // Users list
+  // Users list and add user
   app.route('/api/users').all(passport.authenticate('jwt', { session: false }), authorizeRoles(ADMIN_ROLE))
-    .get(users.users);
+    .get(users.users)
+    .post(users.register);
 
   // Unique user
   app.route('/api/users/:userName').all(passport.authenticate('jwt', { session: false }), authorizeRoles(ADMIN_ROLE))
