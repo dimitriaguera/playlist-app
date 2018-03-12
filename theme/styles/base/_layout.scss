@@ -56,6 +56,12 @@ h1 {
   }
 }
 
+.pal {
+  @include respond-to("medium") {
+    padding: 1rem;
+  }
+}
+
 //////////// REGION LAYOUT
 #app-container {
   display: flex;
