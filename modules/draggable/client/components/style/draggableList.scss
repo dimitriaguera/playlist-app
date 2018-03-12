@@ -7,13 +7,9 @@
         padding-right: 40px;
         transition: background-color 0.2s;
 
-        & > * {
-          height: 100%;
-        }
-
-        &.dl-dragged {
-          background: rgba(255, 255, 255, 1);
-        }
+        //&.dl-dragged {
+        //  background: rgba(255, 255, 255, 1);
+        //}
 
         .dl-hand-right {
           position: absolute;
@@ -23,12 +19,16 @@
           width: 40px;
           //background: #f9f9f9;
           cursor: move;
-          color: $color-primary;
+          color: $gray-400;
           display: flex;
           flex-wrap: nowrap;
           justify-content: space-around;
           align-items: center;
           touch-action: none;
+
+          .icon {
+            font-size: 1.8rem;
+          }
 
           .pli-move {
             margin-left: 5px;
@@ -46,6 +46,10 @@
       -moz-user-select: -moz-none;
       -ms-user-select: none;
       user-select: none;
+
+      & > * {
+        height: 100%;
+      }
     }
   }
 

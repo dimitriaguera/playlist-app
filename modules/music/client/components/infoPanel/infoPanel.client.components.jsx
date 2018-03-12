@@ -101,14 +101,14 @@ class InfoPanel extends Component {
     };
 
     return (
-      <div className='album-info'>
-        <div className='album-info-img'>
+      <div className='info-panel'>
+        <div className='info-panel-img'>
           <Img title={`${album.name} cover`}
                src={'/pictures/' + cover + '/cover.jpg'}
                defaultSrc={defaultCover}
           />
         </div>
-        <div className='album-info-meta'>
+        <div className='info-panel-meta'>
           {album.name && <span className='name'>{album.name}</span>}
           <span className='genre'>
           {album.genre.map((g, i) => <span key={i}>{g}</span>)}
@@ -119,7 +119,7 @@ class InfoPanel extends Component {
           {(album.diskno && album.diskno !== '0') &&
           <span className='diskno'>{`disk ${album.diskno} / ${album.diskof}`}</span>}
         </div>
-        <div className='album-info-menu'>
+        <div className='info-panel-menu'>
           {getButton()}
           <button aria-label='add album tracks to playlist' onClick={this.handlerAddTracks} className='btn btn-icon big'><i
             aria-hidden='true' className='icon icon-plus'/></button>

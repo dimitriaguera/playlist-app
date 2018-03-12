@@ -7,7 +7,7 @@ import {
   ADD_ALBUM_TO_PLAY, ADD_PLAYLIST_TO_PLAY, ADD_FOLDER_TO_PLAY,
   UPDATE_PLAYLIST_TO_PLAY, UPDATE_ALBUM_TO_PLAY, UPDATE_FOLDER_TO_PLAY,
   PLAY_ITEM, PLAY_STATE, PAUSE_STATE
-} from '../actions'
+} from 'music/client/redux/actions'
 
 let initialState = {
   onPlay: {
@@ -89,12 +89,21 @@ export const playlistStore = (state = initialState, action) => {
       };
 
     case PLAY_TRACK_ON_PLAYLIST:
+      const playingList = Object.assign({}, state.playingList, action.item);
+
+      let onPlay;
+      if (action.item.pl && action.item.pl.tracks) {
+        onPlay = action.item.pl.tracks[action.item.onPlayIndex];
+      } else {
+        onPlay = state.playingList.pl.tracks[action.item.onPlayIndex];
+      }
+
       return {
         ...state,
         mode: 'playlist',
-        playingList: Object.assign({}, state.playingList, action.item),
+        playingList: playingList,
         pause: false,
-        onPlay: action.item.pl ? action.item.pl.tracks[action.item.onPlayIndex] : state.playingList.pl.tracks[action.item.onPlayIndex]
+        onPlay: onPlay
       };
 
     case UPDATE_ALBUM_TO_PLAY:

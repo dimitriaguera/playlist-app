@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { get, put } from 'core/client/services/core.api.services'
+import { get, post } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
 import Tracks from 'music/client/components/tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Modal, Header } from 'semantic-ui-react'
+
+import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
 import InfoPanel from './infoPanel/infoPanel.client.components'
 
@@ -21,11 +22,29 @@ class Album extends Component {
       albumOfUrl: {
         pl: null,
         onPlayIndex: 0
-      }
+      },
+      modalIsOpen: false
     };
 
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerReadTrack = this.handlerReadTrack.bind(this);
+    this.handlerAddTrack = this.handlerAddTrack.bind(this);
+
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+  }
+
+  openModal() {
+    this.setState({modalIsOpen: true});
+  }
+
+  closeModal() {
+    this.setState({modalIsOpen: false});
+  }
+
+  componentDidMount () {
+    // React Modal
+    Modal.setAppElement("#root");
   }
 
   componentWillMount () {
@@ -133,6 +152,20 @@ class Album extends Component {
     }
   }
 
+  handlerAddTrack (e, tracksId) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
+
+    // User must be connected to add tracks.
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+
+    // Add tracks into activated Playlist.
+    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+  }
+
   handlerReadTrack (key) {
     return (e) => {
       const { albumOfUrl } = this.state;
@@ -190,50 +223,69 @@ class Album extends Component {
         { (pl && pl.item) &&
           <header>
             <InfoPanel album={pl.item} tracks={pl.tracks}/>
+
+            {/*{@todo reimplemenb save as pl for album because
+            it couldn't working know (moogose wants tracks like node
+            and here is realy not a node)}*/}
+            {/*{!! user &&*/}
+            {/*<div className="album-list-save-cont">*/}
+            {/*<button className='btn' onClick={this.openModal}>Save As Playlist</button>*/}
+
+            {/*<Modal isOpen={this.state.modalIsOpen}*/}
+            {/*onRequestClose={this.closeModal}*/}
+            {/*className="modal"*/}
+            {/*overlayClassName="modal-overlay"*/}
+            {/*>*/}
+
+            {/*<h2 className="modal-title">*/}
+            {/*<i aria-hidden="true" className="icon icon-music icon-xl"/>*/}
+            {/*{`Save ${pl.title} as playlist ?`}*/}
+            {/*</h2>*/}
+
+            {/*<div className="modal-content">*/}
+            {/*<p>Type the playlist's title you want to create.</p>*/}
+            {/*</div>*/}
+
+            {/*<AddPlaylist*/}
+            {/*history={history}*/}
+            {/*placeholder={`${pl.title}'s playlist`}*/}
+            {/*tracksId={pl.tracks}*/}
+            {/*validation='Save'*/}
+            {/*redirect*/}
+
+            {/*/>*/}
+
+            {/*</Modal>*/}
+            {/*</div>*/}
+            {/*}*/}
+
           </header>
         }
-
         {pl &&
-          <div className='col-2'>
-            <div className='tracks-items-row-header'>
-              <span className='tracks-item-img'></span>
-              <span className='title'>Title</span>
-              <span className='artist'>Artist</span>
-              <span className='album'>Album</span>
-              <span className='tracks-item-menu'>Add</span>
-            </div>
+          <div className='col-2-medium-3-small-3'>
+            <div className='w-max-l'>
+              <div className='move-tracks-items-row-header for-album'>
+                <span className='tracks-item-img'></span>
+                <span className='title'>Title</span>
+                <span className='artist'>Artist</span>
+                <span className='tracks-item-menu'></span>
+              </div>
               <DraggableList
                 items={pl.tracks}
                 callbackMouseUp={this.handlerMoveItem}
                 component={Tracks}
                 isActivePlaylist={isActive}
                 user={user}
+                dragActive={!!user}
+                forAlbum={true}
                 isPaused={isPaused}
                 onPlayIndex={onPlayIndex}
                 onPlay={this.handlerReadTrack}
+                addTrack={this.handlerAddTrack}
               />
+            </div>
           </div>
         }
-
-        {(!!user && pl) &&
-        <Modal trigger={
-          <button className='btn'>
-            Save As Playlist
-          </button>
-        } basic size='small' closeIcon>
-          <Header icon='sound' content={`Save ${pl.title} as playlist ?`} />
-          <Modal.Content>
-            <p>Type the playlist's title you want to create.</p>
-            <AddPlaylist
-              history={history}
-              placeholder={`${pl.title}'s playlist`}
-              tracksId={pl.tracks.map(t => t.tracksId)}
-              validation='Save'
-              redirect
-            />
-          </Modal.Content>
-        </Modal>}
-
       </section>
     );
   }
@@ -245,6 +297,7 @@ const mapStateToProps = state => {
     isPaused: state.playlistStore.pause,
     onPlay: state.playlistStore.onPlay,
     isAuthenticated: state.authenticationStore.isAuthenticated,
+    activePlaylist: state.playlistStore.activePlaylist,
     user: state.authenticationStore._user
   }
 };
@@ -259,7 +312,12 @@ const mapDispatchToProps = dispatch => {
     ),
     playTrackAlbum: (item) => dispatch(
       playOnAlbum(item)
-    )
+    ),
+    addPlaylistItems: (title, items) => dispatch(
+      post(`playlist/${title}`, {
+        data: items
+      })
+    ),
   }
 };
 
@@ -273,7 +331,7 @@ const AlbumContainer = connect(
 function getTrackIndexBySrc (path, array) {
   let l = array.length;
   for (let i = 0; i < l; i++) {
-    if (array[i].path == path) return i;
+    if (array[i].path === path) return i;
   }
   return null;
 }

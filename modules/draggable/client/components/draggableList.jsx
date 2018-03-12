@@ -159,13 +159,11 @@ class DraggableList extends Component {
           const style = isDragged
             ? {
               scale: spring(1.1, springConfig),
-              shadow: spring(16, springConfig),
               y: mouseY,
               opacity: 1
             }
             : {
               scale: spring(1, springConfig),
-              shadow: spring(1, springConfig),
               y: spring(realIndex * h, springConfig),
               opacity: spring(1, springConfig)
             };
@@ -175,12 +173,11 @@ class DraggableList extends Component {
               defaultStyle={{
                 opacity: 0,
                 scale: 1,
-                shadow: 1,
                 y: realIndex * h,
                 zIndex: realIndex
               }}
               key={id}>
-              {({scale, shadow, y, opacity}) => {
+              {({scale, y, opacity}) => {
 
                 if (scale > 1 && classes.indexOf('dl-dragged') === -1) {
                   classes.push('dl-dragged');
@@ -190,7 +187,6 @@ class DraggableList extends Component {
                   <li className={classes.join(' ')}
                     style={{
                       opacity: `${opacity}`,
-                      boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
                       transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                       WebkitTransform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                       zIndex: scale !== 1 ? 1000 : realIndex,
@@ -215,23 +211,6 @@ class DraggableList extends Component {
     );
   }
 }
-
-// @todo remove this
-const mapStateToProps = state => {
-  return {
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-  }
-};
-
-const DraggableListContainer = connect(
-  null,
-  null
-)(DraggableList);
-
 
 // HELPER
 function reinsert (arr, from, to) {
@@ -264,4 +243,4 @@ function getDisplayedItems (scrollContainer, arr, h) {
 }
 
 
-export default DraggableListContainer
+export default DraggableList
