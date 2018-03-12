@@ -29,9 +29,9 @@ body {
   background-color: $color-bg-body;
   color: $color-base;
 
-  @include respond-to(large-up) {
-    font-size: $font-size-large;
-  }
+  //@include respond-to(large-up) {
+  //  font-size: $font-size-large;
+  //}
 }
 
 h1 {

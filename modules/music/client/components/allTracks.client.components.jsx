@@ -104,7 +104,7 @@ class AllTracks extends Component {
 
                 return (
                   <li key={i}>
-                    <a className='alltracks-item-album' href='#' onClick={(e) => this.handlerPlayTracks(e, item)} title={`Play ${item.meta.title}`}>
+                    <a className='tracks-items-row' href='#' onClick={(e) => this.handlerPlayTracks(e, item)} title={`Play ${item.meta.title}`}>
                       <span className='tracks-item-img'>
                         <Img title={`${item.meta.album} Cover`}
                              src={'/pictures/' + ps.changeSeparator(item.albumKey, '___', '/') + '/cover.jpg'}

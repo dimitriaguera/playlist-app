@@ -4,11 +4,13 @@ import { get, put } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
 import Tracks from 'music/client/components/tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { Divider, Label, Button, Modal, Header } from 'semantic-ui-react'
+import { Modal, Header } from 'semantic-ui-react'
 import ps from 'core/client/services/core.path.services'
 import InfoPanel from './infoPanel/infoPanel.client.components'
 
 import DraggableList from 'draggable/client/components/draggableList'
+
+const emptyArray = [];
 
 class Album extends Component {
   constructor (props) {
@@ -56,7 +58,8 @@ class Album extends Component {
           const album = {
             title: data.msg.name,
             key: key,
-            tracks: data.msg.tracks
+            tracks: data.msg.tracks,
+            item: data.msg,
           };
 
           _self.setState({
@@ -74,6 +77,8 @@ class Album extends Component {
     const _self = this;
     const { playingList, fetchFiles, history } = nextProps;
     const { albumOfUrl } = this.state;
+
+    // @TODO play item system must be reworked. Now, data item from db is stored in albumOfUrl.pl.item
 
     // Force re-rendering on props location change.
     if (_self.props.location.pathname !== nextProps.location.pathname) {
@@ -99,7 +104,8 @@ class Album extends Component {
             const album = {
               title: data.msg.name,
               key: playingList.pl.key,
-              tracks: data.msg.tracks
+              tracks: data.msg.tracks,
+              item: data.msg,
             };
 
             _self.setState({
@@ -180,18 +186,40 @@ class Album extends Component {
     const { onPlayIndex, pl } = albumOfUrl;
 
     return (
-      <section className='pal'>{ pl &&
+      <section className='pal grid-3 has-gutter'>
+        { (pl && pl.item) &&
+          <header>
+            <InfoPanel album={pl.item} tracks={pl.tracks}/>
+          </header>
+        }
 
-      <div>
-        <Label color='teal' style={{textTransform: 'uppercase'}}>Album</Label>
-        <InfoPanel item={pl}
-        />
+        {pl &&
+          <div className='col-2'>
+            <div className='tracks-items-row-header'>
+              <span className='tracks-item-img'></span>
+              <span className='title'>Title</span>
+              <span className='artist'>Artist</span>
+              <span className='album'>Album</span>
+              <span className='tracks-item-menu'>Add</span>
+            </div>
+              <DraggableList
+                items={pl.tracks}
+                callbackMouseUp={this.handlerMoveItem}
+                component={Tracks}
+                isActivePlaylist={isActive}
+                user={user}
+                isPaused={isPaused}
+                onPlayIndex={onPlayIndex}
+                onPlay={this.handlerReadTrack}
+              />
+          </div>
+        }
 
-        {!! user &&
+        {(!!user && pl) &&
         <Modal trigger={
-          <Button icon basic inverted>
-                            Save As Playlist
-          </Button>
+          <button className='btn'>
+            Save As Playlist
+          </button>
         } basic size='small' closeIcon>
           <Header icon='sound' content={`Save ${pl.title} as playlist ?`} />
           <Modal.Content>
@@ -206,20 +234,7 @@ class Album extends Component {
           </Modal.Content>
         </Modal>}
 
-        <Divider />
-
-        <DraggableList
-          items={pl.tracks}
-          callbackMouseUp={this.handlerMoveItem}
-          component={Tracks}
-          isActivePlaylist={isActive}
-          user={user}
-          isPaused={isPaused}
-          onPlayIndex={onPlayIndex}
-          onPlay={this.handlerReadTrack}
-        />
-      </div>
-      }</section>
+      </section>
     );
   }
 }

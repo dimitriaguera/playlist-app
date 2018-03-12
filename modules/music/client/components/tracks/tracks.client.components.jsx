@@ -23,31 +23,33 @@ class Tracks extends Component {
 
     const active = isActivePlaylist && (index === onPlayIndex);
     const iconName = isPaused ? 'pause' : 'play';
-    const title = item.meta.title;
 
-    let classes = ['pli-tracks'];
+    let classes = ['tracks-items-row'];
     if (active) classes.push('active');
+
+    const artist = item.meta.artist ? item.meta.artist : item.meta.albumartist;
 
     return (
       <a className={classes.join(' ')} onClick={onPlay(index)} href='#'>
-        {active &&
-          <div className='pli-inner-left'>
-            {isPaused ?
-              <i aria-hidden="true" className={`pli-play icon icon-pause`}/>
-              :
-              <IconPlayAnim/>
-            }
-          </div>
-        }
-        <span className='pli-inner'>
+        {/*{active &&*/}
+          {/*<div className='pli-inner-left'>*/}
+            {/*{isPaused ?*/}
+              {/*<i aria-hidden="true" className={`pli-play icon icon-pause`}/>*/}
+              {/*:*/}
+              {/*<IconPlayAnim/>*/}
+            {/*}*/}
+          {/*</div>*/}
+        {/*}*/}
+        <span className='tracks-item-img'>
           <span className='pli-number'>{index + 1}.</span>
-          <span className='pli-info'>
-            <span className={'pli-title'}>{title || item.name}</span>
-            <InfoPath meta={item.meta} />
-          </span>
         </span>
+
+        <span className='title'>{item.meta.title}</span>
+        {artist && <span className='artist'>{artist}</span>}
+        {item.meta.album && <span className='album'>{item.meta.album}</span>}
+
         {(onDelete && canEdit) &&
-        <span className='pli-menu'>
+        <span className='tracks-item-menu'>
           <button className='btn' onClick={onDelete(index)}>
             <i aria-hidden="true" className="icon icon-trash-2" />
           </button>
