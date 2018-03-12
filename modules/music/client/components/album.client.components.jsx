@@ -215,14 +215,14 @@ class Album extends Component {
 
   render () {
     const { albumOfUrl, isActive } = this.state;
-    const { isPaused, user, history } = this.props;
+    const { isPaused, user, history, location } = this.props;
     const { onPlayIndex, pl } = albumOfUrl;
 
     return (
       <section className='pal grid-3 has-gutter'>
         { (pl && pl.item) &&
           <header>
-            <InfoPanel album={pl.item} tracks={pl.tracks}/>
+            <InfoPanel album={pl.item} tracks={pl.tracks} location={location} history={history}/>
 
             {/*{@todo reimplemenb save as pl for album because
             it couldn't working know (moogose wants tracks like node
