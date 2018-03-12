@@ -76,7 +76,9 @@ class Register extends Component {
 
     e.preventDefault();
 
-    if (this.state.pwdError) return;
+    if (this.state.pwdError) {
+      return _self.setState({message: 'Your password and confirmation password do not match'});
+    }
 
     store.dispatch(registerNewUser(this.state)).then((data) => {
       console.log(data);
@@ -94,36 +96,53 @@ class Register extends Component {
 
   render () {
     const { username, password, cfPassword, isRegister, message, error, pwdError, pwdIcon } = this.state;
-    const { history } = this.props;
 
     // Confirm password icon builder.
     let icon;
-    if (pwdIcon === null) icon = {};
-    else icon = pwdIcon ? {icon: {color: 'green', name: 'checkmark'}} : {icon: {color: 'red', name: 'remove'}};
+    if (pwdIcon === null) icon = '';
+    else icon = pwdIcon ? 'icon-check' : 'icon-x';
 
     return (
-      <div>
-        {
-          isRegister
-            ? (<div>
-              <Header>Register</Header>
-              <Message header={`Welcome ${username} !`} content='Registration successful' color='blue' />
-            </div>)
-            : (<div>
-              <Header>Register</Header>
-              <Form error={error} onSubmit={this.submitForm}>
-                <Message error content={message} />
-                <Form.Group>
-                  <Form.Input required label='Account name' placeholder='Name' name='username' value={username} onChange={this.handleInputChange} />
-                  <Form.Input required label='Password' type='password' placeholder='Password' name='password' value={password} onChange={this.handleInputChange} />
-                  <Form.Input {...icon} required label='Confirm Password' type='password' name='cfPassword' value={cfPassword} error={pwdError} onBlur={this.checkPasswordOnBlur} onFocus={this.resetPwdError} onChange={this.handleInputChange} />
-                </Form.Group>
-                <Button type='submit' content='Submit' color='blue' />
-              </Form>
-              <Divider horizontal>Or</Divider>
-              <Button onClick={(e) => history.push('/login')} fluid>Sign in</Button>
-            </div>)}
-      </div>
+
+      <section className='pal'>
+        <header>
+          <h1>Sign up</h1>
+        </header>
+        <div className='wrapper-content'>
+          {
+            isRegister
+              ?
+                <Message header={`Welcome ${username} !`} content='Registration successful' color='blue'/>
+              :
+
+              <div>
+
+                <form onSubmit={this.submitForm}>
+                  <div className='form-row'>
+                    <label htmlFor='username'>Username</label>
+                    <input required placeholder='Username' id='username' name='username' value={username} onChange={this.handleInputChange} />
+                  </div>
+
+                  <div className='form-row'>
+                    <label htmlFor='Password'>Password</label>
+                    <input required id='Password' type='password' placeholder='Password' name='password' value={password} onChange={this.handleInputChange} />
+                  </div>
+
+                  <div className='form-row'>
+                    <label htmlFor='cfPassword'>Confirm Password</label>
+                    <input required type='password' id='cfPassword' name='cfPassword' value={cfPassword} onBlur={this.checkPasswordOnBlur} onFocus={this.resetPwdError} onChange={this.handleInputChange} />
+                    <i aria-hidden="true" className={`icon ${icon}`}></i>
+                  </div>
+
+                  <button className='btn' type='submit'>Sign up</button>
+
+                  <Message error content={message} />
+                </form>
+
+              </div>
+          }
+        </div>
+      </section>
     )
   }
 }

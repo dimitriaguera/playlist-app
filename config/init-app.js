@@ -150,6 +150,8 @@ module.exports.initDatabase = function (app) {
     opt.pass = config.db.password;
   }
 
+  opt.useMongoClient = true;
+
   mongoose.Promise = require('bluebird');
 
   mongoose.connect(dbUri, opt)

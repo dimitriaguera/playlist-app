@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { loginUser } from 'users/client/redux/actions'
-import { Form, Button, Divider, Header, Message } from 'semantic-ui-react'
+import { Message } from 'semantic-ui-react'
 
 // AddExt.
 import { activatePlaylist } from 'music/client/redux/actions'
@@ -64,19 +64,19 @@ class Login extends Component {
 
     console.log('LOGIN CALLED - PAS REDIRECT');
     return (
-      <div>
-        <Header>Sign In</Header>
-        <Form error={error} onSubmit={this.submitForm}>
-          <Message error content={message} />
-          <Form.Group>
-            <Form.Input required placeholder='Name' name='username' value={username} onChange={this.handleInputChange} />
-            <Form.Input required type='password' placeholder='Password' name='password' value={password} onChange={this.handleInputChange} />
-          </Form.Group>
-          <Button type='submit' content='Submit' color='blue' />
-        </Form>
-        <Divider horizontal>Or</Divider>
-        <Button onClick={(e) => history.push('/register')} fluid>Sign Up Now</Button>
-      </div>
+      <section className='pal'>
+        <header>
+          <h1>Log in</h1>
+        </header>
+        <div className='wrapper-content'>
+          <form onSubmit={this.submitForm}>
+              <input aria-label="Username" required placeholder='Username' name='username' value={username} onChange={this.handleInputChange} />
+              <input aria-label="Password" required type='password' placeholder='Password' name='password' value={password} onChange={this.handleInputChange} />
+              <button className='btn' type='submit'>Log in</button>
+            <Message error content={message} />
+          </form>
+        </div>
+      </section>
     )
   }
 }

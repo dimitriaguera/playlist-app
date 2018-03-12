@@ -112,7 +112,7 @@ class Users extends Component {
   render () {
     // Get state and props properties.
     const { users, modal } = this.state;
-    const { currentUser } = this.props;
+    const { currentUser, history } = this.props;
 
     // Build user list.
     const userList = users.map((user, index) => {
@@ -134,6 +134,11 @@ class Users extends Component {
           <h1>All users</h1>
         </header>
         <div className='wrapper-content'>
+
+          <div className=''>
+            <button className='btn' onClick={() => history.push('/register')}>Create New User</button>
+          </div>
+
           <ul className='unstyled'>
             {userList}
           </ul>
