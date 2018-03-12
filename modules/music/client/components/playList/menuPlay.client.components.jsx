@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
 import { playOnPlaylist, playItem, pauseState, playState } from 'music/client/redux/actions'
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 
 class PlayingControls extends Component {
   constructor () {
@@ -76,7 +77,7 @@ class PlayingControls extends Component {
       // If active playlist and on play, display Pause button.
       if (isActive && !isPaused) { return (
         <button className='btn btn-icon big' onClick={this.onPauseHandler} aria-label='pause'>
-          <i aria-hidden='true' className='icon icon-pause' />
+          <IconPlayAnim />
         </button>
       ); }
       // Else display Play button.
