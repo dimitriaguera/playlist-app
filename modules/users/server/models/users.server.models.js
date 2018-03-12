@@ -39,6 +39,18 @@ const validateUsername = function (username) {
   return (username && usernameRegex.test(username) && config.security.illegalUsernames.indexOf(username) < 0);
 };
 
+const validatePassword = function (password) {
+  // Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
+  // no space
+  // WARNING YOU HAVE TO OPPOSITE TEST !passwordRegex.test(password)
+  const passwordRegex = /^(.{0,7}|[^0-9]*|[^A-Z]*|[^a-z]*|[a-zA-Z0-9]*|[^\s]*\s.*)$/;
+
+  // no characters repeated more than 3 times consecutively (like aaaaa)
+  const testIfRepeatCarRegex = /^(?!.*(\w)\1{3,}).+$/;
+  return (password && !passwordRegex.test(password) && testIfRepeatCarRegex.test(password));
+};
+
+
 /**
  * User model.
  *
@@ -54,7 +66,11 @@ const UserSchema = new Schema({
 
   password: {
     type: String,
-    required: true
+    required: true,
+    validate: [validatePassword,
+      'Please enter a valid password : Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character ' +
+      'no space and no characters repeated more than 3 times consecutively (like aaaaa).'
+      ]
   },
 
   roles: ['string'],

@@ -29,8 +29,8 @@ class EditUser extends Component {
 
     this.setState((prevState) => {
       const state = Object.assign({}, prevState);
-      state.formRoles[name] = value;
-      state.errorUpdate = null;
+      this.state.formRoles[name] = value;
+      this.state.errorUpdate = null;
       return state;
     });
   }
@@ -53,7 +53,8 @@ class EditUser extends Component {
       });
   }
 
-  handleUpdateUser () {
+  handleUpdateUser (e) {
+    e.preventDefault();
     const _self = this;
     const { user, formRoles } = this.state;
     const name = _self.props.match.params.userName;
@@ -104,7 +105,7 @@ class EditUser extends Component {
 
         return (
           <li key={index}>
-            <input id={role.id} name={role.id} className='checkbox' type='checkbox' checked={this.state.formRoles[name] || false} onChange={this.handleChangeCheckBox}/>
+            <input id={role.id} name={role.id} className='checkbox' type='checkbox' defaultChecked={props.defaultChecked} checked={props.checked} disabled={props.disabled} onChange={this.handleChangeCheckBox}/>
             <label htmlFor={role.id}>{role.name}</label>
           </li>
         );
@@ -129,13 +130,13 @@ class EditUser extends Component {
             <h1>Edit {user.username} account</h1>
           </header>
           <div className='wrapper-content'>
-            {renderMessage()}
             <h2>Authorizations</h2>
             <form onSubmit={this.handleUpdateUser}>
               <ul className='unstyled'>
                 {rolesForm}
               </ul>
               <button className='btn' type='submit'>Save</button>
+              {renderMessage()}
             </form>
           </div>
         </section>
