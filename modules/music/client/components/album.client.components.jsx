@@ -268,6 +268,7 @@ class Album extends Component {
                 <span className='tracks-item-img'></span>
                 <span className='title'>Title</span>
                 <span className='artist'>Artist</span>
+                <span className='time'>Time</span>
                 <span className='tracks-item-menu'></span>
               </div>
               <DraggableList
@@ -278,6 +279,7 @@ class Album extends Component {
                 user={user}
                 dragActive={!!user}
                 forAlbum={true}
+                history={history}
                 isPaused={isPaused}
                 onPlayIndex={onPlayIndex}
                 onPlay={this.handlerReadTrack}

@@ -109,7 +109,7 @@ class InfoPanel extends Component {
           />
         </div>
         <div className='info-panel-meta'>
-          {album.name && <span className='name'>{album.name}</span>}
+          {album.name && <h1 className='name'>{album.name}</h1>}
           <span className='genre'>
           {album.genre.map((g, i) => <span key={i}>{g}</span>)}
         </span>

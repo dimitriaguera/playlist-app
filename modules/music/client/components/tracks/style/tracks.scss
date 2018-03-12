@@ -8,28 +8,37 @@ $color-link-track-hover: $link-color-hover;
 $color-icon-track: $color-primary;
 $color-icon-track-hover: $color-primary-hover;
 
+$menu-size: 4rem;
+
 $image-size-track-small: 3rem;
 $image-size-track: 7rem;
 
 .move-tracks-items-row,
 .move-tracks-items-row-header {
   display: grid;
-  grid-template-columns: $image-size-track-small 1fr 1fr auto;
+  grid-template-columns: $image-size-track-small 1fr 1fr auto $menu-size;
   grid-template-rows: auto auto;
   grid-template-areas:
-    "image title title menu"
-    "image artist album menu";
+    "image title title title menu"
+    "image artist album time menu";
   grid-column-gap: 2rem;
   align-items: center;
   color: $color-link-track;
   border-bottom: 1px solid $gray-ghost;
   transition: transform 0.7s ease;
+  cursor: pointer;
+
+  a {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 
   &.for-album {
-    grid-template-columns: $image-size-track-small 1fr auto;
+    grid-template-columns: $image-size-track-small 1fr auto $menu-size;
     grid-template-areas:
-      "image title menu"
-      "image artist menu";
+      "image title title menu"
+      "image artist time menu";
   }
 
   .tracks-item-img {
@@ -60,7 +69,8 @@ $image-size-track: 7rem;
   .title,
   .date,
   .artist,
-  .album {
+  .album,
+  .time {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -81,6 +91,10 @@ $image-size-track: 7rem;
 
   .album {
     grid-area: album;
+  }
+
+  .time {
+    grid-area: time;
   }
 }
 
@@ -121,13 +135,13 @@ $image-size-track: 7rem;
 @include respond-to("small-up") {
   .move-tracks-items-row,
   .move-tracks-items-row-header {
-    grid-template-areas: "image title artist album menu";
-    grid-template-columns: $image-size-track 2fr 1fr 1fr auto;
+    grid-template-areas: "image title artist album time menu";
+    grid-template-columns: $image-size-track 2fr 1fr 1fr auto $menu-size;
     grid-template-rows: auto;
 
     &.for-album {
-      grid-template-areas: "image title artist menu";
-      grid-template-columns: $image-size-track 3fr 1fr auto;
+      grid-template-areas: "image title artist time menu";
+      grid-template-columns: $image-size-track 3fr 1fr auto $menu-size;
     }
   }
 }

@@ -19,7 +19,7 @@ button {
   color: $color-primary;
   padding: 1rem;
   cursor: pointer;
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, border-radius 0.3s ease;
 
   &:hover,
   &:focus {
@@ -32,6 +32,17 @@ button {
     &.hover,
     &:focus {
       color: darken($white, 20%);
+    }
+  }
+
+  &.btn-standard {
+    border: 1px solid $color-primary;
+    margin-right: 10px;
+    margin-bottom: 4px;
+    min-width: 15rem;
+
+    &:hover {
+      border-radius: 2rem;
     }
   }
 

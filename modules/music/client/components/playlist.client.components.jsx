@@ -12,6 +12,7 @@ import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
 import Tracks from './tracks/tracks.client.components'
 import DraggableList from 'draggable/client/components/draggableList'
+import InfoPanelPlaylist from './infoPanel/infoPanelPlaylist.client.components'
 
 
 class Playlist extends Component {
@@ -157,7 +158,7 @@ class Playlist extends Component {
 
   render () {
     const { playlist } = this.state;
-    const { playingList, isPaused, user } = this.props;
+    const { playingList, isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = playingList;
     const isActivePlaylist = mustUpdate(pl, playlist);
     const isAuthor = user && playlist.author && playlist.author.username === user.username;
@@ -165,44 +166,52 @@ class Playlist extends Component {
     let label_mode = 'Playlist';
 
     return (
-      <section className='pal'>
+      <section className='pal grid-3 has-gutter'>
 
         <header>
-          <span className='pl-mode'>{label_mode}</span>
-          <h1>{playlist.title}</h1>
-        </header>
+          {playlist && <InfoPanelPlaylist item={playlist}/>}
 
-
-        <span className='pl-tracks-nb'>Number of tracks : {playlist.tracks.length}</span>
-
-        {isAuthor &&
+          {isAuthor &&
           <div className='pl-action-cont'>
-            <button className='btn' onClick={this.handlerAddTracks}>
+            <button className='btn btn-standard' onClick={this.handlerAddTracks}>
               Add tracks
             </button>
-            <button className='btn' onClick={this.handlerClearPlaylist}>
+            <button className='btn btn-standard' onClick={this.handlerClearPlaylist}>
               Remove all tracks
             </button>
-            <button className='btn' onClick={this.handlerDeletePlaylist}>
+            <button className='btn btn-standard' onClick={this.handlerDeletePlaylist}>
               Delete Playlist
             </button>
           </div>
-        }
+          }
+        </header>
 
-
-        <DraggableList
-          items={playlist.tracks}
-          component={Tracks}
-          dragActive={isAuthor}
-          canEdit={isAuthor}
-          isPaused={isPaused}
-          isActivePlaylist={isActivePlaylist}
-          onPlayIndex={onPlayIndex}
-          callbackMouseUp={this.handlerMoveItem}
-          onDelete={this.handlerDeleteTrack}
-          onPlay={this.handlerReadFile}
-          scrollContainerName='main-content'
-        />
+        <div className='col-2-medium-3-small-3'>
+          <div className='w-max-l'>
+            <div className='move-tracks-items-row-header'>
+              <span className='tracks-item-img'></span>
+              <span className='title'>Title</span>
+              <span className='artist'>Artist</span>
+              <span className='album'>Album</span>
+              <span className='time'>Time</span>
+              <span className='tracks-item-menu'></span>
+            </div>
+            <DraggableList
+              items={playlist.tracks}
+              component={Tracks}
+              dragActive={isAuthor}
+              canEdit={isAuthor}
+              isPaused={isPaused}
+              history={history}
+              isActivePlaylist={isActivePlaylist}
+              onPlayIndex={onPlayIndex}
+              callbackMouseUp={this.handlerMoveItem}
+              onDelete={this.handlerDeleteTrack}
+              onPlay={this.handlerReadFile}
+              scrollContainerName='main-content'
+            />
+          </div>
+        </div>
       </section>
     );
   }

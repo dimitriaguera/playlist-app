@@ -91,7 +91,7 @@ $image-size-track: 7rem;
   &:hover {
     //background-color: $color-bg-row-hover;
     border-bottom: #{$color-border-fol-item};
-    transform: scale3d(1.05, 1.05, 1);
+    transform: scale3d(1.02, 1.02, 1);
 
     .tracks-item-img {
       & > img {
