@@ -13,6 +13,7 @@ const Node = require(path.resolve('./modules/indexableFolder/server/models/index
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
 const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
 const indices_body = require(path.resolve('./modules/indexableFolder/server/elastic/mappings.server.elastic'));
+const { getAlbumKeyFromTrackNodeMeta, normalizedMeta } = require(path.resolve('./modules/indexableFolder/server/services/indexableFolder.key.services'));
 
 /**
  * Master indexation controller.
@@ -453,7 +454,7 @@ function trackTestInit (chunk, storage) {
     node.meta = meta;
 
     // Get albumKey from node.
-    const nKey = getAlbumKeyFromTrackNodeMeta(meta);
+    const nKey = getAlbumKeyFromTrackNodeMeta(ps, meta);
 
     // If track exist in elasticsearch.
     if (track) {
@@ -744,19 +745,19 @@ function * clearIndices (indices, logs = []) {
 }
 
 
-function getAlbumKeyFromTrackNodeMeta (meta) {
-  let artistKEY = meta.albumartist || meta.artist;
-  return ps.buildSeparator([artistKEY, meta.album, meta.diskno], '___');
-}
+// function getAlbumKeyFromTrackNodeMeta (meta) {
+//   let artistKEY = meta.albumartist || meta.artist;
+//   return ps.buildSeparator([artistKEY, meta.album, meta.diskno], '___');
+// }
 
-function normalizedMeta (node) {
-  nMeta = Object.assign({}, node.meta);
-  nMeta.artist = nMeta.artist ? nMeta.artist.toLowerCase() : '';
-  nMeta.albumartist = nMeta.albumartist ? nMeta.albumartist.toLowerCase() : '';
-  nMeta.album = nMeta.album ? nMeta.album.toLowerCase() : '';
-  nMeta.title = nMeta.title ? nMeta.title : node.publicName;
-  return nMeta;
-}
+// function normalizedMeta (node) {
+//   const nMeta = Object.assign({}, node.meta);
+//   nMeta.artist = nMeta.artist ? nMeta.artist.toLowerCase() : '';
+//   nMeta.albumartist = nMeta.albumartist ? nMeta.albumartist.toLowerCase() : '';
+//   nMeta.album = nMeta.album ? nMeta.album.toLowerCase() : '';
+//   nMeta.title = nMeta.title ? nMeta.title : node.publicName;
+//   return nMeta;
+// }
 
 
 function extractDataFromMeta (node, keys, chunk) {
@@ -766,7 +767,7 @@ function extractDataFromMeta (node, keys, chunk) {
   const meta = normalizedMeta(node);
 
   // Create unique key for album.
-  let albumKEY = getAlbumKeyFromTrackNodeMeta(meta);
+  let albumKEY = getAlbumKeyFromTrackNodeMeta(ps, meta);
 
   // Add track record.
   chunk.push(buildTracksToRecord(node, meta, albumKEY));
@@ -1096,7 +1097,7 @@ const getAlbumByKeyFn = function(key, callback) {
   // Send search to elastic server.
   es.search(params, (err, data) => {
     if (err) return callback(err);
-    const album = data.hits.hits[0]._source ;
+    const album = data.hits.hits[0] ? data.hits.hits[0]._source : null;
     callback(null, album);
   });
 };
