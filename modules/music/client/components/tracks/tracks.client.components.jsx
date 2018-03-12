@@ -23,8 +23,10 @@ class Tracks extends Component {
   }
 
   toAlbumPage(e){
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     const key = ps.urlEncode(getAlbumKeyFromTrackNodeMeta(ps, normalizedMeta(this.props.item)));
     this.props.history.push(`/album/${key}`);
   }
