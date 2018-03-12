@@ -113,6 +113,7 @@ class AlbumCard extends Component {
     });
   }
 
+  // @TODO have to rework plyaing object system.
   handlerPlayAlbum (e, i) {
     const { addAlbumToPlay } = this.props;
 
@@ -125,7 +126,8 @@ class AlbumCard extends Component {
           pl: {
             title: album.name,
             key: album.key,
-            tracks: album.tracks
+            tracks: album.tracks,
+            item: album,
           }
         };
         // Store playing album.

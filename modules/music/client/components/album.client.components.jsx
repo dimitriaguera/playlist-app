@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { get } from 'core/client/services/core.api.services'
+import { get, post } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
 import Tracks from 'music/client/components/tracks/tracks.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
+
 import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
 import InfoPanel from './infoPanel/infoPanel.client.components'
 
 import DraggableList from 'draggable/client/components/draggableList'
+
+const emptyArray = [];
 
 class Album extends Component {
   constructor (props) {
@@ -25,6 +28,7 @@ class Album extends Component {
 
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerReadTrack = this.handlerReadTrack.bind(this);
+    this.handlerAddTrack = this.handlerAddTrack.bind(this);
 
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
@@ -73,7 +77,8 @@ class Album extends Component {
           const album = {
             title: data.msg.name,
             key: key,
-            tracks: data.msg.tracks
+            tracks: data.msg.tracks,
+            item: data.msg,
           };
 
           _self.setState({
@@ -91,6 +96,8 @@ class Album extends Component {
     const _self = this;
     const { playingList, fetchFiles, history } = nextProps;
     const { albumOfUrl } = this.state;
+
+    // @TODO play item system must be reworked. Now, data item from db is stored in albumOfUrl.pl.item
 
     // Force re-rendering on props location change.
     if (_self.props.location.pathname !== nextProps.location.pathname) {
@@ -116,7 +123,8 @@ class Album extends Component {
             const album = {
               title: data.msg.name,
               key: playingList.pl.key,
-              tracks: data.msg.tracks
+              tracks: data.msg.tracks,
+              item: data.msg,
             };
 
             _self.setState({
@@ -142,6 +150,20 @@ class Album extends Component {
         onPlayIndex: nextProps.onPlayIndex
       });
     }
+  }
+
+  handlerAddTrack (e, tracksId) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
+
+    // User must be connected to add tracks.
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+
+    // Add tracks into activated Playlist.
+    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
   }
 
   handlerReadTrack (key) {
@@ -196,64 +218,74 @@ class Album extends Component {
     const { isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = albumOfUrl;
 
-    if (!pl) return null;
-
     return (
-      <section className='pal'>
+      <section className='pal grid-3 has-gutter'>
+        { (pl && pl.item) &&
+          <header>
+            <InfoPanel album={pl.item} tracks={pl.tracks}/>
 
-        <header>
-          <span className='pl-mode'>Album</span>
-          <h1>{pl.title}</h1>
-        </header>
-
-        <InfoPanel item={pl} />
-
-        {/*{@todo reimplemenb save as pl for album because
-        it couldn't working know (moogose wants tracks like node
-        and here is realy not a node)}*/}
-        {/*{!! user &&*/}
-          {/*<div className="album-list-save-cont">*/}
+            {/*{@todo reimplemenb save as pl for album because
+            it couldn't working know (moogose wants tracks like node
+            and here is realy not a node)}*/}
+            {/*{!! user &&*/}
+            {/*<div className="album-list-save-cont">*/}
             {/*<button className='btn' onClick={this.openModal}>Save As Playlist</button>*/}
 
             {/*<Modal isOpen={this.state.modalIsOpen}*/}
-                   {/*onRequestClose={this.closeModal}*/}
-                   {/*className="modal"*/}
-                   {/*overlayClassName="modal-overlay"*/}
+            {/*onRequestClose={this.closeModal}*/}
+            {/*className="modal"*/}
+            {/*overlayClassName="modal-overlay"*/}
             {/*>*/}
 
-              {/*<h2 className="modal-title">*/}
-                {/*<i aria-hidden="true" className="icon icon-music icon-xl"/>*/}
-                {/*{`Save ${pl.title} as playlist ?`}*/}
-              {/*</h2>*/}
+            {/*<h2 className="modal-title">*/}
+            {/*<i aria-hidden="true" className="icon icon-music icon-xl"/>*/}
+            {/*{`Save ${pl.title} as playlist ?`}*/}
+            {/*</h2>*/}
 
-              {/*<div className="modal-content">*/}
-                {/*<p>Type the playlist's title you want to create.</p>*/}
-              {/*</div>*/}
+            {/*<div className="modal-content">*/}
+            {/*<p>Type the playlist's title you want to create.</p>*/}
+            {/*</div>*/}
 
-              {/*<AddPlaylist*/}
-                {/*history={history}*/}
-                {/*placeholder={`${pl.title}'s playlist`}*/}
-                {/*tracksId={pl.tracks}*/}
-                {/*validation='Save'*/}
-                {/*redirect*/}
+            {/*<AddPlaylist*/}
+            {/*history={history}*/}
+            {/*placeholder={`${pl.title}'s playlist`}*/}
+            {/*tracksId={pl.tracks}*/}
+            {/*validation='Save'*/}
+            {/*redirect*/}
 
-              {/*/>*/}
+            {/*/>*/}
 
             {/*</Modal>*/}
-          {/*</div>*/}
-        {/*}*/}
+            {/*</div>*/}
+            {/*}*/}
 
-        <DraggableList
-          items={pl.tracks}
-          callbackMouseUp={this.handlerMoveItem}
-          component={Tracks}
-          isActivePlaylist={isActive}
-          user={user}
-          isPaused={isPaused}
-          onPlayIndex={onPlayIndex}
-          onPlay={this.handlerReadTrack}
-        />
-
+          </header>
+        }
+        {pl &&
+          <div className='col-2-medium-3-small-3'>
+            <div className='w-max-l'>
+              <div className='move-tracks-items-row-header for-album'>
+                <span className='tracks-item-img'></span>
+                <span className='title'>Title</span>
+                <span className='artist'>Artist</span>
+                <span className='tracks-item-menu'></span>
+              </div>
+              <DraggableList
+                items={pl.tracks}
+                callbackMouseUp={this.handlerMoveItem}
+                component={Tracks}
+                isActivePlaylist={isActive}
+                user={user}
+                dragActive={!!user}
+                forAlbum={true}
+                isPaused={isPaused}
+                onPlayIndex={onPlayIndex}
+                onPlay={this.handlerReadTrack}
+                addTrack={this.handlerAddTrack}
+              />
+            </div>
+          </div>
+        }
       </section>
     );
   }
@@ -265,6 +297,7 @@ const mapStateToProps = state => {
     isPaused: state.playlistStore.pause,
     onPlay: state.playlistStore.onPlay,
     isAuthenticated: state.authenticationStore.isAuthenticated,
+    activePlaylist: state.playlistStore.activePlaylist,
     user: state.authenticationStore._user
   }
 };
@@ -279,7 +312,12 @@ const mapDispatchToProps = dispatch => {
     ),
     playTrackAlbum: (item) => dispatch(
       playOnAlbum(item)
-    )
+    ),
+    addPlaylistItems: (title, items) => dispatch(
+      post(`playlist/${title}`, {
+        data: items
+      })
+    ),
   }
 };
 

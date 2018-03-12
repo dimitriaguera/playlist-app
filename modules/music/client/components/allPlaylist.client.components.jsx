@@ -208,7 +208,7 @@ class AllPlaylist extends Component {
           <h1>Playlists</h1>
           <AddPlaylist history={history} />
         </header>
-        <div className='content-wrapper'>
+        <div className='content-wrapper w-max-xl center'>
           <ul className='grid-target unstyled grid-3 has-gutter-xl'>
             {playLists}
           </ul>

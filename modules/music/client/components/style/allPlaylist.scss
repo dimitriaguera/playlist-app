@@ -5,44 +5,56 @@
 
   .grid-target {
     @include respond-to('extra-large-up') {
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(5, 1fr);
     }
   }
 
   .allpl-li {
-    &:nth-child(5n + 1) {
+    &:nth-child(7n + 1) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_1.jpg') no-repeat center center;
         background-size: cover;
       }
     }
-    &:nth-child(5n + 2) {
+
+    &:nth-child(7n + 2) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_2.jpg') no-repeat center center;
         background-size: cover;
       }
     }
-    &:nth-child(5n + 3) {
+
+    &:nth-child(7n + 3) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_3.jpg') no-repeat center center;
         background-size: cover;
       }
     }
-    &:nth-child(5n + 4) {
+
+    &:nth-child(7n + 4) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_4.jpg') no-repeat center center;
         background-size: cover;
       }
     }
-    &:nth-child(5n + 5) {
+
+    &:nth-child(7n + 5) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_5.jpg') no-repeat center center;
         background-size: cover;
       }
     }
-    &:nth-child(5n + 6) {
+
+    &:nth-child(7n + 6) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_6.jpg') no-repeat center center;
+        background-size: cover;
+      }
+    }
+
+    &:nth-child(7n + 7) {
+      .allpl-img-inner {
+        background: url('../assets/images/default_pl_7.jpg') no-repeat center center;
         background-size: cover;
       }
     }

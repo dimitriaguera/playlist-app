@@ -1,154 +1,133 @@
-.pli-tracks {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 0 0 0 20px;
-  transition: padding 0.3s;
+$color-bg-track: $color-bg-row;
+$color-bg-track-hover: $color-bg-row-hover;
+$color-border-track: $border-row;
 
-  &:hover {
-    background-color: #f9f9f9;
+$color-link-track: $link-color;
+$color-link-track-hover: $link-color-hover;
 
-    .pli-inner {
-      .pli-title {
-        font-size: 1.2rem;
-        color: #00b5ad;
-      }
-    }
+$color-icon-track: $color-primary;
+$color-icon-track-hover: $color-primary-hover;
+
+$image-size-track-small: 3rem;
+$image-size-track: 7rem;
+
+.move-tracks-items-row,
+.move-tracks-items-row-header {
+  display: grid;
+  grid-template-columns: $image-size-track-small 1fr 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "image title title menu"
+    "image artist album menu";
+  grid-column-gap: 2rem;
+  align-items: center;
+  color: $color-link-track;
+  border-bottom: 1px solid $gray-ghost;
+  transition: transform 0.7s ease;
+
+  &.for-album {
+    grid-template-columns: $image-size-track-small 1fr auto;
+    grid-template-areas:
+      "image title menu"
+      "image artist menu";
   }
 
-  i.icon {
-    line-height: 1em;
-  }
-
-  .pli-inner-left {
-    position: absolute;
-    left: 0;
-    width: 0;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: center;
-
-    .pli-play {
-      margin-left: 20px;
-    }
-  }
-
-  .pli-inner {
+  .tracks-item-img {
     position: relative;
+    grid-area: image;
     display: flex;
-    width: 100%;
-    height: 100%;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
     align-items: center;
+    font-size: 2.5rem;
+    color: $gray-700;
 
-    .pli-info {
-      width: calc(100% - 40px);
+    .icon-pause {
+      color: $color-primary;
     }
 
-    .pli-number {
-      width: 70px;
-      font-size: 2rem;
-      line-height: 1em;
-      color: #bcbcbc;
+    .move {
+      position: absolute;
+      color: $color-primary;
+      opacity: 0;
+      transform: translateX(-1rem);
     }
 
-    .pli-title {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
-      font-size: 1.2rem;
-      color: #00f8f0;
+    .number,
+    .move {
+      transition: transform 0.5s ease, opacity 0.5s ease;
     }
   }
 
-  .pli-menu {
-    position: absolute;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-around;
-    align-items: center;
-    width: 40px;
-    height: 100%;
-    top: 0;
-    right: 10px;
+  .title,
+  .date,
+  .artist,
+  .album {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  &.active {
-    padding-left: 40px;
-    background-color: #00b5ad;
-    color: #fff !important;
+  .title {
+    grid-area: title;
+  }
 
-    .pli-inner-left {
-      width: 50px;
-      opacity: 1;
-    }
+  .date {
+    grid-area: date;
+  }
 
-    .pli-inner {
-      .pli-number,
-      .pli-title,
-      .ip-item {
-        color: #fff !important;
+  .artist {
+    grid-area: artist;
+    color: $gray-700;
+  }
+
+  .album {
+    grid-area: album;
+  }
+}
+
+.move-tracks-items-row-header {
+  padding: 2rem 40px 2rem 0;
+  text-transform: uppercase;
+  color: $gray-700;
+}
+
+.move-tracks-items-row {
+  &:hover {
+    border-bottom: #{$color-border-fol-item};
+
+    .tracks-item-img {
+      grid-area: image;
+
+      .move {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .number {
+        opacity: 0;
+        transform: translateX(1rem);
       }
     }
   }
 }
 
-.dl-dragged {
-  .pli-tracks {
-    .pli-inner {
-      .pli-title {
-        color: #00b5ad;
-      }
-    }
+.tracks-item-menu {
+  grid-area: menu;
+
+  & > .btn {
+    background: none;
   }
 }
 
-.white {
-  .pli-tracks {
-    .pli-inner {
-      .pli-title {
-        color: #00b5ad;
-      }
+@include respond-to("small-up") {
+  .move-tracks-items-row,
+  .move-tracks-items-row-header {
+    grid-template-areas: "image title artist album menu";
+    grid-template-columns: $image-size-track 2fr 1fr 1fr auto;
+    grid-template-rows: auto;
+
+    &.for-album {
+      grid-template-areas: "image title artist menu";
+      grid-template-columns: $image-size-track 3fr 1fr auto;
     }
   }
 }
-
-@media (max-width: 667px) {
-  .pli-tracks {
-    padding-left: 5px;
-
-    .pli-inner-left {
-      .pli-play {
-        margin-left: 5px;
-      }
-    }
-
-    .pli-inner {
-      .pli-number {
-        width: 50px;
-        font-size: 1.3rem;
-      }
-
-      .pli-title {
-        font-size: 1.1rem;
-      }
-    }
-
-    &.active {
-      padding-left: 20px;
-
-      .pli-inner-left {
-        width: 20px;
-      }
-    }
-  }
-}
-

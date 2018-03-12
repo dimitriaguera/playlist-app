@@ -28,24 +28,35 @@ body {
   background-size: contain;
   background-color: $color-bg-body;
   color: $color-base;
-
-  @include respond-to(large-up) {
-    font-size: $font-size-large;
-  }
 }
 
 h1 {
   color: $color-h1;
 }
 
-//////////////////////////// LAYOUT
+//////////// LAYOUT
 .w-max-l {
   max-width: $width-max-l;
 }
 
+.w-max-xl {
+  max-width: $width-max-xl;
+}
 
-//////////// GRID
+//////////// KNACSS GRID LAYOUT EXTENSION
+@media (min-width: $medium) and (max-width: ($extra-large - 1)) {
+  @for $i from 1 through 4{
+    [class*="grid-"][class*="-medium-#{$i}"] {
+      grid-template-columns: repeat(#{$i}, 1fr);
+    }
 
+    [class*="col-"][class*="-medium-#{$i}"] {
+      grid-column: auto / span #{$i};
+    }
+  }
+}
+
+//////////// REGION LAYOUT
 #app-container {
   display: flex;
   flex-direction: column;
@@ -67,7 +78,6 @@ h1 {
   left: -$side-larger;
   width: $side-larger;
   z-index: $zindex-navigation-small;
-  //border-right: solid 1px $color-border-aside;
 
   @include respond-to("medium-up") {
     left: 0;

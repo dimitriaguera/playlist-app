@@ -82,11 +82,8 @@ class AlbumTracks extends Component {
           return onPauseFunc();
         }
       }
-
-
       // Just store index track in playing queue.
       addAlbumToPlay({onPlayIndex: i});
-
     }
 
     // Else, play this album.
@@ -96,7 +93,8 @@ class AlbumTracks extends Component {
         pl: {
           title: album.name,
           key: album.key,
-          tracks: this.state.tracks
+          tracks: this.state.tracks,
+          item: album,
         },
         onPlayIndex: i
       };
@@ -138,7 +136,7 @@ class AlbumTracks extends Component {
   }
 
   render () {
-    const { album, user, onPlay, onPlayIndex, cover, handlerPlayAlbum, handlerAddTracks } = this.props;
+    const { album, onPlay, onPlayIndex } = this.props;
     const { tracks } = this.state;
 
     // Does this album is now playing ?
@@ -160,7 +158,7 @@ class AlbumTracks extends Component {
             }}>
 
               <div className='album-tracks-col'>
-                <AlbumInfo album={album} albumIsPlaying={albumIsPlaying} handlerPlayAlbum={handlerPlayAlbum} handlerAddTracks={handlerAddTracks} />
+                <AlbumInfo album={album} tracks={tracks}/>
               </div>
 
               <div className='album-tracks-col'>

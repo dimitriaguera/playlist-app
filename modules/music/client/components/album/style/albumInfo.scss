@@ -7,6 +7,15 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
   align-items: flex-start;
   justify-content: flex-start;
 
+  .album-info-img {
+    width: 30rem;
+    max-width: 100%;
+
+    img {
+      width: 100%;
+    }
+  }
+
   .album-info-meta {
     padding: 2rem;
 
@@ -21,6 +30,7 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
 
     .name {
       font-size: 5rem;
+      line-height: 1;
     }
   }
 }
