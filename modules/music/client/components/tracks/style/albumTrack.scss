@@ -82,10 +82,6 @@ $image-size-track: 5rem;
     color: $gray-700;
   }
 
-  .album {
-    grid-area: album;
-  }
-
   .time {
     grid-area: time;
     color: $gray-700;
@@ -94,7 +90,7 @@ $image-size-track: 5rem;
 
 .move-album-tracks-items-row-header {
   display: none;
-  padding: 2rem 0;
+  padding-bottom: 2rem;
   text-transform: uppercase;
   color: $gray-700;
 

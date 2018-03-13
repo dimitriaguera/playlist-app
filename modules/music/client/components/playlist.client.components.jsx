@@ -171,10 +171,8 @@ class Playlist extends Component {
       <section className='pal grid-3 has-gutter'>
 
         <header>
-          {playlist && <InfoPanelPlaylist item={playlist}/>}
-
           {isAuthor &&
-          <div className='pl-action-cont'>
+          <div className='pl-action-cont mbm'>
             <button className='btn btn-standard' onClick={this.handlerAddTracks}>
               Add tracks
             </button>
@@ -186,10 +184,11 @@ class Playlist extends Component {
             </button>
           </div>
           }
+          {playlist && <InfoPanelPlaylist item={playlist}/>}
         </header>
 
         <div className='col-2-medium-3-small-3'>
-          <div className='w-max-l'>
+          <div className='w-max-xl'>
             <div className={headClasses.join(' ')}>
               <span className='tracks-item-img'></span>
               <span className='title'>Title</span>

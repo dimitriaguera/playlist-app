@@ -30,6 +30,7 @@ $image-size-track: 5rem;
 
   a {
     &:hover {
+      color: $white;
       text-decoration: underline;
     }
   }
@@ -99,6 +100,7 @@ $image-size-track: 5rem;
 
   .album {
     grid-area: album;
+    color: $gray-700;
   }
 
   .time {
@@ -109,7 +111,7 @@ $image-size-track: 5rem;
 
 .move-playlist-tracks-items-row-header {
   display: none;
-  padding: 2rem 0;
+  padding-bottom: 2rem;
   text-transform: uppercase;
   color: $gray-700;
 

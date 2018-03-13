@@ -263,7 +263,7 @@ class Album extends Component {
         }
         {pl &&
           <div className='col-2-medium-3-small-3'>
-            <div className='w-max-l'>
+            <div className='w-max-xl'>
               <div className={`move-album-tracks-items-row-header${!!user ? ' drag' : ''}`}>
                 <span className='tracks-item-img'></span>
                 <span className='title'>Title</span>
