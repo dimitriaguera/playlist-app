@@ -81,21 +81,21 @@ class InfoPanel extends Component {
               <i aria-hidden='true' className='icon icon-pause'/>
             </button>
           )
-        }
-        else {
+        } else {
           return (
             <button aria-label='pause album' onClick={onPauseFunc} className='btn btn-icon big'>
               <IconPlayAnim onClick={pause}/>
             </button>
           )
         }
-      }
-      else {
+      } else if (album.tracks.length > 0) {
         return (
           <button aria-label='play album' onClick={this.handlerPlayAlbum} className='btn btn-icon big'>
             <i aria-hidden='true' className='icon icon-play'/>
           </button>
         )
+      } else {
+        return null
       }
     };
 
