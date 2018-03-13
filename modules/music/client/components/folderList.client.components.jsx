@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {get, put} from 'core/client/services/core.api.services'
 import {addFolderToPlay, playOnFolder, updateFolderToPlay} from 'music/client/redux/actions'
-import Tracks from 'music/client/components/tracks/tracks.client.components'
+import PlaylistTrack from 'music/client/components/tracks/playlistTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
@@ -235,7 +235,7 @@ class FolderList extends Component {
         <DraggableList
           items={pl.tracks}
           callbackMouseUp={this.handlerMoveItem}
-          component={Tracks}
+          component={PlaylistTrack}
           isActivePlaylist={isActive}
           user={user}
           isPaused={isPaused}

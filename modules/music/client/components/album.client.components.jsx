@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
 import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
-import Tracks from 'music/client/components/tracks/tracks.client.components'
+import AlbumTrack from 'music/client/components/tracks/albumTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 
 import Modal from 'react-modal';
@@ -264,21 +264,19 @@ class Album extends Component {
         {pl &&
           <div className='col-2-medium-3-small-3'>
             <div className='w-max-l'>
-              <div className='move-tracks-items-row-header for-album'>
+              <div className={`move-album-tracks-items-row-header${!!user ? ' drag' : ''}`}>
                 <span className='tracks-item-img'></span>
                 <span className='title'>Title</span>
                 <span className='artist'>Artist</span>
                 <span className='time'>Time</span>
-                <span className='tracks-item-menu'></span>
+                <span className='tracks-item-menu'>Add</span>
               </div>
               <DraggableList
                 items={pl.tracks}
                 callbackMouseUp={this.handlerMoveItem}
-                component={Tracks}
+                component={AlbumTrack}
                 isActivePlaylist={isActive}
-                user={user}
                 dragActive={!!user}
-                forAlbum={true}
                 history={history}
                 isPaused={isPaused}
                 onPlayIndex={onPlayIndex}

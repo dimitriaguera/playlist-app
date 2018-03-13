@@ -10,7 +10,7 @@ import {
 } from 'music/client/redux/actions'
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
-import Tracks from './tracks/tracks.client.components'
+import PlaylistTrack from './tracks/playlistTrack.client.components'
 import DraggableList from 'draggable/client/components/draggableList'
 import InfoPanelPlaylist from './infoPanel/infoPanelPlaylist.client.components'
 
@@ -164,6 +164,8 @@ class Playlist extends Component {
     const isAuthor = user && playlist.author && playlist.author.username === user.username;
 
     let label_mode = 'Playlist';
+    const headClasses = ['move-playlist-tracks-items-row-header'];
+    if( isAuthor ) headClasses.push('edit', 'drag');
 
     return (
       <section className='pal grid-3 has-gutter'>
@@ -188,17 +190,17 @@ class Playlist extends Component {
 
         <div className='col-2-medium-3-small-3'>
           <div className='w-max-l'>
-            <div className='move-tracks-items-row-header'>
+            <div className={headClasses.join(' ')}>
               <span className='tracks-item-img'></span>
               <span className='title'>Title</span>
               <span className='artist'>Artist</span>
               <span className='album'>Album</span>
               <span className='time'>Time</span>
-              <span className='tracks-item-menu'></span>
+              <span className='tracks-item-menu btn'><i aria-hidden="true" className="icon icon-x" /></span>
             </div>
             <DraggableList
               items={playlist.tracks}
-              component={Tracks}
+              component={PlaylistTrack}
               dragActive={isAuthor}
               canEdit={isAuthor}
               isPaused={isPaused}

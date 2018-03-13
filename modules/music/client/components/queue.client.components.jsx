@@ -11,7 +11,7 @@ import {
 
 import { mustUpdate } from 'music/client/helpers/music.client.helpers'
 import socketServices from 'core/client/services/core.socket.services'
-import Tracks from './tracks/tracks.client.components'
+import PlaylistTrack from './tracks/playlistTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 import DraggableList from 'draggable/client/components/draggableList'
 import Modal from 'react-modal'
@@ -246,7 +246,7 @@ class Queue extends Component {
           items={playlist.tracks}
           dragActive={isAuthenticated}
           callbackMouseUp={this.handlerMoveItem}
-          component={Tracks}
+          component={PlaylistTrack}
           user={user}
           isPaused={isPaused}
           isActivePlaylist={isActivePlaylist}

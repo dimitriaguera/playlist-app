@@ -11,16 +11,16 @@ $color-icon-track-hover: $color-primary-hover;
 $menu-size: 4rem;
 
 $image-size-track-small: 3rem;
-$image-size-track: 7rem;
+$image-size-track: 5rem;
 
-.move-tracks-items-row,
-.move-tracks-items-row-header {
+.move-album-tracks-items-row,
+.move-album-tracks-items-row-header {
   display: grid;
-  grid-template-columns: $image-size-track-small 1fr 1fr auto $menu-size;
+  grid-template-columns: $image-size-track-small 1fr auto $menu-size;
   grid-template-rows: auto auto;
   grid-template-areas:
-    "image title title title menu"
-    "image artist album time menu";
+    "image title title menu"
+    "image artist time menu";
   grid-column-gap: 2rem;
   align-items: center;
   color: $color-link-track;
@@ -32,13 +32,6 @@ $image-size-track: 7rem;
     &:hover {
       text-decoration: underline;
     }
-  }
-
-  &.for-album {
-    grid-template-columns: $image-size-track-small 1fr auto $menu-size;
-    grid-template-areas:
-      "image title title menu"
-      "image artist time menu";
   }
 
   .tracks-item-img {
@@ -95,16 +88,22 @@ $image-size-track: 7rem;
 
   .time {
     grid-area: time;
+    color: $gray-700;
   }
 }
 
-.move-tracks-items-row-header {
-  padding: 2rem 40px 2rem 0;
+.move-album-tracks-items-row-header {
+  display: none;
+  padding: 2rem 0;
   text-transform: uppercase;
   color: $gray-700;
+
+  &.drag {
+    padding-right: 40px;
+  }
 }
 
-.move-tracks-items-row {
+.move-album-tracks-items-row {
   &:hover {
     border-bottom: #{$color-border-fol-item};
 
@@ -133,15 +132,14 @@ $image-size-track: 7rem;
 }
 
 @include respond-to("small-up") {
-  .move-tracks-items-row,
-  .move-tracks-items-row-header {
-    grid-template-areas: "image title artist album time menu";
-    grid-template-columns: $image-size-track 2fr 1fr 1fr auto $menu-size;
+  .move-album-tracks-items-row,
+  .move-album-tracks-items-row-header {
     grid-template-rows: auto;
+    grid-template-areas: "image title artist time menu";
+    grid-template-columns: $image-size-track 3fr 1fr 0.5fr $menu-size;
+  }
 
-    &.for-album {
-      grid-template-areas: "image title artist time menu";
-      grid-template-columns: $image-size-track 3fr 1fr auto $menu-size;
-    }
+  .move-album-tracks-items-row-header {
+    display: grid;
   }
 }
