@@ -247,6 +247,7 @@ class Queue extends Component {
           dragActive={isAuthenticated}
           callbackMouseUp={this.handlerMoveItem}
           component={PlaylistTrack}
+          history={history}
           user={user}
           isPaused={isPaused}
           isActivePlaylist={isActivePlaylist}
