@@ -27,6 +27,7 @@
 // Info Panel
 @import "./modules/music/client/components/infoPanel/style/infoPanel";
 @import "./modules/music/client/components/infoPanel/style/infoPanelPlaylist";
+@import "./modules/music/client/components/infoPanel/style/infoPanelFolder";
 
 // Info Path
 @import "./modules/music/client/components/infoPath/style/infoPath";
@@ -43,6 +44,7 @@
 // Tracks
 @import "./modules/music/client/components/tracks/style/albumTrack";
 @import "./modules/music/client/components/tracks/style/playlistTrack";
+@import "./modules/music/client/components/tracks/style/folderTrack";
 
 // Style Page
 @import "./modules/music/client/components/style/folderList";

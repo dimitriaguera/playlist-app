@@ -2,10 +2,11 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {get, put} from 'core/client/services/core.api.services'
 import {addFolderToPlay, playOnFolder, updateFolderToPlay} from 'music/client/redux/actions'
-import PlaylistTrack from 'music/client/components/tracks/playlistTrack.client.components'
+import FolderTrack from 'music/client/components/tracks/folderTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 import Modal from 'react-modal';
 import ps from 'core/client/services/core.path.services'
+import InfoPanelFolder from 'music/client/components/infoPanel/infoPanelFolder.client.components'
 
 import DraggableList from 'draggable/client/components/draggableList'
 
@@ -195,32 +196,27 @@ class FolderList extends Component {
 
     if (!pl) return null;
 
+    const headClasses = ['move-folder-tracks-items-row-header drag'];
+    if( !!user ) headClasses.push('edit');
+
     return (
-      <section className="folder-list pal">
+      <section className="pal grid-3 has-gutter">
         <header>
-          <h1>Folder's Tracks</h1>
-          <h2>{pl.title}</h2>
-        </header>
-
-        {!!user &&
-          <div className="folder-list-save-cont">
-            <button className='btn' onClick={this.openModal}>Save As Playlist</button>
-
-            <Modal isOpen={this.state.modalIsOpen}
-                   onRequestClose={this.closeModal}
-                   className="modal"
-                   overlayClassName="modal-overlay"
-            >
-
+          {!!user &&
+            <div className="pl-action-cont mbm">
+              <button className='btn btn-standard' onClick={this.openModal}>Save As Playlist</button>
+              <Modal isOpen={this.state.modalIsOpen}
+                     onRequestClose={this.closeModal}
+                     className="modal"
+                     overlayClassName="modal-overlay"
+              >
               <h2 className="modal-title">
                 <i aria-hidden="true" className="icon icon-music icon-xl"/>
                 {`Save ${pl.title} as playlist ?`}
               </h2>
-
               <div className="modal-content">
                 <p>Type the playlist's title you want to create.</p>
               </div>
-
               <AddPlaylist
                 history={history}
                 placeholder={`${pl.title}'s playlist`}
@@ -230,21 +226,35 @@ class FolderList extends Component {
               />
             </Modal>
           </div>
-        }
-
-        <DraggableList
-          items={pl.tracks}
-          callbackMouseUp={this.handlerMoveItem}
-          component={PlaylistTrack}
-          isActivePlaylist={isActive}
-          user={user}
-          isPaused={isPaused}
-          onPlayIndex={onPlayIndex}
-          onPlay={this.handlerReadTrack}
-        />
-      </section>
-    )
-
+          }
+        {pl && <InfoPanelFolder item={pl} history={history}/>}
+      </header>
+      <div className='col-2-medium-3-small-3'>
+        <div className='w-max-xl'>
+          <div className={headClasses.join(' ')}>
+            <span className='tracks-item-img'></span>
+            <span className='title'>Title</span>
+            <span className='artist'>Artist</span>
+            <span className='album'>Album</span>
+            <span className='time'>Time</span>
+            <span className='tracks-item-menu'>Add</span>
+          </div>
+          <DraggableList
+            items={pl.tracks}
+            callbackMouseUp={this.handlerMoveItem}
+            component={FolderTrack}
+            isActivePlaylist={isActive}
+            user={user}
+            history={history}
+            isPaused={isPaused}
+            onPlayIndex={onPlayIndex}
+            onPlay={this.handlerReadTrack}
+            addTrack={()=>{}}
+          />
+        </div>
+      </div>
+    </section>
+    );
   }
 }
 

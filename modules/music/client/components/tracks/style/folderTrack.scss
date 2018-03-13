@@ -1,0 +1,147 @@
+$color-bg-track: $color-bg-row;
+$color-bg-track-hover: $color-bg-row-hover;
+$color-border-track: $border-row;
+
+$color-link-track: $link-color;
+$color-link-track-hover: $link-color-hover;
+
+$color-icon-track: $color-primary;
+$color-icon-track-hover: $color-primary-hover;
+
+$menu-size: 4rem;
+
+$image-size-track-small: 3rem;
+$image-size-track: 5rem;
+
+.move-folder-tracks-items-row,
+.move-folder-tracks-items-row-header {
+  display: grid;
+  grid-template-columns: $image-size-track-small 1fr 1fr 0.5fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "image title title title menu"
+    "image artist album time menu";
+  grid-column-gap: 2rem;
+  align-items: center;
+  color: $color-link-track;
+  border-bottom: 1px solid $gray-ghost;
+  transition: transform 0.7s ease;
+  cursor: pointer;
+
+  a {
+    &:hover {
+      color: $white;
+      text-decoration: underline;
+    }
+  }
+
+  .tracks-item-img {
+    position: relative;
+    grid-area: image;
+    display: flex;
+    align-items: center;
+    font-size: 2.5rem;
+    color: $gray-700;
+
+    .icon-pause {
+      color: $color-primary;
+    }
+
+    .move {
+      position: absolute;
+      color: $color-primary;
+      opacity: 0;
+      transform: translateX(-1rem);
+    }
+
+    .number,
+    .move {
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+  }
+
+  .title,
+  .date,
+  .artist,
+  .album,
+  .time {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .title {
+    grid-area: title;
+  }
+
+  .date {
+    grid-area: date;
+  }
+
+  .artist {
+    grid-area: artist;
+    color: $gray-700;
+  }
+
+  .album {
+    grid-area: album;
+    color: $gray-700;
+  }
+
+  .time {
+    grid-area: time;
+    color: $gray-700;
+  }
+}
+
+.move-folder-tracks-items-row-header {
+  display: none;
+  padding-bottom: 2rem;
+  text-transform: uppercase;
+  color: $gray-700;
+
+  &.drag {
+    padding-right: 40px;
+  }
+}
+
+.move-folder-tracks-items-row {
+  &:hover {
+    border-bottom: #{$color-border-fol-item};
+
+    .tracks-item-img {
+      grid-area: image;
+
+      .move {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .number {
+        opacity: 0;
+        transform: translateX(1rem);
+      }
+    }
+  }
+}
+
+.tracks-item-menu {
+  grid-area: menu;
+
+  & > .btn {
+    background: none;
+  }
+}
+
+@include respond-to("small-up") {
+  .move-folder-tracks-items-row,
+  .move-folder-tracks-items-row-header {
+    grid-template-areas: "image title artist album time menu";
+    grid-template-columns: $image-size-track-small 2fr 1fr 1fr 0.5fr auto;
+    grid-template-rows: auto;
+  }
+
+  .move-folder-tracks-items-row-header {
+    display: grid;
+  }
+}
