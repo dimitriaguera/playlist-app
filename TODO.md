@@ -56,7 +56,12 @@
 ## Playlist
 
 * Do something for pl have always an id
+* Update selectPlaylist when create new playlist in all playlist view or when we delete one playlist.
+
 
 ## Make a service for play/pause/next
 
 * Check if components and sub-components don't call twice playhandler like in allPlaylist and menuPlay.
+
+## Remove 
+* modules/music/client/components/playList/MenuEditPlaylist

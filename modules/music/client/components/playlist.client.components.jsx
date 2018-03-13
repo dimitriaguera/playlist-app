@@ -62,6 +62,24 @@ class Playlist extends Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    const _self = this;
+
+    if (this.props.match.params.title !== nextProps.match.params.title) {
+      // On mounting component, exact playlist title from url.
+      // And fetch it to server.
+      this.props.getPlaylist(nextProps.match.params.title)
+        .then((data) => {
+          if (!data.success) {
+            return history.push('/not-found');
+          }
+          _self.setState({
+            playlist: data.msg
+          })
+        });
+    }
+  }
+
   // Unmount and delete socket.
   componentWillUnmount () {
     this.socket.disconnect();
