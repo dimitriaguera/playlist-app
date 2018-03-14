@@ -69,23 +69,18 @@ class AllPlaylist extends Component {
     e.stopPropagation();
 
     const _self = this;
-    const pl = item;
+    const playlist = item;
 
-    const { playingList, onPauseFunc, onPlayFunc } = this.props;
-    const isPlaying = playingList.pl && (playingList.pl.title === item.title);
-
+    const { playingList, onPauseFunc, onPlayFunc, isPaused } = this.props;
+    const isPlaying = playingList.pl && (playingList.pl.title === playlist.title);
     //@todo do something for pl have always an id
     // and remove comparison with title
     // this after that
-    if (
-      (playingList.pl && playingList.pl.title === pl.title)
-    ) {
-      if (isPlaying) return onPauseFunc();
-      return onPlayFunc();
-
-    }
-    else {
-      this.props.getPlaylist(pl.title)
+    if (isPlaying) {
+      if (isPaused) return onPlayFunc();
+      return onPauseFunc();
+    } else {
+      this.props.getPlaylist(playlist.title)
         .then((data) => {
           if (data.success) {
             _self.props.onPlay({
@@ -221,7 +216,8 @@ class AllPlaylist extends Component {
 const mapStateToProps = state => {
   return {
     user: state.authenticationStore._user,
-    playingList: state.playlistStore.playingList
+    playingList: state.playlistStore.playingList,
+    isPaused: state.playlistStore.pause
   }
 };
 

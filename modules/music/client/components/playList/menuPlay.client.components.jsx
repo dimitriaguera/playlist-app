@@ -18,13 +18,15 @@ class PlayingControls extends Component {
     e.preventDefault();
     e.stopPropagation();
     const _self = this;
-    const pl = this.props.playlist;
+    const {playingList, playlist} = this.props;
 
-    if (this.props.playingList.pl === pl) {
+    const isPlaying = playingList.pl && (playingList.pl.title === playlist.title);
+
+    if (isPlaying) {
       this.props.play();
     }
     else {
-      this.props.getPlaylist(pl.title)
+      this.props.getPlaylist(playlist.title)
         .then((data) => {
           if (data.success) {
             _self.props.onPlay({
@@ -38,11 +40,13 @@ class PlayingControls extends Component {
 
   onPauseHandler (e) {
     e.preventDefault();
+    e.stopPropagation();
     this.props.pause();
   }
 
   onNextHandler (e) {
     e.preventDefault();
+    e.stopPropagation();
 
     const { nextTracks, playingList } = this.props;
     const { onPlayIndex } = playingList;
@@ -55,6 +59,7 @@ class PlayingControls extends Component {
 
   onPrevHandler (e) {
     e.preventDefault();
+    e.stopPropagation();
 
     const { nextTracks, playingList } = this.props;
     const { onPlayIndex } = playingList;
@@ -75,7 +80,8 @@ class PlayingControls extends Component {
 
     const playPauseBtn = () => {
       // If active playlist and on play, display Pause button.
-      if (isActive && !isPaused) { return (
+      if (isActive && !isPaused) {
+        return (
         <button className='btn btn-icon big' onClick={this.onPauseHandler} aria-label='pause'>
           <IconPlayAnim />
         </button>
