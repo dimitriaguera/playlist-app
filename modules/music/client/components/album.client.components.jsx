@@ -1,7 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
-import { addAlbumToPlay, playOnAlbum, updateAlbumToPlay } from 'music/client/redux/actions'
+import {
+  addAlbumToPlay,
+  playOnAlbum,
+  updateAlbumToPlay,
+  pauseState,
+  playState
+} from 'music/client/redux/actions'
 import AlbumTrack from 'music/client/components/tracks/albumTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 
@@ -166,17 +172,28 @@ class Album extends Component {
     if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
   }
 
-  handlerReadTrack (key) {
-    return (e) => {
-      const { albumOfUrl } = this.state;
-      const { pl } = albumOfUrl;
+  handlerReadTrack (e, key) {
+    const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
+    const { albumOfUrl } = this.state;
+    const { pl } = albumOfUrl;
 
-      this.props.playTrackAlbum({
-        pl: pl,
-        onPlayIndex: key
-      });
+    if (e) {
+      e.stopPropagation();
       e.preventDefault();
     }
+
+    if (pl.tracks[key].tracksId === onPlay.tracksId) {
+      if (isPaused) {
+        return onPlayFunc();
+      } else {
+        return onPauseFunc();
+      }
+    }
+
+    this.props.playTrackAlbum({
+      pl: pl,
+      onPlayIndex: key
+    });
   }
 
   handlerMoveItem (prevItems, nextItems) {
@@ -319,6 +336,12 @@ const mapDispatchToProps = dispatch => {
         data: items
       })
     ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
+    )
   }
 };
 
