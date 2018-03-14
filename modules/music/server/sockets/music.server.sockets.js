@@ -18,9 +18,15 @@ module.exports = function (socketsEvents, io) {
 
   // Register events.
   socketsEvents.register('save:playlist', (data) => {
-    console.log('post save playlist');
+    //console.log('post save playlist');
     nsp.emit('save:playlist', data);
   });
+
+  // Register events.
+  socketsEvents.register('delete:playlist', (data) => {
+    nsp.emit('delete:playlist', data);
+  });
+
 
   // Event when meta is saved
   socketsEvents.register('save:meta', (data) => {

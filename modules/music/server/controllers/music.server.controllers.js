@@ -10,6 +10,7 @@ const Playlist = require('../models/music.server.models');
 const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
 const usersServices = require(path.resolve('./modules/users/server/services/users.server.services'));
 const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
+const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
 exports.read = function (req, res, next) {
   // Build absolute path.
@@ -347,6 +348,9 @@ exports.delete = function (req, res, next) {
       res.status(422);
       return errorHandler.errorMessageHandler(err, req, res, next);
     }
+
+    socketsEvents.emit('delete:playlist', pl);
+
     res.json({
       success: true,
       msg: pl

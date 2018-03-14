@@ -8,7 +8,7 @@ const Schema = mongoose.Schema;
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
 
-const socketsEvents = require('../../../../config/sockets/sockets.conf');
+const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
 /**
  * Playlist model.

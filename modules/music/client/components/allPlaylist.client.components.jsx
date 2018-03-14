@@ -261,7 +261,7 @@ const AllPlaylistContainer = connect(
 function updateAllPlaylist (arr, item) {
   const array = arr.slice(0);
 
-  for (let i = 0; i < array.length; i++) {
+  for (let i = 0, l = array.length ; i < l ; i++) {
     if (item.title === array[i].title) {
       array[i] = item;
       return array;
@@ -274,7 +274,7 @@ function updateAllPlaylist (arr, item) {
 // function updateDefaultPlaylist(arr, item) {
 //   const array = arr.slice(0);
 //
-//   for (let i = 0; i < array.length; i++) {
+//   for (let i = 0, l = array.length ; i < l ; i++) {
 //     if (array[i].defaultPlaylist) {
 //       array[i] = item;
 //       return array;
@@ -287,7 +287,7 @@ function updateAllPlaylist (arr, item) {
 function deleteDefaultPlaylist (arr) {
   const array = arr.slice(0);
 
-  for (let i = 0; i < array.length; i++) {
+  for (let i = 0, l = array.length ; i < l ; i++) {
     if (array[i].defaultPlaylist) {
       array.splice(i, 1);
       return array;
