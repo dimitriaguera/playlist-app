@@ -12,3 +12,12 @@
 
 // React Component
 @import "reactComponents/allComponents";
+
+//*:focus {
+//  box-shadow: 0 0 10px 5px $color-primary !important;
+//  outline: none !important;
+//}
+
+*:focus {
+  outline: none !important;
+}
