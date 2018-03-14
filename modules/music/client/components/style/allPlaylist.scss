@@ -88,11 +88,16 @@
         opacity: 0.1;
       }
 
-      .menu-play,
+      .menu-play > button,
       .menu-add {
         position: relative;
         opacity: 0;
       }
+    }
+
+    .menu-play > button:focus,
+    .menu-add:focus {
+      opacity: 1;
     }
 
     .allpl-title,
@@ -122,7 +127,7 @@
         }
 
 
-        .menu-play,
+        .menu-play > button,
         .menu-add {
           opacity: 1;
         }
