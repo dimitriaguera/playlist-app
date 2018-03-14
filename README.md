@@ -394,17 +394,93 @@ npm run lintfix
 
 ### Add API route
 
-**YOU HAVE TO ADD IT IN THE /config/init-app.js in initRoutes function**
+Let's call your module directory YOURMODULEDIR.
+You need two js files :
+* controller in : modules/YOURMODULEDIR/server/controllers/WHATDOYOUWHANT.server.controllers.js
+* route in : modules/YOURMODULEDIR/server/routes/WHATDOYOUWHANT.server.routes.js
 
-### Add socket route
+
+WHATDOYOUWHANT.server.routes.js
+```
+'use strict';
+
+const path = require('path');
+const passport = require('passport');
+const authorizeRoles = require(path.resolve('./modules/users/server/roles/route.role.authorize'));
+const { USER_ROLE } = require(path.resolve('./modules/users/commons/roles'));
+
+// The controllers of your routes
+const YOURCONTROLLER = require(path.resolve('./modules/YOURMODULEDIR/server/controllers/WHATDOYOUWHANT.server.controllers.js');
+
+module.exports = function (app) {
+
+  // Your first root unprotected
+  app
+    .route('/api/YOURFIRTROUTE')
+    .get(YOURCONTROLLER.fct1);
+
+  // Your second root protected
+  app
+    .route('/api/YOURSECONDROUTE')
+    .all(passport.authenticate('jwt', { session: false }), authorizeRoles(USER_ROLE))
+    .get(YOURCONTROLLER.fct2);
+};
+```
+
+WHATDOYOUWHANT.server.controllers.js
+```
+exports.fct1 = function (req, res, next) {
+
+}
+
+exports.fct2 = function (req, res, next) {
+
+}
+```
+
+**Add your new route file in /config/init-app.js in initRoutes function**
+
+### Add socket
 
 #### Server side
+
+Let's call your module directory YOURMODULEDIR.
+Add a js files in modules/YOURMODULEDIR/server/routes/WHATDOYOUWHANT.server.sockets.js
+
+WHATDOYOUWHANT.server.sockets.js
+```
+'use strict';
+
+const path = require('path');
+const { ADMIN_ROLE, USER_ROLE, INVIT_ROLE } = require(path.resolve('./modules/users/commons/roles'));
+const socketStrategy = require(path.resolve('./modules/users/server/config/socket.strategy'));
+
+module.exports = function (socketsEvents, io) {
+
+  // Create namespace unprotected
+  const nsp = io.of('/public');
   
-1)  In your working dir make a new dir name sockets. Inside it make a new file
-named *.server.sockets.js*. Take exemple from modules/music/server/sockets/music.server.sockets.js
+  // Register events.
+  socketsEvents.register('MYEVENT:MYSUBEVENT', (data) => {
+    nsp.emit('MYEVENT:MYSUBEVENT', data);
+  });
+  
+  // Create namespace unprotected
+  const nsp = io.of('/private');
+    
+  // Protect this namespace.
+  nsp.use( socketStrategy(ADMIN_ROLE) );
+  
+  // Register events.
+  socketsEvents.register('MYEVENTPROTECTED:MYSUBEVENTPROTECTED', (data) => {
+    nsp.emit('MYEVENTPROTECTED:MYSUBEVENTPROTECTED', data);
+  });
+  
+}
+```
 
 
-2) Add your route in init-app.js in socketConnect function 
+**Add your WHATDOYOUWHANT.server.sockets.js in init-app.js in socketConnect function**
 
 ```
 module.exports.socketConnect = function(app) {
@@ -415,25 +491,62 @@ module.exports.socketConnect = function(app) {
     require('../modules/users/server/sockets/users.server.sockets')( socketsEvents, io );
     require('../modules/music/server/sockets/music.server.sockets')( socketsEvents, io );
     
-    ADD YOU ROUTE HERE
-    require('MY_MODULE_PATH')( socketsEvents, io );
+    // ADD YOU ROUTE HERE
+    require('../modules/YOURMODULEDIR/server/routes/WHATDOYOUWHANT.server.routes.js')( socketsEvents, io );
     
     return serve;
 };
 ```
 
-3) Now in your model file you can emit the event like this :
+Add a js files in your controller file (for example : modules/YOURMODULEDIR/server/controllers/WHATDOYOUWHANT.server.controllers.js)
+emit the event where you want.
 
+WHATDOYOUWHANT.server.controllers.js
 ```
-const socketsEvents = require('../../../../config/sockets/sockets.conf'); 
+const path = require('path');
+const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
-socketsEvents.emit( 'yourEvent', yourDATA );
+
+// Put this where do you want emit the event
+socketsEvents.emit( 'MYEVENT:MYSUBEVENT', YOURDATA );
+
 ```
 
 #### Client side
 
-To receive event take exemple of : modules/music/client/sockets/music.client.sockets.js
+Add a js files in modules/YOURMODULEDIR/client/components/WHATDOYOUWHANT.client.components.jsx
 
+
+WHATDOYOUWHANT.client.components.jsx
+```
+import React, { Component } from 'react'
+import socketServices from 'core/client/services/core.socket.services'
+
+export class Mycomponent extends Component {
+  constructor () {
+    super();
+    this.socket = socketServices.getPublicSocket();
+    this.state.socketsDatas = null;
+  }
+
+  componentWillMount () {
+    const _self = this;
+    
+    // Add the data received by socket in the state
+    this.socket.on('save:playlist', (data) => {
+      _self.setState({ socketsDatas: data })
+    });
+  }
+  
+  render () {
+    return (
+      <div>{this.state.socketsDatas}</div>
+    )
+  }
+}
+```
+
+Voilà !
 
 ## Built With
 
