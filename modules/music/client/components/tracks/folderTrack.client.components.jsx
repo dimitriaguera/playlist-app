@@ -42,20 +42,18 @@ class FolderTrack extends Component {
 
     const artist = item.meta.artist ? item.meta.artist : item.meta.albumartist;
 
-    console.log("render tracks");
-
     return (
       <div aria-label='play track' className={classes.join(' ')} onClick={onPlay(index)} draggable='false'>
 
         <Prefix active={active} isPaused={isPaused} index={index}/>
 
-        <span className='title'>{item.meta.title}</span>
+        <span className='title'>{item.meta.title || item.publicName}</span>
         {artist && <span className='artist'>{artist}</span>}
         {item.meta.album && <a href={'#'} onClick={this.toAlbumPage} className='album'>{item.meta.album}</a>}
         {item.meta.time && <span className='time'>{item.meta.time}</span>}
 
         <span className='tracks-item-menu'>
-          <button className='btn' onClick={e => addTrack(e, item.tracksId)}>
+          <button className='btn' onClick={e => addTrack(e, item._id)}>
             <i aria-hidden="true" className="icon icon-plus" />
           </button>
         </span>

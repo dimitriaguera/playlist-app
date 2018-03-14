@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import {get, put} from 'core/client/services/core.api.services'
+import {get, put, post} from 'core/client/services/core.api.services'
 import {addFolderToPlay, playOnFolder, updateFolderToPlay} from 'music/client/redux/actions'
 import FolderTrack from 'music/client/components/tracks/folderTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
@@ -23,6 +23,7 @@ class FolderList extends Component {
       modalIsOpen: false
     };
 
+    this.handlerAddTrack = this.handlerAddTrack.bind(this);
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerReadTrack = this.handlerReadTrack.bind(this);
 
@@ -155,6 +156,20 @@ class FolderList extends Component {
     }
   }
 
+  handlerAddTrack (e, tracksId) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
+
+    // User must be connected to add tracks.
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+
+    // Add tracks into activated Playlist.
+    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+  }
+
   handlerMoveItem(prevItems, nextItems) {
     const {albumOfUrl} = this.state;
     const {playingList} = this.props;
@@ -191,7 +206,7 @@ class FolderList extends Component {
 
   render() {
     const {albumOfUrl, isActive} = this.state;
-    const {isPaused, user, history} = this.props;
+    const {isPaused, user, history, location} = this.props;
     const {onPlayIndex, pl} = albumOfUrl;
 
     if (!pl) return null;
@@ -227,7 +242,7 @@ class FolderList extends Component {
             </Modal>
           </div>
           }
-        {pl && <InfoPanelFolder item={pl} history={history}/>}
+        <InfoPanelFolder item={pl} history={history} location={location} />
       </header>
       <div className='col-2-medium-3-small-3'>
         <div className='w-max-xl'>
@@ -243,13 +258,14 @@ class FolderList extends Component {
             items={pl.tracks}
             callbackMouseUp={this.handlerMoveItem}
             component={FolderTrack}
+            scrollContainerName='main-content'
             isActivePlaylist={isActive}
             user={user}
             history={history}
             isPaused={isPaused}
             onPlayIndex={onPlayIndex}
             onPlay={this.handlerReadTrack}
-            addTrack={()=>{}}
+            addTrack={this.handlerAddTrack}
           />
         </div>
       </div>
@@ -264,6 +280,7 @@ const mapStateToProps = state => {
     isPaused: state.playlistStore.pause,
     onPlay: state.playlistStore.onPlay,
     isAuthenticated: state.authenticationStore.isAuthenticated,
+    activePlaylist: state.playlistStore.activePlaylist,
     user: state.authenticationStore._user
   }
 };
@@ -278,7 +295,12 @@ const mapDispatchToProps = dispatch => {
     ),
     playTrackAlbum: (item) => dispatch(
       playOnFolder(item)
-    )
+    ),
+    addPlaylistItems: (title, items) => dispatch(
+      post(`playlist/${title}`, {
+        data: items
+      })
+    ),
   }
 };
 

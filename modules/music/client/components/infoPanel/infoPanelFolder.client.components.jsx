@@ -3,16 +3,15 @@ import {connect} from "react-redux";
 import { post } from 'core/client/services/core.api.services'
 import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
 import { playOnFolder, pauseState, playState } from 'music/client/redux/actions'
-import defaultCover from 'assets/images/default_cover.png'
 import ps from 'core/client/services/core.path.services'
-import Img from 'music/client/components/image/image.client.components'
 import { getFormatedDate } from 'core/client/services/core.date.services'
 
 class InfoPanelFolder extends Component {
 
   constructor( props ) {
     super(props);
-    this.handlerReadTrack = this.handlerReadTrack.bind(this);
+    this.handlerPlayTrack = this.handlerPlayTrack.bind(this);
+    this.handlerAddTracks = this.handlerAddTracks.bind(this);
     this.handlerOpenFolder = this.handlerOpenFolder.bind(this);
     this.handlerRootFolder = this.handlerRootFolder.bind(this);
   }
@@ -37,7 +36,7 @@ class InfoPanelFolder extends Component {
   }
 
   // Play a track in playlist.
-  handlerReadTrack(e) {
+  handlerPlayTrack(e) {
     e.preventDefault();
 
     const { item , pause, playingList, onPauseFunc, onPlayFunc } = this.props;
@@ -56,6 +55,24 @@ class InfoPanelFolder extends Component {
       onPlayIndex: 0
     });
   }
+
+  handlerAddTracks (e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const { item, addPlaylistItems, activePlaylist, user, history, location } = this.props;
+
+    // Get id from tracks.
+    const tracksId = item.tracks.map(item => item._id);
+
+    // User must be connected to add tracks.
+    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+
+    // Add tracks into activated Playlist.
+    if (activePlaylist) addPlaylistItems(activePlaylist.title, {tracks: tracksId});
+  }
+
   render(){
     const { item , pause, playingList, onPauseFunc, onPlayFunc } = this.props;
     const folderIsPlaying = (playingList.pl && (playingList.pl.path === item.path));
@@ -79,7 +96,7 @@ class InfoPanelFolder extends Component {
       }
       else {
         return (
-          <button aria-label='play album' onClick={this.handlerReadTrack} className='btn btn-icon big'>
+          <button aria-label='play album' onClick={this.handlerPlayTrack} className='btn btn-icon big'>
             <i aria-hidden='true' className='icon icon-play'/>
           </button>
         )
@@ -98,6 +115,8 @@ class InfoPanelFolder extends Component {
         </div>
         <div className='info-panel-playlist-menu'>
           {getButton()}
+          <button aria-label='add album tracks to playlist' onClick={this.handlerAddTracks} className='btn btn-icon big'><i
+            aria-hidden='true' className='icon icon-plus'/></button>
         </div>
       </div>
     );
@@ -109,7 +128,6 @@ const mapStateToProps = state => {
     user: state.authenticationStore._user,
     pause: state.playlistStore.pause,
     playingList: state.playlistStore.playingList,
-    mode: state.playlistStore.mode,
     activePlaylist: state.playlistStore.activePlaylist,
   }
 };
@@ -119,6 +137,11 @@ const mapDispatchToProps = dispatch => {
     onPlayFunc: () => dispatch(playState()),
     onPauseFunc: () => dispatch(pauseState()),
     playFolder: item => dispatch(playOnFolder(item)),
+    addPlaylistItems: (title, items) => dispatch(
+      post(`playlist/${title}`, {
+        data: items
+      })
+    )
   }
 };
 
@@ -143,27 +166,15 @@ function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
         </li>
         {path.map((item, i) => {
           // Check if not last item
-          if (l !== i + 1) {
             return (
               <li key={i+1} className="breadcrumb-li" style={{'cursor': 'pointer'}}>
                 <a href="#" title={item} className="breadcrumb-a" onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))}>
                   {item}
-                  <i aria-hidden="true" className='icon icon-chevron-right icon-m' />
+                  {(l !== i + 1) && <i aria-hidden="true" className='icon icon-chevron-right icon-m' />}
                 </a>
 
               </li>
             );
-          } else {
-            return (
-              <li key={i+1} className="breadcrumb-li">
-                    <span title={item} className="breadcrumb-a">
-                      {item}
-                    </span>
-              </li>
-            );
-          }
-
-
         })}
       </ul>
     </nav>

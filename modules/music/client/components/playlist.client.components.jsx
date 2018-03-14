@@ -76,6 +76,11 @@ class Playlist extends Component {
 
     return (e) => {
 
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+
       if (playlist.tracks[key]._id === onPlay._id) {
         if (isPaused) {
           return onPlayFunc();
@@ -88,7 +93,6 @@ class Playlist extends Component {
         pl: playlist,
         onPlayIndex: key
       });
-      e.preventDefault();
     }
   }
 
@@ -97,6 +101,12 @@ class Playlist extends Component {
     const title = this.props.match.params.title;
 
     return (e) => {
+
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+
       const { playlist } = this.state;
       const tracks = playlist.tracks;
 
@@ -105,8 +115,6 @@ class Playlist extends Component {
 
       // Save updated playlist.
       this.props.savePlaylist(title, tracks);
-
-      e.preventDefault();
     }
   }
 
@@ -137,7 +145,8 @@ class Playlist extends Component {
   }
 
   // Delete a playlist.
-  handlerDeletePlaylist () {
+  handlerDeletePlaylist (e) {
+
     const { playlist } = this.state;
     const { history, deletePlaylist } = this.props;
 
@@ -163,7 +172,6 @@ class Playlist extends Component {
     const isActivePlaylist = mustUpdate(pl, playlist);
     const isAuthor = user && playlist.author && playlist.author.username === user.username;
 
-    let label_mode = 'Playlist';
     const headClasses = ['move-playlist-tracks-items-row-header'];
     if( isAuthor ) headClasses.push('edit', 'drag');
 

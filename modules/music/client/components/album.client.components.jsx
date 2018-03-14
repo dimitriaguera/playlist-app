@@ -275,6 +275,7 @@ class Album extends Component {
                 items={pl.tracks}
                 callbackMouseUp={this.handlerMoveItem}
                 component={AlbumTrack}
+                scrollContainerName='main-content'
                 isActivePlaylist={isActive}
                 dragActive={!!user}
                 history={history}

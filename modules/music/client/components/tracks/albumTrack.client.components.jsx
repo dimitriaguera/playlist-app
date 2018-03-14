@@ -46,7 +46,7 @@ class AlbumTrack extends Component {
 
         <Prefix active={active} isPaused={isPaused} index={index}/>
 
-        <span className='title'>{item.meta.title}</span>
+        <span className='title'>{item.meta.title || item.publicName}</span>
         {artist && <span className='artist'>{artist}</span>}
         {item.meta.time && <span className='time'>{item.meta.time}</span>}
 
