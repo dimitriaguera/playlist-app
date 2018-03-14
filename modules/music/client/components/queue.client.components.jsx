@@ -14,6 +14,7 @@ import socketServices from 'core/client/services/core.socket.services'
 import PlaylistTrack from './tracks/playlistTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 import DraggableList from 'draggable/client/components/draggableList'
+import InfoPanelPlaylist from './infoPanel/infoPanelPlaylist.client.components'
 import Modal from 'react-modal'
 
 
@@ -96,6 +97,11 @@ class Queue extends Component {
 
     return (e) => {
 
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+
       if (playlist.tracks[key]._id === onPlay._id) {
         if (isPaused) {
           return onPlayFunc();
@@ -108,9 +114,7 @@ class Queue extends Component {
         pl: playlist,
         onPlayIndex: key
       });
-      e.preventDefault();
     }
-
   }
 
   // Delete a track in queue.
@@ -119,6 +123,12 @@ class Queue extends Component {
     const title = `__def${user.username}`;
 
     return (e) => {
+
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+
       const { playlist } = this.state;
       const tracks = playlist.tracks;
 
@@ -127,8 +137,6 @@ class Queue extends Component {
 
       // Save updated playlist.
       this.props.savePlaylist(title, tracks);
-
-      e.preventDefault();
     }
   }
 
@@ -176,86 +184,98 @@ class Queue extends Component {
 
   render () {
     const { playlist, modalIsOpen } = this.state;
-    const { playingList, isPaused, isAuthenticated, user, history } = this.props;
+    const { playingList, isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = playingList;
     const isActivePlaylist = mustUpdate(pl, playlist);
+    const isAuthor = playlist.author && (user.username === playlist.author.username);
+    const headClasses = ['move-playlist-tracks-items-row-header'];
+    if( isAuthor ) headClasses.push('edit', 'drag');
 
     return (
-      <section className='pal'>
+      <section className='pal grid-3 has-gutter'>
 
-        <span className='pl-mode'>Queue</span>
-        <h1>Queue - {user.username}</h1>
+        <header>
+          <div className='pl-action-cont mbm'>
+            <button className='btn btn-standard' onClick={this.handlerAddTracks}>
+              Add tracks
+            </button>
+            {!!playlist.tracks.length &&
+            <button className='btn btn-standard' onClick={this.handlerClearPlaylist}>
+              Remove all tracks
+            </button>
+            }
+            {!!playlist.tracks.length &&
+            <button className='btn btn-standard' onClick={() => this.setState({modalIsOpen: true})}>
+              Save As Playlist
+            </button>
+            }
+          </div>
+          {playlist && <InfoPanelPlaylist item={playlist}/>}
+        </header>
 
-        <span className='pl-tracks-nb'>Number of tracks : {playlist.tracks.length}</span>
+        {!!playlist.tracks.length &&
+          <Modal
+            isOpen={modalIsOpen}
+            onRequestClose={() => this.setState({modalIsOpen: false})}
+            className="modal"
+            overlayClassName="modal-overlay"
+          >
 
+            <h2 className="modal-title">
+              <i aria-hidden="true" className="icon icon-sound icon-xl"/>
+              Save current queue as playlist ?
+            </h2>
 
-        <div className='pl-action-cont'>
-          {/* Save as playlist displayed only for Queue. */}
-          {!!playlist.tracks.length &&
-              <span>
-                <button className='btn' onClick={() => this.setState({modalIsOpen: true})}>
-                  Save As Playlist
-                </button>
+            <div className="modal-content">
+              <p>Type the playlist's title you want to create.</p>
+            </div>
 
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={() => this.setState({modalIsOpen: false})}
-                  className="modal"
-                  overlayClassName="modal-overlay"
-                >
+            <div className="modal-actions-left">
+              <AddPlaylist
+                history={history}
+                tracksId={playlist.tracks}
+                validation='Save'
+                redirect
+                onSave={this.handlerSavePlaylist}/>
+              <input
+                id='clearAfterSave'
+                name='clearAfterSave'
+                className='checkbox'
+                type='checkbox'
+                checked={this.state.clearAfterSave}
+                onChange={this.handleChangeCheckBox}
+              />
+              <label htmlFor='clearAfterSave'>Clear queue after save</label>
+            </div>
+          </Modal>
+        }
 
-                  <h2 className="modal-title">
-                    <i aria-hidden="true" className="icon icon-sound icon-xl"/>
-                    Save current queue as playlist ?
-                  </h2>
-
-                  <div className="modal-content">
-                    <p>Type the playlist's title you want to create.</p>
-                  </div>
-
-                  <div className="modal-actions-left">
-                    <AddPlaylist
-                      history={history}
-                      tracksId={playlist.tracks}
-                      validation='Save'
-                      redirect
-                      onSave={this.handlerSavePlaylist}/>
-                    <input
-                      id='clearAfterSave'
-                      name='clearAfterSave'
-                      className='checkbox'
-                      type='checkbox'
-                      checked={this.state.clearAfterSave}
-                      onChange={this.handleChangeCheckBox}
-                    />
-                    <label htmlFor='clearAfterSave'>Clear queue after save</label>
-                  </div>
-
-                </Modal>
-              </span>
-          }
-          <button className='btn' onClick={this.handlerAddTracks}>
-            Add tracks
-          </button>
-          <button className='btn' onClick={this.handlerClearPlaylist}>
-            Remove all tracks
-          </button>
+        <div className='col-2-medium-3-small-3'>
+          <div className='w-max-xl'>
+            <div className={headClasses.join(' ')}>
+              <span className='tracks-item-img'></span>
+              <span className='title'>Title</span>
+              <span className='artist'>Artist</span>
+              <span className='album'>Album</span>
+              <span className='time'>Time</span>
+              <span className='tracks-item-menu btn'><i aria-hidden="true" className="icon icon-x" /></span>
+            </div>
+            <DraggableList
+              items={playlist.tracks}
+              component={PlaylistTrack}
+              dragActive={isAuthor}
+              canEdit={isAuthor}
+              isPaused={isPaused}
+              history={history}
+              isActivePlaylist={isActivePlaylist}
+              onPlayIndex={onPlayIndex}
+              callbackMouseUp={this.handlerMoveItem}
+              onDelete={this.handlerDeleteTrack}
+              onPlay={this.handlerReadFile}
+              scrollContainerName='main-content'
+            />
+          </div>
         </div>
-
-        <DraggableList
-          items={playlist.tracks}
-          dragActive={isAuthenticated}
-          callbackMouseUp={this.handlerMoveItem}
-          component={PlaylistTrack}
-          history={history}
-          user={user}
-          isPaused={isPaused}
-          isActivePlaylist={isActivePlaylist}
-          onPlayIndex={onPlayIndex}
-          onDelete={this.handlerDeleteTrack}
-          onPlay={this.handlerReadFile}
-          scrollContainerName='main-content'
-        />
       </section>
     );
   }
@@ -266,7 +286,6 @@ const mapStateToProps = state => {
     playingList: state.playlistStore.playingList,
     isPaused: state.playlistStore.pause,
     onPlay: state.playlistStore.onPlay,
-    isAuthenticated: state.authenticationStore.isAuthenticated,
     user: state.authenticationStore._user
   }
 };
