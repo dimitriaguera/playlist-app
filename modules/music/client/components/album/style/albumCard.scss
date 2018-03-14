@@ -74,19 +74,20 @@
     .name {
       display: block;
       width: 100%;
-      font-size: 1em;
+      font-size: 2rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .artist {
-      margin-top: 1rem;
+      margin-top: 1.5rem;
       width: 100%;
       font-size: 0.8em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: $gray-500;
 
       span {
         text-overflow: ellipsis;
