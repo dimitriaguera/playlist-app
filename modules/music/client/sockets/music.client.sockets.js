@@ -54,18 +54,17 @@ function checkAndUpdatePlaylistHandler (store, updatedPl) {
     if (mustUpdate(updatedPl, toUpdate.pl)) {
       // If server emit updated playlist with no tracks, do something.
       // @TODO COMPORTEMENT A CHANGER
-      if (updatedPl.tracks.length === 0) {
-        alert('Diantre, la playlist en cours de lecture est vide....');
-      }
+      // if (updatedPl.tracks.length === 0) {
+      //   alert('Diantre, la playlist en cours de lecture est vide....');
+      // }
+
       // Dispatch updated playlist and playIndex.
-      else {
-        store.dispatch(
-          updatePlaylistToPlay({
-            pl: updatedPl,
-            onPlayIndex: getPlayIndex(updatedPl, toUpdate)
-          })
-        );
-      }
+      store.dispatch(
+        updatePlaylistToPlay({
+          pl: updatedPl,
+          onPlayIndex: getPlayIndex(updatedPl, toUpdate)
+        })
+      );
     }
   }
 
