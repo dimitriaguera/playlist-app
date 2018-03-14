@@ -56,7 +56,7 @@ class InfoPanelPlaylist extends Component {
             </button>
           )
         }
-      } else if (item.tracks.lenght > 0) {
+      } else if (item.tracks.length > 0) {
         return (
           <button aria-label='play album' onClick={this.handlerPlayPlaylist} className='btn btn-icon big'>
             <i aria-hidden='true' className='icon icon-play'/>
