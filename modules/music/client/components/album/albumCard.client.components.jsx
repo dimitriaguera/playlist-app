@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
-import { playOnAlbum } from 'music/client/redux/actions'
+import {
+  playOnAlbum,
+  pauseState,
+  playState
+} from 'music/client/redux/actions'
 import ps from 'core/client/services/core.path.services'
 import Img from 'music/client/components/image/image.client.components'
 import AlbumTracks from 'music/client/components/album/albumTracks.client.components'
@@ -115,7 +119,20 @@ class AlbumCard extends Component {
 
   // @TODO have to rework plyaing object system.
   handlerPlayAlbum (e, i) {
-    const { addAlbumToPlay } = this.props;
+    const { addAlbumToPlay, album, isPaused, onPlay, onPauseFunc, onPlayFunc  } = this.props;
+
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    if (album.key === onPlay.albumKey) {
+      if (isPaused) {
+        return onPlayFunc();
+      } else {
+        return onPauseFunc();
+      }
+    }
 
     // Get album populated with tracks.
     this.getAlbumTracks((err, album) => {
@@ -138,7 +155,10 @@ class AlbumCard extends Component {
 
   handlerAddTracks (e) {
 
-    if (e.stopPropagation) e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
 
     const { addPlaylistItems, activePlaylist, user, history } = this.props;
 
@@ -154,15 +174,17 @@ class AlbumCard extends Component {
         addPlaylistItems(activePlaylist.title, {tracks: tracksID});
       }
     });
-
   }
 
   render () {
     const { openTab, style, renderTracksNow } = this.state;
-    const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey, infoHeight, tabHeight } = this.props;
+    const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey, tabHeight } = this.props;
 
     // Build cover path from album key.
     const cover = ps.changeSeparator(album.key, '___', '/');
+
+    // Test if album is playing.
+    const isPlaying = (playingAlbumKey === album.key);
 
     // Start build classes.
     const classes = ['albums-item-album'];
@@ -176,11 +198,9 @@ class AlbumCard extends Component {
     // Next, if album playing change, class 'playing' are add/remove directly on DOM element with classList method.
     // This is to avoid render calculate or shouldComponentUpdate evaluation
     // on hundreds of albums when album playing just change.
-    if (playingAlbumKey === album.key) {
+    if (isPlaying) {
       classes.push('playing');
     }
-
-    console.log('RENDER CARD');
 
     return (
       <div ref={r => this.domElmt = r} style={style} className={classes.join(' ')}>
@@ -191,9 +211,12 @@ class AlbumCard extends Component {
             defaultSrc={defaultCover}
             style={imageStyle}
           />
-          <IconPlayAnim wrapperStyle={{width: '100%', height: '100%'}} />
-          <button className='btn btn-icon white'><i aria-hidden='true' className='icon icon-play' /></button>
-          <button className='btn btn-icon'><i aria-hidden='true' className='icon icon-plus' onClick={this.handlerAddTracks} /></button>
+          <div className='overlay'>
+            <button className='btn btn-icon big big-playing-icon'><IconPlayAnim/></button>
+            <button className='btn btn-icon medium playing-icon'><IconPlayAnim/></button>
+            <button className='btn btn-icon medium play'><i aria-hidden='true' className='icon icon-play' /></button>
+            <button className='btn btn-icon medium' onClick={this.handlerAddTracks} ><i aria-hidden='true' className='icon icon-plus'/></button>
+          </div>
         </div>
 
         <div className='albums-item-info' onClick={this.handlerOpenTab} style={{height:tabHeight + 'px'}}>
@@ -226,7 +249,9 @@ const mapStateToProps = state => {
   return {
     user: state.authenticationStore._user,
     activePlaylist: state.playlistStore.activePlaylist,
-    playingAlbumKey: state.playlistStore.onPlay.albumKey
+    playingAlbumKey: state.playlistStore.onPlay.albumKey,
+    isPaused: state.playlistStore.pause,
+    onPlay: state.playlistStore.onPlay,
   }
 };
 
@@ -245,6 +270,12 @@ const mapDispatchToProps = dispatch => {
       post(`playlist/${title}`, {
         data: items
       })
+    ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
     )
   }
 };

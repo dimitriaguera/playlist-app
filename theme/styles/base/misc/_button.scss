@@ -57,6 +57,12 @@ button {
       }
     }
 
+    &.medium {
+      .icon {
+        font-size: 3rem;
+      }
+    }
+
     &.big {
       .icon {
         font-size: 5rem;
