@@ -20,7 +20,7 @@ const errorHandler = require(path.resolve('modules/core/server/services/error.se
 const { metaLibName } = require(path.resolve('modules/editMetaTag/server/services/metaTag.server.services'));
 const http = require('http');
 const socketServer = require('socket.io');
-const socketsEvents = require('./sockets/sockets.conf');
+const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
 const fs = require('fs-extra');
 

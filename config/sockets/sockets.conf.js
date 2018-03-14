@@ -14,6 +14,7 @@ module.exports = (function () {
     register: (event, callback) => {
       // If event already registered, return.
       if (socketsActions[event]) {
+        //@todo
         return console.log(`Event ${event} already registered for namespace A VENIR`);
       }
 

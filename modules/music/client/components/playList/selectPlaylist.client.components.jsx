@@ -4,12 +4,14 @@ import { get } from 'core/client/services/core.api.services'
 import { activatePlaylist } from 'music/client/redux/actions'
 import { Link } from 'react-router-dom'
 import Select from 'react-select';
+import socketServices from 'core/client/services/core.socket.services'
 import 'react-select/dist/react-select.css';
 
 class SelectPlaylist extends Component {
   constructor (props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.socket = socketServices.getPublicSocket();
     this.state = {
       allPlaylist: []
     }
@@ -17,6 +19,7 @@ class SelectPlaylist extends Component {
 
   componentWillMount () {
     const _self = this;
+
     this.props.getAllPlaylistName()
       .then((data) => {
         if (data.success) {
@@ -33,6 +36,25 @@ class SelectPlaylist extends Component {
           }
         }
       });
+
+    // Add playlist if one is added
+    this.socket.on('save:playlist', (data) => {
+      const apl = updateAllPlaylist(_self.state.allPlaylist, data);
+      _self.setState({ allPlaylist: apl })
+    });
+
+    // Delete playlist
+    // Check activePlaylist
+    this.socket.on('delete:playlist', (pl) => {
+
+      if (_self.props.activePlaylist.title === pl.title) {
+        this.props.activatePlaylist(getDefaultPlaylist(_self.state.allPlaylist));
+      }
+
+      const apl = deletePlaylist(_self.state.allPlaylist, pl);
+      _self.setState({ allPlaylist: apl })
+    });
+
   }
 
   handleChange (data) {
@@ -133,11 +155,34 @@ function getValue (value, array) {
   return null;
 }
 
-function deleteDefaultPlaylist (arr) {
+function getDefaultPlaylist (allPlaylist) {
+  for (let i = 0; i < allPlaylist.length; i++) {
+    if (allPlaylist[i].defaultPlaylist) {
+      return allPlaylist[i];
+    }
+  }
+  return null;
+}
+
+
+function updateAllPlaylist (arr, item) {
   const array = arr.slice(0);
 
-  for (let i = 0; i < array.length; i++) {
-    if (array[i].defaultPlaylist) {
+  for (let i = 0, l = array.length ; i < l ; i++) {
+    if (item.title === array[i].title) {
+      array[i] = item;
+      return array;
+    }
+  }
+  array.push(item);
+  return array;
+}
+
+function deletePlaylist (arr, item) {
+  const array = arr.slice(0);
+
+  for (let i = 0, l = array.length ; i < l ; i++) {
+    if (item.title === array[i].title) {
       array.splice(i, 1);
       return array;
     }
