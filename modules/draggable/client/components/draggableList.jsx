@@ -151,7 +151,8 @@ class DraggableList extends Component {
     return (
       <ul className={classes.join(' ')} style={{minHeight: containerHeight}}>
         {range.map((item, i) => {
-          let id = item._id ? item._id : item.path;
+          //let id = item._id ? item._id : item.path;
+          let id = i + range_array[0];
           let isDragged = isPressed && originalIdOfLastPressed === id;
           let realIndex = i + range_array[0];
           let classes = ['dl-item'];

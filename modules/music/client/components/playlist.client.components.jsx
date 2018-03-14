@@ -202,9 +202,11 @@ class Playlist extends Component {
             <button className='btn btn-standard' onClick={this.handlerAddTracks}>
               Add tracks
             </button>
+            {!!playlist.tracks.length &&
             <button className='btn btn-standard' onClick={this.handlerClearPlaylist}>
               Remove all tracks
             </button>
+            }
             <button className='btn btn-standard' onClick={this.handlerDeletePlaylist}>
               Delete Playlist
             </button>
