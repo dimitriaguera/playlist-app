@@ -92,10 +92,16 @@ export const playlistStore = (state = initialState, action) => {
       const playingList = Object.assign({}, state.playingList, action.item);
 
       let onPlay;
-      if (action.item.pl && action.item.pl.tracks) {
+      if (action.item.pl && action.item.pl.tracks && action.item.pl.tracks[action.item.onPlayIndex]) {
         onPlay = action.item.pl.tracks[action.item.onPlayIndex];
-      } else {
+      } else if (state.playingList.pl && state.playingList.pl.tracks && state.playingList.pl.tracks[action.item.onPlayIndex]) {
         onPlay = state.playingList.pl.tracks[action.item.onPlayIndex];
+      } else {
+        onPlay = {
+          name: null,
+          path: null,
+          meta: []
+        }
       }
 
       return {
