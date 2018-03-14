@@ -106,10 +106,14 @@ class AudioBar extends Component {
 
     const classes = ['audioBar'];
 
+    if (!onPlay) {
+      return null;
+    }
+
     const cover = onPlay.albumKey ? ps.changeSeparator(onPlay.albumKey, '___', '/') : null;
 
     return (
-      !!onPlay.path &&
+      (onPlay && !!onPlay.path) &&
 
       <section className={classes.join(' ')}>
 
