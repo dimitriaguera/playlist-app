@@ -34,7 +34,7 @@ class MetaInfoPlaylist extends Component {
       }
 
       return (
-        <div className='audioBar-coll audioBar-meta'>
+        <div className='audioBar-meta'>
           <Link to={path} className='audioBar-info-label'>{`${modeLabel} ${onPlayIndex + 1}/${pl.tracks.length}`}</Link>
           <div className='audioBar-info-name'>{title || onPlay.name}</div>
           {onPlay.meta && onPlay.meta.artist && <div className='audioBar-info-artist'>{onPlay.meta.artist}</div>}

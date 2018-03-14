@@ -124,16 +124,17 @@ class AudioBar extends Component {
           src={`/api/music/read?path=${ps.urlEncode(onPlay.path)}`}
         />
 
-        <div className='audioBar-wrapper'>
+        <div className='audioBar-coll audioBar-wrapper'>
 
-          <div className='audioBar-coll audioBar-img'>
-            <Img title={`${onPlay.publicName} cover`}
-                 src={'/pictures/' + cover + '/cover.jpg'}
-                 defaultSrc={defaultCover}
-            />
+          <div className='audioBar-coll audioBar-wrap-meta-img'>
+            <div className='audioBar-img'>
+              <Img title={`${onPlay.publicName} cover`}
+                   src={'/pictures/' + cover + '/cover.jpg'}
+                   defaultSrc={defaultCover}
+              />
+            </div>
+           <MetaInfo pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
           </div>
-
-          <MetaInfo pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
 
           <div className='audioBar-coll audioBar-control'>
               <Controls onPauseHandler={this.onPauseHandler}
@@ -154,9 +155,9 @@ class AudioBar extends Component {
               {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
           </div>
 
-          <div className='audioBar-coll audioBar-menu'>
-            menu
-          </div>
+          {/*<div className='audioBar-coll audioBar-menu'>*/}
+            {/*menu*/}
+          {/*</div>*/}
 
         </div>
       </section>

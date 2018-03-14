@@ -13,11 +13,11 @@ class Controls extends Component {
     const playPauseBtn = () => {
       // If active playlist and on play, display Pause button.
       if (!isPaused) { return (
-        <button onClick={onPauseHandler} className='btn btn-center'><i aria-hidden="true" className='icon icon-l icon-pause'/></button>
+        <button aria-label="Pause" onClick={onPauseHandler} className='btn btn-center'><i aria-hidden="true" className='icon icon-l icon-pause'/></button>
       ); }
       // Else display Play button.
       else { return (
-        <button onClick={onPlayHandler} className='btn btn-center'><i aria-hidden="true" className='icon icon-l icon-play'/></button>
+        <button aria-label="Play" onClick={onPlayHandler} className='btn btn-center'><i aria-hidden="true" className='icon icon-l icon-play'/></button>
       ); }
     };
 
@@ -25,20 +25,20 @@ class Controls extends Component {
       if (pl) {
         const disabled = (onPlayIndex === 0);
         return (
-          <button disabled={disabled} className='btn' onClick={onPrevHandler} ><i aria-hidden="true" className='icon icon-l icon-skip-back'/></button>
+          <button aria-label="Previous" disabled={disabled} className='btn' onClick={onPrevHandler} ><i aria-hidden="true" className='icon icon-l icon-skip-back'/></button>
         );
       }
-      return null;
+      return (<button aria-label="Previous" disabled="true" className='btn'><i aria-hidden="true" className='icon icon-l icon-skip-back'/></button>);
     };
 
     const rightBtn = () => {
       if (pl) {
         const disabled = (onPlayIndex + 1 === pl.tracks.length);
         return (
-          <button disabled={disabled} className='btn' onClick={onNextHandler} ><i aria-hidden="true" className='icon icon-l icon-skip-forward'/></button>
+          <button aria-label="Next" disabled={disabled} className='btn' onClick={onNextHandler} ><i aria-hidden="true" className='icon icon-l icon-skip-forward'/></button>
         );
       }
-      return null;
+      return (<button aria-label="Next" disabled="true" className='btn'><i aria-hidden="true" className='icon icon-l icon-skip-forward'/></button>);
     };
 
     return (

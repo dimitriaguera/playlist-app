@@ -13,45 +13,70 @@ $color-brown: #848484;
   width: 100%;
   background-color: #1e1e1e;
   color: white;
-  min-height: $ab-height;
+  min-height: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .audioBar-wrapper {
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
   align-items: center;
-  height: $ab-img-size;
-  overflow: hidden;
+  justify-content: center;
 }
 
-.audioBar-coll {
-  //overflow: hidden;
-  //flex-grow: 1;
-}
 
-.audioBar-img {
-  max-width: $ab-img-size;
-  min-width: $ab-img-size;
-
-  & > img {
-    width: $ab-img-size;
-    height: $ab-img-size;
-  }
-}
-
-.audioBar-meta {
-  padding: 0 0.5em;
-}
-
+.audioBar-wrap-meta-img,
 .audioBar-range {
-  padding: 0 0.5em;
-  flex-grow: 5;
+  display: none;
 }
 
-.audioBar-control {
-  padding: 0 0.5em;
-}
 
-.audioBar-menu {
-  padding: 0 0.5em;
+@include respond-to('medium-up') {
+  .audioBar {
+    min-height: $ab-height;
+    display: block;
+  }
+
+  .audioBar-wrapper {
+    flex-direction: row;
+    height: $ab-img-size;
+    overflow: hidden;
+  }
+
+  .audioBar-range {
+    display: block;
+    padding: 0 0.5em;
+    flex-grow: 1;
+  }
+
+  .audioBar-wrap-meta-img {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .audioBar-img {
+    max-width: $ab-img-size;
+    min-width: $ab-img-size;
+
+    & > img {
+      width: $ab-img-size;
+      height: $ab-img-size;
+    }
+  }
+
+  .audioBar-meta {
+    padding: 0 0.5em;
+  }
+
+  .audioBar-control {
+    padding: 0 0.5em;
+    min-width: 12rem;
+  }
+
+  .audioBar-menu {
+    padding: 0 0.5em;
+  }
+
 }
