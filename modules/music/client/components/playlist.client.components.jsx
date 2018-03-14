@@ -20,7 +20,7 @@ class Playlist extends Component {
     super(props);
 
     this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
-    this.handlerReadFile = this.handlerReadFile.bind(this);
+    this.handlerPlayTrack = this.handlerPlayTrack.bind(this);
     this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerDeletePlaylist = this.handlerDeletePlaylist.bind(this);
@@ -87,7 +87,7 @@ class Playlist extends Component {
   }
 
   // Play a track in playlist.
-  handlerReadFile (key) {
+  handlerPlayTrack (key) {
     const { playlist } = this.state;
 
     const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
@@ -236,7 +236,7 @@ class Playlist extends Component {
               onPlayIndex={onPlayIndex}
               callbackMouseUp={this.handlerMoveItem}
               onDelete={this.handlerDeleteTrack}
-              onPlay={this.handlerReadFile}
+              onPlay={this.handlerPlayTrack}
               scrollContainerName='main-content'
             />
           </div>

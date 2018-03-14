@@ -1,7 +1,13 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {get, put, post} from 'core/client/services/core.api.services'
-import {addFolderToPlay, playOnFolder, updateFolderToPlay} from 'music/client/redux/actions'
+import {
+  addFolderToPlay,
+  playOnFolder,
+  updateFolderToPlay,
+  pauseState,
+  playState
+} from 'music/client/redux/actions'
 import FolderTrack from 'music/client/components/tracks/folderTrack.client.components'
 import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
 import Modal from 'react-modal';
@@ -25,7 +31,7 @@ class FolderList extends Component {
 
     this.handlerAddTrack = this.handlerAddTrack.bind(this);
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
-    this.handlerReadTrack = this.handlerReadTrack.bind(this);
+    this.handlerPlayTrack = this.handlerPlayTrack.bind(this);
 
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
@@ -143,17 +149,29 @@ class FolderList extends Component {
     }
   }
 
-  handlerReadTrack(key) {
-    return (e) => {
-      const {albumOfUrl} = this.state;
-      const {pl} = albumOfUrl;
+  handlerPlayTrack(e, key) {
 
-      this.props.playTrackAlbum({
-        pl: pl,
-        onPlayIndex: key
-      });
+    const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
+    const {albumOfUrl} = this.state;
+    const {pl} = albumOfUrl;
+
+    if (e) {
+      e.stopPropagation();
       e.preventDefault();
     }
+
+    if (pl.tracks[key]._id === onPlay._id) {
+      if (isPaused) {
+        return onPlayFunc();
+      } else {
+        return onPauseFunc();
+      }
+    }
+
+    this.props.playTrackAlbum({
+      pl: pl,
+      onPlayIndex: key
+    });
   }
 
   handlerAddTrack (e, tracksId) {
@@ -264,7 +282,7 @@ class FolderList extends Component {
             history={history}
             isPaused={isPaused}
             onPlayIndex={onPlayIndex}
-            onPlay={this.handlerReadTrack}
+            onPlay={this.handlerPlayTrack}
             addTrack={this.handlerAddTrack}
           />
         </div>
@@ -301,6 +319,12 @@ const mapDispatchToProps = dispatch => {
         data: items
       })
     ),
+    onPauseFunc: () => dispatch(
+      pauseState()
+    ),
+    onPlayFunc: () => dispatch(
+      playState()
+    )
   }
 };
 

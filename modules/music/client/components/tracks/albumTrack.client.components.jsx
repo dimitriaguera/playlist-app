@@ -42,7 +42,7 @@ class AlbumTrack extends Component {
     if (active) classes.push('active');
 
     return (
-      <div aria-label='play track' className={classes.join(' ')} onClick={onPlay(index)} draggable='false'>
+      <div aria-label='play track' className={classes.join(' ')} onClick={e => onPlay(e, index)} draggable='false'>
 
         <Prefix active={active} isPaused={isPaused} index={index}/>
 
