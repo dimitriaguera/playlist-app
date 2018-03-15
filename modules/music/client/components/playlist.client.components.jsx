@@ -215,7 +215,7 @@ class Playlist extends Component {
           {playlist && <InfoPanelPlaylist item={playlist}/>}
         </header>
 
-        <div className='col-2-medium-3-small-3'>
+        <div id='dl-container' className='col-2-medium-3-small-3'>
           <div className='w-max-xl'>
             <div className={headClasses.join(' ')}>
               <span className='tracks-item-img'></span>
@@ -238,6 +238,7 @@ class Playlist extends Component {
               onDelete={this.handlerDeleteTrack}
               onPlay={this.handlerPlayTrack}
               scrollContainerName='main-content'
+              containerId='dl-container'
             />
           </div>
         </div>

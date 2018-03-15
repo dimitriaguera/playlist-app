@@ -5,11 +5,16 @@
     &.dl-drag-active {
       .dl-item {
         padding-right: 40px;
+        background: rgba(0, 0, 0, 0);
         transition: background-color 0.2s;
 
-        //&.dl-dragged {
-        //  background: rgba(255, 255, 255, 1);
-        //}
+        &.dl-dragged {
+          background: rgba(0, 0, 0, 0.7);
+        }
+
+        &.dl-target {
+          border-bottom: 3px solid $color-primary;
+        }
 
         .dl-hand-right {
           position: absolute;

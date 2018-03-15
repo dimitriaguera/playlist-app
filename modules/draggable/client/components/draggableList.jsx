@@ -16,9 +16,11 @@ class DraggableList extends Component {
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleOnScroll = this.handleOnScroll.bind(this);
 
+    const singles = singlelify(props.items);
+
     this.state = {
-      items: props.items,
-      range_array: getDisplayedItems(null, props.items, (props.height || 70)),
+      singles: singles,
+      range_array: getDisplayedItems(null, singles, (props.height || 70)),
       h: props.height || 70,
       delta: 0,
       mouseY: 0,
@@ -42,6 +44,10 @@ class DraggableList extends Component {
     } else {
       this.scrollContainer = document.getElementById(this.scrollContainerName);
     }
+    // Get container for offsetTop.
+    if (this.props.containerId){
+      this.container = document.getElementById(this.props.containerId);
+    }
 
     this.scrollContainer.addEventListener('scroll', this.handleOnScroll);
     this.scrollContainer.addEventListener('touchmove', this.handleTouchMove);
@@ -62,18 +68,22 @@ class DraggableList extends Component {
     const { items } = nextProps;
 
     if (items !== this.props.items) {
+
+      const singles = singlelify(items);
+
       this.setState({
-        items: items,
-        range_array: getDisplayedItems(this.scrollContainer, items, this.state.h),
-        containerHeight: `${items.length * this.state.h}px`
+        singles: singles,
+        range_array: getDisplayedItems(this.scrollContainer, singles, this.state.h, this.container),
+        containerHeight: `${singles.length * this.state.h}px`
       });
     }
   }
 
   handleOnScroll () {
-    const { h, items } = this.state;
+    const { h, singles } = this.state;
+
     this.setState({
-      range_array: getDisplayedItems(this.scrollContainer, items, h)
+      range_array: getDisplayedItems(this.scrollContainer, singles, h, this.container)
     });
   }
 
@@ -88,22 +98,22 @@ class DraggableList extends Component {
 
   handleMouseUp () {
     const _self = this;
-    const { currentRow, originalPosOfLastPressed, items, isPressed } = this.state;
+    const { currentRow, originalPosOfLastPressed, singles, isPressed } = this.state;
 
     // Avoid firing on all mouse click.
     if (!isPressed) return;
 
     const { callbackMouseUp } = this.props;
-    let newItems = items;
+    let newSingles = singles;
 
     if (currentRow !== originalPosOfLastPressed) {
-      newItems = reinsert(newItems, originalPosOfLastPressed, currentRow);
+      newSingles = reinsert(newSingles, originalPosOfLastPressed, currentRow);
 
       this.setState({
-        items: newItems
+        singles: newSingles
       });
 
-      callbackMouseUp(items, newItems, _self);
+      callbackMouseUp(singles, newSingles, _self);
     }
 
     this.setState({
@@ -116,12 +126,12 @@ class DraggableList extends Component {
   }
 
   handleMouseMove ({pageY}) {
-    const {h, isPressed, delta, items} = this.state;
-    const itemsCount = items.length;
+    const {h, isPressed, delta, singles} = this.state;
+    const singlesCount = singles.length;
 
     if (isPressed) {
       const mouseY = pageY - delta;
-      const currentRow = clamp(Math.round(mouseY / h), 0, itemsCount - 1);
+      const currentRow = clamp(Math.round(mouseY / h), 0, singlesCount - 1);
       this.setState({mouseY: mouseY, currentRow: currentRow});
     }
   }
@@ -139,20 +149,20 @@ class DraggableList extends Component {
   };
 
   render () {
-    const { h, mouseY, isPressed, originalIdOfLastPressed, range_array, containerHeight } = this.state;
-    const { component: Component, dragActive = true, color, items, ...props } = this.props;
+    const { h, mouseY, isPressed, singles, currentRow, originalIdOfLastPressed, range_array, containerHeight } = this.state;
+    const { component: Component, dragActive = true, color, ...props } = this.props;
     const classes = ['unstyled','dl', 'dl-container'];
 
-    const range = items.slice(range_array[0], range_array[1]);
+    const range = singles.slice(range_array[0], range_array[1]);
 
     if (dragActive) classes.push('dl-drag-active');
     if (color) classes.push(color);
 
     return (
-      <ul className={classes.join(' ')} style={{minHeight: containerHeight}}>
+      <ul ref={elmt => this.elmtCont = elmt} className={classes.join(' ')} style={{minHeight: containerHeight}}>
         {range.map((item, i) => {
-          //let id = item._id ? item._id : item.path;
-          let id = i + range_array[0];
+
+          let id = item.uniqId;
           let isDragged = isPressed && originalIdOfLastPressed === id;
           let realIndex = i + range_array[0];
           let classes = ['dl-item'];
@@ -182,6 +192,10 @@ class DraggableList extends Component {
 
                 if (scale > 1 && classes.indexOf('dl-dragged') === -1) {
                   classes.push('dl-dragged');
+                }
+
+                else if (isPressed && currentRow === realIndex) {
+                  classes.push('dl-target');
                 }
 
                 return (
@@ -226,11 +240,23 @@ function clamp (n, min, max) {
   return Math.max(Math.min(n, max), min);
 }
 
-function getDisplayedItems (scrollContainer, arr, h) {
+function singlelify( items ){
+  if( !items ) return [];
+
+  return items.map( (o, i) => {
+    let id = o._id || o.tracksId || o.path;
+    id = id + i;
+    return Object.assign({}, o, {uniqId: id});
+  });
+}
+
+function getDisplayedItems (scrollContainer, arr, h, container) {
+
+  const offsetTop = container ? container.offsetTop : 0;
 
   let y;
   if (scrollContainer && typeof scrollContainer.scrollTop === 'number') {
-    y = scrollContainer.scrollTop;
+    y = scrollContainer.scrollTop - offsetTop;
   } else {
     y = window.scrollY;
   }

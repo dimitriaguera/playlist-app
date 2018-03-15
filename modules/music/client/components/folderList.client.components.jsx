@@ -262,7 +262,7 @@ class FolderList extends Component {
           }
         <InfoPanelFolder item={pl} history={history} location={location} />
       </header>
-      <div className='col-2-medium-3-small-3'>
+      <div id='dl-container' className='col-2-medium-3-small-3'>
         <div className='w-max-xl'>
           <div className={headClasses.join(' ')}>
             <span className='tracks-item-img'></span>
@@ -277,6 +277,7 @@ class FolderList extends Component {
             callbackMouseUp={this.handlerMoveItem}
             component={FolderTrack}
             scrollContainerName='main-content'
+            containerId='dl-container'
             isActivePlaylist={isActive}
             user={user}
             history={history}

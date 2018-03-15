@@ -65,7 +65,6 @@ class Album extends Component {
     // Test if album is already playing.
     // If album playing, mount data from store.
     if (playingList.pl && playingList.pl.key === key) {
-      console.log('PL DETECTE');
       _self.setState({
         isActive: true,
         albumOfUrl: playingList
@@ -73,7 +72,6 @@ class Album extends Component {
     }
     // Else, query data from DB.
     else {
-      console.log('PAS PL');
       fetchFiles(ps.urlEncode(key))
         .then((data) => {
           if (!data.success) {
@@ -279,7 +277,7 @@ class Album extends Component {
           </header>
         }
         {pl &&
-          <div className='col-2-medium-3-small-3'>
+          <div id='dl-container' className='col-2-medium-3-small-3'>
             <div className='w-max-xl'>
               <div className={`move-album-tracks-items-row-header${!!user ? ' drag' : ''}`}>
                 <span className='tracks-item-img'></span>
@@ -293,6 +291,7 @@ class Album extends Component {
                 callbackMouseUp={this.handlerMoveItem}
                 component={AlbumTrack}
                 scrollContainerName='main-content'
+                containerId='dl-container'
                 isActivePlaylist={isActive}
                 dragActive={!!user}
                 history={history}
