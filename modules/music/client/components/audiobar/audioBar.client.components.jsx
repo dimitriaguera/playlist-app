@@ -25,9 +25,11 @@ class AudioBar extends Component {
     this.onCanPlayHandler = this.onCanPlayHandler.bind(this);
     this.onNextHandler = this.onNextHandler.bind(this);
     this.onPrevHandler = this.onPrevHandler.bind(this);
+    this.onOpenBreadHandler = this.onOpenBreadHandler.bind(this);
 
     this.state = {
-      audioReady: false
+      audioReady: false,
+      isBreadOpen: false,
     }
   }
 
@@ -53,7 +55,7 @@ class AudioBar extends Component {
 
   // When first tracks ready to play, fire ready to true.
   // This allows range slider element to render.
-  onCanPlayHandler (e) {
+  onCanPlayHandler () {
     if (!this.state.audioReady) {
       this.setState({audioReady: true});
     }
@@ -61,18 +63,18 @@ class AudioBar extends Component {
 
   // If app state is play, apply play() method to audio element.
   // Permit remote pause/play trough redux state changes on all app.
-  onPlayHandler (e) {
+  onPlayHandler () {
     this.props.play();
   }
 
   // If app state is pause, apply pause() method to audio element.
   // Permit remote pause/play trough redux state changes on all app.
-  onPauseHandler (e) {
+  onPauseHandler () {
     this.props.pause();
   }
 
   // Play next tracks on album/playlist list.
-  onNextHandler (e) {
+  onNextHandler () {
     const { pl, onPlayIndex, mode } = this.props;
     const callback = getActiveMode(mode);
 
@@ -83,7 +85,7 @@ class AudioBar extends Component {
   }
 
   // Play previous tracks on album/playlist list.
-  onPrevHandler (e) {
+  onPrevHandler () {
     const { pl, onPlayIndex, mode } = this.props;
     const callback = getActiveMode(mode);
 
@@ -91,6 +93,10 @@ class AudioBar extends Component {
       onPlayIndex: onPlayIndex - 1,
       pl: pl
     }, callback);
+  }
+
+  onOpenBreadHandler () {
+    this.setState({isBreadOpen: !this.state.isBreadOpen});
   }
 
   render () {
@@ -124,9 +130,9 @@ class AudioBar extends Component {
           src={`/api/music/read?path=${ps.urlEncode(onPlay.path)}`}
         />
 
-        <div className='audioBar-coll audioBar-wrapper'>
+        <div className='audioBar-wrapper'>
 
-          <div className='audioBar-coll audioBar-wrap-meta-img'>
+          <div className='audioBar-coll1 audioBar-wrap-meta-img'>
             <div className='audioBar-img'>
               <Img title={`${onPlay.publicName} cover`}
                    src={'/pictures/' + cover + '/cover.jpg'}
@@ -136,7 +142,7 @@ class AudioBar extends Component {
            <MetaInfo pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
           </div>
 
-          <div className='audioBar-coll audioBar-control'>
+          <div className='audioBar-coll2 audioBar-control'>
               <Controls onPauseHandler={this.onPauseHandler}
                 onPlayHandler={this.onPlayHandler}
                 onPrevHandler={this.onPrevHandler}
@@ -146,18 +152,26 @@ class AudioBar extends Component {
                 onPlay={onPlay}
                 pl={pl}
               />
-          </div>
-          <div className='audioBar-coll audioBar-range'>
-              <Bread onPlay={onPlay} />
-              {audioReady && <RangeSlider audioEl={audioEl} />}
-              {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
-              {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
-              {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
+              <div className='audioBar-range'>
+                {audioReady && <RangeSlider audioEl={audioEl} />}
+                {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
+                {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
+                {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
+              </div>
           </div>
 
-          {/*<div className='audioBar-coll audioBar-menu'>*/}
-            {/*menu*/}
-          {/*</div>*/}
+
+          <div className='audioBar-coll3 audioBar-menu'>
+
+            <button aria-label="Open breadcrumb" onClick={this.onOpenBreadHandler}>
+              <i aria-hidden="true" className='icon icon-inbox'></i>
+            </button>
+
+            <Bread onPlay={onPlay} isOpen={this.state.isBreadOpen}/>
+            <div className='audioBar-vol-range'>
+              {audioReady && <RangeVolume audioEl={audioEl} />}
+            </div>
+          </div>
 
         </div>
       </section>

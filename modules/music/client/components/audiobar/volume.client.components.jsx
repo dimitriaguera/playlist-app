@@ -9,6 +9,7 @@ class RangeVolume extends Component {
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleVolClick = this.handleVolClick.bind(this);
 
     this.state = {
       position: 0,
@@ -23,8 +24,8 @@ class RangeVolume extends Component {
     const { audioEl } = this.props;
 
     // Get volume and init volumeBar
-    // @todo put the volume at 0.5 is it necessary ?
     audioEl.volume = 0.5;
+
     this.setState(
       {
         volume: audioEl.volume,
@@ -33,6 +34,7 @@ class RangeVolume extends Component {
     );
 
     // Apply windows touch/mouse control listeners.
+    //@todo why ?
     window.addEventListener('touchmove', this.handleTouchMove);
     window.addEventListener('touchend', this.handleMouseUp);
     window.addEventListener('mousemove', this.handleMouseMove);
@@ -41,6 +43,7 @@ class RangeVolume extends Component {
 
   componentWillUnmount () {
     // Clear listeners.
+    //@todo why ?
     window.removeEventListener('touchmove', this.handleTouchMove, false);
     window.removeEventListener('touchend', this.handleMouseUp, false);
     window.removeEventListener('mousemove', this.handleMouseMove, false);
@@ -105,15 +108,51 @@ class RangeVolume extends Component {
     });
   }
 
+  handleVolClick() {
+    const { volume } = this.state;
+    const audio = this.props.audioEl;
+
+    if (volume === 0) {
+
+      audio.volume = 1;
+      this.setState({
+        volume : 1,
+        position: 100
+      });
+
+    } else {
+
+      audio.volume = 0;
+      this.setState({
+        volume : 0,
+        position: 0
+      });
+
+    }
+  }
+
   render () {
     const { position, isPressed } = this.state;
-    const classes = ['pr-control-element'];
+    const classes = ['pr-control-element pr-control-vol'];
 
     if (isPressed) classes.push('pr-is-pressed');
 
+    let iconVol;
+    if (position === 0) {
+      iconVol = 'icon-volume-x'
+    } else if (position < 50) {
+      iconVol = 'icon-volume-1'
+    } else {
+      iconVol = 'icon-volume-2'
+    }
+
     return (
       <div className={classes.join(' ')}>
-        <Icon name='volume up' />
+
+        <button aria-label="Mute or unmute" onClick={this.handleVolClick}>
+          <i aria-hidden="true" className={`icon ${iconVol}`}/>
+        </button>
+
         <div className='pr-control-bar'
              onMouseDown={this.handleMouseDown}
              onTouchStart={this.handleTouchStart}

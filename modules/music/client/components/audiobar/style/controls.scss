@@ -5,27 +5,31 @@ $center-btn-size: 4rem;
   button {
     border: none;
     background: transparent;
-    font-size: 1.5rem;
-    color: #d5d5d5;
+    color: $white;
     cursor: pointer;
 
     &.btn-center {
       border-radius: 50%;
-      border: 2px solid #d5d5d5;
+      border: 2px solid $white;
       width: $center-btn-size;
       height: $center-btn-size;
     }
   }
 
+  .icon {
+    font-size: 2.5rem;
+  }
+
   .icon-pause {
     position: relative;
-    top: -0.2rem;
-    left: -0.2rem;
+    top: -0.4rem;
+    left: -0.4rem;
   }
 
   .icon-play {
     position: relative;
-    top: -0.2rem;
+    top: -0.4rem;
+    left: -0.2rem;
   }
 }
 

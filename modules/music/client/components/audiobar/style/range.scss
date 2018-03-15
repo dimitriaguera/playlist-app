@@ -3,22 +3,22 @@ $color-theme-1: $color-primary;
 .pr-control-element {
   display: flex;
   justify-content: center;
+  align-items: center;
 
   .mtn-elmt {
-    font-size: 0.85rem;
+    font-size: 1rem;
+    top: 0.15rem;
+    position: relative;
   }
 
   .pr-control-bar {
     position: relative;
     width: 100%;
-    height: 30px;
-    margin: 0 10px;
-    padding: 10px 0;
     cursor: pointer;
+    margin: 0 1rem;
 
     .pr-bar {
       position: absolute;
-      top: 10px;
       left: 0;
       height: 2px;
       transition: height 0.5s;
@@ -39,8 +39,7 @@ $color-theme-1: $color-primary;
 
     .pr-bar-handler {
       position: absolute;
-      //top: 3px;
-      top: 5px;
+      top: -4px;
       width: 15px;
       height: 15px;
       margin-left: -7px;
