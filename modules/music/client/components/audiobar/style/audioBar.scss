@@ -1,8 +1,8 @@
-$ab-height: 100px;
-$ab-info-width: 400px;
-$ab-control-width: 170px;
-$ab-menu-width: 170px;
-$ab-img-size: 100px;
+$ab-height: 10rem;
+$ab-info-width: 40rem;
+$ab-control-width: 17rem;
+$ab-menu-width: 17rem;
+$ab-img-size: 10rem;
 $ctrl-btn-size: 2.5rem;
 $center-btn-size: 4rem;
 $color-brown: #848484;
@@ -12,71 +12,167 @@ $color-brown: #848484;
   position: relative;
   width: 100%;
   background-color: #1e1e1e;
-  color: white;
-  min-height: 7rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: $white;
+  height: 7rem;
 }
 
 .audioBar-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-areas: "info" "controls" "menu";
   justify-content: center;
+  align-items: center;
+  height: 100%;
+  position: relative;
 }
 
-
-.audioBar-wrap-meta-img,
-.audioBar-range {
+.audioBar-coll1 {
+  grid-area: info;
   display: none;
 }
 
+.audioBar-coll2 {
+  grid-area: controls;
+}
+
+.audioBar-coll3 {
+  grid-area: menu;
+  display: none;
+}
+
+.audioBar-menu {
+  button {
+    color: $white;
+    padding: 0;
+  }
+  .pr-control-bar {
+    top: -1px;
+  }
+}
+
+.audioBar-vol-range {
+  margin-left: 1rem;
+}
 
 @include respond-to('medium-up') {
   .audioBar {
-    min-height: $ab-height;
-    display: block;
+    height: $ab-height;
   }
 
   .audioBar-wrapper {
-    flex-direction: row;
-    height: $ab-img-size;
-    overflow: hidden;
+    grid-template-areas: "info controls menu";
+    grid-template-columns: 30rem 1fr 30rem;
   }
 
-  .audioBar-range {
-    display: block;
-    padding: 0 0.5em;
-    flex-grow: 1;
-  }
-
-  .audioBar-wrap-meta-img {
+  .audioBar-coll1 {
     display: flex;
-    flex-direction: row;
+    max-height: 100%;
   }
 
   .audioBar-img {
     max-width: $ab-img-size;
-    min-width: $ab-img-size;
 
     & > img {
-      width: $ab-img-size;
-      height: $ab-img-size;
+      max-height: 100%;
     }
   }
 
   .audioBar-meta {
-    padding: 0 0.5em;
+    padding-left: 1rem;
   }
 
-  .audioBar-control {
-    padding: 0 0.5em;
-    min-width: 12rem;
+  .audioBar-coll2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .audioBar-menu {
-    padding: 0 0.5em;
+  .audioBar-range {
+    width: 50%;
+  }
+
+
+  .audioBar-coll3 {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .audioBar-vol-range {
+    width: 12rem;
   }
 
 }
+
+//
+//.audioBar {
+//  position: relative;
+//  width: 100%;
+//  background-color: #1e1e1e;
+//  color: white;
+//  min-height: 7rem;
+//  display: flex;
+//  align-items: center;
+//  justify-content: center;
+//}
+//
+//.audioBar-wrapper {
+//  display: flex;
+//  flex-direction: column;
+//  align-items: center;
+//  justify-content: center;
+//}
+//
+//
+//.audioBar-wrap-meta-img,
+//.audioBar-range {
+//  display: none;
+//}
+//
+//
+//@include respond-to('medium-up') {
+//  .audioBar {
+//    min-height: $ab-height;
+//    display: block;
+//  }
+//
+//  .audioBar-wrapper {
+//    flex-direction: row;
+//    height: $ab-img-size;
+//    overflow: hidden;
+//  }
+//
+//  .audioBar-range {
+//    display: block;
+//    padding: 0 0.5em;
+//    flex-grow: 1;
+//  }
+//
+//  .audioBar-wrap-meta-img {
+//    display: flex;
+//    flex-direction: row;
+//  }
+//
+//  .audioBar-img {
+//    max-width: $ab-img-size;
+//    min-width: $ab-img-size;
+//
+//    & > img {
+//      width: $ab-img-size;
+//      height: $ab-img-size;
+//    }
+//  }
+//
+//  .audioBar-meta {
+//    padding: 0 0.5em;
+//  }
+//
+//  .audioBar-control {
+//    padding: 0 0.5em;
+//    min-width: 14rem;
+//  }
+//
+//  .audioBar-menu {
+//    padding: 0 0.5em;
+//  }
+//
+//}

@@ -53,6 +53,7 @@ class RangeSlider extends Component {
     });
 
     // Apply windows touch/mouse control listeners.
+    //@todo why ?
     window.addEventListener('touchmove', this.handleTouchMove);
     window.addEventListener('touchend', this.handleMouseUp);
     window.addEventListener('mousemove', this.handleMouseMove);
@@ -64,6 +65,7 @@ class RangeSlider extends Component {
     this.clearProgressInterval();
 
     // Clear listeners.
+    //@todo why ?
     window.removeEventListener('touchmove', this.handleTouchMove, false);
     window.removeEventListener('touchend', this.handleMouseUp, false);
     window.removeEventListener('mousemove', this.handleMouseMove, false);

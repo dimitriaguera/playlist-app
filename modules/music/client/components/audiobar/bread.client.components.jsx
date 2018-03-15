@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import ps from 'core/client/services/core.path.services'
 import config from 'env/config.client'
 import { Link } from 'react-router-dom'
-import { Popup } from 'semantic-ui-react'
+
 
 
 class Bread extends Component {
   shouldComponentUpdate (nextProps) {
-    const { onPlay } = nextProps;
-    return (onPlay !== this.props.onPlay);
+    const { onPlay, isOpen } = nextProps;
+    return (onPlay !== this.props.onPlay || isOpen !== this.props.isOpen);
   }
 
   splitStr (str) {
@@ -30,44 +30,64 @@ class Bread extends Component {
   }
 
   render () {
-    const { onPlay } = this.props;
+    const { onPlay, isOpen } = this.props;
     const items = this.splitStr(onPlay.path);
 
+    let classes = ['meta-track-bread'];
+    if (isOpen) {
+      classes.push('is-open');
+    }
+
     const bread = items.map((item, i) => {
-      const l = items.length;
-      const width = `${(100 - 65) / (l - 1)}%`;
 
       if (item.path) {
         return (
-          <Popup
-            key={i}
-            trigger={
-              <span className='meta-track-bread-link'>
-                <Link to={`/music/${item.path}`} style={{maxWidth: width}}>{item.content}</Link>
-                <i aria-hidden="true" className='icon icon-chevron-right'/>
-              </span>}
-            content={item.content}
-            inverted
-          />
+          <div key={i} className='meta-track-bread-link'>
+            <Link to={`/music/${item.path}`}>{item.content}</Link>
+            <i aria-hidden="true" className='icon icon-chevron-right'/>
+          </div>
         );
       }
 
       const name = item.content.replace(config.fileSystem.fileAudioTypes, '');
 
       return (
-        <Popup
-          key={i}
-          trigger={<span style={{maxWidth: '65%'}} className='meta-track-bread-play'>{name}</span>}
-          content={name}
-          inverted
-        />
+        <div key={i} className='meta-track-bread-play'>
+          {name}
+        </div>
       );
+
+      // if (item.path) {
+      //   return (
+      //     <Popup
+      //       key={i}
+      //       trigger={
+      //         <span className='meta-track-bread-link'>
+      //           <Link to={`/music/${item.path}`} style={{maxWidth: width}}>{item.content}</Link>
+      //           <i aria-hidden="true" className='icon icon-chevron-right'/>
+      //         </span>}
+      //       content={item.content}
+      //       inverted
+      //     />
+      //   );
+      // }
+      //
+      // const name = item.content.replace(config.fileSystem.fileAudioTypes, '');
+      //
+      // return (
+      //   <Popup
+      //     key={i}
+      //     trigger={<span style={{maxWidth: '65%'}} className='meta-track-bread-play'>{name}</span>}
+      //     content={name}
+      //     inverted
+      //   />
+      // );
     });
 
     return (
-      <span className='meta-track-bread' style={{textAlign: 'left'}}>
+      <div className={classes.join(' ')}>
         {bread}
-      </span>
+      </div>
     );
   };
 }
