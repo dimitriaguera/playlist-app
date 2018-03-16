@@ -201,7 +201,11 @@ class AllPlaylist extends Component {
       <section className='pal allpl'>
         <header>
           <h1>Playlists</h1>
-          <AddPlaylist history={history} />
+          <div className='w-max-xl center ptl pbl'>
+            <div className='mw960p pbl'>
+            <AddPlaylist history={history} />
+            </div>
+          </div>
         </header>
         <div className='content-wrapper w-max-xl center'>
           <ul className='grid-target unstyled grid-3 has-gutter-xl'>

@@ -78,7 +78,7 @@ const IndexableFolderItem = (
               <i aria-hidden="true" className='icon icon-l icon-play'/>
             </button>
             <button onClick={(e) => onListTracks(e, item)} className="btn btn-icon" title="Playlist view of all tracks of this folder">
-              <i aria-hidden="true" className='icon icon-l icon-list'/>
+              <i aria-hidden="true" className='icon icon-l icon-eye'/>
             </button>
             <button onClick={(e) => onGetFiles(e, item)} className="btn btn-icon" title="Add all track to the current playlist">
               <i aria-hidden="true" className='icon icon-l icon-plus'/>

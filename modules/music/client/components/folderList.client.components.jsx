@@ -234,7 +234,7 @@ class FolderList extends Component {
 
     return (
       <section className="pal grid-3 has-gutter">
-        <header>
+        <header className='col-1-medium-3-small-3'>
           {!!user &&
             <div className="pl-action-cont mbm">
               <button className='btn btn-standard' onClick={this.openModal}>Save As Playlist</button>

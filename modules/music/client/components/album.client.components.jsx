@@ -236,7 +236,7 @@ class Album extends Component {
     return (
       <section className='pal grid-3 has-gutter'>
         { (pl && pl.item) &&
-          <header>
+        <header className='col-1-medium-3-small-3'>
             <InfoPanel album={pl.item} tracks={pl.tracks} location={location} history={history}/>
 
             {/*{@todo reimplemenb save as pl for album because
