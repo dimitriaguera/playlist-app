@@ -436,7 +436,7 @@ class SearchMusicBar extends Component {
                 onChange={this.handlerInputChange}
                 type='text'
                 name='inputFilter'
-                placeholder={filter + '...'}
+                placeholder={'search ' + filter + '...'}
               />
               {filtersMapping.date &&
               <input ref={(element) => this.inputDateFrom = element}
@@ -487,14 +487,16 @@ class SearchMusicBar extends Component {
               }
             </div>
 
-            <input ref={(element) => this.input = element}
-              onChange={this.handlerInputChange}
-              onFocus={this.handlerClearFilters}
-              type='text'
-              name='inputText'
-              placeholder={this.props.placeholder}
-              className='search-input'
-            />
+            <div className='sb-search-input-wrapper'>
+              <input ref={(element) => this.input = element}
+                onChange={this.handlerInputChange}
+                onFocus={this.handlerClearFilters}
+                type='text'
+                name='inputText'
+                placeholder={this.props.placeholder}
+                className='search-input'
+              />
+            </div>
           </div>
         </div>
       </div>
