@@ -8,19 +8,19 @@ $color-link-track-hover: $link-color-hover;
 $color-icon-track: $color-primary;
 $color-icon-track-hover: $color-primary-hover;
 
+$image-size-track-small: 5rem;
 $image-size-track: 7rem;
 
 .tracks-items-row,
 .tracks-items-row-header {
   display: grid;
-  //grid-template-areas: "image title" "menu menu";
-  //grid-template-columns: auto 1fr;
+  grid-template-columns: $image-size-track-small 1fr 1fr 0.5fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "image title title title menu"
+    "image artist album time menu";
   grid-column-gap: 2rem;
   align-items: center;
-  grid-template-areas: "image image" "title title" "artist album" "menu menu";
-  grid-template-columns: auto 1fr;
-  //background-color: $background-base;
-  //padding: 1rem 0;
   color: $color-link-track;
   border-bottom: 1px solid $gray-ghost;
   transition: transform 0.7s ease;
@@ -29,36 +29,40 @@ $image-size-track: 7rem;
     grid-area: image;
   }
 
-  .title {
-    grid-area: title;
+  .title,
+  .album,
+  .artist,
+  .time {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .date {
-    //font-size: 0.8rem;
+  .title {
+    grid-area: title;
+  }
+
+  .time {
+    grid-area: time;
+    color: $gray-500;
   }
 
   .artist {
-    //margin-right: 10px;
-    //width: 200px;
-    //font-size: 0.9rem;
     grid-area: artist;
-    white-space: nowrap;
-    overflow: hidden;
+    color: $gray-500;
   }
 
   .album {
     grid-area: album;
-    //font-size: 0.8rem;
+    color: $gray-500;
   }
 }
 
 .tracks-items-row-header {
+  display: none;
   padding: 2rem 0;
   text-transform: uppercase;
-  color: $gray-700;
+  color: $gray-500;
 }
 
 .tracks-items-row {
@@ -70,8 +74,8 @@ $image-size-track: 7rem;
     font-size: 1rem;
 
     & > img {
-      height: $image-size-track;
-      width: $image-size-track;
+      height: $image-size-track-small;
+      width: $image-size-track-small;
     }
 
     & > .icon-play {
@@ -85,6 +89,13 @@ $image-size-track: 7rem;
       position: absolute;
       opacity: 1;
       color: $color-icon-track;
+    }
+  }
+
+  a {
+    &:hover {
+      color: $white;
+      text-decoration: underline;
     }
   }
 
@@ -105,6 +116,21 @@ $image-size-track: 7rem;
   }
 }
 
+.playing {
+  .tracks-items-row {
+    .title,
+    .album,
+    .artist,
+    .time {
+      color: $color-primary;
+    }
+
+    a {
+      color: $color-primary;
+    }
+  }
+}
+
 .tracks-item-menu {
   grid-area: menu;
 
@@ -117,7 +143,25 @@ $image-size-track: 7rem;
 @include respond-to("small-up") {
   .tracks-items-row,
   .tracks-items-row-header {
-    grid-template-areas: "image title artist album menu";
-    grid-template-columns: $image-size-track 2fr 1fr 1fr 40px;
+    grid-template-areas: "image title artist album time menu";
+    grid-template-columns: $image-size-track 2fr 1fr 1fr 0.5fr auto;
+    grid-template-rows: auto;
+
+    .tracks-item-img {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      font-size: 1rem;
+
+      & > img {
+        height: $image-size-track;
+        width: $image-size-track;
+      }
+    }
+  }
+
+  .tracks-items-row-header {
+    display: grid;
   }
 }

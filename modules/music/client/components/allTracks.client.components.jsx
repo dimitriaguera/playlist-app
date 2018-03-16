@@ -24,6 +24,14 @@ class AllTracks extends Component {
     this.props.search(`tracks?fi="meta.title"&q=`);
   }
 
+  toAlbumPage(e, key){
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    this.props.history.push(`/album/${key}`);
+  }
+
   // Handler to add recursively all tracks on playlist.
   handlerPlayTracks(e, item) {
     e.stopPropagation();
@@ -87,6 +95,7 @@ class AllTracks extends Component {
             <span className='title'>Title</span>
             <span className='artist'>Artist</span>
             <span className='album'>Album</span>
+            <span className='time'>Time</span>
             <span className='tracks-item-menu'>Add</span>
           </div>
 
@@ -94,16 +103,18 @@ class AllTracks extends Component {
             {
               data.map((item, i) => {
 
+                let classLi = '';
                 let stateTrack = 'rien';
                 if (onPlay.tracksId === item.tracksId) {
                   stateTrack = 'play';
+                  classLi = 'playing';
                   if (pause) stateTrack = 'pause';
                 }
 
                 const artist = item.meta.artist ? item.meta.artist : item.meta.albumartist;
 
                 return (
-                  <li key={i}>
+                  <li key={i} className={classLi}>
                     <a className='tracks-items-row' href='#' onClick={(e) => this.handlerPlayTracks(e, item)} title={`Play ${item.meta.title}`}>
                       <span className='tracks-item-img'>
                         <Img title={`${item.meta.album} Cover`}
@@ -123,10 +134,8 @@ class AllTracks extends Component {
 
                       <span className='title'>{item.meta.title}</span>
                       {artist && <span className='artist'>{artist}</span>}
-                      {item.meta.album && <span className='album'>{item.meta.album}</span>}
-                      {/*{(item.meta.trackno && item.meta.trackno !== '0') && <span className='track'>track {item.meta.trackno}</span>}*/}
-                      {/*{artist && <span className='year'>{item.meta.year}</span>}*/}
-
+                      {(item.albumKey !== '' && item.meta.album) && <a href={'#'} onClick={e => this.toAlbumPage(e, item.albumKey)} className='album'>{item.meta.album}</a>}
+                      {item.meta.time && <span className='time'>{item.meta.time}</span>}
                       <span className='tracks-item-menu'>
                         <button onClick={(e) => this.handlerAddTrack(e, item.tracksId)} className="btn btn-icon">
                           <i aria-hidden="true" className='icon icon-l icon-plus'/>
