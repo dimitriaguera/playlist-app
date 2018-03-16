@@ -8,7 +8,6 @@ $color-bg-bread: rgba(0, 0, 0, 0.75);
   width: max-content;
   max-height: calc(100vh - 8rem);
   overflow-y: auto;
-  z-index: 50000;
   font-size: $bread-font-size;
   background: $color-bg-bread;
   transform: scale(1, 0);
