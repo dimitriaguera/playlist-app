@@ -1,53 +1,75 @@
 $color-brown: #848484;
 $ab-img-size: 10rem;
 
+
 .audioBar-meta {
-  font-size: 1rem;
-  margin-left: 1rem;
+  display: flex;
+  flex-direction: row;
 
-  > div {
-    height: 1.4em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.audioBar-info-label {
-  color: white;
-  font-size: 0.8em;
-  text-transform: uppercase;
-}
-
-.audioBar-info-title {
-  font-size: 2em;
-
-  > .icon {
-    position: relative;
+  .icon-eye{
     color: $color-primary;
-    top: 0.05em;
-    margin-right: 0.3em;
   }
 }
-
-.audioBar-info-album {
-  font-size: 1.5em;
-}
-
-.audioBar-info-artist {
-  font-size: 1.2em;
-}
-
-.audioBar-info-year {
-  font-size: 1em;
-  color: $color-brown;
-}
-
 
 .audioBar-img {
-  width: $ab-img-size;
-  min-width: $ab-img-size;
-  & > img {
-    max-height: 100%;
+  display: none;
+}
+
+.audioBar-meta-info {
+  display: none;
+}
+
+
+@include respond-to('medium-up') {
+  .audioBar-meta-info {
+    font-size: 1rem;
+    margin-left: 1rem;
+    display: inline-block;
+
+    > div {
+      height: 1.4em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .audioBar-info-label {
+    color: white;
+    font-size: 0.8em;
+    text-transform: uppercase;
+  }
+
+  .audioBar-info-title {
+    font-size: 2em;
+
+    > .icon {
+      position: relative;
+      top: 0.05em;
+      margin-right: 0.3em;
+    }
+  }
+
+  .audioBar-info-album {
+    font-size: 1.5em;
+  }
+
+  .audioBar-info-artist {
+    font-size: 1.2em;
+  }
+
+  .audioBar-info-year {
+    font-size: 1em;
+    color: $color-brown;
+  }
+
+  .audioBar-img {
+    display: inline-block;
+    width: $ab-img-size;
+    min-width: $ab-img-size;
+    & > img {
+      max-height: 100%;
+    }
   }
 }
+

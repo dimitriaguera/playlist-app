@@ -1,0 +1,35 @@
+.audioBar-menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    color: $white;
+    padding: 0;
+  }
+
+  .pr-control-bar {
+    display: none;
+  }
+}
+
+@include respond-to('medium-up') {
+  .audioBar-menu {
+    height: 100%;
+    justify-content: center;
+
+    .pr-control-element {
+      margin-left: 1rem;
+    }
+
+    .pr-control-bar {
+      display: block;
+      top: -1px;
+    }
+  }
+
+  .audioBar-vol-range {
+    width: 12rem;
+  }
+}

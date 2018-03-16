@@ -3,10 +3,10 @@ $color-bg-bread: rgba(0, 0, 0, 0.75);
 
 .meta-track-bread {
   position: absolute;
-  bottom: 3rem;
+  bottom: 8rem;
   right: 2rem;
   width: max-content;
-  max-height: calc(100vh - 7rem);
+  max-height: calc(100vh - 8rem);
   overflow-y: auto;
   z-index: 50000;
   font-size: $bread-font-size;

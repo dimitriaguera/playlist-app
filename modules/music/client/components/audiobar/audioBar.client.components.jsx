@@ -132,7 +132,8 @@ class AudioBar extends Component {
           <MetaInfo className='audioBar-coll1' pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
 
 
-          <div className='audioBar-coll2 audioBar-control'>
+          <div className='audioBar-coll2 audioBar-control-wrap'>
+            <div className='audioBar-control'>
               <Controls onPauseHandler={this.onPauseHandler}
                 onPlayHandler={this.onPlayHandler}
                 onPrevHandler={this.onPrevHandler}
@@ -142,24 +143,26 @@ class AudioBar extends Component {
                 onPlay={onPlay}
                 pl={pl}
               />
-              <div className='audioBar-range'>
+              <span className='audioBar-range'>
                 {audioReady && <RangeSlider audioEl={audioEl} />}
                 {/*<MetaNamePrevTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
                 {/*<MetaNameNextTracks pl={pl} onPlayIndex={onPlayIndex} />*/}
                 {/*{audioReady && <RangeVolume audioEl={audioEl} />}*/}
-              </div>
+              </span>
+            </div>
           </div>
 
 
-          <div className='audioBar-coll3 audioBar-menu'>
+          <div className='audioBar-coll3 audioBar-menu-wrap'>
+            <div className='audioBar-menu'>
+              <button title="See path of playing song" aria-label="Open breadcrumb" onClick={this.onOpenBreadHandler}>
+                <i aria-hidden="true" className='icon icon-inbox'></i>
+              </button>
 
-            <button title="See path of playing song" aria-label="Open breadcrumb" onClick={this.onOpenBreadHandler}>
-              <i aria-hidden="true" className='icon icon-inbox'></i>
-            </button>
-
-            <Bread onPlay={onPlay} isOpen={this.state.isBreadOpen}/>
-            <div className='audioBar-vol-range'>
-              {audioReady && <RangeVolume audioEl={audioEl} />}
+              <Bread onPlay={onPlay} isOpen={this.state.isBreadOpen}/>
+              <div className='audioBar-vol-range'>
+                {audioReady && <RangeVolume audioEl={audioEl} />}
+              </div>
             </div>
           </div>
 

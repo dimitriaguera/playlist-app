@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import React, {Component} from 'react'
+import {Link} from 'react-router-dom'
 import ps from "core/client/services/core.path.services"
 
 import Img from 'music/client/components/image/image.client.components'
@@ -8,17 +8,17 @@ import defaultCover from 'assets/images/default_cover.png'
 
 class MetaInfoPlaylist extends Component {
 
-  shouldComponentUpdate (nextProps) {
-    const { onPlayIndex, pl, onPlay } = nextProps;
+  shouldComponentUpdate(nextProps) {
+    const {onPlayIndex, pl, onPlay} = nextProps;
     return (pl !== this.props.pl || onPlayIndex !== this.props.onPlayIndex.path || onPlay !== this.props.onPlay.path);
   }
 
-  render () {
-    const { pl, onPlayIndex, mode, onPlay } = this.props;
+  render() {
+    const {pl, onPlayIndex, mode, onPlay} = this.props;
 
     const cover = onPlay.albumKey ? ps.changeSeparator(onPlay.albumKey, '___', '/') : null;
 
-  let title='', path='', modeLabel='';
+    let title = '', path = '', modeLabel = '';
 
     // Album
     if (mode === 'album') {
@@ -51,51 +51,53 @@ class MetaInfoPlaylist extends Component {
     }
 
 
-    function getTrackTitle(){
+    function getTrackTitle() {
       if (onPlay.meta.title !== '') return onPlay.meta.title;
       return onPlay.publicName;
     }
 
     return (
-      <Link to={path} className={`${this.props.className} audioBar-wrap-meta`}>
-        <div className='audioBar-img'>
+      <Link to={path} className={`audioBar-meta-wrap ${this.props.className}`}>
+        <div className='audioBar-meta'>
+          <i aria-hidden="true" className='icon icon-eye large-hidden medium-hidden'/>
+          <div className='audioBar-img'>
             <Img title={`${onPlay.publicName} cover`}
                  src={'/pictures/' + cover + '/cover.jpg'}
                  defaultSrc={defaultCover}
             />
-        </div>
-
-        <div className='audioBar-meta'>
-
-          {/*<div className='audioBar-info-label'>{`${modeLabel} ${onPlayIndex + 1}/${pl.tracks.length}`}</div>*/}
-
-          {/*<div className='audioBar-info-label' title='Mode'>*/}
-            {/*{modeLabel}*/}
-          {/*</div>*/}
-
-          <div className='audioBar-info-title' title='Track title'>
-            <i aria-hidden="true" className='icon icon-eye'/> {getTrackTitle()}
           </div>
+          <div className='audioBar-meta-info'>
 
-          {onPlay.meta && onPlay.meta.album &&
-            <div className='audioBar-info-album' title='Album name'>
-              {onPlay.meta.album }
+            {/*<div className='audioBar-info-label'>{`${modeLabel} ${onPlayIndex + 1}/${pl.tracks.length}`}</div>*/}
+
+            {/*<div className='audioBar-info-label' title='Mode'>*/}
+            {/*{modeLabel}*/}
+            {/*</div>*/}
+
+            <div className='audioBar-info-title' title='Track title'>
+              <i aria-hidden="true" className='icon icon-eye'/> {getTrackTitle()}
             </div>
-          }
 
-          {onPlay.meta && onPlay.meta.artist &&
+            {onPlay.meta && onPlay.meta.album &&
+            <div className='audioBar-info-album' title='Album name'>
+              {onPlay.meta.album}
+            </div>
+            }
+
+            {onPlay.meta && onPlay.meta.artist &&
             <div className='audioBar-info-artist' title='Artist'>
               {onPlay.meta.artist || onPlay.meta.albumartist}
             </div>
-          }
-          {onPlay.meta && onPlay.meta.year &&
+            }
+            {onPlay.meta && onPlay.meta.year &&
             <div className='audioBar-info-year' title='Year'>
               {onPlay.meta.year}
             </div>
-          }
+            }
+          </div>
         </div>
-
       </Link>
+
     );
 
   };
@@ -103,7 +105,7 @@ class MetaInfoPlaylist extends Component {
 
 // HELPER
 
-function getActiveModePath (mode) {
+function getActiveModePath(mode) {
   switch (mode) {
     case 'playlist':
       return '/playlist';

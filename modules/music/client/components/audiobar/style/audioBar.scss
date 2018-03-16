@@ -1,5 +1,13 @@
 $ab-height: 12rem;
-$ab-height-phone: 7rem;
+$ab-height-phone: 8rem;
+
+$ab-coll1-w-portable: 2rem;
+$ab-coll2-w-portable: 100%;
+$ab-coll3-w-portable: 5rem;
+
+
+$ab-coll1-w: 35rem;
+$ab-coll3-w: 15.5rem;
 
 .audioBar {
   position: relative;
@@ -7,84 +15,58 @@ $ab-height-phone: 7rem;
   background-color: #1e1e1e;
   color: $white;
   height: $ab-height-phone;
+  z-index: 500;
 }
 
 .audioBar-wrapper {
-  display: grid;
-  grid-template-areas: "info" "controls" "menu";
-  justify-content: center;
-  align-items: center;
+  display: block;
   height: 100%;
-  position: relative;
 }
 
 .audioBar-coll1 {
-  grid-area: info;
-  display: none;
-  position: relative;
+  position: absolute;
+  display: inline-block;
+  height: 100%;
+  width: $ab-coll1-w-portable;
+  z-index: 2;
 }
 
 .audioBar-coll2 {
-  grid-area: controls;
-  position: relative;
+  position: absolute;
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  padding-left: $ab-coll1-w-portable;
+  padding-right: $ab-coll3-w-portable;
 }
 
 .audioBar-coll3 {
-  grid-area: menu;
-  display: none;
-  position: relative;
+  position: absolute;
+  display: inline-block;
+  height: 100%;
+  width: $ab-coll3-w-portable;
+  right: 1rem;
+  z-index: 2;
 }
 
-.audioBar-menu {
-  button {
-    color: $white;
-    padding: 0;
-  }
-
-  .pr-control-bar {
-    top: -1px;
-  }
-}
-
-.audioBar-vol-range {
-  margin-left: 1rem;
-}
 
 @include respond-to('medium-up') {
   .audioBar {
     height: $ab-height;
   }
 
-  .audioBar-wrapper {
-    grid-template-areas: "info controls menu";
-    grid-template-columns: 30rem 1fr 15.5rem;
-  }
-
   .audioBar-coll1 {
-    display: flex;
-    max-height: 100%;
+    width: $ab-coll1-w;
   }
 
   .audioBar-coll2 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .audioBar-range {
-    width: 50%;
+    padding-left: $ab-coll1-w;
+    padding-right: $ab-coll3-w;
   }
 
   .audioBar-coll3 {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    width: $ab-coll3-w;
   }
-
-  .audioBar-vol-range {
-    width: 12rem;
-  }
-
 }
 
 //
