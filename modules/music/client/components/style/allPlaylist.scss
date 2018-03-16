@@ -10,6 +10,9 @@
   }
 
   .allpl-li {
+    transition: background-color 0.5s ease;
+    padding-bottom: 1rem;
+
     &:nth-child(7n + 1) {
       .allpl-img-inner {
         background: url('../assets/images/default_pl_1.jpg') no-repeat center center;
@@ -108,11 +111,17 @@
 
     .allpl-title {
       font-size: 2em;
+      line-height: 1;
       color: $white;
+      margin: 1rem 0;
     }
 
     .allpl-tracks {
       font-size: 1rem;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.2);
     }
 
     &:hover,
