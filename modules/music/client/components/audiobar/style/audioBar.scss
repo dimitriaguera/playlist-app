@@ -1,18 +1,12 @@
-$ab-height: 10rem;
-$ab-info-width: 40rem;
-$ab-control-width: 17rem;
-$ab-menu-width: 17rem;
-$ctrl-btn-size: 2.5rem;
-$center-btn-size: 4rem;
-$color-brown: #848484;
-
+$ab-height: 12rem;
+$ab-height-phone: 7rem;
 
 .audioBar {
   position: relative;
   width: 100%;
   background-color: #1e1e1e;
   color: $white;
-  height: 7rem;
+  height: $ab-height-phone;
 }
 
 .audioBar-wrapper {

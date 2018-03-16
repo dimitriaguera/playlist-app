@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import ps from "../../../../core/client/services/core.path.services"
+import ps from "core/client/services/core.path.services"
 
 import Img from 'music/client/components/image/image.client.components'
 import defaultCover from 'assets/images/default_cover.png'
@@ -18,28 +18,38 @@ class MetaInfoPlaylist extends Component {
 
     const cover = onPlay.albumKey ? ps.changeSeparator(onPlay.albumKey, '___', '/') : null;
 
-    let title = '';
-    let path = '#';
-    let modeLabel = mode === 'folder' ? 'folder tracks' : mode;
+  let title='', path='', modeLabel='';
 
-    if (pl) {
-      // If pl is album, use folder path to construct link path.
-      if (mode === 'album') {
-        path = `/album/${pl.tracks[0].albumKey}`;
-      }
+    // Album
+    if (mode === 'album') {
+      title = pl.tracks[0].meta.album;
+      path = `/album/${onPlay.albumKey}`;
+      modeLabel = 'Album';
+    }
 
-      // Else if pl is Queue.
-      else if (pl.defaultPlaylist) {
-        title = title.replace('__def', '');
+    // Pl
+    else if (mode === 'playlist') {
+
+      if (pl.defaultPlaylist) {
+        title = pl.title.replace('__def', '');
         path = '/queue';
-        modeLabel = 'queue';
-      }
-
-      // Else, pl is playlist, just construct link path with title.
-      else {
+        modeLabel = 'Queue';
+      } else {
+        title = pl.title;
         path = `/playlist/${pl.title}`;
+        modeLabel = 'Playlist';
       }
     }
+    else if (mode === 'folder') {
+      modeLabel = 'folder';
+      path = '/music/' + ps.removeLast(onPlay.path);
+    }
+
+    else if (mode === 'track') {
+      modeLabel = 'track';
+      path = onPlay.albumKey ? '/album/' + onPlay.albumKey : '/music/' + ps.removeLast(onPlay.path);
+    }
+
 
     function getTrackTitle(){
       if (onPlay.meta.title !== '') return onPlay.meta.title;
@@ -56,29 +66,35 @@ class MetaInfoPlaylist extends Component {
         </div>
 
         <div className='audioBar-meta'>
+
           {/*<div className='audioBar-info-label'>{`${modeLabel} ${onPlayIndex + 1}/${pl.tracks.length}`}</div>*/}
 
-          <div className='audioBar-info-name'>
-            {getTrackTitle()}
+          {/*<div className='audioBar-info-label' title='Mode'>*/}
+            {/*{modeLabel}*/}
+          {/*</div>*/}
+
+          <div className='audioBar-info-title' title='Track title'>
+            <i aria-hidden="true" className='icon icon-eye'/> {getTrackTitle()}
           </div>
 
           {onPlay.meta && onPlay.meta.album &&
-            <div className='audioBar-info-album'>
+            <div className='audioBar-info-album' title='Album name'>
               {onPlay.meta.album }
             </div>
           }
 
           {onPlay.meta && onPlay.meta.artist &&
-            <div className='audioBar-info-artist'>
+            <div className='audioBar-info-artist' title='Artist'>
               {onPlay.meta.artist || onPlay.meta.albumartist}
             </div>
           }
           {onPlay.meta && onPlay.meta.year &&
-            <div className='audioBar-info-artist'>
+            <div className='audioBar-info-year' title='Year'>
               {onPlay.meta.year}
             </div>
           }
         </div>
+
       </Link>
     );
 

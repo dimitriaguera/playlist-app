@@ -2,32 +2,51 @@ $color-brown: #848484;
 $ab-img-size: 10rem;
 
 .audioBar-meta {
-  padding-left: 1rem;
+  font-size: 1rem;
+  margin-left: 1rem;
 
-  .audioBar-info-label {
-    color: white;
-    font-size: 0.8em;
-    text-transform: uppercase;
-  }
-
-  .audioBar-info-name {
-    color: #d5d5d5;
-  }
-
-  .audioBar-info-artist {
-    font-size: 0.8em;
-    color: $color-brown;
-  }
-
-  .audioBar-info-year {
-    font-size: 0.8em;
-    color: $color-brown;
+  > div {
+    height: 1.4em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
-.audioBar-img {
-  max-width: $ab-img-size;
+.audioBar-info-label {
+  color: white;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
 
+.audioBar-info-title {
+  font-size: 2em;
+
+  > .icon {
+    position: relative;
+    color: $color-primary;
+    top: 0.05em;
+    margin-right: 0.3em;
+  }
+}
+
+.audioBar-info-album {
+  font-size: 1.5em;
+}
+
+.audioBar-info-artist {
+  font-size: 1.2em;
+}
+
+.audioBar-info-year {
+  font-size: 1em;
+  color: $color-brown;
+}
+
+
+.audioBar-img {
+  width: $ab-img-size;
+  min-width: $ab-img-size;
   & > img {
     max-height: 100%;
   }

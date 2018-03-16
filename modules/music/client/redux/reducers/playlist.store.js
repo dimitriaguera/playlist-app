@@ -3,7 +3,7 @@
  */
 import {
   ACTIVATE_PLAYLIST, UPDATE_ACTIVE_PLAYLIST,
-  PLAY_TRACK_ON_PLAYLIST, PLAY_TRACK_ON_ALBUM, PLAY_TRACK_ON_FOLDER,
+  PLAY_TRACK_ON_PLAYLIST, PLAY_TRACK_ON_ALBUM, PLAY_TRACK_ON_FOLDER, PLAY_TRACK_ON_TRACK,
   ADD_ALBUM_TO_PLAY, ADD_PLAYLIST_TO_PLAY, ADD_FOLDER_TO_PLAY,
   UPDATE_PLAYLIST_TO_PLAY, UPDATE_ALBUM_TO_PLAY, UPDATE_FOLDER_TO_PLAY,
   PLAY_ITEM, PLAY_STATE, PAUSE_STATE
@@ -68,6 +68,20 @@ export const playlistStore = (state = initialState, action) => {
         ...state,
         mode: 'playlist',
         playingList: Object.assign({onPlayIndex: 0, currentTime: 0}, action.item)
+      };
+
+    case PLAY_TRACK_ON_TRACK:
+      return {
+        ...state,
+        mode: 'track',
+        playingList:
+          {
+            pl: null,
+            onPlayIndex: 0,
+            currentTime: 0
+          },
+        pause: false,
+        onPlay: action.item
       };
 
     case PLAY_TRACK_ON_ALBUM:

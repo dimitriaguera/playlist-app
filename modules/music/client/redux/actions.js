@@ -12,6 +12,7 @@ export const PAUSE_STATE = 'PAUSE_STATE';
 export const PLAY_TRACK_ON_ALBUM = 'PLAY_TRACK_ON_ALBUM';
 export const PLAY_TRACK_ON_FOLDER = 'PLAY_TRACK_ON_FOLDER';
 export const PLAY_TRACK_ON_PLAYLIST = 'PLAY_TRACK_ON_PLAYLIST';
+export const PLAY_TRACK_ON_TRACK = 'PLAY_TRACK_ON_TRACK';
 
 export const ADD_ALBUM_TO_PLAY = 'ADD_ALBUM_TO_PLAY';
 export const ADD_FOLDER_TO_PLAY = 'ADD_FOLDER_TO_PLAY';
@@ -20,6 +21,8 @@ export const ADD_PLAYLIST_TO_PLAY = 'ADD_PLAYLIST_TO_PLAY';
 export const UPDATE_ALBUM_TO_PLAY = 'UPDATE_ALBUM_TO_PLAY';
 export const UPDATE_FOLDER_TO_PLAY = 'UPDATE_FOLDER_TO_PLAY';
 export const UPDATE_PLAYLIST_TO_PLAY = 'UPDATE_PLAYLIST_TO_PLAY';
+
+
 
 // export const UPDATE_PLAY_HISTORY = 'UPDATE_PLAY_HISTORY';
 
@@ -59,6 +62,13 @@ export const playOnPlaylist = (item) => {
 export const playOnFolder = (item) => {
   return {
     type: PLAY_TRACK_ON_FOLDER,
+    item: item
+  }
+};
+
+export const playOnTrack = (item) => {
+  return {
+    type: PLAY_TRACK_ON_TRACK,
     item: item
   }
 };

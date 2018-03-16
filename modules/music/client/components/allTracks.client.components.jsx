@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {get} from 'core/client/services/core.api.services'
-import {playItem} from 'music/client/redux/actions'
+import {playOnTrack} from 'music/client/redux/actions'
 import SearchMusicBar from 'music/client/components/searchMusicBar/searchMusicBar.client.components'
 import Img from 'music/client/components/image/image.client.components'
 import splitFetchHOC from 'lazy/client/components/lazy.client.splitFetchHOC'
@@ -44,10 +44,14 @@ class AllTracks extends Component {
       } else {
         return onPauseFunc();
       }
+    } else {
+
+      // Change global state to start playing track.
+      this.props.playOnTrack(item);
+
     }
 
-    // Change global state to start playing track.
-    this.props.playItem(item);
+
   }
 
   handlerAddTrack (e, tracksId) {
@@ -176,9 +180,6 @@ const mapDispatchToProps = dispatch => {
     search: (query) => dispatch(
       get(`search/${query}&sort=meta.album`)
     ),
-    playItem: (item) => dispatch(
-      playItem(item)
-    ),
     addPlaylistItems: (title, items) => dispatch(
       post(`playlist/${title}`, {
         data: items
@@ -189,7 +190,10 @@ const mapDispatchToProps = dispatch => {
     ),
     onPlayFunc: () => dispatch(
       playState()
-    )
+    ),
+    playOnTrack: (item) => dispatch(
+      playOnTrack(item)
+    ),
   }
 };
 

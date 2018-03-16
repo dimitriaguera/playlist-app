@@ -70,6 +70,9 @@ class AlbumTracks extends Component {
 
   // Handler to add recursively all tracks on playlist.
   handlerPlayAlbum (e, i, item) {
+    e.stopPropagation();
+    e.preventDefault();
+
     const {pause, album, mode, onPauseFunc, onPlayFunc, onPlay, addAlbumToPlay} = this.props;
 
     // If this album already playing.
@@ -104,10 +107,9 @@ class AlbumTracks extends Component {
   }
 
   handlerAddTrack (e, tracksId) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    e.stopPropagation();
+    e.preventDefault();
+
     const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
     // User must be connected to add tracks.
