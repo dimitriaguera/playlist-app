@@ -6,13 +6,7 @@ import { playOnPlaylist, pauseState, playState } from 'music/client/redux/action
 import Img from 'music/client/components/image/image.client.components'
 import { getFormatedDate } from 'core/client/services/core.date.services'
 
-// import defaultCover from 'assets/images/default_pl_1.jpg'
-// import defaultCover from 'assets/images/default_pl_1.jpg'
-// import defaultCover from 'assets/images/default_pl_1.jpg'
-// import defaultCover from 'assets/images/default_pl_1.jpg'
-// import defaultCover from 'assets/images/default_pl_1.jpg'
-// import defaultCover from 'assets/images/default_pl_1.jpg'
-
+import defaultCover from 'assets/images/default_pl_5.jpg'
 
 class InfoPanelPlaylist extends Component {
 
