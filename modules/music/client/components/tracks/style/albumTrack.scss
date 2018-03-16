@@ -79,12 +79,12 @@ $image-size-track: 5rem;
 
   .artist {
     grid-area: artist;
-    color: $gray-500;
+    color: $gray-600;
   }
 
   .time {
     grid-area: time;
-    color: $gray-500;
+    color: $gray-600;
   }
 
   &.active {
@@ -102,7 +102,14 @@ $image-size-track: 5rem;
   display: none;
   padding-bottom: 2rem;
   text-transform: uppercase;
-  color: $gray-500;
+
+  .title,
+  .date,
+  .artist,
+  .album,
+  .time {
+    color: $gray-500;
+  }
 
   &.drag {
     padding-right: 40px;

@@ -44,25 +44,31 @@ $image-size-track: 7rem;
 
   .time {
     grid-area: time;
-    color: $gray-500;
+    color: $gray-600;
   }
 
   .artist {
     grid-area: artist;
-    color: $gray-500;
+    color: $gray-600;
   }
 
   .album {
     grid-area: album;
-    color: $gray-500;
+    color: $gray-600;
   }
 }
 
 .tracks-items-row-header {
   display: none;
-  padding: 2rem 0;
+  padding-bottom: 2rem;
   text-transform: uppercase;
-  color: $gray-500;
+
+  .title,
+  .album,
+  .artist,
+  .time {
+    color: $gray-500;
+  }
 }
 
 .tracks-items-row {
@@ -100,7 +106,6 @@ $image-size-track: 7rem;
   }
 
   &:hover {
-    //background-color: $color-bg-row-hover;
     border-bottom: #{$color-border-fol-item};
     transform: scale3d(1.02, 1.02, 1);
 
@@ -136,7 +141,6 @@ $image-size-track: 7rem;
 
   & > .btn {
     background: none;
-    //color: $color-icon-fol-item;
   }
 }
 
