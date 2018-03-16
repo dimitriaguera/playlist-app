@@ -28,15 +28,18 @@ $color-brown: #848484;
 .audioBar-coll1 {
   grid-area: info;
   display: none;
+  position: relative;
 }
 
 .audioBar-coll2 {
   grid-area: controls;
+  position: relative;
 }
 
 .audioBar-coll3 {
   grid-area: menu;
   display: none;
+  position: relative;
 }
 
 .audioBar-menu {
@@ -44,6 +47,7 @@ $color-brown: #848484;
     color: $white;
     padding: 0;
   }
+
   .pr-control-bar {
     top: -1px;
   }

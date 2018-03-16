@@ -42,19 +42,23 @@ class Bread extends Component {
 
       if (item.path) {
         return (
-          <div key={i} className='meta-track-bread-link'>
-            <Link to={`/music/${item.path}`}>{item.content}</Link>
-            <i aria-hidden="true" className='icon icon-chevron-right'/>
-          </div>
+          <li key={i+1} className='meta-track-bread-link' style={{'cursor': 'pointer'}}>
+            <Link title='Go to the folder' to={`/music/${item.path}`}>
+              <i aria-hidden="true" className='icon icon-folder'/>
+              {item.content}
+            </Link>
+
+          </li>
         );
       }
 
       const name = item.content.replace(config.fileSystem.fileAudioTypes, '');
 
       return (
-        <div key={i} className='meta-track-bread-play'>
+        <li key={i+1} title='Playing song' className='meta-track-bread-play'>
+          <i aria-hidden="true" className='icon icon-music'/>
           {name}
-        </div>
+        </li>
       );
 
       // if (item.path) {
@@ -86,7 +90,12 @@ class Bread extends Component {
 
     return (
       <div className={classes.join(' ')}>
-        {bread}
+        <ul className='unstyled'>
+            <li key='0' className="meta-track-bread-link">
+              <Link title='Go to home' to={`/music/`}><i aria-hidden="true" className='icon icon-home'/></Link>
+            </li>
+          {bread}
+        </ul>
       </div>
     );
   };

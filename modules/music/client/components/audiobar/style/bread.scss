@@ -1,47 +1,46 @@
-$color-brown: #848484;
-
-//.meta-track-bread {
-//  font-size: 0.8em;
-//
-//  .meta-track-bread-link a {
-//    color: $color-brown;
-//  }
-//
-//  .meta-track-bread-play {
-//    font-size: 1.2em;
-//  }
-//}
 $bread-font-size: 1.5rem;
+$color-bg-bread: rgba(0, 0, 0, 0.75);
 
 .meta-track-bread {
-  position: fixed;
-  bottom: 6rem;
+  position: absolute;
+  bottom: 3rem;
   right: 2rem;
-  width: fit-content;
-  max-height: 0;
-  transition: max-height 1s;
+  width: max-content;
+  max-height: calc(100vh - 7rem);
   overflow-y: auto;
   z-index: 50000;
   font-size: $bread-font-size;
-  background: rgba(0, 0, 0, 0.77);
+  background: $color-bg-bread;
+  transform: scale(1, 0);
+  transform-origin: bottom;
+  transition: transform 0.5s;
 
-  &.is-open{
-    max-height: calc(100% - 6rem);
+  &.is-open {
+    transform: scale(1, 1);
   }
-  .meta-track-bread-link {
+}
+
+.meta-track-bread-link {
+  a {
+    color: $white;
+    width: 100%;
+    padding: 0.7rem 1.8rem;
     display: flex;
-    align-content: center;
-
-    a {
-      color: $white;
-    }
-
-    .icon {
-      font-size: #{$bread-font-size + 0.5rem};
+    &:hover {
+      color: $color-primary;
     }
   }
 
-  .meta-track-bread-play {
+  .icon {
+    padding-right: 1rem;
+  }
+}
 
+.meta-track-bread-play {
+  padding: 0.7rem 1.8rem;
+  display: flex;
+
+  .icon {
+    padding-right: 1rem;
   }
 }

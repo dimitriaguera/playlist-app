@@ -8,28 +8,30 @@ $center-btn-size: 4rem;
     color: $white;
     cursor: pointer;
 
-    &.btn-center {
-      border-radius: 50%;
-      border: 2px solid $white;
-      width: $center-btn-size;
-      height: $center-btn-size;
-    }
+    //&.btn-center {
+    //  border-radius: 50%;
+    //  border: 2px solid $white;
+    //  width: $center-btn-size;
+    //  height: $center-btn-size;
+    //}
   }
 
   .icon {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 
   .icon-pause {
-    position: relative;
-    top: -0.4rem;
-    left: -0.4rem;
+    //position: relative;
+    //top: -0.4rem;
+    //left: -0.4rem;
+    font-size: 5rem;
   }
 
   .icon-play {
-    position: relative;
-    top: -0.4rem;
-    left: -0.2rem;
+    //position: relative;
+    //top: -0.4rem;
+    //left: -0.2rem;
+    font-size: 5rem;
   }
 }
 
