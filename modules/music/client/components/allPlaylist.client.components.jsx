@@ -208,7 +208,7 @@ class AllPlaylist extends Component {
           </div>
         </header>
         <div className='content-wrapper w-max-xl center'>
-          <ul className='grid-target unstyled grid-3 has-gutter-xl'>
+          <ul className='grid-target unstyled grid-3 has-gutter-l'>
             {playLists}
           </ul>
         </div>
