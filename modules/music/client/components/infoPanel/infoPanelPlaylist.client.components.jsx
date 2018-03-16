@@ -41,6 +41,8 @@ class InfoPanelPlaylist extends Component {
     const { item , pause, playingList, onPauseFunc, onPlayFunc } = this.props;
     const playlistIsPlaying = (playingList.pl && (playingList.pl._id === item._id));
 
+    const title = item.title.replace('__def', '');
+
     const getButton = () => {
       if (playlistIsPlaying) {
         if (pause) {
@@ -71,13 +73,13 @@ class InfoPanelPlaylist extends Component {
     return (
       <div className='info-panel-playlist'>
         <div className='info-panel-playlist-img'>
-          <Img title={item.title}
+          <Img title={title}
                src={''}
                defaultSrc={defaultCover}
           />
         </div>
         <div className='info-panel-playlist-meta'>
-          <h1 className='title'>{item.title}</h1>
+          <h1 className='title'>{title}</h1>
           <span className='label'>Playlist</span>
           <span className='author-wrapper'>
             {item.author && <span className='author'>Created by {item.author.username}</span>}
