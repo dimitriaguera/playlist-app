@@ -1,26 +1,37 @@
 $color-track: white;
 $color-bg-playing: rgba(35, 35, 35, 0.7);
 
-.info-panel-playlist {
+.info-panel-folder {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
 
-  .info-panel-playlist-img {
+  .breadcrumb-ul {
+    padding: 0 0 0 1rem;
+    margin: 0;
+  }
+
+  .label {
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .info-panel-folder-img {
     width: 30rem;
     max-width: 100%;
 
-    img {
-      width: 100%;
+    .icon {
+      color: $gray-100;
     }
   }
 
-  .info-panel-playlist-meta {
+  .info-panel-folder-meta {
     padding: 2rem;
 
     .title,
     .author-wrapper,
+    .label,
     .length {
       display: block;
     }

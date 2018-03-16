@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { get, post } from 'core/client/services/core.api.services'
+import { Link } from 'react-router-dom'
 import {
   playOnAlbum,
   pauseState,
@@ -21,6 +22,7 @@ class AlbumCard extends Component {
     this.handlerCloseTab = this.handlerCloseTab.bind(this);
     this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
     this.handlerAddTracks = this.handlerAddTracks.bind(this);
+    this.handlerGoAlbum = this.handlerGoAlbum.bind(this);
     this.getAlbumTracks = this.getAlbumTracks.bind(this);
 
     this.state = {
@@ -176,6 +178,15 @@ class AlbumCard extends Component {
     });
   }
 
+  handlerGoAlbum(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const { album, history } = this.props;
+    history.push(`/album/${album.key}`);
+  }
+
   render () {
     const { openTab, style, renderTracksNow } = this.state;
     const { grid, card, index, imageStyle, innerStyle, album, playingAlbumKey, tabHeight } = this.props;
@@ -212,10 +223,11 @@ class AlbumCard extends Component {
             style={imageStyle}
           />
           <div className='overlay'>
-            <button className='btn btn-icon big big-playing-icon'><IconPlayAnim/></button>
-            <button className='btn btn-icon medium playing-icon'><IconPlayAnim/></button>
-            <button className='btn btn-icon medium play'><i aria-hidden='true' className='icon icon-play' /></button>
-            <button className='btn btn-icon medium' onClick={this.handlerAddTracks} ><i aria-hidden='true' className='icon icon-plus'/></button>
+            <button className='btn btn-icon big big-playing-icon' aria-hidden='true'><IconPlayAnim/></button>
+            <button className='btn btn-icon medium playing-icon' aria-label='play or pause album'><IconPlayAnim/></button>
+            <button className='btn btn-icon medium play' aria-label='play album'><i aria-hidden='true' className='icon icon-play' /></button>
+            <button className='btn btn-icon medium' onClick={this.handlerAddTracks} aria-label='add album tracks to active playlist'><i aria-hidden='true' className='icon icon-plus'/></button>
+            <button className='btn btn-icon medium' onClick={this.handlerGoAlbum} aria-label='go to album page'><i aria-hidden='true' className='icon icon-eye'/></button>
           </div>
         </div>
 

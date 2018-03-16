@@ -86,6 +86,16 @@ $image-size-track: 5rem;
     grid-area: time;
     color: $gray-700;
   }
+
+  &.active {
+    .title,
+    .date,
+    .artist,
+    .album,
+    .time {
+      color: $color-primary !important;
+    }
+  }
 }
 
 .move-album-tracks-items-row-header {

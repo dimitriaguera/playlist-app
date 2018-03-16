@@ -98,7 +98,7 @@ class AlbumInfo extends Component {
         <div className='album-info-meta'>
           {album.name && <span className='name'>{album.name}</span>}
           <span className='genre'>
-          {album.genre.map((g, i) => <span key={i}>{g}</span>)}
+          {album.genre.map((g, i) => <span key={i}>{i !== 0 ? `, ${g}` : g}</span>)}
         </span>
           {artist && <span className='artist'>{artist}</span>}
           {album.year && <span className='year'>{album.year}</span>}

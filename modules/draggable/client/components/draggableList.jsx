@@ -150,7 +150,7 @@ class DraggableList extends Component {
 
   render () {
     const { h, mouseY, isPressed, singles, currentRow, originalIdOfLastPressed, range_array, containerHeight } = this.state;
-    const { component: Component, dragActive = true, color, ...props } = this.props;
+    const { items, component: Component, dragActive = true, color, ...props } = this.props;
     const classes = ['unstyled','dl', 'dl-container'];
 
     const range = singles.slice(range_array[0], range_array[1]);

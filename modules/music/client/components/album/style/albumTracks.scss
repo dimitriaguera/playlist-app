@@ -65,7 +65,11 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
           }
 
           &.playing {
-            background-color: $color-bg-playing;
+            color: $color-primary;
+
+            .icon-play-anim span {
+              background-color: $color-primary;
+            }
           }
 
           &:hover {

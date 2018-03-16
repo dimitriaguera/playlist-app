@@ -16,11 +16,17 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
     }
   }
 
+  .label {
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
   .info-panel-playlist-meta {
     padding: 2rem;
 
     .title,
     .author-wrapper,
+    .label,
     .length {
       display: block;
     }
@@ -28,6 +34,10 @@ $color-bg-playing: rgba(35, 35, 35, 0.7);
     .title {
       font-size: 5rem;
       line-height: 1;
+    }
+
+    .author {
+      color: $gray-100;
     }
   }
 }

@@ -104,16 +104,16 @@ class InfoPanelFolder extends Component {
     };
 
     return (
-      <div className='info-panel-playlist'>
+      <div className='info-panel-folder'>
         {item.path && <Bread path={ps.splitPath(item.path)} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />}
-        <div className='info-panel-playlist-img'>
+        <div className='info-panel-folder-img'>
           <i aria-hidden="true"><span className='icon icon-folder icon-xxl' /></i>
         </div>
-        <div className='info-panel-playlist-meta'>
+        <div className='info-panel-folder-meta'>
           <h1 className='title'>{item.title}</h1>
           <span className='label'>Folder</span>
         </div>
-        <div className='info-panel-playlist-menu'>
+        <div className='info-panel-folder-menu'>
           {getButton()}
           <button aria-label='add album tracks to playlist' onClick={this.handlerAddTracks} className='btn btn-icon big'><i
             aria-hidden='true' className='icon icon-plus'/></button>
