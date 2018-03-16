@@ -47,7 +47,7 @@ class AllTracks extends Component {
     }
 
     // Change global state to start playing track.
-    this.props.readFile(item);
+    this.props.playItem(item);
   }
 
   handlerAddTrack (e, tracksId) {
@@ -176,7 +176,7 @@ const mapDispatchToProps = dispatch => {
     search: (query) => dispatch(
       get(`search/${query}&sort=meta.album`)
     ),
-    readFile: (item) => dispatch(
+    playItem: (item) => dispatch(
       playItem(item)
     ),
     addPlaylistItems: (title, items) => dispatch(

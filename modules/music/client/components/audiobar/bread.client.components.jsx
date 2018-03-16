@@ -42,8 +42,8 @@ class Bread extends Component {
 
       if (item.path) {
         return (
-          <li key={i+1} className='meta-track-bread-link' style={{'cursor': 'pointer'}}>
-            <Link title='Go to the folder' to={`/music/${item.path}`}>
+          <li key={i+1} className='meta-track-bread-li' style={{'cursor': 'pointer'}}>
+            <Link title='Go to the folder' className='meta-track-bread-link' to={`/music/${item.path}`}>
               <i aria-hidden="true" className='icon icon-folder'/>
               {item.content}
             </Link>
@@ -55,9 +55,11 @@ class Bread extends Component {
       const name = item.content.replace(config.fileSystem.fileAudioTypes, '');
 
       return (
-        <li key={i+1} title='Playing song' className='meta-track-bread-play'>
-          <i aria-hidden="true" className='icon icon-music'/>
-          {name}
+        <li key={i+1} title='Playing song' className='meta-track-bread-li'>
+          <span className='meta-track-bread-play'>
+            <i aria-hidden="true" className='icon icon-music'/>
+            {name}
+          </span>
         </li>
       );
 
@@ -91,8 +93,8 @@ class Bread extends Component {
     return (
       <div className={classes.join(' ')}>
         <ul className='unstyled'>
-            <li key='0' className="meta-track-bread-link">
-              <Link title='Go to home' to={`/music/`}><i aria-hidden="true" className='icon icon-home'/></Link>
+            <li key='0' className="meta-track-bread-li">
+              <Link className="meta-track-bread-link" title='Go to home' to={`/music/`}><i aria-hidden="true" className='icon icon-home'/></Link>
             </li>
           {bread}
         </ul>

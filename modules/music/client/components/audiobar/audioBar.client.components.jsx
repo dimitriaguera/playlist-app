@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import ps from 'core/client/services/core.path.services'
 import { connect } from 'react-redux'
-import { get, post } from 'core/client/services/core.api.services'
-import { playOnPlaylist, playOnAlbum, playOnFolder, playItem, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
+import { playOnPlaylist, playOnAlbum, playOnFolder, pauseState, playState, updatePlaylistToPlay } from 'music/client/redux/actions'
 import ReactAudioPlayer from 'react-audio-player'
-import Img from 'music/client/components/image/image.client.components'
+
 import Controls from './controls.client.components'
 import RangeSlider from './range.client.components'
 import MetaInfo from './meta.client.components'
@@ -12,8 +11,6 @@ import Bread from './bread.client.components'
 import RangeVolume from './volume.client.components'
 import { MetaNameNextTracks, MetaNamePrevTracks } from './next.client.components'
 
-
-import defaultCover from 'assets/images/default_cover.png'
 
 class AudioBar extends Component {
   constructor (props) {
@@ -116,7 +113,6 @@ class AudioBar extends Component {
       return null;
     }
 
-    const cover = onPlay.albumKey ? ps.changeSeparator(onPlay.albumKey, '___', '/') : null;
 
     return (
       (onPlay && !!onPlay.path) &&
@@ -132,15 +128,9 @@ class AudioBar extends Component {
 
         <div className='audioBar-wrapper'>
 
-          <div className='audioBar-coll1 audioBar-wrap-meta-img'>
-            <div className='audioBar-img'>
-              <Img title={`${onPlay.publicName} cover`}
-                   src={'/pictures/' + cover + '/cover.jpg'}
-                   defaultSrc={defaultCover}
-              />
-            </div>
-           <MetaInfo pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
-          </div>
+
+          <MetaInfo className='audioBar-coll1' pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
+
 
           <div className='audioBar-coll2 audioBar-control'>
               <Controls onPauseHandler={this.onPauseHandler}
@@ -163,7 +153,7 @@ class AudioBar extends Component {
 
           <div className='audioBar-coll3 audioBar-menu'>
 
-            <button aria-label="Open breadcrumb" onClick={this.onOpenBreadHandler}>
+            <button title="See path of playing song" aria-label="Open breadcrumb" onClick={this.onOpenBreadHandler}>
               <i aria-hidden="true" className='icon icon-inbox'></i>
             </button>
 

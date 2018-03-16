@@ -8,12 +8,9 @@ $center-btn-size: 4rem;
     color: $white;
     cursor: pointer;
 
-    //&.btn-center {
-    //  border-radius: 50%;
-    //  border: 2px solid $white;
-    //  width: $center-btn-size;
-    //  height: $center-btn-size;
-    //}
+    &.btn-center {
+      padding: 0;
+    }
   }
 
   .icon {

@@ -1,6 +1,9 @@
 $color-brown: #848484;
+$ab-img-size: 10rem;
 
 .audioBar-meta {
+  padding-left: 1rem;
+
   .audioBar-info-label {
     color: white;
     font-size: 0.8em;
@@ -19,5 +22,13 @@ $color-brown: #848484;
   .audioBar-info-year {
     font-size: 0.8em;
     color: $color-brown;
+  }
+}
+
+.audioBar-img {
+  max-width: $ab-img-size;
+
+  & > img {
+    max-height: 100%;
   }
 }

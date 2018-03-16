@@ -2,7 +2,6 @@ $ab-height: 10rem;
 $ab-info-width: 40rem;
 $ab-control-width: 17rem;
 $ab-menu-width: 17rem;
-$ab-img-size: 10rem;
 $ctrl-btn-size: 2.5rem;
 $center-btn-size: 4rem;
 $color-brown: #848484;
@@ -64,24 +63,12 @@ $color-brown: #848484;
 
   .audioBar-wrapper {
     grid-template-areas: "info controls menu";
-    grid-template-columns: 30rem 1fr 30rem;
+    grid-template-columns: 30rem 1fr 15.5rem;
   }
 
   .audioBar-coll1 {
     display: flex;
     max-height: 100%;
-  }
-
-  .audioBar-img {
-    max-width: $ab-img-size;
-
-    & > img {
-      max-height: 100%;
-    }
-  }
-
-  .audioBar-meta {
-    padding-left: 1rem;
   }
 
   .audioBar-coll2 {
@@ -93,7 +80,6 @@ $color-brown: #848484;
   .audioBar-range {
     width: 50%;
   }
-
 
   .audioBar-coll3 {
     display: flex;

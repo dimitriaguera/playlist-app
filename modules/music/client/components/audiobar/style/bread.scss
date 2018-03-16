@@ -17,30 +17,35 @@ $color-bg-bread: rgba(0, 0, 0, 0.75);
 
   &.is-open {
     transform: scale(1, 1);
+
+    .meta-track-bread-link,
+    .meta-track-bread-play {
+      opacity: 1;
+      transition: opacity 0.3s 0.4s;
+    }
+  }
+}
+
+.meta-track-bread-link,
+.meta-track-bread-play {
+  padding: 0.7rem 1.8rem;
+  display: flex;
+  width: 100%;
+  opacity: 0;
+
+  .icon {
+    padding-right: 1rem;
   }
 }
 
 .meta-track-bread-link {
-  a {
-    color: $white;
-    width: 100%;
-    padding: 0.7rem 1.8rem;
-    display: flex;
-    &:hover {
-      color: $color-primary;
-    }
-  }
+  color: $white;
 
-  .icon {
-    padding-right: 1rem;
+  &:hover {
+    color: $color-primary;
   }
 }
 
-.meta-track-bread-play {
-  padding: 0.7rem 1.8rem;
-  display: flex;
-
-  .icon {
-    padding-right: 1rem;
-  }
-}
+//.meta-track-bread-play {
+//
+//}
