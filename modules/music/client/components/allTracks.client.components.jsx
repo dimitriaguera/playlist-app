@@ -25,15 +25,15 @@ class AllTracks extends Component {
   }
 
   toAlbumPage(e, key){
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    e.stopPropagation();
+    e.preventDefault();
+
     this.props.history.push(`/album/${key}`);
   }
 
   // Handler to add recursively all tracks on playlist.
   handlerPlayTracks(e, item) {
+    e.preventDefault();
     e.stopPropagation();
 
     const { pause, onPlay, onPauseFunc, onPlayFunc } = this.props;
@@ -51,10 +51,8 @@ class AllTracks extends Component {
   }
 
   handlerAddTrack (e, tracksId) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+    e.stopPropagation();
+    e.preventDefault();
 
     const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
@@ -134,7 +132,7 @@ class AllTracks extends Component {
 
                       <span className='title'>{item.meta.title}</span>
                       {artist && <span className='artist'>{artist}</span>}
-                      {(item.albumKey !== '' && item.meta.album) && <a href={'#'} onClick={e => this.toAlbumPage(e, item.albumKey)} className='album'>{item.meta.album}</a>}
+                      {(item.albumKey !== '' && item.meta.album) && <button onClick={e => this.toAlbumPage(e, item.albumKey)} className='album'>{item.meta.album}</button>}
                       {item.meta.time && <span className='time'>{item.meta.time}</span>}
                       <span className='tracks-item-menu'>
                         <button onClick={(e) => this.handlerAddTrack(e, item.tracksId)} className="btn btn-icon">

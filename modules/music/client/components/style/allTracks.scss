@@ -98,7 +98,7 @@ $image-size-track: 7rem;
     }
   }
 
-  a {
+  button {
     &:hover {
       color: $white;
       text-decoration: underline;
@@ -130,7 +130,7 @@ $image-size-track: 7rem;
       color: $color-primary;
     }
 
-    a {
+    button {
       color: $color-primary;
     }
   }
