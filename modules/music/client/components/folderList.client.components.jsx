@@ -168,7 +168,7 @@ class FolderList extends Component {
       }
     }
 
-    this.props.playTrackAlbum({
+    this.props.playTrack({
       pl: pl,
       onPlayIndex: key
     });
@@ -312,7 +312,7 @@ const mapDispatchToProps = dispatch => {
     updateAlbumList: (item) => dispatch(
       updateFolderToPlay(item)
     ),
-    playTrackAlbum: (item) => dispatch(
+    playTrack: (item) => dispatch(
       playOnFolder(item)
     ),
     addPlaylistItems: (title, items) => dispatch(

@@ -107,7 +107,7 @@ class Playlist extends Component {
         }
       }
 
-      this.props.readFile({
+      this.props.playTrack({
         pl: playlist,
         onPlayIndex: key
       });
@@ -261,7 +261,7 @@ const mapDispatchToProps = dispatch => {
     getPlaylist: (title) => dispatch(
       get(`playlist/${title}`)
     ),
-    readFile: (item) => dispatch(
+    playTrack: (item) => dispatch(
       playOnPlaylist(item)
     ),
     updatePlayingList: (item) => dispatch(

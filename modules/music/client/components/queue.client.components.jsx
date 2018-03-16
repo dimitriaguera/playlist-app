@@ -25,7 +25,7 @@ class Queue extends Component {
     this.handleChangeCheckBox = this.handleChangeCheckBox.bind(this);
     this.handlerSavePlaylist = this.handlerSavePlaylist.bind(this);
     this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
-    this.handlerReadFile = this.handlerReadFile.bind(this);
+    this.handlerPlayTrack = this.handlerPlayTrack.bind(this);
     this.handlerDeleteTrack = this.handlerDeleteTrack.bind(this);
     this.handlerMoveItem = this.handlerMoveItem.bind(this);
     this.handlerAddTracks = this.handlerAddTracks.bind(this);
@@ -90,7 +90,7 @@ class Queue extends Component {
 
 
   // Play a track in queue.
-  handlerReadFile (key) {
+  handlerPlayTrack (key) {
     const { playlist } = this.state;
 
     const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
@@ -110,7 +110,7 @@ class Queue extends Component {
         }
       }
 
-      this.props.readFile({
+      this.props.playTrack({
         pl: playlist,
         onPlayIndex: key
       });
@@ -271,7 +271,7 @@ class Queue extends Component {
               onPlayIndex={onPlayIndex}
               callbackMouseUp={this.handlerMoveItem}
               onDelete={this.handlerDeleteTrack}
-              onPlay={this.handlerReadFile}
+              onPlay={this.handlerPlayTrack}
               scrollContainerName='main-content'
               containerId='dl-container'
             />
@@ -296,7 +296,7 @@ const mapDispatchToProps = dispatch => {
     getPlaylist: (title) => dispatch(
       get(`playlist/${title}`)
     ),
-    readFile: (item) => dispatch(
+    playTrack: (item) => dispatch(
       playOnPlaylist(item)
     ),
     updatePlayingList: (item) => dispatch(

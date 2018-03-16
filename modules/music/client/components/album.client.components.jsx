@@ -188,7 +188,7 @@ class Album extends Component {
       }
     }
 
-    this.props.playTrackAlbum({
+    this.props.playTrack({
       pl: pl,
       onPlayIndex: key
     });
@@ -327,7 +327,7 @@ const mapDispatchToProps = dispatch => {
     updateAlbumList: (item) => dispatch(
       updateAlbumToPlay(item)
     ),
-    playTrackAlbum: (item) => dispatch(
+    playTrack: (item) => dispatch(
       playOnAlbum(item)
     ),
     addPlaylistItems: (title, items) => dispatch(
