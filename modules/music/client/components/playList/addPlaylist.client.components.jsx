@@ -74,10 +74,10 @@ class AddPlaylist extends Component {
     const { error, message, title } = this.state;
 
     return (
-      <form className='allpl-form' onSubmit={this.submitForm}>
+      <form className='allpl-form add-pl-form' onSubmit={this.submitForm}>
         <input className='allpl-create' type="submit" value="Create" className='btn'/>
         <input
-          placeholder='Playlist Title...'
+          placeholder='Create new playlist'
           name='title'
           value={title}
           onChange={this.handleInputChange}
