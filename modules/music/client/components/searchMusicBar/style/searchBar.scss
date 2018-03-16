@@ -2,71 +2,87 @@
 
 .search-bar {
   position: relative;
+  font-size: 1.7rem;
 
   input[type=radio] {
     display: none;
   }
 
-  .search-input {
-    margin: 0;
-    max-width: calc(100% - 70px);
-    flex: 1 0 auto;
-    outline: 0;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-    text-align: left;
-    line-height: 1.21428571em;
-    padding: 0.67857143em 1em;
-    transition: box-shadow 0.1s ease, border 0.1s ease, width 0.3s ease;
-    box-shadow: none;
+  .sb-search-input-wrapper {
+    position: relative;
+    display: inline-block;
+    height: 5em;
+    top: 4em;
+    left: 4em;
+    padding-left: 3.5em;
+    border-bottom: 1px solid $white;
+    border-left: 1px solid $white;
+    border-radius: 2.5em 0 0 2.5em;
+    max-width: calc(100% - 7em);
+
+    .search-input {
+      margin: 0;
+      flex: 1 0 auto;
+      outline: 0;
+      -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+      border: none;
+      color: $white;
+      text-align: left;
+      font-size: 1.7em;
+      line-height: 2.9em;
+      transition: border 0.1s ease, width 0.3s ease;
+      background-color: transparent;
+    }
   }
 
   .sb-filter-panel {
     position: relative;
-    margin: 20px 0;
-    height: 130px;
+    margin: 2em 0;
+    height: 13em;
 
     .sb-filter-input {
       position: absolute;
       width: 0;
-      top: 90px;
-      left: 50px;
+      top: 9em;
+      left: 5em;
 
       input,
       button,
       .input-date-prefix {
-        height: 40px;
+        height: 4em;
         padding: 0;
-        background-color: $color-primary;
         color: white;
         border-width: 0;
       }
 
       input[name=inputFilter] {
         width: 100%;
-        border-radius: 20px 0 0 20px;
+        border-radius: 2em 0 0 2em;
+        background-color: transparent;
       }
 
       input[name=inputDateFrom] {
         display: none;
-        border-radius: 20px 0 0 20px;
+        border-radius: 2em 0 0 2em;
+        background-color: transparent;
       }
 
       input[name=inputDateTo] {
         display: none;
-        padding-left: 5px !important;
+        padding-left: 5em !important;
+        background-color: transparent;
       }
 
       .input-date-prefix {
         display: none;
         vertical-align: top;
         text-align: center;
-        line-height: 40px;
+        line-height: 5em;
       }
 
       button {
         display: none;
         cursor: pointer;
-        background-color: $color-primary;
 
         &:hover {
           background-color: $color-primary-hover;
@@ -75,7 +91,7 @@
 
       ul {
         list-style-type: none;
-        margin: 0 0 0 40px;
+        margin: 0 0 0 4em;
         padding: 0;
         background-color: $white;
         border-left: 1px solid #676a6d;
@@ -85,7 +101,7 @@
         position: relative;
 
         li {
-          padding: 10px 20px;
+          padding: 1em 2em;
           cursor: pointer;
           color: #676a6d;
 
@@ -106,42 +122,33 @@
 
     input[name=inputText] {
       position: relative;
-      height: 50px;
-      top: 40px;
-      left: 40px;
-      padding-left: 35px;
-      border-radius: 25px 0 0 25px;
-      background-color: $white;
       border-width: 0;
-      box-shadow: 0 0 10px 0 #656565;
-      width: 410px;
+      width: 20em;
 
       &:focus {
-        width: 600px !important;
+        width: 30em !important;
       }
     }
 
     .sb-filter-menu {
       position: absolute;
-      height: 130px;
-      width: 65px;
-      background-color: $color-primary;
-      border-radius: 65px 0 0 65px;
+      height: 13em;
+      width: 6.5em;
+      border-radius: 6.5em 0 0 6.5em;
       left: 0;
 
       label {
         display: inline-block;
         position: absolute;
-        line-height: 40px;
-        height: 40px;
-        width: 40px;
+        line-height: 4em;
+        height: 4em;
+        width: 4em;
         padding: 0;
         margin: 0;
         text-align: center;
         border-radius: 50%;
         color: white;
-        background-color: $color-primary;
-        font-size: 10px;
+        font-size: 1em;
 
         &:not(.no-click) {
           cursor: pointer;
@@ -153,33 +160,33 @@
 
         &:nth-child(1) {
           top: 0;
-          right: -22px;
+          right: -2.2em;
         }
 
         &:nth-child(2) {
-          top: 26px;
-          left: 4px;
+          top: 2.6em;
+          left: 0.4em;
         }
 
         &:nth-child(3) {
-          top: 70px;
-          left: 8px;
+          top: 7em;
+          left: 0.8em;
         }
 
         &:nth-child(4) {
           bottom: 0;
-          right: -22px;
+          right: -2.2em;
         }
       }
     }
   }
 
   input[type=radio]:checked ~ .sb-filter-panel .sb-filter-input {
-    width: 400px;
-    max-width: calc(100% - 50px);
+    width: 40em;
+    max-width: calc(100% - 5em);
 
     input {
-      padding-left: 60px;
+      padding-left: 6em;
     }
   }
 
@@ -193,12 +200,12 @@
   input[id=filter3]:checked ~ .sb-filter-panel .sb-filter-input {
     .input-date-prefix {
       display: inline-block;
-      width: 40px;
+      width: 4em;
     }
 
     button {
       display: inline-block;
-      width: 40px;
+      width: 4em;
       vertical-align: top;
     }
 
@@ -209,7 +216,7 @@
     input[name=inputDateFrom],
     input[name=inputDateTo] {
       display: inline-block;
-      width: calc(50% - 40px) !important;
+      width: calc(50% - 4em) !important;
     }
   }
 
@@ -219,32 +226,32 @@
     margin: 0;
     padding: 0;
     top: 0;
-    left: 70px;
+    left: 7em;
 
     .sb-filter-token {
       display: inline-block;
-      height: 40px;
-      line-height: 40px;
+      height: 4em;
+      line-height: 4em;
       overflow: hidden;
       //padding-top: 5px;
-      margin-right: 1px;
+      margin-right: 0.1em;
       list-style-type: none;
       background-color: rgba(0, 0, 0, 0.8);
       color: $white;
       cursor: pointer;
 
       &:nth-child(1) {
-        padding-left: 30px;
+        padding-left: 3em;
       }
 
       .icon {
-        font-size: 20px;
+        font-size: 2em;
       }
 
       & > span {
         display: inline-block;
         line-height: 1;
-        padding: 0 5px;
+        padding: 0 0.5em;
         vertical-align: sub;
       }
 
