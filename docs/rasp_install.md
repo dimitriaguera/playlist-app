@@ -11,8 +11,12 @@
 sudo raspi-config
 ```
 
-Change **password** (this is realy important), keyboard layout, overclock, gpu memory to 16mb,
-active ssh connection
+Change **password** (this is realy important),
+keyboard layout, 
+overclock, 
+gpu memory to 16mb,
+active ssh connection,
+Expand Filesystem
 
 Save, reboot and connect to raspb with ssh
 

@@ -105,15 +105,15 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
 fi
 
 
-ask_choice "Do I need to install build-essential and cmake ? " 0 no yes
+ask_choice "Do I need to install build-essential and cmake ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
   sudo apt install -y build-essential
-  sudo apt install cmake
+  sudo apt install -y cmake
 fi
 
 
 ####### Node
-ask_choice "Do I need to install nodejs ? " 0 no yes
+ask_choice "Do I need to install nodejs ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
   command -v nvm
@@ -123,27 +123,27 @@ fi
 
 
 ####### MongoDB
-ask_choice "Do I need to install MongoDb ? " 0 no yes
+ask_choice "Do I need to install MongoDb ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
-  sudo apt install mongodb
+  sudo apt install -y mongodb
   sudo systemctl enable mongodb
 fi
 
 
 ####### Java
-ask_choice "Do I need to install Java ? " 0 no yes
+ask_choice "Do I need to install Java ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
-  sudo apt install default-jre
+  sudo apt install -y default-jre
 fi
 
 
 ####### Elastic
-ask_choice "Do I need to install Elastic ? " 0 no yes
+ask_choice "Do I need to install Elastic ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
   wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-  sudo apt install apt-transport-https
+  sudo apt install -y apt-transport-https
   echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
-  sudo apt update && sudo apt install elasticsearch
+  sudo apt update && sudo apt install -y elasticsearch
   sudo systemctl enable elasticsearch
 fi
 
