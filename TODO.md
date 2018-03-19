@@ -39,6 +39,11 @@
 
 * Check why webpack doesn't put all style in modules/core/client/components/style in the css file
   instead it put it in the bundle.js
+ 
+## Audio bar
+
+* Frist play album or queu and after going to tracks view, play one track => meta in audiobar are not updated
+
   
 # UX
 
@@ -57,7 +62,7 @@
 
 * Do something for pl have always an id
 * Update selectPlaylist when create new playlist in all playlist view or when we delete one playlist.
-
+* Remove queue of delete user
 
 ## Make a service for play/pause/next
 

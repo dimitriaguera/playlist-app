@@ -5,7 +5,7 @@
 
 module.exports = {
 
-  musicFolder: './data/music2', // Where your music is store
+  musicFolder: './data/music', // Where your music is store
   picturesFolder: './data/pictures', // Where playlistapp going to store album cover
 
   port: process.env.PORT || '8080', // Port to run playlistapp
@@ -60,7 +60,7 @@ module.exports = {
       'unknown', 'anonymous', 'null', 'undefined', 'api'
     ],
     defaultAdminId: 'admin',
-    defaultAdminPassword: 'adminpwd'
+    defaultAdminPassword: 'Adminpwd1@'
   },
 
   session: {

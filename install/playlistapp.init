@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+start() {
+  echo 'Start PlaylistApp'
+
+  # Find PlaylistApp
+  path_of_this_file=`ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}'`
+  while [ `basename ${path_of_this_file}` != 'playlistApp' ] ; do
+    path_of_this_file=`dirname ${path_of_this_file}`
+  done
+  cd ${path_of_this_file}
+
+  # Start Serv
+  NODE_ENV=production node ./server.js
+}
+
+stop() {
+  echo 'Stop PlaylistApp'
+  echo '@todo'
+}
+
+case $1 in
+  start|stop) "$1" ;;
+esac
+
+exit 0

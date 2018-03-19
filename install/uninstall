@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo "Disable service"
+sudo systemctl disable playlistapp
+
+echo "Stop service"
+sudo systemctl stop playlistapp
+
+echo "Remove bin"
+sudo rm /usr/local/bin/playlistapp.init
+
+echo "Remove unit file"
+sudo rm /etc/systemd/system/playlistapp.service

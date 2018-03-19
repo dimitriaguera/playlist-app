@@ -30,7 +30,7 @@ const checkIfThereAtLeastOneAdminAndCreateIt = function() {
         )
           .then( () => {
             console.log(chalk.red(`We have created one admin user : ${config.security.defaultAdminId}/${config.security.defaultAdminPassword}`));
-            console.log(chalk.bgRed('Please Change It PassWord'));
+            console.log(chalk.bgRed('Please Change his password'));
           })
           .catch( e => {
             console.log(e);
