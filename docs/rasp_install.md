@@ -158,21 +158,23 @@ Replace the 9.5.0 with the last version ans armv6l to the version of you raspber
 ```
 cd ~
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
-command -v nvm
-source ~/.bashrc
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 nvm install --lts
 ```
 
 ### Installing mongodb (if you don't have)
 
 ```
-sudo apt-get install mongodb-server
+sudo apt-get install mongodb
 ```
 
 Once MongoDB is installed, you will need to start and stop MongoDB, verifying that it functions correctly:
 ```
 sudo systemctl start mongodb
 sudo systemctl status mongodb
+sudo systemctl stop mongodb
 ```
 
 
@@ -254,10 +256,20 @@ mongod --dbpath mydbpath --storageEngine wiredTiger --wiredTigerEngineConfigStri
 ### Installing ﻿Java (need for elastic, if you don't have)
 
 ```
-sudo apt-get install oracle-java8-jdk
+sudo apt install -y default-jre
+sudo cp -r /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/client /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/server
+sudo apt install -y default-jre
 ```
 
 ### Installing Elastic (if you don't have)
+
+```
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt install -y apt-transport-https
+echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+sudo apt update && sudo apt install -y elasticsearch
+sudo systemctl enable elasticsearch
+```
 
 ```
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.2.deb
@@ -273,7 +285,7 @@ sudo -s
 nano /etc/elasticsearch/jvm.options
 ```
 
-For raspberry 1  if you habve this line comment it :
+For raspberry 1  if you have this line comment it :
 ```
 # force the server VM
 # -server 

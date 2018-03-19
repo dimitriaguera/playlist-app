@@ -86,7 +86,8 @@ install_path_fct
 
 ####### System
 
-sudo apt update
+#@todo remettre
+#sudo apt update
 
 say_blue "I updating the package lists"
 ask_choice "Do I need to update the system ? " 0 no yes
@@ -116,40 +117,44 @@ fi
 ask_choice "Do I need to install nodejs ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
   command -v nvm
   source ~/.bashrc
   nvm install --lts
 fi
 
-
 ####### MongoDB
 ask_choice "Do I need to install MongoDb ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
+  mongodb=true
   sudo apt install -y mongodb
   sudo systemctl enable mongodb
+  sudo systemctl stop mongodb
 fi
-
 
 ####### Java
 ask_choice "Do I need to install Java ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
   sudo apt install -y default-jre
+  sudo cp -r /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/client /usr/lib/jvm/java-8-openjdk-armhf/jre/lib/arm/server
+  sudo apt install -y default-jre
 fi
-
 
 ####### Elastic
 ask_choice "Do I need to install Elastic ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
+  elastic=true
   wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
   sudo apt install -y apt-transport-https
   echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
   sudo apt update && sudo apt install -y elasticsearch
   sudo systemctl enable elasticsearch
+  sudo systemctl stop elasticsearch
 fi
 
-
 ####### PlaylistApp
-
 say_blue "I am going to install playlistApp"
 cd ${install_path}
 say_blue "Install path is : ${install_path}"
@@ -173,9 +178,18 @@ sed -i '' 's|./data/music|'"${music_path}"'|' config/conf/config.private.js
 cp config/conf/config.public.example.js config/conf/config.public.js
 
 ## Build production dist
-ask_choice "Do I need to build prod distribution ? " 0 no yes
+ask_choice "Do I need to build prod distribution (this doesn't work on raspberry) ? " 0 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
   npm run build-prod
+fi
+
+## Start mongo and elastic
+if [ "$elastic" = true ] ; then
+  sudo systemctl start elasticsearch
+fi
+
+if [ "$mongodb" = true ] ; then
+  sudo systemctl start mongodb
 fi
 
 ## Make systemD script

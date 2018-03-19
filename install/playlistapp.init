@@ -5,7 +5,7 @@ start() {
 
   # Find PlaylistApp
   path_of_this_file=`ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}'`
-  while [ `basename ${path_of_this_file}` != 'playlistApp' ] ; do
+  while [ `basename ${path_of_this_file}` != 'playlistApp' -o `basename ${path_of_this_file}` != 'playlist-app' ] ; do
     path_of_this_file=`dirname ${path_of_this_file}`
   done
   cd ${path_of_this_file}
