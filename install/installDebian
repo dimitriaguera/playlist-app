@@ -48,7 +48,7 @@ function ask_choice () {
   BOTASK_ANSWER="$def_choice"             #XXX: ACCESS TO USER'S CHOICE
   for c in "$@"; do
     if [[ "$c" == "${choices[$def_choice]}" ]]; then
-      prompt="$prompt${LARG}[${c:0:1}]${c:1}${NORM} "
+      prompt="$prompt${bold}[${c:0:1}]${c:1}${normal} "
     else
       prompt="$prompt[${c:0:1}]${c:1} "
     fi
@@ -133,13 +133,18 @@ fi
 ####### Node
 ask_choice "Do I need to install nodejs ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
+  # This download and install nvm
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
   export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  # This loads nvm
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  # This loads nvm bash_completion
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   command -v nvm
   source ~/.bashrc
+  # Install latest node lts
   nvm install --lts
+  # Copy it in global (for every user)
   n=$(which node)
   n=${n%/bin/node}
   chmod -R 755 $n/bin/*
@@ -220,7 +225,11 @@ fi
 
 
 ## Make systemD script
-makesysD
+ask_choice "Do I need to make a systemD file for automatically run playlistapp ? " 0 no yes
+if [[ $BOTASK_ANSWER == 1 ]]; then
+  makesysD
+fi
+
 
 say_red "Normally now you can go to localhost:8080 to see the app"
 
