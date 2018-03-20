@@ -2,6 +2,10 @@
 
 ######################## HELPERS
 
+## Get path of this file
+path_of_this_file=`dirname "$0"`
+path_of_this_file=`( cd "${path_of_this_file}" && pwd )`
+
 # colorize and formatting command line
 green='\x1B[0;32m'
 cyan='\x1B[1;36m'
@@ -59,7 +63,7 @@ function ask_choice () {
 
 ask_choice "Install on Raspian or on Debian/Ubuntu ? " 0 Raspbian Debian/Ubuntu
 if [[ $BOTASK_ANSWER == 0 ]]; then
-  ./installRasp
+  ${path_of_this_file}/./installRasp
 else
-  ./installDebian
+  ${path_of_this_file}/./installDebian
 fi
