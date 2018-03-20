@@ -140,6 +140,10 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
   command -v nvm
   source ~/.bashrc
   nvm install --lts
+  n=$(which node)
+  n=${n%/bin/node}
+  chmod -R 755 $n/bin/*
+  sudo cp -r $n/{bin,lib,share} /usr/local
 fi
 
 
