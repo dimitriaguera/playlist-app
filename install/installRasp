@@ -113,8 +113,6 @@ function makesysD() {
 
 
 ####### System
-
-
 sudo apt update
 
 say_blue "I updating the package lists"
@@ -189,6 +187,20 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
   sudo apt update && sudo apt install -y elasticsearch
   sudo systemctl enable elasticsearch
   sudo systemctl stop elasticsearch
+
+  # Change memory of es
+  if [ ! -f /etc/elasticsearch/jvm.options ]; then
+    say_blue "No jvm.options file in /etc/elasticsearch/jvm.options copy a default file"
+    sudo cp ${path_of_this_file}/jvm.options /etc/elasticsearch
+  fi
+
+  say_green "How many memory do you want for elasticSearch (default : 180M ) ? "
+  read esmem
+  if [ ! -z "$esmem" ]; then
+     sudo sed -i'' 's|-Xms180|-Xms'"${esmem}"'|' /etc/elasticsearch/jvm.options
+     sudo sed -i'' 's|-Xmx180|-Xmx'"${esmem}"'|' /etc/elasticsearch/jvm.options
+  fi
+
 fi
 
 ####### PlaylistApp
