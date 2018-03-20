@@ -81,13 +81,41 @@ function install_path_fct () {
   cd $path_of_this_file
 }
 install_path_fct
+
+# 	Generate a random password
+#  		$1 = number of characters; defaults to 32
+# 		remove LC_CTYPE in linux this is for mac
+# 		you can remplace $CHAR by "a-zA-Z0-9-_\$\?\@\.\!"
+#   -----------------------------------------------------------------------------------
+function randpass() {
+   cat /dev/urandom | env LC_CTYPE=C tr -cd "a-zA-Z0-9-_\$\?\@\.\!" | head -c ${1:-32}
+}
+
+function makesysD() {
+  say_blue "Make a systemD script"
+
+  say_grey "Link to /usr/local/bin"
+  sudo ln -sf ${path_of_this_file}/playlistapp.init /usr/local/bin/playlistapp.init
+
+  say_grey "Make script executable"
+  sudo chmod u+x /usr/local/bin/playlistapp.init
+
+  say_grey "Copy to /etc/systemd/system/playlistapp.service"
+  sudo cp -rf ${path_of_this_file}/playlistapp.service /etc/systemd/system/playlistapp.service
+
+  say_grey "Enable service"
+  sudo systemctl enable playlistapp
+
+  say_grey "Start service"
+  sudo systemctl start playlistapp
+}
 ######################## END HELPERS
 
 
 ####### System
 
-#@todo remettre
-#sudo apt update
+sudo apt update
+
 
 say_blue "I updating the package lists"
 ask_choice "Do I need to update the system ? " 0 no yes
@@ -173,9 +201,12 @@ read music_path
 if [ -z "$music_path" ]; then
     music_path="~/music"
 fi
-cp config/conf/config.private.example.js config/conf/config.private.js
-sed -i '' 's|./data/music|'"${music_path}"'|' config/conf/config.private.js
-cp config/conf/config.public.example.js config/conf/config.public.js
+jwt=$(randpass 12)
+cp ${install_path}/config/conf/config.private.example.js ${install_path}/config/conf/config.private.js
+# No space after -i'' with space on linux it will bug
+sed -i'' 's|./data/music|'"${music_path}"'|' ${install_path}/config/conf/config.private.js
+sed -i'' 's|'"jwtSecret: 'SECRET'"'|'"jwtSecret: '"${jwt}"'"'|' ${install_path}/config/conf/config.private.js
+cp ${install_path}/config/conf/config.public.example.js ${install_path}/config/conf/config.public.js
 
 ## Build production dist
 ask_choice "Do I need to build prod distribution (this doesn't work on raspberry) ? " 0 no yes
@@ -193,25 +224,10 @@ if [ "$mongodb" = true ] ; then
 fi
 
 ## Make systemD script
-say_blue "Make a systemD script"
-
-say_grey "Link to /usr/local/bin"
-sudo ln -sf ${path_of_this_file}/playlistapp.init /usr/local/bin/playlistapp.init
-
-say_grey "Make script executable"
-sudo chmod u+x /usr/local/bin/playlistapp.init
-
-say_grey "Copy to /etc/systemd/system/playlistapp.service"
-sudo cp -rf ${path_of_this_file}/playlistapp.service /etc/systemd/system/playlistapp.service
-
-say_grey "Enable service"
-sudo systemctl enable playlistapp
-
-say_grey "Start service"
-sudo systemctl start playlistapp
+makesysD
 
 
 say_red "Normally now you can go to localhost:8080 to see the app"
 
 say_blue "See Playlist log : sudo systemctl status playlistapp"
-say_blue "You can change port, music path, mongo acces in : ${path_of_this_file}/conf/config.private.js"
+say_blue "You can change port, music path, mongo acces in : ${install_path}/conf/config.private.js"

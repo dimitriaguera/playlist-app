@@ -2,7 +2,7 @@
 
 This permit to start the playlistApp app with the computer
 
-```bash
+```
 ./install
 ```
 
@@ -12,4 +12,9 @@ sudo systemctl status playlistapp
 sudo systemctl start playlistapp
 sudo systemctl stop playlistapp
 sudo systemctl restart playlistapp
+```
+
+Check journal
+```
+journalctl -f
 ```
