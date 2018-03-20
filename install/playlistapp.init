@@ -11,7 +11,7 @@ start() {
   # Find PlaylistApp
   path_of_this_file=`ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}'`
 
-  while [ ! -f ${path_of_this_file}/server2.js -a ${path_of_this_file} != '/' ] ; do
+  while [ ! -f ${path_of_this_file}/server.js -a ${path_of_this_file} != '/' ] ; do
     path_of_this_file=`dirname ${path_of_this_file}`
   done
 
