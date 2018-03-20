@@ -230,8 +230,19 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
   makesysD
 fi
 
-
 say_red "Normally now you can go to localhost:8080 to see the app"
-
-say_blue "See Playlist log : sudo systemctl status playlistapp"
 say_blue "You can change port, music path, mongo acces in : ${install_path}/conf/config.private.js"
+
+say_green "If you have problem. Do this."
+say_green "* Check Node with :"
+say_green "  - 'node --version'"
+say_green "* Check Java with :"
+say_green "  - 'java -version'"
+say_green "* Check Mongodb with :"
+say_green "  - 'sudo systemctl status mongodb'"
+say_green "  - 'sudo nc -v localhost 27017'"
+say_green "* Check Elasticsearch with :"
+say_green "  - 'sudo systemctl status elasticsearch' but this is not very reliable"
+say_green "  - 'sudo curl localhost:9200'"
+say_green "* Check the playlistApp :"
+say_green "  - 'sudo systemctl status playlistapp'"

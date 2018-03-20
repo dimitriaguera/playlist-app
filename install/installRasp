@@ -111,7 +111,6 @@ function makesysD() {
 }
 ######################## END HELPERS
 
-
 ####### System
 sudo apt update
 
@@ -196,15 +195,18 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
 
   # Change memory of es
   say_green "How many memory do you want for elasticSearch (default : 180M ) ? "
+  say_red "Don't forget the unit like g or m for giga and mega"
   read esmem
-  if [ ! -z "$esmem" ]; then
-     sudo sed -i'' 's|-Xms1g|-Xms'"${esmem}"'m|' /etc/elasticsearch/jvm.options
-     sudo sed -i'' 's|-Xmx1g|-Xmx'"${esmem}"'m|' /etc/elasticsearch/jvm.options
+  if [ -z "$esmem" ]; then
+   esmem='180m'
   fi
+  #sudo sed -i'' 's|-Xms|-Xms'"${esmem}"'|d' /etc/elasticsearch/jvm.options
+  #sudo sed -i'' 's|-Xmx|-Xmx'"${esmem}"'|d' /etc/elasticsearch/jvm.options
+  sudo sed -i'' '/-Xms/c\-Xms'"${esmem}" /etc/elasticsearch/jvm.options
+  sudo sed -i'' '/-Xmx/c\-Xmx'"${esmem}" /etc/elasticsearch/jvm.options
 
   sudo systemctl enable elasticsearch
   sudo systemctl stop elasticsearch
-
 fi
 
 ####### PlaylistApp
@@ -254,7 +256,21 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
   makesysD
 fi
 
+say_red "The process to build the app is not possible on raspberry."
+say_red "You have to do it on another computer and upload to the raspberry in the public/dist folder"
 say_red "Normally now you can go to localhost:8080 to see the app"
-
-say_blue "See Playlist log : sudo systemctl status playlistapp"
 say_blue "You can change port, music path, mongo acces in : ${install_path}/conf/config.private.js"
+
+say_green "If you have problem. Do this."
+say_green "* Check Node with :"
+say_green "  - 'node --version'"
+say_green "* Check Java with :"
+say_green "  - 'java -version'"
+say_green "* Check Mongodb with :"
+say_green "  - 'sudo systemctl status mongodb'"
+say_green "  - 'sudo nc -v localhost 27017'"
+say_green "* Check Elasticsearch with :"
+say_green "  - 'sudo systemctl status elasticsearch' but this is not very reliable"
+say_green "  - 'sudo curl localhost:9200'"
+say_green "* Check the playlistApp :"
+say_green "  - 'sudo systemctl status playlistapp'"
