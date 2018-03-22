@@ -20,7 +20,7 @@ start() {
     exit 13
   fi
 
-  echo Playlist path ${path_of_this_file}
+  echo "Playlist path ${path_of_this_file}"
   cd ${path_of_this_file}
 
   # Start Serv
