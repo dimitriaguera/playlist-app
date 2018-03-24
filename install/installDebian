@@ -202,11 +202,18 @@ say_blue "I am going to install playlistApp"
 cd "${install_path}" || exit 1
 say_blue "Install path is : ${install_path}"
 
-## Npm install
-ask_choice "Do I need to run npm install ? " 0 no yes
+
+## Install module
+ask_choice "Do I need to run npm install ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
-  npm install
-  npm install # two times
+  ask_choice "Do I need to install dev npm install ? " 0 no yes
+  if [[ $BOTASK_ANSWER == 1 ]]; then
+    npm install --production
+    npm install --production # two times
+  else
+    npm install
+    npm install # two times
+  fi
 fi
 
 ## Config of PlaylistApp

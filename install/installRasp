@@ -230,10 +230,16 @@ cd "${install_path}" || exit 0
 say_blue "Install path is : ${install_path}"
 
 ## Install module
-ask_choice "Do I need to run npm install ? " 0 no yes
+ask_choice "Do I need to run npm install ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
-  npm install
-  npm install # two times
+  ask_choice "Do I need to install dev npm install ? " 0 no yes
+  if [[ $BOTASK_ANSWER == 1 ]]; then
+    npm install --production
+    npm install --production # two times
+  else
+    npm install
+    npm install # two times
+  fi
 fi
 
 ## Config of PlaylistApp
@@ -255,7 +261,6 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
   sed -i'' 's|'"jwtSecret: 'SECRET'"'|"jwtSecret: '"${jwt}"'"|' "${install_path}/config/conf/config.private.js"
   cp "${install_path}/config/conf/config.public.example.js" "${install_path}/config/conf/config.public.js"
 fi
-
 
 ## Build production dist
 ask_choice "Do I need to build prod distribution (this doesn't work on raspberry) ? " 0 no yes
