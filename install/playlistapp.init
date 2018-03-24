@@ -9,19 +9,19 @@ start() {
   echo 'Try to Start PlaylistApp'
 
   # Find PlaylistApp
-  path_of_this_file=`ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}'`
+  path_of_this_file=$(ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}')
 
-  while [ ! -f ${path_of_this_file}/server.js -a ${path_of_this_file} != '/' ] ; do
-    path_of_this_file=`dirname ${path_of_this_file}`
+  while [ ! -f "${path_of_this_file}/server.js" ] && [ "${path_of_this_file}" != '/' ] ; do
+    path_of_this_file=$(dirname "${path_of_this_file}")
   done
 
-  if [ ${path_of_this_file} = '/' ]; then
+  if [ "${path_of_this_file}" = '/' ]; then
     echo -e "${red}${bold} Playlistapp.init do not manage to find the server.js file${normal}"
     exit 13
   fi
 
   echo "Playlist path ${path_of_this_file}"
-  cd ${path_of_this_file}
+  cd "${path_of_this_file}" || exit 13
 
   # Start Serv
   NODE_ENV=production node ./server.js
