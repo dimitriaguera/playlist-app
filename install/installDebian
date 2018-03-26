@@ -118,6 +118,9 @@ function makesysD() {
   say_grey "Copy to /etc/systemd/system/playlistapp.service"
   sudo cp -rf "${path_of_this_file}/playlistapp.service" "/etc/systemd/system/playlistapp.service"
 
+   # Reload systemD service
+  sudo systemctl --system daemon-reload
+
   say_grey "Enable service"
   sudo systemctl enable playlistapp
 
@@ -273,3 +276,5 @@ say_green "  - 'sudo systemctl status elasticsearch' but this is not very reliab
 say_green "  - 'sudo curl localhost:9200'"
 say_green "* Check the playlistApp :"
 say_green "  - 'sudo systemctl status playlistapp'"
+say_green "* Reload systemD service :"
+say_green "  - 'sudo systemctl --system daemon-reload && sudo systemctl restart playlistapp'"
