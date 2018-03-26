@@ -50,39 +50,73 @@ module.exports.checkConfig = function () {
   }
 
 
-  function checkAndCreateFolder(path, name) {
+  function checkFolder(path, name, createFlag, cb) {
+
+    console.log(chalk.blue(`${name} path : ${path}`));
+
     // Check if exist
     fs.pathExists(path, (err, exists) => {
       if (err) {
         console.log(chalk.bgRed(`Problem when checking the ${name} folder`));
         console.log(chalk.bgRed(path));
         console.log(chalk.bgRed('Exit the app'));
-        return process.abort();
+        return cb(err);
       }
 
-      // Don't exist create it
+      // Don't exist
       if (!exists) {
 
         console.log(chalk.red(`Note : the ${name} folder doesn't exists`));
 
-        fs.ensureDir(path, err => {
-          if (err) {
-            console.log(chalk.bgRed(`Problem when creating the ${name} folder`));
-            console.log(chalk.bgRed(path));
-            console.log(chalk.bgRed('Exit the app'));
-            return process.abort();
-          }
-          console.log(chalk.blue(`The ${name} folder was created successfully`));
-        });
+        // Create it
+        if (createFlag) {
+
+          fs.ensureDir(path, err => {
+
+            if (err) {
+              console.log(chalk.bgRed(`Problem when creating the ${name} folder`));
+              console.log(chalk.bgRed(path));
+              console.log(chalk.bgRed('Exit the app'));
+              return cb(err);
+            }
+
+            console.log(chalk.blue(`The ${name} folder was created successfully`));
+            return cb(null, true);
+          });
+
+        // Don't create it
+        } else {
+          return cb(null, false);
+        }
+
+      // Exist
+      } else {
+        return cb(null, true);
       }
-
-      console.log(chalk.blue(`${name} path : ${path}`));
-
     });
   }
 
-  checkAndCreateFolder(config.musicFolder, 'music');
-  checkAndCreateFolder(config.picturesFolder, 'pictures');
+  function notDistFolder() {
+    console.log(chalk.bgRed('You don\'t have public/dist directory. Please run npm build or npm run watch'));
+    return process.abort();
+  }
+
+
+  checkFolder(config.musicFolder, 'music', true, (err) => {if (err) return process.abort()});
+  checkFolder(config.picturesFolder, 'pictures', true, (err) => {if (err) return process.abort()});
+
+  checkFolder('./public/dist', 'dist', false, (err, flag) => {
+    if (!flag) {
+      return notDistFolder();
+    }
+
+    fs.readdir('./public/dist', (err, files) => {
+      if (err || files.length === 0) {
+        return notDistFolder();
+      }
+      console.log(chalk.blue('public/dist folder exist and is not empty'));
+    });
+  });
 
 
 };
