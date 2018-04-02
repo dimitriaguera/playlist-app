@@ -2,40 +2,40 @@
 
 start() {
 
-  red='\x1B[0;31m'
-  bold='\033[1m'
-  normal='\033[0m'
+	red='\x1B[0;31m'
+	bold='\033[1m'
+	normal='\033[0m'
 
-  echo 'Try to Start PlaylistApp'
+	echo 'Try to Start PlaylistApp'
 
-  # Find PlaylistApp
-  path_of_this_file=$(ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}')
+	# Find PlaylistApp
+	path_of_this_file=$(ls -l /usr/local/bin/playlistapp.init | awk '{print $NF}')
 
-  while [ ! -f "${path_of_this_file}/server.js" ] && [ "${path_of_this_file}" != '/' ] ; do
-    path_of_this_file=$(dirname "${path_of_this_file}")
-  done
+	while [ ! -f "${path_of_this_file}/server.js" ] && [ "${path_of_this_file}" != '/' ]; do
+		path_of_this_file=$(dirname "${path_of_this_file}")
+	done
 
-  if [ "${path_of_this_file}" = '/' ]; then
-    echo -e "${red}${bold} Playlistapp.init do not manage to find the server.js file${normal}"
-    exit 13
-  fi
+	if [ "${path_of_this_file}" = '/' ]; then
+		echo -e "${red}${bold} Playlistapp.init do not manage to find the server.js file${normal}"
+		exit 13
+	fi
 
-  echo "Playlist path ${path_of_this_file}"
-  cd "${path_of_this_file}" || exit 13
+	echo "Playlist path ${path_of_this_file}"
+	cd "${path_of_this_file}" || exit 13
 
-  # Start Serv
-  NODE_ENV=production node ./server.js
-  echo 'PlaylistApp is started'
+	# Start Serv
+	NODE_ENV=production node ./server.js
+	echo 'PlaylistApp is started'
 
 }
 
 stop() {
-  echo 'Stop PlaylistApp'
-  echo '@todo'
+	echo 'Stop PlaylistApp'
+	echo '@todo'
 }
 
 case $1 in
-  start|stop) "$1" ;;
+start | stop) "$1" ;;
 esac
 
 exit 0

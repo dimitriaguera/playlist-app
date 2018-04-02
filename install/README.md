@@ -17,4 +17,5 @@ sudo systemctl restart playlistapp
 Check journal
 ```
 journalctl -f
+sudo systemctl status playlistapp
 ```
