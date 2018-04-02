@@ -44,9 +44,10 @@ typings/
 # dotenv environment variables file
 .env
 
-
 # IDE
 /.idea/
+/.history/
+/.vscode/
 
 # secret files
 /config/conf/config.private.js
