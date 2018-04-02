@@ -24,9 +24,19 @@ start() {
 	cd "${path_of_this_file}" || exit 13
 
 	# Start Serv
-	NODE_ENV=production node ./server.js
-	echo 'PlaylistApp is started'
 
+	function checkNode() {
+		command -v "$1" >/dev/null 2>&1
+	}
+	
+	if checkNode node; then
+		NODE_ENV=production node ./server.js
+		echo 'PlaylistApp is started'
+	else
+		echo "Node is note present"
+		echo 'PlaylistApp is NOT started'
+		exit 13
+	fi
 }
 
 stop() {
