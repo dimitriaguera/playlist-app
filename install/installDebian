@@ -103,7 +103,7 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
 	# No space after -i with space on linux it will bug
 	sed -i'' 's|./data/music|'"${music_path}"'|' "${install_path}/config/conf/config.private.js"
 	#sed -i'' 's|'"jwtSecret: 'SECRET'"'|'"jwtSecret: '"${jwt}"'"'|' "${install_path}/config/conf/config.private.js
-	sed -i'' 's|'"jwtSecret: 'SECRET'"'|"jwtSecret: '"${jwt}"'"|' "${install_path}/config/conf/config.private.js"
+	sed -i'' "s|jwtSecret: 'SECRET'|jwtSecret: \'${jwt}\'|" "${install_path}/config/conf/config.private.js"
 	cp "${install_path}/config/conf/config.public.example.js" "${install_path}/config/conf/config.public.js"
 fi
 
