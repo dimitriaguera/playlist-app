@@ -48,8 +48,8 @@ if [[ $BOTASK_ANSWER == 1 ]]; then
 	# Copy it in global (for every user)
 	n=$(command -v node)
 	n=${n%/bin/node}
-	chmod -R 755 "$n/bin/*"
-	sudo cp -r "$n/{bin,lib,share}" /usr/local
+	sudo chmod -R 755 "$n"/bin/*
+	sudo cp -r "$n"/{bin,lib,share} /usr/local
 fi
 
 ####### MongoDB
