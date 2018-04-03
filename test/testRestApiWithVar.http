@@ -1,5 +1,5 @@
 @host = 192.168.1.10:8080
-@taskid = _jiq7afwls
+@taskid = _a42yucous
 
 ### Login For getting token
 # @name login
@@ -8,24 +8,26 @@ Content-Type: application/json
 
 {
 "username":"admin",
-"password":"adminpwd"
+"password":"Adminpwd1@"
 }
 
 ###
 GET http://{{host}}/api/users
 Content-Type: application/json; charset=UTF-8
-Authorization: Bearer MyPrevToken
+Authorization: {{login.response.body.msg.token}}
 
 ### Build node
 POST http://{{host}}/api/nodes/build
 Content-Type: application/x-www-form-urlencoded
-Authorization: Bearer MyPrevToken
+Authorization: {{login.response.body.msg.token}}
 
 ### Get all nodes
 GET http://{{host}}/api/nodes/q/child?path=
 
 ### Build Elastic
 POST http://{{host}}/api/elastic/build
+Content-Type: application/x-www-form-urlencoded
+Authorization: {{login.response.body.msg.token}}
 
 ###
 POST http://{{host}}/api/elastic/test
@@ -48,8 +50,8 @@ GET http://{{host}}/api/elastic/test
 
 ### Register a new user
 POST http://{{host}}/api/users
-Content-Type: application/json; charset=UTF-8
-Authorization: Bearer MyPrevToken
+Content-Type: application/x-www-form-urlencoded
+Authorization: {{login.response.body.msg.token}}
 
 {
 "username":"a",
