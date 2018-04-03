@@ -1,0 +1,61 @@
+@host = 192.168.1.10:8080
+@taskid = _jiq7afwls
+
+### Login For getting token
+# @name login
+POST http://{{host}}/api/login
+Content-Type: application/json
+
+{
+"username":"admin",
+"password":"adminpwd"
+}
+
+###
+GET http://{{host}}/api/users
+Content-Type: application/json; charset=UTF-8
+Authorization: Bearer MyPrevToken
+
+### Build node
+POST http://{{host}}/api/nodes/build
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer MyPrevToken
+
+### Get all nodes
+GET http://{{host}}/api/nodes/q/child?path=
+
+### Build Elastic
+POST http://{{host}}/api/elastic/build
+
+###
+POST http://{{host}}/api/elastic/test
+
+### Get all albums
+GET http://{{host}}/api/search/album?q=
+
+### Find cover
+POST http://{{host}}/api/files/cover/all
+
+### Get Task All
+GET http://{{host}}/api/task
+
+### Get a Task
+GET http://{{host}}/api/task/id/{{taskid}}
+
+
+### Test
+GET http://{{host}}/api/elastic/test
+
+### Register a new user
+POST http://{{host}}/api/users
+Content-Type: application/json; charset=UTF-8
+Authorization: Bearer MyPrevToken
+
+{
+"username":"a",
+"password":"a",
+"cfPassword":"a"
+}
+
+###
+

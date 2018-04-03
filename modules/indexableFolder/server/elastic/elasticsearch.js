@@ -1,3 +1,4 @@
+'use strict'
 /**
  * Created by Dimitri on 16/11/2017.
  */
@@ -6,14 +7,15 @@ const index = require('./index.server.elastic');
 const search = require('./search.server.elastic');
 const path = require('path');
 
-const {es: esConfig} = require(path.resolve('./config/env/config.server'));
+const { es: esConfig } = require(path.resolve('./config/env/config.server'));
 
+
+console.log()
 // Instantiate ES client.
-client = new elasticsearch.Client({
-  esConfig
-});
+let client = new elasticsearch.Client(esConfig);
 
 // @todo test if it's call more than once
+// const chalk = require('chalk');
 // client.ping({
 //   // ping usually has a 3000ms timeout
 //   requestTimeout: 3000
