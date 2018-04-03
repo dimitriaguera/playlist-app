@@ -18,11 +18,11 @@ $color-nav-btn-active: $white;
   overflow-y: auto;
   
   .select-playlist {
-    min-height: fit-content;
+    min-height: auto;
   }
 
   .user-menu-wrapper {
-    min-height: fit-content;
+    min-height: auto;
 
     .global-nav-logged-user {
       display: block;
@@ -58,7 +58,7 @@ $color-nav-btn-active: $white;
   padding: 2rem 1rem;
   margin-bottom: 0;
   overflow-y: auto;
-  min-height: fit-content;
+  min-height: auto;
 
   .global-nav-li {
     position: relative;
@@ -86,7 +86,7 @@ $color-nav-btn-active: $white;
 }
 
 .main-nav {
-  min-height: fit-content;
+  min-height: auto;
 }
 
 .main-nav-ul {
