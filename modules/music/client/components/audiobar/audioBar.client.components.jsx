@@ -13,7 +13,7 @@ import { MetaNameNextTracks, MetaNamePrevTracks } from './next.client.components
 
 
 class AudioBar extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.onEndedHandler = this.onEndedHandler.bind(this);
@@ -23,6 +23,7 @@ class AudioBar extends Component {
     this.onNextHandler = this.onNextHandler.bind(this);
     this.onPrevHandler = this.onPrevHandler.bind(this);
     this.onOpenBreadHandler = this.onOpenBreadHandler.bind(this);
+    this.onErrorPlayHandler = this.onErrorPlayHandler.bind(this);
 
     this.state = {
       audioReady: false,
@@ -34,8 +35,7 @@ class AudioBar extends Component {
      * Switch to next Track on current playing track ends.
      * @param e
      */
-
-  onEndedHandler (e) {
+  onEndedHandler(e) {
     const { nextTracks, pl, onPlayIndex, mode } = this.props;
     const callback = getActiveMode(mode);
 
@@ -50,28 +50,43 @@ class AudioBar extends Component {
     }
   }
 
+  onErrorPlayHandler(e) {
+    switch (e.target.error.code) {
+      case e.target.error.MEDIA_ERR_ABORTED:
+        alert('You aborted the media playback.'); break;
+      case e.target.error.MEDIA_ERR_NETWORK:
+        alert('A network error caused the media download to fail.'); break;
+      case e.target.error.MEDIA_ERR_DECODE:
+        alert('The media playback was aborted due to a corruption problem or because the media used features your browser did not support.'); break;
+      case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        alert('The media could not be loaded, either because the server or network failed or because the format is not supported.'); break;
+      default:
+        alert('An unknown media error occurred.');
+    }
+  }
+
   // When first tracks ready to play, fire ready to true.
   // This allows range slider element to render.
-  onCanPlayHandler () {
+  onCanPlayHandler() {
     if (!this.state.audioReady) {
-      this.setState({audioReady: true});
+      this.setState({ audioReady: true });
     }
   }
 
   // If app state is play, apply play() method to audio element.
   // Permit remote pause/play trough redux state changes on all app.
-  onPlayHandler () {
+  onPlayHandler() {
     this.props.play();
   }
 
   // If app state is pause, apply pause() method to audio element.
   // Permit remote pause/play trough redux state changes on all app.
-  onPauseHandler () {
+  onPauseHandler() {
     this.props.pause();
   }
 
   // Play next tracks on album/playlist list.
-  onNextHandler () {
+  onNextHandler() {
     const { pl, onPlayIndex, mode } = this.props;
     const callback = getActiveMode(mode);
 
@@ -82,7 +97,7 @@ class AudioBar extends Component {
   }
 
   // Play previous tracks on album/playlist list.
-  onPrevHandler () {
+  onPrevHandler() {
     const { pl, onPlayIndex, mode } = this.props;
     const callback = getActiveMode(mode);
 
@@ -92,17 +107,17 @@ class AudioBar extends Component {
     }, callback);
   }
 
-  onOpenBreadHandler () {
-    this.setState({isBreadOpen: !this.state.isBreadOpen});
+  onOpenBreadHandler() {
+    this.setState({ isBreadOpen: !this.state.isBreadOpen });
   }
 
-  render () {
+  render() {
     const { onPlay, isPaused, pl, onPlayIndex, mode } = this.props;
     const { audioReady } = this.state;
 
     let audioEl = null;
 
-    if (this.rap && this.rap.audioEl) {
+    if (this.rap && this.rap.audioEl && this.rap.audioEl.error === null) {
       audioEl = this.rap.audioEl;
       isPaused ? audioEl.pause() : audioEl.play();
     }
@@ -122,6 +137,7 @@ class AudioBar extends Component {
         <ReactAudioPlayer preload='auto' autoPlay
           onEnded={this.onEndedHandler}
           onCanPlay={this.onCanPlayHandler}
+          onError={this.onErrorPlayHandler}
           ref={(element) => { this.rap = element; }}
           src={`/api/music/read?path=${ps.urlEncode(onPlay.path)}`}
         />
@@ -129,7 +145,7 @@ class AudioBar extends Component {
         <div className='audioBar-wrapper'>
 
 
-          <MetaInfo className='audioBar-coll1' pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay}/>
+          <MetaInfo className='audioBar-coll1' pl={pl} onPlayIndex={onPlayIndex} mode={mode} onPlay={onPlay} />
 
 
           <div className='audioBar-coll2 audioBar-control-wrap'>
@@ -159,7 +175,7 @@ class AudioBar extends Component {
                 <i aria-hidden="true" className='icon icon-inbox'></i>
               </button>
 
-              <Bread onPlay={onPlay} isOpen={this.state.isBreadOpen}/>
+              <Bread onPlay={onPlay} isOpen={this.state.isBreadOpen} />
               <div className='audioBar-vol-range'>
                 {audioReady && <RangeVolume audioEl={audioEl} />}
               </div>
@@ -206,7 +222,7 @@ const AudioBarContainer = connect(
 )(AudioBar);
 
 // HELPER
-function getActiveMode (mode) {
+function getActiveMode(mode) {
   let callback = null;
 
   switch (mode) {
