@@ -62,3 +62,5 @@ typings/
 # Data
 /data/
 /pictures/
+
+/install/*.deb.*
