@@ -7,7 +7,7 @@ import SelectPlaylist from 'music/client/components/playList/selectPlaylist.clie
 
 
 class MainMenu extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.clickMenu = this.clickMenu.bind(this);
@@ -26,16 +26,17 @@ class MainMenu extends Component {
     this.mainSide.classList.remove('menu-is-open');
   }
 
-  render () {
+  render() {
     const { user } = this.props;
     const { menuItems } = this.state;
 
     return (
       <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
         <div className='aside-menu-wrapper'>
-          <nav>
+          {user && <SelectPlaylist />}
+          <nav className='main-nav'>
             <ul className='unstyled global-nav-ul main-nav-ul' onClick={this.clickMenu}>
-              {buildMenuItems(menuItems.main, user, {li: 'global-nav-li main-nav-li', cpt: 'global-nav-cpt main-nav-cpt' })}
+              {buildMenuItems(menuItems.main, user, { li: 'global-nav-li main-nav-li', cpt: 'global-nav-cpt main-nav-cpt' })}
             </ul>
           </nav>
 
@@ -43,12 +44,12 @@ class MainMenu extends Component {
             {user && <span className='global-nav-logged-user'>{user.username}</span>}
             <nav>
               <ul className='unstyled global-nav-ul user-nav-ul' onClick={this.clickMenu}>
-                {buildMenuItems(menuItems.user, user, {li: 'global-nav-li user-nav-li', cpt: 'global-nav-cpt user-nav-cpt' })}
+                {buildMenuItems(menuItems.user, user, { li: 'global-nav-li user-nav-li', cpt: 'global-nav-cpt user-nav-cpt' })}
               </ul>
             </nav>
           </div>
 
-          {user && <SelectPlaylist/>}
+
         </div>
       </aside>
     )
@@ -72,7 +73,7 @@ const MainMenuContainer = connect(
 
 
 // HELPER
-function buildMenuItems (items, user, classes) {
+function buildMenuItems(items, user, classes) {
 
   return items.map((item, i) => {
     const { component: Component, isPrivate, hiddenOnAuth, roles } = item;
@@ -87,7 +88,7 @@ function buildMenuItems (items, user, classes) {
     }
     // Else, render menu entry element.
     else {
-      return <li className={classes.li} key={i}><Component className={classes.cpt}/></li>;
+      return <li className={classes.li} key={i}><Component className={classes.cpt} /></li>;
     }
   });
 }

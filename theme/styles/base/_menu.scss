@@ -15,15 +15,15 @@ $color-nav-btn-active: $white;
   justify-content: space-between;
   position: relative;
   height: 100%;
-  padding-top: 23rem;
-
+  overflow-y: auto;
+  
   .select-playlist {
-    position: absolute;
-    top: 0;
-    left: 0;
+    min-height: fit-content;
   }
 
   .user-menu-wrapper {
+    min-height: fit-content;
+
     .global-nav-logged-user {
       display: block;
       width: 100%;
@@ -56,6 +56,9 @@ $color-nav-btn-active: $white;
   align-content: flex-start;
   align-items: stretch;
   padding: 2rem 1rem;
+  margin-bottom: 0;
+  overflow-y: auto;
+  min-height: fit-content;
 
   .global-nav-li {
     position: relative;
@@ -82,13 +85,13 @@ $color-nav-btn-active: $white;
   }
 }
 
+.main-nav {
+  min-height: fit-content;
+}
+
 .main-nav-ul {
   text-transform: uppercase;
 }
-
-//.user-nav-ul {
-//
-//}
 
 .global-nav-logged-user {
   color: $color-primary;
