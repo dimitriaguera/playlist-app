@@ -41,7 +41,7 @@ module.exports = {
     ],
     // Milliseconds before an HTTP request will be aborted and retried. This can also be set per request.
     // Default is 30000 but on Raspberry you need to increase it
-    requestTimeout: 60000,
+    requestTimeout: 100000,
     log: [
       {
         type: 'stdio', // default
