@@ -165,7 +165,7 @@ function runIndexNodes (onError, onStep, onDone) {
       const dirsToSave = [];
       async.forEachOfSeries(
         dirs,
-        (dir, key, nextDir) => {
+        async.ensureAsync((dir, key, nextDir) => {
           const dirInfo = path.parse(key);
           const pathDir = ps.toPosixPath(path.relative(rootOK, key));
           dirsToSave.push({
@@ -177,7 +177,7 @@ function runIndexNodes (onError, onStep, onDone) {
             isFile: false
           });
           nextDir();
-        },
+        }),
         (err) => {
           if (err) return cb(err);
           exports.saveInDb(dirsToSave, (err) => {
