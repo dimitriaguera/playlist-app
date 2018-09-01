@@ -56,7 +56,7 @@ export NVM_DIR="$HOME/.nvm"
 nvm install --lts
 ```
 
-### Installing ﻿Mongodb (if you don't have)
+### Installing Mongodb (if you don't have)
 
 NB: See https://docs.mongodb.com/manual/installation/ for more information.
 
@@ -80,7 +80,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable mongodb
 ```
 
-### Installing ﻿Java (need for elastic, if you don't have)
+### Installing Java (need for elastic, if you don't have)
 
 NB : openJRE
 
@@ -159,6 +159,31 @@ npm run build-prod
 
 After that you must have a `public/dist` directory.
 
+When you look at webpack build message if you have 
+
+```
+ERROR in ./theme/assets/images/default_pl_1.jpg
+Module build failed: Error: write EPIPE
+    at _errnoException (util.js:992:11)
+    at WriteWrap.afterWrite [as oncomplete] (net.js:864:14)
+ @ ./node_modules/css-loader??ref--6-1!./node_modules/postcss-loader/lib??ref--6-2!./node_modules/sass-loader/lib/loader.js??ref--6-3!./theme/styles/master.scss 7:77594-77638
+ @ ./theme/styles/master.scss
+ @ ./modules/core/client/components/App.jsx
+ @ ./modules/core/client/components/boot.jsx
+ @ ./modules/core/client/index.js
+```
+
+or if the app in firefox say :
+
+```
+Error: Module build failed: Error: write EPIPE at _errnoException (util.js:992:11) at WriteWrap.afterWrite [as oncomplete] (net.js:864:14)
+```
+
+This is apparently an issue with imagemin-mozjpeg. You need to install libpng16-dev
+
+```
+sudo apt install libpng16-dev
+```
 
 #### Start the app
 

@@ -29,6 +29,7 @@ ask_choice "Do I need to install build-essential and cmake ? " 1 no yes
 if [[ $BOTASK_ANSWER == 1 ]]; then
 	sudo apt install -y build-essential
 	sudo apt install -y cmake
+	sudo apt install libpng16-dev
 fi
 
 ####### Node

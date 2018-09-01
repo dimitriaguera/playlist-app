@@ -151,7 +151,7 @@ sudo apt install cmake
 
 ### Installing last Node.js (if you don't have)
 
-NB: See ﻿https://nodejs.org/dist/ for more information.
+NB: See https://nodejs.org/dist/ for more information.
 
 Replace the 9.5.0 with the last version ans armv6l to the version of you raspberry.
 
@@ -253,7 +253,7 @@ The other way is to start mongo in command line with
 mongod --dbpath mydbpath --storageEngine wiredTiger --wiredTigerEngineConfigString="cache_size=200M"
 ```
 
-### Installing ﻿Java (need for elastic, if you don't have)
+### Installing Java (need for elastic, if you don't have)
 
 ```
 sudo apt install -y default-jre
@@ -381,6 +381,31 @@ npm run build-prod
 
 After that you must have a `public/dist` directory.
 
+When you look at webpack build message if you have 
+
+```
+ERROR in ./theme/assets/images/default_pl_1.jpg
+Module build failed: Error: write EPIPE
+    at _errnoException (util.js:992:11)
+    at WriteWrap.afterWrite [as oncomplete] (net.js:864:14)
+ @ ./node_modules/css-loader??ref--6-1!./node_modules/postcss-loader/lib??ref--6-2!./node_modules/sass-loader/lib/loader.js??ref--6-3!./theme/styles/master.scss 7:77594-77638
+ @ ./theme/styles/master.scss
+ @ ./modules/core/client/components/App.jsx
+ @ ./modules/core/client/components/boot.jsx
+ @ ./modules/core/client/index.js
+```
+
+or if the app in firefox say :
+
+```
+Error: Module build failed: Error: write EPIPE at _errnoException (util.js:992:11) at WriteWrap.afterWrite [as oncomplete] (net.js:864:14)
+```
+
+This is apparently an issue with imagemin-mozjpeg. You need to install libpng16-dev
+
+```
+sudo apt install libpng16-dev
+```
 
 #### Start the app
 
