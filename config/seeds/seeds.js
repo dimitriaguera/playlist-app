@@ -43,7 +43,7 @@ const checkIfThereAtLeastOneAdminAndCreateIt = function() {
           .findOne({username: config.security.defaultAdminId})
           .exec()
           .then( userAdmin => {
-            userAdmin.comparePassword('adminpwd')
+            return userAdmin.comparePassword('adminpwd')
               .then( test => {
                 if (test) console.error(chalk.bgRed('YOU MUST CHANGE THE ADMIN PASS'))
               })
