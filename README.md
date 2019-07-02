@@ -39,10 +39,19 @@ CMAKE : https://cmake.org/download/
 
 For installing all this prerequisite and more see next section installing.
 
-### Installing 
+### Installing
 
 For Ubuntu/Debian see : [Installing on Debian/Ubuntu](docs/debian_install.md)
 For Raspbian on Raspberry see : [Installing on Debian/Ubuntu](docs/rasp_install.md)
+
+## Default Conf
+
+Default admin user :
+
+* id : admin
+* password : Adminpwd1@
+
+Please change this.
 
 ## Developers section
 
