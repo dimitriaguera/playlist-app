@@ -44,7 +44,7 @@ exports.read = function read (filePath, cb) {
         cleanMeta.albumartist = metadata.common.albumartist || '';
 
         // cleanMeta.composer doesn't exist if null empty
-        cleanMeta.composer = metadata.common.composer.join('/') || '';
+        cleanMeta.composer = metadata.common.composer ? metadata.common.composer.join('/') : '';
 
         // @todo implement label
         cleanMeta.label = '';
