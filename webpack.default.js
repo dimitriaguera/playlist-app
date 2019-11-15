@@ -66,15 +66,15 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      filename: 'views/index.server.views.html',
+      filename: 'index.html',
       template: 'modules/core/server/views/index.server.views.html'
     }),
     new HtmlWebpackPlugin({
-      filename: 'views/404.server.views.html',
+      filename: '404.html',
       template: 'modules/core/server/views/404.server.views.html'
     }),
     new HtmlWebpackPlugin({
-      filename: 'views/500.server.views.html',
+      filename: '500.html',
       template: 'modules/core/server/views/500.server.views.html'
     }),
     new BeepPlugin()

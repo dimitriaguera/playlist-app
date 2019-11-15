@@ -310,7 +310,7 @@ module.exports.startApp = function() {
   this.initDatabase(app);
   this.initLogger(app);
   this.initAuth(app, passport);
-  this.initViewEngine(app);
+  // this.initViewEngine(app); // with pug engine
   this.initRoutes(app);
   this.initErrorRoutes(app);
 
