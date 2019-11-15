@@ -4,34 +4,55 @@
 const fs = require('fs');
 const async = require('async');
 const path = require('path');
-const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
+const ps = require(path.resolve(
+  './modules/core/client/services/core.path.services'
+));
 const config = require(path.resolve('./config/env/config.server'));
-const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-const taskRunner = require(path.resolve('./modules/task/server/services/task.server.services'));
-const {clock} = require(path.resolve('./modules/core/server/services/time.server.services.js'));
+const errorHandler = require(path.resolve(
+  './modules/core/server/services/error.server.services'
+));
+const taskRunner = require(path.resolve(
+  './modules/task/server/services/task.server.services'
+));
+const { clock } = require(path.resolve(
+  './modules/core/server/services/time.server.services.js'
+));
 
-const {splitTab, mergeUniqArray, difference, deepObjDifference, cloneDeep} = require(path.resolve('./modules/core/server/services/obj.server.services'));
+const {
+  splitTab,
+  mergeUniqArray,
+  difference,
+  deepObjDifference,
+  cloneDeep
+} = require(path.resolve('./modules/core/server/services/obj.server.services'));
 
-const Node = require(path.resolve('./modules/indexableFolder/server/models/indexableFolder.server.models'));
+const Node = require(path.resolve(
+  './modules/indexableFolder/server/models/indexableFolder.server.models'
+));
 const mongoose = require('mongoose');
 
-const metaTag = require(path.resolve('./modules/editMetaTag/server/services/metaTag.server.services'));
-
+const metaTag = require(path.resolve(
+  './modules/editMetaTag/server/services/metaTag.server.services'
+));
 
 const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
-const {runElasticUpdates} = require(path.resolve('./modules/indexableFolder/server/controllers/elastic.server.controllers'));
+const { runElasticUpdates } = require(path.resolve(
+  './modules/indexableFolder/server/controllers/elastic.server.controllers'
+));
 
-const {promisify} = require('util');
+const { promisify } = require('util');
 
 // const runElasticUpdates = function( a , cb){
 //   cb();
 // };
 
 // @todo put this when export conf
-const rootOK = ps.removeLastSeparator(path.resolve(ps.conformPathToOs(config.musicFolder)));
+const rootOK = ps.removeLastSeparator(
+  path.resolve(ps.conformPathToOs(config.musicFolder))
+);
 
-exports.index = function (req, res, next) {
+exports.index = function(req, res, next) {
   // Create taskRunner instance.
   const runTask = taskRunner.create(req, res, next);
 
@@ -72,21 +93,19 @@ exports.index = function (req, res, next) {
 //     }, 20000);
 // }
 
-
 // Save many mongo docs in db
-exports.saveInDb = function (nodes, cb) {
+exports.saveInDb = function(nodes, cb) {
   Node.insertMany(nodes, (err, docs) => {
     if (err) return cb(err);
     cb(null, docs);
   });
 };
 
-
 /**
  * Create Node collection reflection deep folder structure from root folder.
  *
  */
-function runIndexNodes (onError, onStep, onDone) {
+function runIndexNodes(onError, onStep, onDone) {
   const regexFile = config.fileSystem.fileAudioTypes;
   const regexSecure = config.security.secureFile;
 
@@ -98,7 +117,7 @@ function runIndexNodes (onError, onStep, onDone) {
   let errorFilesAndDir = [];
 
   // Read all items recursively in dir an fill files and dirs var
-  function read (uri, done) {
+  function read(uri, done) {
     // Generate Mongod id for dir
     dirs[uri] = mongoose.Types.ObjectId();
 
@@ -116,36 +135,34 @@ function runIndexNodes (onError, onStep, onDone) {
           let itemUri = path.join(uri, item);
 
           // Check file or dir.
-          fs.stat(itemUri,
-            (err, itemStats) => {
-              if (err) {
-                errorFilesAndDir.push(itemUri);
-                console.error(err);
-                return next();
-              }
-
-              if (itemStats.isFile()) {
-                // Test type of file
-                // Test if authorized file.
-                if (!(regexSecure.test(item) && regexFile.test(item))) {
-                  return next();
-                }
-
-                files.push(itemUri);
-                return next();
-              } else if (itemStats.isDirectory()) {
-                read(itemUri, (err) => {
-                  if (err) {
-                    errorFilesAndDir.push(itemUri);
-                    console.error(err);
-                  }
-                  return next();
-                });
-              }
+          fs.stat(itemUri, (err, itemStats) => {
+            if (err) {
+              errorFilesAndDir.push(itemUri);
+              console.error(err);
+              return next();
             }
-          );
+
+            if (itemStats.isFile()) {
+              // Test type of file
+              // Test if authorized file.
+              if (!(regexSecure.test(item) && regexFile.test(item))) {
+                return next();
+              }
+
+              files.push(itemUri);
+              return next();
+            } else if (itemStats.isDirectory()) {
+              read(itemUri, err => {
+                if (err) {
+                  errorFilesAndDir.push(itemUri);
+                  console.error(err);
+                }
+                return next();
+              });
+            }
+          });
         },
-        (err) => {
+        err => {
           if (err) done(err);
           done();
         }
@@ -153,15 +170,14 @@ function runIndexNodes (onError, onStep, onDone) {
     });
   }
 
-
   // Find All meta of files and Save it in Mongo
   // Do that by bulk off 10 files
-  function findMetaAndSave (files, cbfindMetaAndSave) {
+  function findMetaAndSave(files, cbfindMetaAndSave) {
     // @todo let it here ? Closure memory problem vs cpu
     let tabOnWork;
 
     // Save dir in DB
-    function saveDirInDb (dirs, cb) {
+    function saveDirInDb(dirs, cb) {
       const dirsToSave = [];
       async.forEachOfSeries(
         dirs,
@@ -170,7 +186,7 @@ function runIndexNodes (onError, onStep, onDone) {
           const pathDir = ps.toPosixPath(path.relative(rootOK, key));
           dirsToSave.push({
             _id: dir,
-            name: (pathDir) ? dirInfo.base : 'root',
+            name: pathDir ? dirInfo.base : 'root',
             path: pathDir,
             uri: key,
             parent: dirs[dirInfo.dir],
@@ -178,12 +194,12 @@ function runIndexNodes (onError, onStep, onDone) {
           });
           nextDir();
         }),
-        (err) => {
+        err => {
           if (err) return cb(err);
-          exports.saveInDb(dirsToSave, (err) => {
+          exports.saveInDb(dirsToSave, err => {
             if (err) return cb(err);
             cb();
-          })
+          });
         }
       );
     }
@@ -191,7 +207,7 @@ function runIndexNodes (onError, onStep, onDone) {
     // Read all files in files var and find
     // Meta. When its finised call saveDirInDb for saving
     // Dir
-    function bulkTraitement () {
+    function bulkTraitement() {
       tabOnWork = splitTab(files, config.index.sizeChunkNode);
 
       async.map(
@@ -221,23 +237,21 @@ function runIndexNodes (onError, onStep, onDone) {
 
           console.log('End read bulk metaTag');
 
-          exports.saveInDb(res,
-            (err) => {
+          exports.saveInDb(res, err => {
+            if (err) return cbfindMetaAndSave(err);
+
+            console.log('End of writing bulk in Db');
+            console.log('Remaining files : ' + files.length);
+            console.log('-------------------------------------');
+            if (files.length) return bulkTraitement();
+
+            console.log('Starting of writing dir in Db');
+            saveDirInDb(dirs, err => {
               if (err) return cbfindMetaAndSave(err);
-
-              console.log('End of writing bulk in Db');
-              console.log('Remaining files : ' + files.length);
-              console.log('-------------------------------------');
-              if (files.length) return bulkTraitement();
-
-              console.log('Starting of writing dir in Db');
-              saveDirInDb(dirs, (err) => {
-                if (err) return cbfindMetaAndSave(err);
-                console.log('End of writing dir in Db');
-                cbfindMetaAndSave();
-              })
-            }
-          );
+              console.log('End of writing dir in Db');
+              cbfindMetaAndSave();
+            });
+          });
         }
       );
     }
@@ -245,12 +259,11 @@ function runIndexNodes (onError, onStep, onDone) {
     bulkTraitement();
   }
 
-
   /**
    * Fct Send res and log when indexation is finish
    * @param err
    */
-  function sendResult (err) {
+  function sendResult(err) {
     if (err) return onError(err);
     let end = clock(start);
     console.log('***********************');
@@ -261,9 +274,9 @@ function runIndexNodes (onError, onStep, onDone) {
 
     let lerr = errorFilesAndDir.length;
     let ierr = 0;
-    if (lerr > 0){
+    if (lerr > 0) {
       console.log(`Problem with (${lerr}) this files or dir :`);
-      for ( ; ierr < lerr ; ierr++){
+      for (; ierr < lerr; ierr++) {
         console.log(errorFilesAndDir[ierr]);
       }
     }
@@ -277,39 +290,36 @@ function runIndexNodes (onError, onStep, onDone) {
     });
   }
 
-
   /**
    * Start the indexation process
    */
-  (function init () {
+  (function init() {
     start = clock();
     console.log('***********************');
     console.log('Indexation started at : ' + start);
 
     // Remove all collection nodes
-    Node.collection.drop(
-      (err) => {
-        // @todo when collection doesn't exist it an error but i do nothing
-        // if (err) return err;
+    Node.collection.drop(err => {
+      // @todo when collection doesn't exist it an error but i do nothing
+      // if (err) return err;
 
-        console.log('Node collection drop');
+      console.log('Node collection drop');
 
-        // Read root dir and save nodes
-        read(rootOK, (err) => {
-          // @todo check this err
-          if (err) {
-            console.log(err);
-            let end = clock(start);
-            console.log('Indexation stoped with error at : ' + end.end);
-            console.log('***********************');
-            return onError(err);
-          }
-          nbFiles = files.length;
-          nbDirs = Object.keys(dirs).length;
-          findMetaAndSave(files, sendResult);
-        });
-      }
-    );
+      // Read root dir and save nodes
+      read(rootOK, err => {
+        // @todo check this err
+        if (err) {
+          console.log(err);
+          let end = clock(start);
+          console.log('Indexation stoped with error at : ' + end.end);
+          console.log('***********************');
+          return onError(err);
+        }
+        nbFiles = files.length;
+        nbDirs = Object.keys(dirs).length;
+        findMetaAndSave(files, sendResult);
+      });
+    });
   })();
 }
 
@@ -320,14 +330,14 @@ function runIndexNodes (onError, onStep, onDone) {
  * @param res
  * @param next
  */
-exports.update = function (req, res, next) {
+exports.update = function(req, res, next) {
   const node = req.fileNode;
   const parentId = node.parent;
   const newParentId = req.body.node.parent;
 
   // Object.assign(node, req.body.node);
 
-  node.save((err) => {
+  node.save(err => {
     if (err) {
       res.status(404);
       return errorHandler.errorMessageHandler(err, req, res, next);
@@ -336,38 +346,31 @@ exports.update = function (req, res, next) {
     // If node move, update parents.
     if (newParentId && parentId !== newParentId) {
       // Update old parent.
-      Node.update(
-        {_id: parentId},
-        {safe: true},
-        (err) => {
-          // If error on update, stop process.
-          if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+      Node.update({ _id: parentId }, { safe: true }, err => {
+        // If error on update, stop process.
+        if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-          // If update success, response with success.
-          res.json({
-            success: true,
-            msg: `Updated old parent Node ${parentId.name}`
-          });
+        // If update success, response with success.
+        res.json({
+          success: true,
+          msg: `Updated old parent Node ${parentId.name}`
         });
+      });
 
       // Update old parent.
-      Node.update(
-        {_id: newParentId},
-        {safe: true},
-        (err) => {
-          // If error on update, stop process.
-          if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+      Node.update({ _id: newParentId }, { safe: true }, err => {
+        // If error on update, stop process.
+        if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-          // If update success, response with success.
-          res.json({
-            success: true,
-            msg: `Updated current parent Node ${newParentId.name}`
-          });
+        // If update success, response with success.
+        res.json({
+          success: true,
+          msg: `Updated current parent Node ${newParentId.name}`
         });
+      });
     }
   });
 };
-
 
 /**
  * Delete deeply Node and his children on Nodes collection.
@@ -376,7 +379,7 @@ exports.update = function (req, res, next) {
  * @param res
  * @param next
  */
-exports.delete = function (req, res, next) {
+exports.delete = function(req, res, next) {
   const node = req.fileNode;
 
   // If node found, remove it.
@@ -385,25 +388,22 @@ exports.delete = function (req, res, next) {
     if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
     // If node removed, update parent Node.
-    Node.update(
-      {_id: node.parent},
-      {safe: true},
-      (err) => {
-        // If error on update, stop process.
-        if (err) return errorHandler.errorMessageHandler(err, req, res, next);
+    Node.update({ _id: node.parent }, { safe: true }, err => {
+      // If error on update, stop process.
+      if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-        console.log(`Parent node updated`);
+      console.log(`Parent node updated`);
 
-        // If update success, response with success.
-        res.json({
-          success: true,
-          msg: `Removed index ${data.name}`
-        });
+      // If update success, response with success.
+      res.json({
+        success: true,
+        msg: `Removed index ${data.name}`
       });
+    });
   });
 };
 
-const checkStringReturnArray = function (str) {
+const checkStringReturnArray = function(str) {
   if (typeof str === 'string' || str instanceof String) {
     if (str.length) return str.split(/\s*[,;\/]\s*/);
     return [];
@@ -414,15 +414,14 @@ const checkStringReturnArray = function (str) {
 };
 
 // @todo add check to prevent injection
-const cleanMeta = function (meta) {
+const cleanMeta = function(meta) {
   /// /// Definition
-  function removeInvalidMeta (meta) {
+  function removeInvalidMeta(meta) {
     let metaSchema = metaTag.metaSchema();
 
-    return Object
-      .keys(meta)
+    return Object.keys(meta)
       .filter(key => metaSchema[key] !== undefined)
-      .reduce((acc, key) => (acc[key] = meta[key], acc), {});
+      .reduce((acc, key) => ((acc[key] = meta[key]), acc), {});
   }
 
   /// ///////
@@ -430,10 +429,8 @@ const cleanMeta = function (meta) {
   let cleanMeta = removeInvalidMeta(meta);
   if (cleanMeta.genre) cleanMeta.genre = checkStringReturnArray(cleanMeta.genre);
 
-
   return cleanMeta;
 };
-
 
 /**
  * Add update meta of a Node to the taskManager
@@ -442,7 +439,7 @@ const cleanMeta = function (meta) {
  * @param res
  * @param next
  */
-exports.updateMeta = function (req, res, next) {
+exports.updateMeta = function(req, res, next) {
   // Create taskRunner instance.
   const runTask = taskRunner.create(req, res, next);
 
@@ -456,7 +453,6 @@ exports.updateMeta = function (req, res, next) {
   );
 };
 
-
 /**
  * Update a Node, and if needed, his parent.
  *
@@ -467,7 +463,7 @@ exports.updateMeta = function (req, res, next) {
  * @param opts
  */
 
-async function updateMetaWrap (onError, onStep, onDone, req, opts) {
+async function updateMetaWrap(onError, onStep, onDone, req, opts) {
   /// ///////////////////////////////////// Declaration
 
   opts = Object.assign(
@@ -486,19 +482,19 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
     opts.updateES = true;
   }
 
-  let msg = {error: '', msg: ''};
+  let msg = { error: '', msg: '' };
 
   const walkP = promisify(walk);
   const runElasticUpdatesP = promisify(runElasticUpdates);
 
   // Update Meta Node in memory
-  function updateInMemMeta (oldNodes, reqMeta, metaAction) {
+  function updateInMemMeta(oldNodes, reqMeta, metaAction) {
     let newNodes = cloneDeep(oldNodes);
 
     // Loop on every node & change theirs meta
     let tmp1, tmp2;
     for (let i = 0, l = newNodes.length; i < l; i++) {
-      Object.keys(reqMeta).forEach((key) => {
+      Object.keys(reqMeta).forEach(key => {
         // Flag Override
         if (metaAction[key] === 'override') {
           newNodes[i].meta[key] = reqMeta[key];
@@ -534,42 +530,38 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
   }
 
   // Update node in db
-  async function updateInDbMeta (nodes) {
+  async function updateInDbMeta(nodes) {
     // Initialise the bulk operations array
-    const bulkOps = nodes.map((node) => {
+    const bulkOps = nodes.map(node => {
       return {
-        'updateOne': {
-          'filter': {'_id': node._id},
-          'update': {'$set': {'meta': node.meta}}
+        updateOne: {
+          filter: { _id: node._id },
+          update: { $set: { meta: node.meta } }
         }
-      }
+      };
     });
 
     // Change Meta in Db (NB bulkWrite Return Promise
-    return Node.bulkWrite(bulkOps, {'ordered': true, w: 1});
+    return Node.bulkWrite(bulkOps, { ordered: true, w: 1 });
   }
 
   // Update meta data in file
-  async function updateMetaInFile (nodes) {
+  async function updateMetaInFile(nodes) {
     let filesErr = [];
 
     // Is working because this part is sync
     for (let i = 0, l = nodes.length; i < l; i++) {
-      metaTag.saveMeta(
-        nodes[i].uri,
-        nodes[i].meta,
-        (err) => {
-          if (err) filesErr.push(nodes[i].uri);
-        }
-      );
+      metaTag.saveMeta(nodes[i].uri, nodes[i].meta, err => {
+        if (err) filesErr.push(nodes[i].uri);
+      });
     }
 
-    return {nodes: nodes, filesErr: filesErr}
+    return { nodes: nodes, filesErr: filesErr };
   }
 
-
-  async function initAndCheck (req) {
-    if (!req.fileNode && req.fileNode.collection.name !== 'nodes') throw new Error('Can\'t find node.');
+  async function initAndCheck(req) {
+    if (!req.fileNode && req.fileNode.collection.name !== 'nodes')
+      throw new Error("Can't find node.");
 
     if (!req.body.meta) throw new Error('No meta in request.');
 
@@ -577,7 +569,7 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
 
     // Check if action is need
     let somethingToDo = false;
-    Object.keys(req.body.metaAction).forEach((key) => {
+    Object.keys(req.body.metaAction).forEach(key => {
       if (req.body.metaAction[key] !== 'donothing') somethingToDo = true;
     });
 
@@ -600,10 +592,10 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
       oldNodes: nodes,
       reqMeta: reqMetaClean, // New meta from the request
       metaAction: req.body.metaAction // Action to do in each meta field
-    }
+    };
   }
 
-  function checkDiffOldAndNewNodes (oldNodes, newNodes) {
+  function checkDiffOldAndNewNodes(oldNodes, newNodes) {
     let change;
 
     for (let i = 0, l = oldNodes.length; i < l; i++) {
@@ -614,9 +606,8 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
 
   /// ///////////////////////////////////// END Declaration
 
-
   try {
-    let {oldNodes, reqMeta, metaAction} = await initAndCheck(req);
+    let { oldNodes, reqMeta, metaAction } = await initAndCheck(req);
 
     // Update nodes meta in memory
     let newNodes = updateInMemMeta(oldNodes, reqMeta, metaAction);
@@ -650,7 +641,7 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
     // Update meta in files
     if (opts.updateFiles) {
       console.log('Start Update Files for meta');
-      let {filesErr} = await updateMetaInFile(newNodes);
+      let { filesErr } = await updateMetaInFile(newNodes);
       console.log('END Update Files for meta');
       // Put message in taskmanager
       if (filesErr.length > 0) {
@@ -659,7 +650,9 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
         msg.errorFilesNb = filesErr.length;
         onStep(msg);
       } else {
-        msg.msg = `Succefully write meta tag to all files (${Object.keys(newNodes).length}).`;
+        msg.msg = `Succefully write meta tag to all files (${
+          Object.keys(newNodes).length
+        }).`;
         onStep(msg);
       }
     }
@@ -673,7 +666,7 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
     console.log(e);
 
     // Put message in taskmanager
-    msg = {msg: e.msg, error: e};
+    msg = { msg: e.msg, error: e };
     onError(JSON.stringify(msg));
   }
 }
@@ -684,7 +677,7 @@ async function updateMetaWrap (onError, onStep, onDone, req, opts) {
  * @param res
  * @param next
  */
-exports.openNode = function (req, res, next) {
+exports.openNode = function(req, res, next) {
   const node = req.fileNode;
 
   getChildrenNodes(node._id, (err, nodes) => {
@@ -705,8 +698,8 @@ exports.openNode = function (req, res, next) {
   });
 };
 
-function getChildrenNodes (parentId, callback) {
-  Node.find({parent: parentId})
+function getChildrenNodes(parentId, callback) {
+  Node.find({ parent: parentId })
     .lean()
     .exec((err, nodes) => {
       if (err) {
@@ -725,7 +718,7 @@ function getChildrenNodes (parentId, callback) {
  * @param res
  * @param next
  */
-exports.getFilesNode = function (req, res, next) {
+exports.getFilesNode = function(req, res, next) {
   const node = req.fileNode;
 
   walk(node, (err, files) => {
@@ -735,22 +728,19 @@ exports.getFilesNode = function (req, res, next) {
       count: files.length,
       msg: files
     });
-  })
+  });
 };
 
-exports.getNodeFromPath = function (path, cb) {
-  Node
-    .findOne({path: `${ps.cleanPath(path)}`})
+exports.getNodeFromPath = function(path, cb) {
+  Node.findOne({ path: `${ps.cleanPath(path)}` })
     .lean()
     .exec((err, node) => {
       if (err) return cb(err);
       cb(null, node);
-    })
-  ;
+    });
 };
 
-
-exports.getNodeFromQuery = function (req, res, next) {
+exports.getNodeFromQuery = function(req, res, next) {
   let NOT_SECURE_STRING = '';
   let queryString = '';
   let query;
@@ -760,7 +750,7 @@ exports.getNodeFromQuery = function (req, res, next) {
   if (req.query.path !== undefined) {
     NOT_SECURE_STRING = req.query.path;
     queryString = `${ps.cleanPath(NOT_SECURE_STRING)}`;
-    query = Node.findOne({path: queryString});
+    query = Node.findOne({ path: queryString });
   }
 
   // If query Node file by id.
@@ -776,29 +766,7 @@ exports.getNodeFromQuery = function (req, res, next) {
   }
 
   // Exec query.
-  query
-    .lean()
-    .exec((err, node) => {
-      if (err) {
-        return next(err);
-      }
-
-      // If params not match on Node folder, stop process.
-      if (!node) {
-        res.status(404);
-        return res.json({
-          success: false,
-          msg: `File not found.`
-        });
-      }
-
-      req.fileNode = node;
-      next();
-    });
-};
-
-exports.getNodeById = function (req, res, next, id) {
-  Node.findById(id).exec(function (err, node) {
+  query.lean().exec((err, node) => {
     if (err) {
       return next(err);
     }
@@ -817,12 +785,32 @@ exports.getNodeById = function (req, res, next, id) {
   });
 };
 
-const walk = function (node, done) {
+exports.getNodeById = function(req, res, next, id) {
+  Node.findById(id).exec(function(err, node) {
+    if (err) {
+      return next(err);
+    }
+
+    // If params not match on Node folder, stop process.
+    if (!node) {
+      res.status(404);
+      return res.json({
+        success: false,
+        msg: `File not found.`
+      });
+    }
+
+    req.fileNode = node;
+    next();
+  });
+};
+
+const walk = function(node, done) {
   let files = [];
 
   nodeSearch(null, node);
 
-  function nodeSearch (err, node) {
+  function nodeSearch(err, node) {
     if (err) return done(err);
 
     if (!node.isFile) {
@@ -844,9 +832,7 @@ const walk = function (node, done) {
           }
         );
       });
-    }
-
-    else {
+    } else {
       files.push(node);
       done(null, files);
     }

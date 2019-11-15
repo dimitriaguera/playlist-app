@@ -10,11 +10,10 @@ try {
   sharp = require('sharp');
   console.log('Image Tools : sharp');
 
-
-  exports.saveToJpeg = function (input, output, cb) {
+  exports.saveToJpeg = function(input, output, cb) {
     sharp(input)
       // .resize(width, height)
-      .jpeg({quality: 60})
+      .jpeg({ quality: 60 })
       .toFile(output, cb);
   };
 } catch (e) {
@@ -23,17 +22,17 @@ try {
     jimp = require('jimp');
     console.log('Image Tools : jimp');
 
-    exports.saveToJpeg = function (input, output, cb) {
-      jimp.read(input, function (err, pict) {
+    exports.saveToJpeg = function(input, output, cb) {
+      jimp.read(input, function(err, pict) {
         if (err) return cb(err);
         pict
-        // .resize(256, 256)            // resize
+          // .resize(256, 256)            // resize
           .quality(60) // set JPEG quality
-        // .greyscale()                 // set greyscale
+          // .greyscale()                 // set greyscale
           .write(output, (err, data) => {
             if (err) return cb(err);
             data.bitmap.data = null;
-            cb(null, data)
+            cb(null, data);
           }); // save
       });
     };

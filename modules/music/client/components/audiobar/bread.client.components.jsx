@@ -1,22 +1,20 @@
-import React, { Component } from 'react'
-import ps from 'core/client/services/core.path.services'
-import config from 'env/config.client'
-import { Link } from 'react-router-dom'
-
-
+import React, { Component } from 'react';
+import ps from 'core/client/services/core.path.services';
+import config from 'env/config.client';
+import { Link } from 'react-router-dom';
 
 class Bread extends Component {
-  shouldComponentUpdate (nextProps) {
+  shouldComponentUpdate(nextProps) {
     const { onPlay, isOpen } = nextProps;
-    return (onPlay !== this.props.onPlay || isOpen !== this.props.isOpen);
+    return onPlay !== this.props.onPlay || isOpen !== this.props.isOpen;
   }
 
-  splitStr (str) {
+  splitStr(str) {
     let path = '';
 
     return ps.splitPath(str).map((shard, i, array) => {
       // If last part of path, no path needed.
-      if (i === array.length - 1) return {content: shard};
+      if (i === array.length - 1) return { content: shard };
 
       // Build path.
       path = i ? `${path}/${shard}` : shard;
@@ -25,11 +23,11 @@ class Bread extends Component {
       return {
         content: shard,
         path: path
-      }
+      };
     });
   }
 
-  render () {
+  render() {
     const { onPlay, isOpen } = this.props;
     const items = this.splitStr(onPlay.path);
 
@@ -39,15 +37,21 @@ class Bread extends Component {
     }
 
     const bread = items.map((item, i) => {
-
       if (item.path) {
         return (
-          <li key={i+1} className='meta-track-bread-li' style={{'cursor': 'pointer'}}>
-            <Link title='Go to the folder' className='meta-track-bread-link' to={`/music/${item.path}`}>
-              <i aria-hidden="true" className='icon icon-folder'/>
+          <li
+            key={i + 1}
+            className="meta-track-bread-li"
+            style={{ cursor: 'pointer' }}
+          >
+            <Link
+              title="Go to the folder"
+              className="meta-track-bread-link"
+              to={`/music/${item.path}`}
+            >
+              <i aria-hidden="true" className="icon icon-folder" />
               {item.content}
             </Link>
-
           </li>
         );
       }
@@ -55,9 +59,9 @@ class Bread extends Component {
       const name = item.content.replace(config.fileSystem.fileAudioTypes, '');
 
       return (
-        <li key={i+1} title='Playing song' className='meta-track-bread-li'>
-          <span className='meta-track-bread-play'>
-            <i aria-hidden="true" className='icon icon-music'/>
+        <li key={i + 1} title="Playing song" className="meta-track-bread-li">
+          <span className="meta-track-bread-play">
+            <i aria-hidden="true" className="icon icon-music" />
             {name}
           </span>
         </li>
@@ -92,15 +96,21 @@ class Bread extends Component {
 
     return (
       <div className={classes.join(' ')}>
-        <ul className='unstyled'>
-            <li key='0' className="meta-track-bread-li">
-              <Link className="meta-track-bread-link" title='Go to home' to={`/music/`}><i aria-hidden="true" className='icon icon-home'/></Link>
-            </li>
+        <ul className="unstyled">
+          <li key="0" className="meta-track-bread-li">
+            <Link
+              className="meta-track-bread-link"
+              title="Go to home"
+              to={`/music/`}
+            >
+              <i aria-hidden="true" className="icon icon-home" />
+            </Link>
+          </li>
           {bread}
         </ul>
       </div>
     );
-  };
+  }
 }
 
-export default Bread
+export default Bread;

@@ -124,10 +124,10 @@ ul {
 $i: 100;
 
 @while $i > 0 {
-    .w#{$i} {
-      width: $i * 1%;
-    }
-    $i: $i - 5;
+  .w#{$i} {
+    width: $i * 1%;
+  }
+  $i: $i - 5;
 }
 .w66 {
   width: calc(100% / 3 * 2);
@@ -159,10 +159,10 @@ $i: 1000;
 }
 
 @while $i > 0 {
-    .w#{$i}p {
-      width: $i * 1px;
-    }
-    $i: $i - 50;
+  .w#{$i}p {
+    width: $i * 1px;
+  }
+  $i: $i - 50;
 }
 
 /* Spacing Helpers */

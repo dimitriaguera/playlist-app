@@ -4,17 +4,16 @@
  * and set store to authenticated.
  */
 
-import React, { Component } from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
+import React, { Component } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { Loader } from 'semantic-ui-react'
-import bootstrap from '../redux/bootstrap'
+import { Loader } from 'semantic-ui-react';
+import bootstrap from '../redux/bootstrap';
 import App from './App';
 
 class Boot extends Component {
-
-  constructor () {
+  constructor() {
     super();
 
     // Application's tags
@@ -25,17 +24,15 @@ class Boot extends Component {
     );
 
     // Loader's tags
-    this.onBoot = (
-      <Loader active />
-    );
+    this.onBoot = <Loader active />;
   }
 
   // Start boot process.
-  componentWillMount () {
+  componentWillMount() {
     bootstrap();
   }
 
-  render () {
+  render() {
     // If boot session end, call App.
     // Else, call Loader.
     if (this.props.isBooted) {
@@ -43,14 +40,13 @@ class Boot extends Component {
     } else {
       return this.onBoot;
     }
-
   }
 }
 
 const mapStateToProps = state => {
   return {
     isBooted: state.bootStore.isBooted
-  }
+  };
 };
 
 export default connect(mapStateToProps)(Boot);

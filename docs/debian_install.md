@@ -1,6 +1,5 @@
 # Install instruction for Ubuntu/Debian
 
-
 First you need to clone the projet :
 
 ```
@@ -8,7 +7,6 @@ cd ~
 git clone https://github.com/dimitriaguera/playlist-app.git playlistapp
 cd playlistapp
 ```
-
 
 ## With install script
 
@@ -20,7 +18,7 @@ chmod u+x installDebian
 ./installDebian
 ```
 
-## Manually 
+## Manually
 
 ### Update your linux
 
@@ -68,6 +66,7 @@ sudo apt install mongodb
 ```
 
 Once MongoDB is installed, you will need to start and stop MongoDB, verifying that it functions correctly:
+
 ```
 sudo systemctl start mongodb
 sudo systemctl status mongodb
@@ -75,6 +74,7 @@ sudo systemctl stop mongodb
 ```
 
 To configure mongodb to start automatically when the system boots up, run the following commands:
+
 ```
 sudo systemctl daemon-reload
 sudo systemctl enable mongodb
@@ -108,7 +108,6 @@ sudo systemctl status elasticsearch
 sudo systemctl enable elasticsearch
 ```
 
-
 ### Installing playlistApp
 
 ```
@@ -129,7 +128,7 @@ To install them :
 
 ```
 npm install bcrypt sharp taglib2
-```  
+```
 
 #### Configuration
 
@@ -145,13 +144,13 @@ Now check the config.private.js and see comments for changing it.
 
 #### Build the app
 
-Make sure you have installed the devDependencies. If not run 
+Make sure you have installed the devDependencies. If not run
 
 ```
-npm install 
+npm install
 ```
 
-Then 
+Then
 
 ```
 npm run build-prod
@@ -159,7 +158,7 @@ npm run build-prod
 
 After that you must have a `public/dist` directory.
 
-When you look at webpack build message if you have 
+When you look at webpack build message if you have
 
 ```
 ERROR in ./theme/assets/images/default_pl_1.jpg
@@ -193,7 +192,7 @@ npm run start-prod
 
 #### Build the music database
 
-For Mongodb  :
+For Mongodb :
 
 ```
 curl -X POST http://localhost:8080/api/nodes/build
@@ -213,7 +212,7 @@ curl -X POST http://localhost:8080/api/files/cover/all
 
 #### Trying the app
 
-Now open a browser and go to 
+Now open a browser and go to
 
 ```
 npm run start-prod

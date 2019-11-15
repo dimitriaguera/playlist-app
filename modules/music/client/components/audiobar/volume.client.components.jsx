@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
 class RangeVolume extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -20,18 +20,16 @@ class RangeVolume extends Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const { audioEl } = this.props;
 
     // Get volume and init volumeBar
     audioEl.volume = 0.5;
 
-    this.setState(
-      {
-        volume: audioEl.volume,
-        position: audioEl.volume * 100
-      }
-    );
+    this.setState({
+      volume: audioEl.volume,
+      position: audioEl.volume * 100
+    });
 
     // Apply windows touch/mouse control listeners.
     //@todo why ?
@@ -41,7 +39,7 @@ class RangeVolume extends Component {
     window.addEventListener('mouseup', this.handleMouseUp);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     // Clear listeners.
     //@todo why ?
     window.removeEventListener('touchmove', this.handleTouchMove, false);
@@ -51,18 +49,18 @@ class RangeVolume extends Component {
   }
 
   // Touch start handler.
-  handleTouchStart (e) {
+  handleTouchStart(e) {
     this.handleMouseDown(e.touches[0]);
   }
 
   // Touch move handler.
-  handleTouchMove (e) {
+  handleTouchMove(e) {
     e.preventDefault();
     this.handleMouseMove(e.touches[0]);
   }
 
   // Handler mouse down.
-  handleMouseDown ({ pageX }) {
+  handleMouseDown({ pageX }) {
     const box = this.bar.getBoundingClientRect();
     const elementX = box.left;
     const elementW = box.width;
@@ -76,7 +74,7 @@ class RangeVolume extends Component {
   }
 
   // Handler mouse move.
-  handleMouseMove ({ pageX }) {
+  handleMouseMove({ pageX }) {
     if (this.state.isPressed) {
       const audio = this.props.audioEl;
 
@@ -94,13 +92,13 @@ class RangeVolume extends Component {
   }
 
   // Handler mouse up.
-  handleMouseUp () {
+  handleMouseUp() {
     const { position, isPressed } = this.state;
     const audio = this.props.audioEl;
 
     if (!isPressed) return;
 
-    audio.volume = (position / 100);
+    audio.volume = position / 100;
 
     this.setState({
       isPressed: false,
@@ -113,25 +111,21 @@ class RangeVolume extends Component {
     const audio = this.props.audioEl;
 
     if (volume === 0) {
-
       audio.volume = 1;
       this.setState({
-        volume : 1,
+        volume: 1,
         position: 100
       });
-
     } else {
-
       audio.volume = 0;
       this.setState({
-        volume : 0,
+        volume: 0,
         position: 0
       });
-
     }
   }
 
-  render () {
+  render() {
     const { position, isPressed } = this.state;
     const classes = ['pr-control-element pr-control-vol'];
 
@@ -139,36 +133,38 @@ class RangeVolume extends Component {
 
     let iconVol;
     if (position === 0) {
-      iconVol = 'icon-volume-x'
+      iconVol = 'icon-volume-x';
     } else if (position < 50) {
-      iconVol = 'icon-volume-1'
+      iconVol = 'icon-volume-1';
     } else {
-      iconVol = 'icon-volume-2'
+      iconVol = 'icon-volume-2';
     }
 
     return (
       <div className={classes.join(' ')}>
-
         <button aria-label="Mute or unmute" onClick={this.handleVolClick}>
-          <i aria-hidden="true" className={`icon ${iconVol}`}/>
+          <i aria-hidden="true" className={`icon ${iconVol}`} />
         </button>
 
-        <div className='pr-control-bar'
-             onMouseDown={this.handleMouseDown}
-             onTouchStart={this.handleTouchStart}
-             ref={(bar) => { this.bar = bar; }}
+        <div
+          className="pr-control-bar"
+          onMouseDown={this.handleMouseDown}
+          onTouchStart={this.handleTouchStart}
+          ref={bar => {
+            this.bar = bar;
+          }}
         >
-          <div className='pr-bar pr-bar-line' />
-          <div className='pr-bar pr-bar-played' style={{width: `${position}%`}} />
-          <div className='pr-bar-handler' style={{left: `${position}%`}} />
+          <div className="pr-bar pr-bar-line" />
+          <div className="pr-bar pr-bar-played" style={{ width: `${position}%` }} />
+          <div className="pr-bar-handler" style={{ left: `${position}%` }} />
         </div>
       </div>
     );
   }
 }
 
-function clamp (n, min, max) {
+function clamp(n, min, max) {
   return Math.max(Math.min(n, max), min);
 }
 
-export default RangeVolume
+export default RangeVolume;

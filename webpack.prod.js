@@ -13,7 +13,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const merge = require('webpack-merge');
 const common = require('./webpack.default.js');
 
-
 module.exports = merge(common, {
   output: {
     path: path.resolve('public/dist'),
@@ -26,10 +25,7 @@ module.exports = merge(common, {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          use: [
-            {loader: 'css-loader'},
-            {loader: 'postcss-loader'}
-          ]
+          use: [{ loader: 'css-loader' }, { loader: 'postcss-loader' }]
         })
       },
       {
@@ -37,23 +33,23 @@ module.exports = merge(common, {
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [
-            {loader: 'css-loader'},
-            {loader: 'postcss-loader'},
-            {loader: 'sass-loader'}
+            { loader: 'css-loader' },
+            { loader: 'postcss-loader' },
+            { loader: 'sass-loader' }
           ]
         })
       }
     ]
-
   },
   plugins: [
     new CleanWebpackPlugin(['public/dist']),
     new webpack.DefinePlugin({
       'process.env': {
-        'NODE_ENV': JSON.stringify('production')
+        NODE_ENV: JSON.stringify('production')
       }
     }),
-    new ExtractTextPlugin({ // define where to save the file
+    new ExtractTextPlugin({
+      // define where to save the file
       filename: '[hash].[name].bundle.css',
       allChunks: true
     }),

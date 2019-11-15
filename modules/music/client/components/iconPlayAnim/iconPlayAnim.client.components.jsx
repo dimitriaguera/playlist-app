@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import {connect} from 'react-redux';
-import { pauseState, playState } from 'music/client/redux/actions'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { pauseState, playState } from 'music/client/redux/actions';
 
 class IconPlayAnim extends Component {
-  clickHandler (e) {
+  clickHandler(e) {
     const { pause, onPause, onPlay } = this.props;
     if (pause) {
       onPlay();
@@ -13,14 +13,18 @@ class IconPlayAnim extends Component {
     e.stopPropagation();
   }
 
-  render () {
+  render() {
     const { pause, wrapperStyle = {}, iconStyle = {} } = this.props;
     const classes = ['icon-play-anim'];
 
     if (pause) classes.push('pause');
 
     return (
-      <span className='icon icon-play-anim-container' style={wrapperStyle} onClick={e => this.clickHandler(e)}>
+      <span
+        className="icon icon-play-anim-container"
+        style={wrapperStyle}
+        onClick={e => this.clickHandler(e)}
+      >
         <span style={iconStyle} className={classes.join(' ')}>
           <span />
           <span />
@@ -35,18 +39,14 @@ class IconPlayAnim extends Component {
 const mapStateToProps = state => {
   return {
     pause: state.playlistStore.pause
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onPause: () => dispatch(
-      pauseState()
-    ),
-    onPlay: () => dispatch(
-      playState()
-    )
-  }
+    onPause: () => dispatch(pauseState()),
+    onPlay: () => dispatch(playState())
+  };
 };
 
 const IconPlayAnimContainer = connect(
@@ -54,4 +54,4 @@ const IconPlayAnimContainer = connect(
   mapDispatchToProps
 )(IconPlayAnim);
 
-export default IconPlayAnimContainer
+export default IconPlayAnimContainer;

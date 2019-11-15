@@ -7,30 +7,27 @@
  *
  */
 
-module.exports.logsError = function (err, req, res, next) {
+module.exports.logsError = function(err, req, res, next) {
   console.error(err.stack);
   if (next) {
     next(err);
   }
 };
 
-module.exports.xhrErrorHandler = function (err, req, res, next) {
+module.exports.xhrErrorHandler = function(err, req, res, next) {
   // By default, if xhr client request and no error handler on modules controller.
   if (req.xhr && !res.headersSent) {
     console.log('XHRRRRRRRRR', res.statusCode);
-    res
-      .status(setDefaultStatus(res.statusCode, 500))
-      .json({
-        success: false,
-        msg: 'Something failed !'
-      });
-  }
-  else {
+    res.status(setDefaultStatus(res.statusCode, 500)).json({
+      success: false,
+      msg: 'Something failed !'
+    });
+  } else {
     next(err);
   }
 };
 
-module.exports.defaultErrorHandler = function (err, req, res, next) {
+module.exports.defaultErrorHandler = function(err, req, res, next) {
   // If Header sent, let Express manage error, stop flux and cut connexion.
   if (res.headersSent) {
     console.log('EXPRESS', res.statusCode);
@@ -56,7 +53,7 @@ module.exports.defaultErrorHandler = function (err, req, res, next) {
  * @param next
  * @param msg
  */
-module.exports.errorMessageHandler = function (err, req, res, next, msg) {
+module.exports.errorMessageHandler = function(err, req, res, next, msg) {
   const e = err || {};
 
   // Log error.
@@ -68,16 +65,13 @@ module.exports.errorMessageHandler = function (err, req, res, next, msg) {
   }
 
   // Response.
-  return res
-    .status(setDefaultStatus(res.statusCode, 500, e))
-    .json({
-      success: false,
-      msg: msg || e.message || e.name || e.code
-    });
+  return res.status(setDefaultStatus(res.statusCode, 500, e)).json({
+    success: false,
+    msg: msg || e.message || e.name || e.code
+  });
 };
 
-
 //  HELPER
-function setDefaultStatus (code, def, err) {
-  return (!code || code === 200) ? def : code;
+function setDefaultStatus(code, def, err) {
+  return !code || code === 200 ? def : code;
 }

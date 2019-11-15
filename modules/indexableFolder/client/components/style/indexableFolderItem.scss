@@ -11,7 +11,7 @@ $color-icon-fol-item-hover: $color-primary-hover;
   //background: $color-bg-fol-item;
   border-bottom: 1px solid $gray-ghost;
   display: grid;
-  grid-template-areas: "icon title" "menu menu";
+  grid-template-areas: 'icon title' 'menu menu';
   grid-template-columns: auto 1fr;
   grid-template-rows: minmax(50px, 1fr);
   align-items: center;
@@ -26,7 +26,6 @@ $color-icon-fol-item-hover: $color-primary-hover;
     transform: scale3d(1.02, 1.02, 1);
 
     .fol-item-ico-wrap {
-
       & > .fol-item-icon {
         color: $color-icon-fol-item-hover;
       }
@@ -46,7 +45,6 @@ $color-icon-fol-item-hover: $color-primary-hover;
       & > .icon-pause-anim {
         opacity: 1;
       }
-
     }
 
     & > .fol-item-menu > .btn {
@@ -73,7 +71,6 @@ $color-icon-fol-item-hover: $color-primary-hover;
     position: absolute;
     opacity: 0;
   }
-
 }
 
 .fol-item-title {
@@ -96,9 +93,9 @@ $color-icon-fol-item-hover: $color-primary-hover;
   }
 }
 
-@include respond-to("small-up") {
+@include respond-to('small-up') {
   .fol-item {
-    grid-template-areas: "icon title menu";
+    grid-template-areas: 'icon title menu';
     grid-template-columns: auto 1fr auto;
   }
 }

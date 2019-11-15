@@ -10,8 +10,6 @@ const mongoose = require('mongoose');
 // const config = require(path.resolve('./config/env/config'));
 const express = require(path.resolve('./config/init-app'));
 
-
-
 /**
  * Globals
  */
@@ -21,14 +19,12 @@ let agent;
 let credentials;
 let user;
 
-
-
 /**
  * User routes tests
  */
 
-describe('User API Routes tests', function () {
-  before(function (done) {
+describe('User API Routes tests', function() {
+  before(function(done) {
     // Get application
     app = require('../config/init-app');
     server = app.startApp();
@@ -38,22 +34,23 @@ describe('User API Routes tests', function () {
   });
 
   /**
-     * Login route
-     * POST /api/login
-     *
-     */
+   * Login route
+   * POST /api/login
+   *
+   */
 
   user = {
     username: 'admin',
     password: 'adminpwd'
   };
 
-  describe('POST /api/login', function () {
-    it('should be able to login with username successfully and respond with json', function (done) {
-      agent.post('/api/login')
+  describe('POST /api/login', function() {
+    it('should be able to login with username successfully and respond with json', function(done) {
+      agent
+        .post('/api/login')
         .send(user)
         .expect(200)
-        .end(function (err, res) {
+        .end(function(err, res) {
           if (err) return done(err);
 
           res.body.success.should.equals(true);

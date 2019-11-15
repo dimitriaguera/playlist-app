@@ -5,7 +5,6 @@ $ab-coll1-w-portable: 2rem;
 $ab-coll2-w-portable: 100%;
 $ab-coll3-w-portable: 5rem;
 
-
 $ab-coll1-w: 35rem;
 $ab-coll3-w: 15.5rem;
 
@@ -48,7 +47,6 @@ $ab-coll3-w: 15.5rem;
   right: 1rem;
   z-index: 2;
 }
-
 
 @include respond-to('medium-up') {
   .audioBar {

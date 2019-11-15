@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { get } from 'core/client/services/core.api.services'
-import Rx from 'rx'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { get } from 'core/client/services/core.api.services';
+import Rx from 'rx';
 
 class SearchFolderBar extends Component {
-  constructor () {
+  constructor() {
     super();
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleTrackOnly = this.handleTrackOnly.bind(this);
@@ -14,10 +14,10 @@ class SearchFolderBar extends Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const _self = this;
 
-    const searchApi = (term) => {
+    const searchApi = term => {
       return _self.props.search(`${term}&ot=${_self.state.check1}`);
     };
 
@@ -31,17 +31,18 @@ class SearchFolderBar extends Component {
 
     obs.subscribe(
       data => {
-        const nodes = data.map((item) => item._source);
+        const nodes = data.map(item => item._source);
         _self.props.handlerResult(nodes);
       },
 
       error => {
-        _self.setState({error: error});
-      });
+        _self.setState({ error: error });
+      }
+    );
   }
 
   // Make Form input controlled.
-  handleInputChange (e) {
+  handleInputChange(e) {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
@@ -52,29 +53,41 @@ class SearchFolderBar extends Component {
   }
 
   // Check tracks only change.
-  handleTrackOnly (e) {
+  handleTrackOnly(e) {
     this.handleInputChange(e);
 
     const { inputText } = this.state;
     const value = e.target.checked;
     const _self = this;
 
-    this.props.search(`${inputText}&ot=${value}`)
-      .then((data) => {
-        if (data.success) {
-          const nodes = data.msg.hits.hits.map((item) => item._source);
-          _self.props.handlerResult(nodes);
-        }
-      });
+    this.props.search(`${inputText}&ot=${value}`).then(data => {
+      if (data.success) {
+        const nodes = data.msg.hits.hits.map(item => item._source);
+        _self.props.handlerResult(nodes);
+      }
+    });
   }
 
-
-  render () {
+  render() {
     return (
-      <div style={this.props.style} className='search-bar'>
-        <input ref={(element) => this.inputText = element} onChange={this.handleInputChange} type='text' name='inputText' placeholder='Search...' className='search-input' />
-        <label htmlFor='check1'>Tracks only</label>
-        <input ref={(element) => this.check1 = element} onChange={this.handleTrackOnly} type='checkbox' name='check1' id='check1' className='search-checkbox' />
+      <div style={this.props.style} className="search-bar">
+        <input
+          ref={element => (this.inputText = element)}
+          onChange={this.handleInputChange}
+          type="text"
+          name="inputText"
+          placeholder="Search..."
+          className="search-input"
+        />
+        <label htmlFor="check1">Tracks only</label>
+        <input
+          ref={element => (this.check1 = element)}
+          onChange={this.handleTrackOnly}
+          type="checkbox"
+          name="check1"
+          id="check1"
+          className="search-checkbox"
+        />
       </div>
     );
   }
@@ -82,16 +95,10 @@ class SearchFolderBar extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    search: (term) => dispatch(
-      get(`search/album?search=${term}`)
-    )
-  }
+    search: term => dispatch(get(`search/album?search=${term}`))
+  };
 };
 
-const SearchFolderBarContainer = connect(
-  null,
-  mapDispatchToProps
-)(SearchFolderBar);
+const SearchFolderBarContainer = connect(null, mapDispatchToProps)(SearchFolderBar);
 
 export default SearchFolderBarContainer;
-

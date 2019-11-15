@@ -1,32 +1,32 @@
 /**
  * Created by Dimitri on 22/10/2017.
  */
-import React, { Component } from 'react'
-import {Motion, spring} from 'react-motion'
+import React, { Component } from 'react';
+import { Motion, spring } from 'react-motion';
 
-const springConfig = {stiffness: 300, damping: 50};
+const springConfig = { stiffness: 300, damping: 50 };
 
 class TransitionList extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.handleOnScroll = this.handleOnScroll.bind(this);
 
     this.state = {
-      range_array: getDisplayedItems(props.items, (props.height || 70)),
+      range_array: getDisplayedItems(props.items, props.height || 70),
       h: props.height || 70,
       containerHeight: `${props.items.length * (props.height || 70)}px`
-    }
+    };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     window.addEventListener('scroll', this.handleOnScroll);
-  };
+  }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     window.removeEventListener('scroll', this.handleOnScroll, false);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const { items } = nextProps;
 
     if (items !== this.props.items) {
@@ -37,7 +37,7 @@ class TransitionList extends Component {
     }
   }
 
-  handleOnScroll () {
+  handleOnScroll() {
     const { h } = this.state;
     const { items } = this.props;
 
@@ -46,7 +46,7 @@ class TransitionList extends Component {
     });
   }
 
-  render () {
+  render() {
     const { h, range_array, containerHeight } = this.state;
     const { component: Component, color, items, ...props } = this.props;
     const classes = ['tl', 'tl-container'];
@@ -56,7 +56,7 @@ class TransitionList extends Component {
     if (color) classes.push(color);
 
     return (
-      <div className={classes.join(' ')} style={{minHeight: containerHeight}}>
+      <div className={classes.join(' ')} style={{ minHeight: containerHeight }}>
         {range.map((item, i) => {
           let realIndex = i + range_array[0];
           let id = item._id || `item.name${realIndex}`;
@@ -68,40 +68,43 @@ class TransitionList extends Component {
           };
 
           return (
-            <Motion style={style}
+            <Motion
+              style={style}
               defaultStyle={{
                 opacity: 0,
                 y: realIndex * h
               }}
-              key={id}>
-              {({y, opacity}) => {
+              key={id}
+            >
+              {({ y, opacity }) => {
                 return (
-                  <div className={classes.join(' ')}
+                  <div
+                    className={classes.join(' ')}
                     style={{
                       opacity: `${opacity}`,
                       transform: `translate3d(0, ${y}px, 0)`,
                       WebkitTransform: `translate3d(0, ${y}px, 0)`,
                       height: `${h}px`
-                    }}>
+                    }}
+                  >
                     <Component item={item} index={realIndex} {...props} />
                   </div>
-                ) }
-              }
+                );
+              }}
             </Motion>
-          )
-        })
-        }
+          );
+        })}
       </div>
     );
   }
 }
 
 // HELPER
-function clamp (n, min, max) {
+function clamp(n, min, max) {
   return Math.max(Math.min(n, max), min);
 }
 
-function getDisplayedItems (arr, h) {
+function getDisplayedItems(arr, h) {
   const y = window.scrollY;
   const w = window.innerHeight;
 
@@ -110,8 +113,7 @@ function getDisplayedItems (arr, h) {
   const indexStart = clamp(Math.round((y - delta) / h), 0, arr.length);
   const indexEnd = clamp(Math.round((y + w + delta) / h), 0, arr.length);
 
-  return [ indexStart, indexEnd ];
+  return [indexStart, indexEnd];
 }
 
-
-export default TransitionList
+export default TransitionList;

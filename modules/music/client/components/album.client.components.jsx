@@ -1,26 +1,26 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { get, post } from 'core/client/services/core.api.services'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { get, post } from 'core/client/services/core.api.services';
 import {
   addAlbumToPlay,
   playOnAlbum,
   updateAlbumToPlay,
   pauseState,
   playState
-} from 'music/client/redux/actions'
-import AlbumTrack from 'music/client/components/tracks/albumTrack.client.components'
-import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
+} from 'music/client/redux/actions';
+import AlbumTrack from 'music/client/components/tracks/albumTrack.client.components';
+import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components';
 
 import Modal from 'react-modal';
-import ps from 'core/client/services/core.path.services'
-import InfoPanel from './infoPanel/infoPanel.client.components'
+import ps from 'core/client/services/core.path.services';
+import InfoPanel from './infoPanel/infoPanel.client.components';
 
-import DraggableList from 'draggable/client/components/draggableList'
+import DraggableList from 'draggable/client/components/draggableList';
 
 const emptyArray = [];
 
 class Album extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -41,24 +41,26 @@ class Album extends Component {
   }
 
   openModal() {
-    this.setState({modalIsOpen: true});
+    this.setState({ modalIsOpen: true });
   }
 
   closeModal() {
-    this.setState({modalIsOpen: false});
+    this.setState({ modalIsOpen: false });
   }
 
-  componentDidMount () {
+  componentDidMount() {
     // React Modal
-    Modal.setAppElement("#root");
+    Modal.setAppElement('#root');
   }
 
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
     const { history, fetchFiles, playingList } = _self.props;
 
     // Build folder path from url path.
-    const key = ps.removeFirstSeparator(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
+    const key = ps.removeFirstSeparator(
+      ps.removeRoute(_self.props.location.pathname, _self.props.match.path)
+    );
 
     console.log(key);
 
@@ -68,35 +70,34 @@ class Album extends Component {
       _self.setState({
         isActive: true,
         albumOfUrl: playingList
-      })
+      });
     }
     // Else, query data from DB.
     else {
-      fetchFiles(ps.urlEncode(key))
-        .then((data) => {
-          if (!data.success) {
-            return history.push('/not-found');
-          }
-          console.log(data);
-          const album = {
-            title: data.msg.name,
-            key: key,
-            tracks: data.msg.tracks,
-            item: data.msg,
-          };
+      fetchFiles(ps.urlEncode(key)).then(data => {
+        if (!data.success) {
+          return history.push('/not-found');
+        }
+        console.log(data);
+        const album = {
+          title: data.msg.name,
+          key: key,
+          tracks: data.msg.tracks,
+          item: data.msg
+        };
 
-          _self.setState({
-            isActive: false,
-            albumOfUrl: {
-              pl: album,
-              onPlayIndex: 0
-            }
-          })
+        _self.setState({
+          isActive: false,
+          albumOfUrl: {
+            pl: album,
+            onPlayIndex: 0
+          }
         });
+      });
     }
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const _self = this;
     const { playingList, fetchFiles, history } = nextProps;
     const { albumOfUrl } = this.state;
@@ -107,45 +108,46 @@ class Album extends Component {
     if (_self.props.location.pathname !== nextProps.location.pathname) {
       // Test if album is already playing.
       // Get and clean path.
-      const oldKey = ps.removeFirstSeparator(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
+      const oldKey = ps.removeFirstSeparator(
+        ps.removeRoute(_self.props.location.pathname, _self.props.match.path)
+      );
 
       // If album playing, mount data from store.
       if (playingList.pl && playingList.pl.key === oldKey) {
         return _self.setState({
           isActive: true,
           albumOfUrl: playingList
-        })
+        });
       }
       // Else, query data from DB.
       else {
-        return fetchFiles(ps.urlEncode(playingList.pl.key))
-          .then((data) => {
-            if (!data.success) {
-              return history.push('/not-found');
+        return fetchFiles(ps.urlEncode(playingList.pl.key)).then(data => {
+          if (!data.success) {
+            return history.push('/not-found');
+          }
+
+          const album = {
+            title: data.msg.name,
+            key: playingList.pl.key,
+            tracks: data.msg.tracks,
+            item: data.msg
+          };
+
+          _self.setState({
+            isActive: false,
+            albumOfUrl: {
+              pl: album,
+              onPlayIndex: 0
             }
-
-            const album = {
-              title: data.msg.name,
-              key: playingList.pl.key,
-              tracks: data.msg.tracks,
-              item: data.msg,
-            };
-
-            _self.setState({
-              isActive: false,
-              albumOfUrl: {
-                pl: album,
-                onPlayIndex: 0
-              }
-            })
           });
+        });
       }
     }
 
     // Else. Props albumList comes from store, and isn't empty if album playing.
     if (playingList !== this.props.playingList) {
       // So checking if store's albumList is already current album in component's state.
-      const isActive = (playingList.pl && playingList.pl.key === albumOfUrl.pl.key);
+      const isActive = playingList.pl && playingList.pl.key === albumOfUrl.pl.key;
 
       // If same album, copy changes in local state, and set isActive to true.
       this.setState({
@@ -156,7 +158,7 @@ class Album extends Component {
     }
   }
 
-  handlerAddTrack (e, tracksId) {
+  handlerAddTrack(e, tracksId) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
@@ -164,13 +166,18 @@ class Album extends Component {
     const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+    if (!user)
+      return history.push({
+        pathname: '/login',
+        state: { from: location.pathname }
+      });
 
     // Add tracks into activated Playlist.
-    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+    if (activePlaylist && tracksId)
+      addPlaylistItems(activePlaylist.title, { tracks: [tracksId] });
   }
 
-  handlerReadTrack (e, key) {
+  handlerReadTrack(e, key) {
     const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
     const { albumOfUrl } = this.state;
     const { pl } = albumOfUrl;
@@ -194,7 +201,7 @@ class Album extends Component {
     });
   }
 
-  handlerMoveItem (prevItems, nextItems) {
+  handlerMoveItem(prevItems, nextItems) {
     const { albumOfUrl } = this.state;
     const { playingList } = this.props;
 
@@ -210,7 +217,7 @@ class Album extends Component {
 
     // Build album object.
     const data = {
-      pl: Object.assign({}, albumOfUrl.pl, {tracks: nextItems}),
+      pl: Object.assign({}, albumOfUrl.pl, { tracks: nextItems }),
       onPlayIndex: newIndex
     };
 
@@ -228,16 +235,21 @@ class Album extends Component {
     });
   }
 
-  render () {
+  render() {
     const { albumOfUrl, isActive } = this.state;
     const { isPaused, user, history, location } = this.props;
     const { onPlayIndex, pl } = albumOfUrl;
 
     return (
-      <section className='pal grid-3 has-gutter'>
-        { (pl && pl.item) &&
-        <header className='col-1-medium-3-small-3'>
-            <InfoPanel album={pl.item} tracks={pl.tracks} location={location} history={history}/>
+      <section className="pal grid-3 has-gutter">
+        {pl && pl.item && (
+          <header className="col-1-medium-3-small-3">
+            <InfoPanel
+              album={pl.item}
+              tracks={pl.tracks}
+              location={location}
+              history={history}
+            />
 
             {/*{@todo reimplemenb save as pl for album because
             it couldn't working know (moogose wants tracks like node
@@ -273,25 +285,28 @@ class Album extends Component {
             {/*</Modal>*/}
             {/*</div>*/}
             {/*}*/}
-
           </header>
-        }
-        {pl &&
-          <div id='dl-container' className='col-2-medium-3-small-3'>
-            <div className='w-max-xl'>
-              <div className={`move-album-tracks-items-row-header${!!user ? ' drag' : ''}`}>
-                <span className='tracks-item-img'></span>
-                <span className='title'>Title</span>
-                <span className='artist'>Artist</span>
-                <span className='time'>Time</span>
-                <span className='tracks-item-menu'>Add</span>
+        )}
+        {pl && (
+          <div id="dl-container" className="col-2-medium-3-small-3">
+            <div className="w-max-xl">
+              <div
+                className={`move-album-tracks-items-row-header${
+                  !!user ? ' drag' : ''
+                }`}
+              >
+                <span className="tracks-item-img"></span>
+                <span className="title">Title</span>
+                <span className="artist">Artist</span>
+                <span className="time">Time</span>
+                <span className="tracks-item-menu">Add</span>
               </div>
               <DraggableList
                 items={pl.tracks}
                 callbackMouseUp={this.handlerMoveItem}
                 component={AlbumTrack}
-                scrollContainerName='main-content'
-                containerId='dl-container'
+                scrollContainerName="main-content"
+                containerId="dl-container"
                 isActivePlaylist={isActive}
                 dragActive={!!user}
                 history={history}
@@ -302,7 +317,7 @@ class Album extends Component {
               />
             </div>
           </div>
-        }
+        )}
       </section>
     );
   }
@@ -316,42 +331,29 @@ const mapStateToProps = state => {
     isAuthenticated: state.authenticationStore.isAuthenticated,
     activePlaylist: state.playlistStore.activePlaylist,
     user: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchFiles: (query) => dispatch(
-      get(`album/tracks/${query}`)
-    ),
-    updateAlbumList: (item) => dispatch(
-      updateAlbumToPlay(item)
-    ),
-    playTrack: (item) => dispatch(
-      playOnAlbum(item)
-    ),
-    addPlaylistItems: (title, items) => dispatch(
-      post(`playlist/${title}`, {
-        data: items
-      })
-    ),
-    onPauseFunc: () => dispatch(
-      pauseState()
-    ),
-    onPlayFunc: () => dispatch(
-      playState()
-    )
-  }
+    fetchFiles: query => dispatch(get(`album/tracks/${query}`)),
+    updateAlbumList: item => dispatch(updateAlbumToPlay(item)),
+    playTrack: item => dispatch(playOnAlbum(item)),
+    addPlaylistItems: (title, items) =>
+      dispatch(
+        post(`playlist/${title}`, {
+          data: items
+        })
+      ),
+    onPauseFunc: () => dispatch(pauseState()),
+    onPlayFunc: () => dispatch(playState())
+  };
 };
 
-const AlbumContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Album);
-
+const AlbumContainer = connect(mapStateToProps, mapDispatchToProps)(Album);
 
 // HELPER
-function getTrackIndexBySrc (path, array) {
+function getTrackIndexBySrc(path, array) {
   let l = array.length;
   for (let i = 0; i < l; i++) {
     if (array[i].path === path) return i;
@@ -359,4 +361,4 @@ function getTrackIndexBySrc (path, array) {
   return null;
 }
 
-export default AlbumContainer
+export default AlbumContainer;

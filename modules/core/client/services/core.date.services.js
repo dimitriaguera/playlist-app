@@ -3,10 +3,18 @@
  */
 
 const monthNames = [
-  "January", "February", "March",
-  "April", "May", "June", "July",
-  "August", "September", "October",
-  "November", "December"
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
 ];
 
 // Return formated date from string formated input date.
@@ -18,4 +26,3 @@ exports.getFormatedDate = function(string) {
 
   return day + ' ' + monthNames[monthIndex] + ' ' + year;
 };
-

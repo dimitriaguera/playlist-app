@@ -1,14 +1,13 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Motion, spring } from 'react-motion'
-import { post } from 'core/client/services/core.api.services'
-import { playOnAlbum, pauseState, playState } from 'music/client/redux/actions'
-import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
-import AlbumInfo from './albumInfo.client.components'
-
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Motion, spring } from 'react-motion';
+import { post } from 'core/client/services/core.api.services';
+import { playOnAlbum, pauseState, playState } from 'music/client/redux/actions';
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components';
+import AlbumInfo from './albumInfo.client.components';
 
 class AlbumTracks extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -18,7 +17,7 @@ class AlbumTracks extends Component {
     this.handlerPlayAlbum = this.handlerPlayAlbum.bind(this);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const _self = this;
     const { getAlbumTracks, renderTracksNow } = this.props;
     const delay = renderTracksNow ? 0 : 300;
@@ -27,27 +26,27 @@ class AlbumTracks extends Component {
     // This delay is needed to avoid lag during albumCard open anim.
     this.waitForAnimEnd(delay, getAlbumTracks, (err, data) => {
       if (!err) {
-        _self.setState({tracks: data.tracks});
+        _self.setState({ tracks: data.tracks });
       }
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     // Clear timer.
     clearTimeout(this.timeoutID);
   }
 
-  waitForAnimEnd (delay, fn, callback) {
+  waitForAnimEnd(delay, fn, callback) {
     let timeout = false;
     let close = null;
 
     // Catcher async result function.
-    function proceed (err, data) {
+    function proceed(err, data) {
       // If delay not ok, store callback with result.
       if (!timeout) {
-        return close = () => {
+        return (close = () => {
           callback(err, data);
-        }
+        });
       }
       // If delay ok, directly exec callback function.
       callback(err, data);
@@ -69,15 +68,22 @@ class AlbumTracks extends Component {
   }
 
   // Handler to add recursively all tracks on playlist.
-  handlerPlayAlbum (e, i, item) {
+  handlerPlayAlbum(e, i, item) {
     e.stopPropagation();
     e.preventDefault();
 
-    const {pause, album, mode, onPauseFunc, onPlayFunc, onPlay, addAlbumToPlay} = this.props;
+    const {
+      pause,
+      album,
+      mode,
+      onPauseFunc,
+      onPlayFunc,
+      onPlay,
+      addAlbumToPlay
+    } = this.props;
 
     // If this album already playing.
     if (mode === 'album' && onPlay.albumKey === album.key) {
-
       if (onPlay.tracksId === item.tracksId) {
         if (pause) {
           return onPlayFunc();
@@ -86,7 +92,7 @@ class AlbumTracks extends Component {
         }
       }
       // Just store index track in playing queue.
-      addAlbumToPlay({onPlayIndex: i});
+      addAlbumToPlay({ onPlayIndex: i });
     }
 
     // Else, play this album.
@@ -97,7 +103,7 @@ class AlbumTracks extends Component {
           title: album.name,
           key: album.key,
           tracks: this.state.tracks,
-          item: album,
+          item: album
         },
         onPlayIndex: i
       };
@@ -106,21 +112,26 @@ class AlbumTracks extends Component {
     }
   }
 
-  handlerAddTrack (e, tracksId) {
+  handlerAddTrack(e, tracksId) {
     e.stopPropagation();
     e.preventDefault();
 
     const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+    if (!user)
+      return history.push({
+        pathname: '/login',
+        state: { from: location.pathname }
+      });
 
     // Add tracks into activated Playlist.
-    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+    if (activePlaylist && tracksId)
+      addPlaylistItems(activePlaylist.title, { tracks: [tracksId] });
   }
 
-  getStyle () {
-    const {index, grid, card, tabHeight} = this.props;
+  getStyle() {
+    const { index, grid, card, tabHeight } = this.props;
 
     // Get Card position in his row.
     // Needed to know left style value, to position tab according tab position.
@@ -130,14 +141,14 @@ class AlbumTracks extends Component {
     // Card default style,
     // and Card position in his row.
     return {
-      width: ((grid.row * card.width) - (card.margin * 2)) + 'px',
+      width: grid.row * card.width - card.margin * 2 + 'px',
       height: tabHeight + 'px',
-      left: (-pos * card.width) + card.margin + 'px',
+      left: -pos * card.width + card.margin + 'px',
       top: card.height + 'px'
-    }
+    };
   }
 
-  render () {
+  render() {
     const { album, onPlay, onPlayIndex } = this.props;
     const { tracks } = this.state;
 
@@ -148,47 +159,75 @@ class AlbumTracks extends Component {
     const style = this.getStyle();
 
     return (
-      <div className='album-tracks' style={style}>
-        {!!tracks.length &&
-        <Motion defaultStyle={{o: 0, x: -20}} style={{o: spring(1), x: spring(0)}}>
-          {({o, x}) =>
-            <div className='album-tracks-container'
-                 style={{
-              WebkitTransform: `translate3d(${x}px, 0, 0)`,
-              transform: `translate3d(${x}px, 0, 0)`,
-              opacity: o
-            }}>
+      <div className="album-tracks" style={style}>
+        {!!tracks.length && (
+          <Motion
+            defaultStyle={{ o: 0, x: -20 }}
+            style={{ o: spring(1), x: spring(0) }}
+          >
+            {({ o, x }) => (
+              <div
+                className="album-tracks-container"
+                style={{
+                  WebkitTransform: `translate3d(${x}px, 0, 0)`,
+                  transform: `translate3d(${x}px, 0, 0)`,
+                  opacity: o
+                }}
+              >
+                <div className="album-tracks-col">
+                  <AlbumInfo album={album} tracks={tracks} />
+                </div>
 
-              <div className='album-tracks-col'>
-                <AlbumInfo album={album} tracks={tracks}/>
+                <div className="album-tracks-col">
+                  <ul className="album-tracks-inner unstyled">
+                    {tracks.map((item, i) => {
+                      const trackIsPlaying = albumIsPlaying && onPlayIndex === i;
+                      return (
+                        <li key={i}>
+                          <a
+                            className={
+                              trackIsPlaying
+                                ? 'album-tracks-item playing'
+                                : 'album-tracks-item'
+                            }
+                            title="Play track"
+                            onClick={e => this.handlerPlayAlbum(e, i, item)}
+                          >
+                            {trackIsPlaying && (
+                              <i className="white">
+                                <IconPlayAnim />
+                              </i>
+                            )}
+                            {!trackIsPlaying && (
+                              <span
+                                aria-hidden="true"
+                                className="icon white icon-play"
+                              />
+                            )}
+                            <span className="album-tracks-title">
+                              {item.meta.trackno !== '0' && (
+                                <span>{item.meta.trackno} - </span>
+                              )}
+                              {item.meta.title}
+                            </span>
+                            <span className="album-tracks-menu-inner">
+                              <button
+                                className="btn btn-icon"
+                                onClick={e => this.handlerAddTrack(e, item.tracksId)}
+                              >
+                                <i aria-hidden="true" className="icon icon-plus" />
+                              </button>
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </div>
-
-              <div className='album-tracks-col'>
-                <ul className='album-tracks-inner unstyled'>
-                {tracks.map((item, i) => {
-                  const trackIsPlaying = (albumIsPlaying && (onPlayIndex === i));
-                  return (
-                    <li key={i}>
-                      <a className={trackIsPlaying ? 'album-tracks-item playing' : 'album-tracks-item'} title='Play track' onClick={(e) => this.handlerPlayAlbum(e, i, item)}>
-                        {trackIsPlaying && <i className='white'><IconPlayAnim /></i>}
-                        {!trackIsPlaying && <span aria-hidden='true' className='icon white icon-play' />}
-                        <span className='album-tracks-title'>
-                          {item.meta.trackno !== '0' && <span>{item.meta.trackno} - </span>}
-                          {item.meta.title}
-                        </span>
-                        <span className='album-tracks-menu-inner'>
-                          <button className='btn btn-icon' onClick={(e) => this.handlerAddTrack(e, item.tracksId)}>
-                            <i aria-hidden='true' className='icon icon-plus'/>
-                          </button>
-                        </span>
-                      </a>
-                    </li>
-                  )
-                })}
-                </ul>
-              </div>
-            </div>}
-        </Motion>}
+            )}
+          </Motion>
+        )}
       </div>
     );
   }
@@ -202,26 +241,23 @@ const mapStateToProps = state => {
     mode: state.playlistStore.mode,
     activePlaylist: state.playlistStore.activePlaylist,
     pause: state.playlistStore.pause
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    addAlbumToPlay: (item) => {
+    addAlbumToPlay: item => {
       dispatch(playOnAlbum(item));
     },
-    addPlaylistItems: (title, items) => dispatch(
-      post(`playlist/${title}`, {
-        data: items
-      })
-    ),
-    onPauseFunc: () => dispatch(
-      pauseState()
-    ),
-    onPlayFunc: () => dispatch(
-      playState()
-    )
-  }
+    addPlaylistItems: (title, items) =>
+      dispatch(
+        post(`playlist/${title}`, {
+          data: items
+        })
+      ),
+    onPauseFunc: () => dispatch(pauseState()),
+    onPlayFunc: () => dispatch(playState())
+  };
 };
 
 const AlbumTracksContainer = connect(
@@ -229,5 +265,4 @@ const AlbumTracksContainer = connect(
   mapDispatchToProps
 )(AlbumTracks);
 
-
-export default AlbumTracksContainer
+export default AlbumTracksContainer;

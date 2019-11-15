@@ -1,9 +1,12 @@
 /**
  * Created by Dimitri on 27/11/2017.
  */
-import socketServices from 'core/client/services/core.socket.services'
-import { updateActivePlaylist, updatePlaylistToPlay } from 'music/client/redux/actions'
-import { mustUpdate, getPlayIndex } from 'music/client/helpers/music.client.helpers'
+import socketServices from 'core/client/services/core.socket.services';
+import {
+  updateActivePlaylist,
+  updatePlaylistToPlay
+} from 'music/client/redux/actions';
+import { mustUpdate, getPlayIndex } from 'music/client/helpers/music.client.helpers';
 
 /**
  * Connect events emitted by server on socketIO with redux app store.
@@ -17,12 +20,12 @@ import { mustUpdate, getPlayIndex } from 'music/client/helpers/music.client.help
  * @param store
  * @returns {*}
  */
-export const mountSocket = function (store) {
+export const mountSocket = function(store) {
   // Create a socket.
   const socket = socketServices.getPublicSocket();
 
   // Apply event.
-  socket.on('save:playlist', (data) => {
+  socket.on('save:playlist', data => {
     checkAndUpdatePlaylistHandler(store, data);
   });
 
@@ -42,7 +45,7 @@ export const mountSocket = function (store) {
  * @param store
  * @param updatedPl
  */
-function checkAndUpdatePlaylistHandler (store, updatedPl) {
+function checkAndUpdatePlaylistHandler(store, updatedPl) {
   let state = store.getState();
   let plState = state.playlistStore;
 
@@ -74,9 +77,7 @@ function checkAndUpdatePlaylistHandler (store, updatedPl) {
 
     // Dispatch updated activePlaylist.
     if (mustUpdate(updatedPl, plToUpdate)) {
-      store.dispatch(
-        updateActivePlaylist(updatedPl)
-      );
+      store.dispatch(updateActivePlaylist(updatedPl));
     }
   }
 }

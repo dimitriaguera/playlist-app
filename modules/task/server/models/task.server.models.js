@@ -6,36 +6,34 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const TaskSchema = new Schema({
+  memId: {
+    type: String
+  },
 
-const TaskSchema = new Schema ({
+  key: {
+    type: String
+  },
 
-    memId: {
-      type: String,
-    },
+  unique: {
+    type: Boolean
+  },
 
-    key: {
-        type: String,
-    },
+  status: {
+    type: String
+  },
 
-    unique: {
-        type: Boolean,
-    },
+  created: {
+    type: Date
+  },
 
-    status: {
-      type: String,
-    },
+  ended: {
+    type: Date
+  },
 
-    created: {
-        type: Date,
-    },
-
-    ended: {
-        type: Date
-    },
-
-    body: {
-        type: Schema.Types.Mixed
-    }
+  body: {
+    type: Schema.Types.Mixed
+  }
 });
 
 module.exports = mongoose.model('TaskDb', TaskSchema);

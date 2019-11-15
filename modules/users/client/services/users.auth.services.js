@@ -1,9 +1,9 @@
 /**
  * Created by Dimitri Aguera on 08/09/2017.
  */
-import store from 'core/client/redux/store'
-import _ from 'lodash'
-import { ALL_ROLE } from '../../commons/roles'
+import store from 'core/client/redux/store';
+import _ from 'lodash';
+import { ALL_ROLE } from '../../commons/roles';
 
 /**
  * Return true if store is authenticated state,
@@ -11,7 +11,7 @@ import { ALL_ROLE } from '../../commons/roles'
  *
  * @returns {boolean}
  */
-export function isAuthenticated () {
+export function isAuthenticated() {
   const Auth = store.getState().authenticationStore;
   return !!Auth.isAuthenticated;
 }
@@ -25,16 +25,17 @@ export function isAuthenticated () {
  * @param roles
  * @returns {*}
  */
-export function allowDisplayItem (user, roles) {
-  if (!user)
-  { return false; }
+export function allowDisplayItem(user, roles) {
+  if (!user) {
+    return false;
+  }
 
-  if (!roles)
-  { return true; }
+  if (!roles) {
+    return true;
+  }
 
   return hasRole(user, roles);
 }
-
 
 /**
  * Return true if user if user exist, and if user's role match.
@@ -43,17 +44,18 @@ export function allowDisplayItem (user, roles) {
  * @param roles
  * @returns {boolean}
  */
-export function hasRole (user, roles) {
+export function hasRole(user, roles) {
   const ids = [];
   for (let i = 0; i < roles.length; i++) ids.push(roles[i].id);
-  return (!!user && !!_.intersection(user.roles, ids).length);
+  return !!user && !!_.intersection(user.roles, ids).length;
 }
 
-export function getRoleNames (rolesIds) {
+export function getRoleNames(rolesIds) {
   let roles = '';
   for (let i = 0; i < rolesIds.length; i++) {
     for (let j = 0; j < ALL_ROLE.length; j++) {
-      if (rolesIds[i] === ALL_ROLE[j].id) roles = `${roles} ${i !== 0 ? '/' : ' '} ${ALL_ROLE[j].name}`
+      if (rolesIds[i] === ALL_ROLE[j].id)
+        roles = `${roles} ${i !== 0 ? '/' : ' '} ${ALL_ROLE[j].name}`;
     }
   }
   return roles;

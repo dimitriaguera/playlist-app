@@ -3,7 +3,7 @@
  */
 import RoutesModules from '../../../**/routes/*.client.routes.js';
 
-export const getRoutes = function () {
+export const getRoutes = function() {
   const routes = [];
 
   RoutesModules.map(item => {

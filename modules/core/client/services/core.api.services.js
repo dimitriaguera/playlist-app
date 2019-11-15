@@ -1,10 +1,10 @@
 /**
  * Created by Dimitri Aguera on 12/09/2017.
  */
-import config from 'env/config.client'
-import { CALL_API } from 'core/client/redux/middlewares/api'
-import { failureAPI } from 'core/client/redux/actions/api.actions'
-import { getLocalToken } from 'users/client/services/users.storage.services'
+import config from 'env/config.client';
+import { CALL_API } from 'core/client/redux/middlewares/api';
+import { failureAPI } from 'core/client/redux/actions/api.actions';
+import { getLocalToken } from 'users/client/services/users.storage.services';
 
 const BASE_URL = config.api_base_url;
 
@@ -39,15 +39,12 @@ export const forgeResquest = (method, endpoint, data = {}) => {
         // url = new URL(url);
         // Object.keys(urlParams).forEach(key => url.searchParams.append(key, urlParams[key]))
         data = null;
-      }
-      catch (e) {
+      } catch (e) {
         console.log(`Unable to put params on GET ${url} api request : ${e.message}`);
       }
-    }
-    else if (data === Object(data)) {
+    } else if (data === Object(data)) {
       params.body = JSON.stringify(data);
-    }
-    else {
+    } else {
       throw new Error(`Invalid XHR request. See ${method} at ${url}`);
     }
 
@@ -60,7 +57,7 @@ export const forgeResquest = (method, endpoint, data = {}) => {
 
     // Build fetch.
     return fetch(url, params);
-  }
+  };
 };
 
 /**
@@ -85,7 +82,7 @@ export const get = (endpoint, options = {}) => {
       send: forgeResquest('GET', endpoint, data),
       types: types
     }
-  }
+  };
 };
 
 /**
@@ -102,7 +99,7 @@ export const post = (endpoint, options = {}) => {
       send: forgeResquest('POST', endpoint, data),
       types: types
     }
-  }
+  };
 };
 
 /**
@@ -119,7 +116,7 @@ export const put = (endpoint, options = {}) => {
       send: forgeResquest('PUT', endpoint, data),
       types: types
     }
-  }
+  };
 };
 
 /**
@@ -136,5 +133,5 @@ export const del = (endpoint, options = {}) => {
       send: forgeResquest('DELETE', endpoint, data),
       types: types
     }
-  }
+  };
 };

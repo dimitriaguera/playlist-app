@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import Rx from 'rx'
-import ps from 'core/client/services/core.path.services'
-import { forgeResquest } from 'core/client/services/core.api.services'
+import React, { Component } from 'react';
+import Rx from 'rx';
+import ps from 'core/client/services/core.path.services';
+import { forgeResquest } from 'core/client/services/core.api.services';
 
 const KEY = {
   ESC: 27,
@@ -11,7 +11,7 @@ const KEY = {
 };
 
 class SearchMusicBar extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.handlerInputChange = this.handlerInputChange.bind(this);
@@ -42,16 +42,22 @@ class SearchMusicBar extends Component {
   // - Apply and register window event listeners.
   // - Create input observers.
   // - Subscribe on input observers.
-  componentDidMount () {
+  componentDidMount() {
     const _self = this;
-    const { searchAction, filtersMapping, indexName, field = 'name', startLimit = 3 } = this.props;
+    const {
+      searchAction,
+      filtersMapping,
+      indexName,
+      field = 'name',
+      startLimit = 3
+    } = this.props;
 
     // Apply window events listeners.
     window.addEventListener('click', this.handlerClearFilters);
     window.addEventListener('keyup', this.handlerKeyup);
 
     // Suggest request func on elasticsearch endpoint.
-    const apiSuggest = (term) => {
+    const apiSuggest = term => {
       const { filter } = _self.state;
       // Use forgeRequest method to avoid call API system that spread request state on redux store.
       // Need to be fast, with direct fetch call.
@@ -59,7 +65,7 @@ class SearchMusicBar extends Component {
     };
 
     // Search request func on elasticsearch endpoint.
-    const apiSearch = (term) => {
+    const apiSearch = term => {
       const { filters } = _self.state;
       const filterQuery = buildFiltersRequest(filters, filtersMapping);
       // Use request given by properties.
@@ -87,47 +93,41 @@ class SearchMusicBar extends Component {
     this.subscribeOnSearch();
   }
 
-
   // Clear listeners.
   // @TODO need to clear observers ?
-  componentWillUnmount () {
+  componentWillUnmount() {
     window.removeEventListener('click', this.handlerClearFilters);
     window.removeEventListener('keyup', this.handlerKeyup);
   }
 
-
   // Subscribe on suggest observer.
-  subscribeOnSuggest () {
+  subscribeOnSuggest() {
     const _self = this;
     this.subscriberSuggest = this.observerSuggest.subscribe(
       data => {
         data.json().then(data => {
           const list = data.msg.suggest.testSuggest[0].options;
           const text = data.msg.suggest.testSuggest[0].text;
-          _self.setState({suggestList: list, inputFilter: text});
+          _self.setState({ suggestList: list, inputFilter: text });
         });
       },
       error => {
-        _self.setState({error: error});
+        _self.setState({ error: error });
       }
     );
   }
-
 
   // Subscribe on search observer.
-  subscribeOnSearch () {
+  subscribeOnSearch() {
     const _self = this;
-    this.subscriberSearch = this.observerSearch.subscribe(
-      error => {
-        _self.setState({error: error});
-      }
-    );
+    this.subscriberSearch = this.observerSearch.subscribe(error => {
+      _self.setState({ error: error });
+    });
   }
-
 
   // Keyborad control.
   // Escape : clear filter panel.
-  handlerKeyup (e) {
+  handlerKeyup(e) {
     // Escape key.
     if (e.keyCode === KEY.ESC) {
       return this.handlerClearFilters(e);
@@ -157,9 +157,8 @@ class SearchMusicBar extends Component {
     }
   }
 
-
   // Select next suggestList element.
-  selectPrevElement (e) {
+  selectPrevElement(e) {
     const { selected = {}, suggestList } = this.state;
     const l = suggestList.length;
 
@@ -171,7 +170,7 @@ class SearchMusicBar extends Component {
     const filtersID = this.filtersID;
 
     // Define select loop func.
-    function select (index) {
+    function select(index) {
       let i = index <= 0 ? l - 1 : index - 1;
       if (filtersID.indexOf(suggestList[i]._id) !== -1) {
         if (count < l) {
@@ -188,13 +187,12 @@ class SearchMusicBar extends Component {
 
     // Store selected filter.
     if (index !== null) {
-      this.setState({selected: suggestList[index]});
+      this.setState({ selected: suggestList[index] });
     }
   }
 
-
   // Select previous suggest list element.
-  selectNextElement (e) {
+  selectNextElement(e) {
     const { selected = {}, suggestList } = this.state;
     const l = suggestList.length;
 
@@ -206,7 +204,7 @@ class SearchMusicBar extends Component {
     const filtersID = this.filtersID;
 
     // Define select loop func.
-    function select (index) {
+    function select(index) {
       let i = l > index + 1 ? index + 1 : 0;
       if (filtersID.indexOf(suggestList[i]._id) !== -1) {
         if (count < l) {
@@ -223,13 +221,12 @@ class SearchMusicBar extends Component {
 
     // Store selected filter.
     if (index !== null) {
-      this.setState({selected: suggestList[index]});
+      this.setState({ selected: suggestList[index] });
     }
   }
 
-
   // Handler that apply filter on click on suggestion.
-  handlerAddFilter (e, item) {
+  handlerAddFilter(e, item) {
     const { filters, inputText, selected } = this.state;
     const { searchAction, filtersMapping, indexName, field = 'name' } = this.props;
 
@@ -245,16 +242,20 @@ class SearchMusicBar extends Component {
     this.filtersID.push(item._id);
 
     // Query data with new set of filters.
-    searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters, filtersMapping)}`);
+    searchAction(
+      `${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(
+        newFilters,
+        filtersMapping
+      )}`
+    );
   }
 
-
   // handler to add date range filter.
-  handlerAddDateFilter (e) {
+  handlerAddDateFilter(e) {
     let { inputDateFrom, inputDateTo } = this.state;
 
     // If inputDateTo < inputDateFrom inverse it
-    if(inputDateTo && (inputDateTo < inputDateFrom)){
+    if (inputDateTo && inputDateTo < inputDateFrom) {
       let tmp = inputDateTo;
       inputDateTo = inputDateFrom;
       inputDateFrom = tmp;
@@ -299,17 +300,16 @@ class SearchMusicBar extends Component {
     if (this.filtersID.indexOf(value) !== -1) return null;
 
     // Query data with new set of filters.
-    this.handlerAddFilter(e, { _id: value, _type: 'date', text: value, tag: tag});
+    this.handlerAddFilter(e, { _id: value, _type: 'date', text: value, tag: tag });
   }
 
-
   // Handler to remove a filter token.
-  handlerRemoveFilter (e, item) {
+  handlerRemoveFilter(e, item) {
     const { filters, inputText } = this.state;
     const { searchAction, filtersMapping, indexName, field = 'name' } = this.props;
 
     // Remove from filters list.
-    const newFilters = filters.filter(function (i) {
+    const newFilters = filters.filter(function(i) {
       return i._id !== item._id;
     });
 
@@ -321,12 +321,16 @@ class SearchMusicBar extends Component {
     this.filtersID.splice(this.filtersID.indexOf(item._id), 1);
 
     // Query data with new set of filters.
-    searchAction(`${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(newFilters, filtersMapping)}`);
+    searchAction(
+      `${indexName}?q=${inputText}&fi=${field}${buildFiltersRequest(
+        newFilters,
+        filtersMapping
+      )}`
+    );
   }
 
-
   // Make Form input controlled.
-  handlerInputChange (e) {
+  handlerInputChange(e) {
     const value = e.target.value;
     const name = e.target.name;
 
@@ -337,9 +341,8 @@ class SearchMusicBar extends Component {
     });
   }
 
-
   // Make Form input controlled.
-  handlerRadioChange (e) {
+  handlerRadioChange(e) {
     const value = e.target.value;
     const name = e.target.name;
 
@@ -366,11 +369,10 @@ class SearchMusicBar extends Component {
     }
   }
 
-
   // Clear suggestion list, and filter input values.
   // Uncheck radio buttons.
   // Unsubscribe filter input observer.
-  handlerClearFilters (e) {
+  handlerClearFilters(e) {
     this.subscriberSuggest.dispose();
     this.inputFilter.value = '';
     this.inputDateFrom.value = '';
@@ -389,112 +391,147 @@ class SearchMusicBar extends Component {
     });
   }
 
-
-  render () {
+  render() {
     const { filters, filter, inputFilter, selected } = this.state;
     const { filtersMapping } = this.props;
 
     return (
-      <div onClick={(e) => e.stopPropagation()} style={this.props.style} className='search-bar'>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={this.props.style}
+        className="search-bar"
+      >
         <div>
-          {filtersMapping.album &&
-          <input ref={(element) => this.radio.album = element} type='radio' id='filter0'
-            onChange={this.handlerRadioChange}
-            name='filter' value='album' />
-          }
-          {filtersMapping.artist &&
-          <input ref={(element) => this.radio.artist = element} type='radio' id='filter1'
-            onChange={this.handlerRadioChange}
-            name='filter' value='artist' />
-          }
-          {filtersMapping.genre &&
-          <input ref={(element) => this.radio.genre = element} type='radio' id='filter2'
-            onChange={this.handlerRadioChange}
-            name='filter' value='genre' />
-          }
-          {filtersMapping.date &&
-          <input ref={(element) => this.radio.date = element} type='radio' id='filter3'
-            onChange={this.handlerRadioChange}
-            name='filter' value='date' />
-          }
+          {filtersMapping.album && (
+            <input
+              ref={element => (this.radio.album = element)}
+              type="radio"
+              id="filter0"
+              onChange={this.handlerRadioChange}
+              name="filter"
+              value="album"
+            />
+          )}
+          {filtersMapping.artist && (
+            <input
+              ref={element => (this.radio.artist = element)}
+              type="radio"
+              id="filter1"
+              onChange={this.handlerRadioChange}
+              name="filter"
+              value="artist"
+            />
+          )}
+          {filtersMapping.genre && (
+            <input
+              ref={element => (this.radio.genre = element)}
+              type="radio"
+              id="filter2"
+              onChange={this.handlerRadioChange}
+              name="filter"
+              value="genre"
+            />
+          )}
+          {filtersMapping.date && (
+            <input
+              ref={element => (this.radio.date = element)}
+              type="radio"
+              id="filter3"
+              onChange={this.handlerRadioChange}
+              name="filter"
+              value="date"
+            />
+          )}
 
-          <div className='sb-filter-panel'>
-            <ul className='sb-filter'>
-              {filters.map((item) =>
-                <li className='sb-filter-token' onClick={(e) => this.handlerRemoveFilter(e, item)} key={item._id}>
+          <div className="sb-filter-panel">
+            <ul className="sb-filter">
+              {filters.map(item => (
+                <li
+                  className="sb-filter-token"
+                  onClick={e => this.handlerRemoveFilter(e, item)}
+                  key={item._id}
+                >
                   <span>
-                    {item.tag || item.text}<br />
+                    {item.tag || item.text}
+                    <br />
                     <span>{item._type}</span>
                   </span>
                   <i aria-hidden="true" className="icon icon-x" />
                 </li>
-              )}
+              ))}
             </ul>
 
-            <div className='sb-filter-input'>
-              <input ref={(element) => this.inputFilter = element}
+            <div className="sb-filter-input">
+              <input
+                ref={element => (this.inputFilter = element)}
                 onChange={this.handlerInputChange}
-                type='text'
-                name='inputFilter'
+                type="text"
+                name="inputFilter"
                 placeholder={'search ' + filter + '...'}
               />
-              {filtersMapping.date &&
-              <input ref={(element) => this.inputDateFrom = element}
-                onChange={this.handlerInputChange}
-                type='number'
-                name='inputDateFrom'
-                placeholder='(ex: 1998)'
-              />
-              }
-              {filtersMapping.date &&
-              <span className='input-date-prefix'>to</span>
-              }
-              {filtersMapping.date &&
-              <input ref={(element) => this.inputDateTo = element}
-                onChange={this.handlerInputChange}
-                type='number'
-                name='inputDateTo'
-                placeholder='(ex: 2002)'
-              />
-              }
-              <button onClick={this.handlerAddDateFilter}><b>Add</b></button>
-              {this.state.suggestList.length > 0 &&
-              <ul>
-                {this.state.suggestList.map((item) => {
-                  if (this.filtersID.indexOf(item._id) !== -1) return null;
-                  return (
-                    <li className={selected._id === item._id ? 'selected' : ''} key={item._id} onClick={(e) => this.handlerAddFilter(e, item)}>
-                      <b>{testOccurence(item.text, inputFilter)}</b>{removeFirstOccurence(item.text, inputFilter)}
-                    </li>
-                  );
-                })}
-              </ul>}
+              {filtersMapping.date && (
+                <input
+                  ref={element => (this.inputDateFrom = element)}
+                  onChange={this.handlerInputChange}
+                  type="number"
+                  name="inputDateFrom"
+                  placeholder="(ex: 1998)"
+                />
+              )}
+              {filtersMapping.date && <span className="input-date-prefix">to</span>}
+              {filtersMapping.date && (
+                <input
+                  ref={element => (this.inputDateTo = element)}
+                  onChange={this.handlerInputChange}
+                  type="number"
+                  name="inputDateTo"
+                  placeholder="(ex: 2002)"
+                />
+              )}
+              <button onClick={this.handlerAddDateFilter}>
+                <b>Add</b>
+              </button>
+              {this.state.suggestList.length > 0 && (
+                <ul>
+                  {this.state.suggestList.map(item => {
+                    if (this.filtersID.indexOf(item._id) !== -1) return null;
+                    return (
+                      <li
+                        className={selected._id === item._id ? 'selected' : ''}
+                        key={item._id}
+                        onClick={e => this.handlerAddFilter(e, item)}
+                      >
+                        <b>{testOccurence(item.text, inputFilter)}</b>
+                        {removeFirstOccurence(item.text, inputFilter)}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
 
-            <div className='sb-filter-menu'>
-              {filtersMapping.album
-                ? <label htmlFor='filter0'>Album</label>
-                : <label className='no-click'><i aria-hidden="true" className="icon" /></label>
-              }
-              {filtersMapping.artist &&
-              <label htmlFor='filter1'>Artist</label>
-              }
-              {filtersMapping.genre &&
-              <label htmlFor='filter2'>Genre</label>
-              }
-              {filtersMapping.date &&
-              <label htmlFor='filter3'>Date</label>
-              }
+            <div className="sb-filter-menu">
+              {filtersMapping.album ? (
+                <label htmlFor="filter0">Album</label>
+              ) : (
+                <label className="no-click">
+                  <i aria-hidden="true" className="icon" />
+                </label>
+              )}
+              {filtersMapping.artist && <label htmlFor="filter1">Artist</label>}
+              {filtersMapping.genre && <label htmlFor="filter2">Genre</label>}
+              {filtersMapping.date && <label htmlFor="filter3">Date</label>}
             </div>
 
-            <div className='sb-search-input-wrapper'>
-              <input ref={(element) => this.input = element}
+            <div className="sb-search-input-wrapper">
+              <input
+                ref={element => (this.input = element)}
                 onChange={this.handlerInputChange}
                 onFocus={this.handlerClearFilters}
-                type='text'
-                name='inputText'
+                type="text"
+                name="inputText"
                 placeholder={this.props.placeholder}
-                className='search-input'
+                className="search-input"
               />
             </div>
           </div>
@@ -504,12 +541,12 @@ class SearchMusicBar extends Component {
   }
 }
 
-function removeFirstOccurence (str, exp) {
+function removeFirstOccurence(str, exp) {
   const reg = new RegExp('^(' + exp + ')', 'i');
   return str.replace(reg, '');
 }
 
-function testOccurence (str, exp) {
+function testOccurence(str, exp) {
   const reg = new RegExp('^(' + exp + ')', 'i');
   if (reg.test(str)) {
     return exp;
@@ -517,7 +554,7 @@ function testOccurence (str, exp) {
   return '';
 }
 
-function buildFiltersRequest (filters, mappings) {
+function buildFiltersRequest(filters, mappings) {
   const f = {};
   let query = '';
 
@@ -531,11 +568,12 @@ function buildFiltersRequest (filters, mappings) {
 
   for (let s in f) {
     query += '&filter.' + s + '=' + ps.urlEncode(f[s]);
-    if (s.indexOf('artist') !== -1) query += '&filter.' + s.replace('artist', 'albumartist') + '=' + ps.urlEncode(f[s]);
+    if (s.indexOf('artist') !== -1)
+      query +=
+        '&filter.' + s.replace('artist', 'albumartist') + '=' + ps.urlEncode(f[s]);
   }
 
   return query;
 }
 
 export default SearchMusicBar;
-

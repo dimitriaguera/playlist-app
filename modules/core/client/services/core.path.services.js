@@ -4,7 +4,7 @@
 const sanitize = require('sanitize-filename');
 
 // Build path with special separator.
-exports.buildSeparator = function (array, separator) {
+exports.buildSeparator = function(array, separator) {
   let path = '';
 
   if (array[0]) {
@@ -20,31 +20,31 @@ exports.buildSeparator = function (array, separator) {
 };
 
 // Build path from array.
-exports.buildPath = function (array) {
+exports.buildPath = function(array) {
   return this.buildSeparator(array, '/');
 };
 
 // Remove last element of path string.
-exports.removeLast = function (path) {
-  const regex = new RegExp('[^\/]+\/?$', 'i');
+exports.removeLast = function(path) {
+  const regex = new RegExp('[^/]+/?$', 'i');
   return path.replace(regex, '');
 };
 
 // Remove route pattern from str String.
-exports.removeRoute = function (str, route) {
+exports.removeRoute = function(str, route) {
   const regex = new RegExp('^(\\' + route + ')', 'i');
   return str.replace(regex, '');
 };
 
 // Change separator.
-exports.changeSeparator = function (str, old, now) {
+exports.changeSeparator = function(str, old, now) {
   const regex = new RegExp('(' + old + ')', 'g');
   return str.replace(regex, now);
 };
 
 // Return Array path from String path.
-exports.splitPath = function (str) {
-  const regex = /(\/([^\/]*))/ig;
+exports.splitPath = function(str) {
+  const regex = /(\/([^\/]*))/gi;
   let result = [];
   let m;
 
@@ -63,33 +63,33 @@ exports.splitPath = function (str) {
  * Just clean string.
  * @param str {String}
  */
-exports.clean = function (str) {
+exports.clean = function(str) {
   return sanitize(str);
 };
 
-
 // Clean path String entry.
-exports.cleanPath = function (path) {
+exports.cleanPath = function(path) {
   const pArr = this.splitPath(path);
   return this.buildPath(pArr);
 };
 
-
 // Encode url.
 // Encode reserved caracters.
 // No encode '[' or ']' according to RFC3986 norm.
-exports.urlEncode = function (url) {
-  return encodeURIComponent(url).replace(/%5B/g, '[').replace(/%5D/g, ']');
+exports.urlEncode = function(url) {
+  return encodeURIComponent(url)
+    .replace(/%5B/g, '[')
+    .replace(/%5D/g, ']');
 };
 
-function changeSlashToAnti (path) {
+function changeSlashToAnti(path) {
   return path.replace(/\//g, '\\');
 }
-function changeAntiToSlash (path) {
+function changeAntiToSlash(path) {
   return path.replace(/\\/g, '/');
 }
 
-exports.conformPathToOs = function (myPath) {
+exports.conformPathToOs = function(myPath) {
   let isWin = /^win/.test(process.platform);
   if (isWin) {
     return changeSlashToAnti(myPath);
@@ -98,18 +98,18 @@ exports.conformPathToOs = function (myPath) {
   }
 };
 
-exports.toPosixPath = function (myPath) {
-  return changeAntiToSlash(myPath)
+exports.toPosixPath = function(myPath) {
+  return changeAntiToSlash(myPath);
 };
 
-exports.removeLastSeparator = function (myPath) {
+exports.removeLastSeparator = function(myPath) {
   if (myPath.slice(-1) === '/' || myPath.slice(-1) === '\\') {
     return myPath.slice(0, -1);
   }
   return myPath;
 };
 
-exports.removeFirstSeparator = function (myPath) {
+exports.removeFirstSeparator = function(myPath) {
   if (myPath.slice(0, 1) === '/' || myPath.slice(0, 1) === '\\') {
     return myPath.slice(1, myPath.length);
   }

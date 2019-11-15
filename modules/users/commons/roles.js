@@ -1,9 +1,9 @@
 /**
  * Created by Dimitri Aguera on 15/09/2017.
  */
-const ADMIN_ROLE = {id: 'ADMIN_ROLE', name: 'admin'};
-const USER_ROLE = {id: 'USER_ROLE', name: 'user'};
-const INVIT_ROLE = {id: 'INVIT_ROLE', name: 'invit'};
+const ADMIN_ROLE = { id: 'ADMIN_ROLE', name: 'admin' };
+const USER_ROLE = { id: 'USER_ROLE', name: 'user' };
+const INVIT_ROLE = { id: 'INVIT_ROLE', name: 'invit' };
 
 const DEFAULT_AUTH_ROLE = USER_ROLE;
 

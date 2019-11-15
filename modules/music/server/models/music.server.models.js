@@ -23,43 +23,48 @@ const TrackSchema = new Schema({
   meta: []
 });
 
-const PlaylistSchema = new Schema({
-  title: {
-    type: String,
-    unique: true,
-    required: true
+const PlaylistSchema = new Schema(
+  {
+    title: {
+      type: String,
+      unique: true,
+      required: true
+    },
+    tracks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Node'
+      }
+    ],
+    tracksFiles: [TrackSchema],
+    length: {
+      type: Number,
+      default: 0
+    },
+    created: {
+      type: Date,
+      default: Date.now
+    },
+    defaultPlaylist: {
+      type: Boolean,
+      default: false
+    },
+    author: { type: Schema.Types.ObjectId, ref: 'User' },
+    publicTitle: {
+      type: String
+    }
   },
-  tracks: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Node'
-  }],
-  tracksFiles: [TrackSchema],
-  length: {
-    type: Number,
-    default: 0
-  },
-  created: {
-    type: Date,
-    default: Date.now
-  },
-  defaultPlaylist: {
-    type: Boolean,
-    default: false
-  },
-  author: { type: Schema.Types.ObjectId, ref: 'User' },
-  publicTitle: {
-    type: String
+  {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
   }
-}, {
-  toObject: { virtuals: true },
-  toJSON: { virtuals: true }
-});
+);
 
 /**
  * Handle before saving new user queue playlist.
  *
  */
-PlaylistSchema.pre('save', function (next) {
+PlaylistSchema.pre('save', function(next) {
   this.length = this.tracks.length;
 
   if (this.isNew && this.defaultPlaylist) {
@@ -72,19 +77,20 @@ PlaylistSchema.pre('save', function (next) {
  * Handle for sockets.
  *
  */
-PlaylistSchema.post('save', function (doc) {
+PlaylistSchema.post('save', function(doc) {
   console.log('save post middleware called on Playlist Model');
-  doc
-    .populate('tracks')
-    .populate({
+  doc.populate('tracks').populate(
+    {
       path: 'author',
       select: 'username -_id'
-    }, (e, popDoc) => {
+    },
+    (e, popDoc) => {
       if (e) {
         return socketsEvents.emit('save:playlist', doc);
       }
       socketsEvents.emit('save:playlist', popDoc);
-    });
+    }
+  );
 });
 
 module.exports = mongoose.model('Playlist', PlaylistSchema);

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux'
-import { put, get } from 'core/client/services/core.api.services'
-import { hasRole } from 'users/client/services/users.auth.services'
-import { ALL_ROLE, ADMIN_ROLE, DEFAULT_AUTH_ROLE } from 'users/commons/roles'
-import { Message } from 'semantic-ui-react'
+import { connect } from 'react-redux';
+import { put, get } from 'core/client/services/core.api.services';
+import { hasRole } from 'users/client/services/users.auth.services';
+import { ALL_ROLE, ADMIN_ROLE, DEFAULT_AUTH_ROLE } from 'users/commons/roles';
+import { Message } from 'semantic-ui-react';
 
-import dateFormat from 'dateformat'
+import dateFormat from 'dateformat';
 
 class EditUser extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.handleUpdateUser = this.handleUpdateUser.bind(this);
@@ -23,11 +23,11 @@ class EditUser extends Component {
   }
 
   // Make Form input controlled.
-  handleChangeCheckBox (e) {
+  handleChangeCheckBox(e) {
     const value = e.target.checked;
     const name = e.target.name;
 
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const state = Object.assign({}, prevState);
       this.state.formRoles[name] = value;
       this.state.errorUpdate = null;
@@ -36,24 +36,23 @@ class EditUser extends Component {
   }
 
   // Request user to server.
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
     const name = _self.props.match.params.userName;
     const { history } = _self.props;
 
-    this.props.fetchUser(name)
-      .then((data) => {
-        if (!data.success) {
-          return history.push('/not-found');
-        }
-        _self.setState({
-          user: data.msg,
-          formRoles: setRoleArray(data.msg.roles)
-        })
+    this.props.fetchUser(name).then(data => {
+      if (!data.success) {
+        return history.push('/not-found');
+      }
+      _self.setState({
+        user: data.msg,
+        formRoles: setRoleArray(data.msg.roles)
       });
+    });
   }
 
-  handleUpdateUser (e) {
+  handleUpdateUser(e) {
     e.preventDefault();
     const _self = this;
     const { user, formRoles } = this.state;
@@ -63,21 +62,20 @@ class EditUser extends Component {
       roles: getRoleArray(formRoles)
     };
 
-    this.props.updateUser(name, update)
-      .then((data) => {
-        if (!data.success) {
-          return _self.setState({
-            errorUpdate: true
-          })
-        }
-        _self.setState({
-          user: _.merge(user, update),
-          errorUpdate: false
-        })
+    this.props.updateUser(name, update).then(data => {
+      if (!data.success) {
+        return _self.setState({
+          errorUpdate: true
+        });
+      }
+      _self.setState({
+        user: _.merge(user, update),
+        errorUpdate: false
       });
+    });
   }
 
-  render () {
+  render() {
     const { user, errorUpdate } = this.state;
     const { currentUser } = this.props;
 
@@ -93,7 +91,11 @@ class EditUser extends Component {
         }
 
         // If user is currrent connected user and as admin role, can't be unchecked.
-        else if (role.id === ADMIN_ROLE.id && hasRole(user, [role]) && (currentUser.username === user.username)) {
+        else if (
+          role.id === ADMIN_ROLE.id &&
+          hasRole(user, [role]) &&
+          currentUser.username === user.username
+        ) {
           props.checked = true;
           props.disabled = true;
         }
@@ -105,7 +107,16 @@ class EditUser extends Component {
 
         return (
           <li key={index}>
-            <input id={role.id} name={role.id} className='checkbox' type='checkbox' defaultChecked={props.defaultChecked} checked={props.checked} disabled={props.disabled} onChange={this.handleChangeCheckBox}/>
+            <input
+              id={role.id}
+              name={role.id}
+              className="checkbox"
+              type="checkbox"
+              defaultChecked={props.defaultChecked}
+              checked={props.checked}
+              disabled={props.disabled}
+              onChange={this.handleChangeCheckBox}
+            />
             <label htmlFor={role.id}>{role.name}</label>
           </li>
         );
@@ -114,28 +125,39 @@ class EditUser extends Component {
       const renderMessage = () => {
         if (errorUpdate === null) {
           return null;
-        }
-        else if (errorUpdate) {
-          return <Message error content='Problem occurs during update. Please try again or contact administrator.' />;
-        }
-        else {
-          return <Message success content={`Changes successfully updated on ${dateFormat(new Date(), 'dd mmm yyyy - H:MM:ss')}`} />;
+        } else if (errorUpdate) {
+          return (
+            <Message
+              error
+              content="Problem occurs during update. Please try again or contact administrator."
+            />
+          );
+        } else {
+          return (
+            <Message
+              success
+              content={`Changes successfully updated on ${dateFormat(
+                new Date(),
+                'dd mmm yyyy - H:MM:ss'
+              )}`}
+            />
+          );
         }
       };
 
       // Render form.
       return (
-        <section className='pal'>
+        <section className="pal">
           <header>
             <h1>Edit {user.username} account</h1>
           </header>
-          <div className='wrapper-content'>
+          <div className="wrapper-content">
             <h2>Authorizations</h2>
             <form onSubmit={this.handleUpdateUser}>
-              <ul className='unstyled'>
-                {rolesForm}
-              </ul>
-              <button className='btn' type='submit'>Save</button>
+              <ul className="unstyled">{rolesForm}</ul>
+              <button className="btn" type="submit">
+                Save
+              </button>
               {renderMessage()}
             </form>
           </div>
@@ -150,38 +172,33 @@ class EditUser extends Component {
 const mapStateToProps = state => {
   return {
     currentUser: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchUser: (name) => dispatch(
-      get('users/' + name)
-    ),
-    updateUser: (name, update) => dispatch(
-      put('users/' + name, {
-        data: update
-      })
-    )
-  }
+    fetchUser: name => dispatch(get('users/' + name)),
+    updateUser: (name, update) =>
+      dispatch(
+        put('users/' + name, {
+          data: update
+        })
+      )
+  };
 };
 
-const EditUserContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditUser);
-
+const EditUserContainer = connect(mapStateToProps, mapDispatchToProps)(EditUser);
 
 // HELPER FUNCTION
-function getRoleArray (obj) {
+function getRoleArray(obj) {
   const roles = [];
   for (let key in obj) {
-    if (obj.hasOwnProperty(key) && (obj[key] === true)) roles.push(key);
+    if (obj.hasOwnProperty(key) && obj[key] === true) roles.push(key);
   }
   return roles;
 }
 
-function setRoleArray (array) {
+function setRoleArray(array) {
   const roles = {};
   for (let i = 0; i < array.length; i++) {
     roles[array[i]] = true;
@@ -189,4 +206,4 @@ function setRoleArray (array) {
   return roles;
 }
 
-export default EditUserContainer
+export default EditUserContainer;

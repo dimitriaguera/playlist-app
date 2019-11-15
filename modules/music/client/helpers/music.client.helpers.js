@@ -6,7 +6,7 @@ export const mustUpdate = (pl1, pl2) => {
   if (!pl1 || !pl2) {
     return false;
   }
-  return (pl1.title === pl2.title);
+  return pl1.title === pl2.title;
 };
 
 export const getTrackIndexById = (id, array) => {

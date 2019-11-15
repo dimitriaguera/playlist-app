@@ -4,7 +4,7 @@
 
 const folder = require('../controllers/folder.server.controllers.js');
 
-module.exports = function (app) {
+module.exports = function(app) {
   // Return index file.
   app.route('/api/folder').get(folder.open);
 

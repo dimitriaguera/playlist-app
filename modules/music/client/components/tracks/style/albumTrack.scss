@@ -19,8 +19,8 @@ $image-size-track: 5rem;
   grid-template-columns: $image-size-track-small 1fr auto $menu-size;
   grid-template-rows: auto auto;
   grid-template-areas:
-    "image title title menu"
-    "image artist time menu";
+    'image title title menu'
+    'image artist time menu';
   grid-column-gap: 2rem;
   align-items: center;
   color: $color-link-track;
@@ -144,11 +144,11 @@ $image-size-track: 5rem;
   }
 }
 
-@include respond-to("small-up") {
+@include respond-to('small-up') {
   .move-album-tracks-items-row,
   .move-album-tracks-items-row-header {
     grid-template-rows: auto;
-    grid-template-areas: "image title artist time menu";
+    grid-template-areas: 'image title artist time menu';
     grid-template-columns: $image-size-track 3fr 1fr 0.5fr $menu-size;
   }
 

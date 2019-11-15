@@ -1,7 +1,10 @@
-import React, { Component } from 'react'
-import ps from 'core/client/services/core.path.services'
-import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components'
-import { getAlbumKeyFromTrackNodeMeta, normalizedMeta } from 'indexableFolder/server/services/indexableFolder.key.services'
+import React, { Component } from 'react';
+import ps from 'core/client/services/core.path.services';
+import IconPlayAnim from 'music/client/components/iconPlayAnim/iconPlayAnim.client.components';
+import {
+  getAlbumKeyFromTrackNodeMeta,
+  normalizedMeta
+} from 'indexableFolder/server/services/indexableFolder.key.services';
 
 class FolderTrack extends Component {
   constructor(props) {
@@ -9,33 +12,43 @@ class FolderTrack extends Component {
     this.toAlbumPage = this.toAlbumPage.bind(this);
   }
 
-  shouldComponentUpdate (nextProps) {
-    const nextActive = nextProps.isActivePlaylist && (nextProps.index === nextProps.onPlayIndex);
-    const active = this.props.isActivePlaylist && (this.props.index === this.props.onPlayIndex);
+  shouldComponentUpdate(nextProps) {
+    const nextActive =
+      nextProps.isActivePlaylist && nextProps.index === nextProps.onPlayIndex;
+    const active =
+      this.props.isActivePlaylist && this.props.index === this.props.onPlayIndex;
 
     return (
       this.props.item !== nextProps.item ||
-            this.props.index !== nextProps.index ||
-            active !== nextActive ||
-            (active && this.props.isPaused !== nextProps.isPaused)
-    )
+      this.props.index !== nextProps.index ||
+      active !== nextActive ||
+      (active && this.props.isPaused !== nextProps.isPaused)
+    );
   }
 
-  toAlbumPage(e){
+  toAlbumPage(e) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
     }
-    const key = ps.urlEncode(getAlbumKeyFromTrackNodeMeta(ps, normalizedMeta(this.props.item)));
+    const key = ps.urlEncode(
+      getAlbumKeyFromTrackNodeMeta(ps, normalizedMeta(this.props.item))
+    );
     this.props.history.push(`/album/${key}`);
   }
 
-  render () {
+  render() {
     const {
-      item, onPlay, index, isPaused, onPlayIndex, isActivePlaylist, addTrack
+      item,
+      onPlay,
+      index,
+      isPaused,
+      onPlayIndex,
+      isActivePlaylist,
+      addTrack
     } = this.props;
 
-    const active = isActivePlaylist && (index === onPlayIndex);
+    const active = isActivePlaylist && index === onPlayIndex;
 
     let classes = ['move-folder-tracks-items-row'];
     if (active) classes.push('active');
@@ -43,17 +56,25 @@ class FolderTrack extends Component {
     const artist = item.meta.artist ? item.meta.artist : item.meta.albumartist;
 
     return (
-      <div aria-label='play track' className={classes.join(' ')} onClick={e => onPlay(e, index)} draggable='false'>
+      <div
+        aria-label="play track"
+        className={classes.join(' ')}
+        onClick={e => onPlay(e, index)}
+        draggable="false"
+      >
+        <Prefix active={active} isPaused={isPaused} index={index} />
 
-        <Prefix active={active} isPaused={isPaused} index={index}/>
+        <span className="title">{item.meta.title || item.publicName}</span>
+        {artist && <span className="artist">{artist}</span>}
+        {item.meta.album && (
+          <a href={'#'} onClick={this.toAlbumPage} className="album">
+            {item.meta.album}
+          </a>
+        )}
+        {item.meta.time && <span className="time">{item.meta.time}</span>}
 
-        <span className='title'>{item.meta.title || item.publicName}</span>
-        {artist && <span className='artist'>{artist}</span>}
-        {item.meta.album && <a href={'#'} onClick={this.toAlbumPage} className='album'>{item.meta.album}</a>}
-        {item.meta.time && <span className='time'>{item.meta.time}</span>}
-
-        <span className='tracks-item-menu'>
-          <button className='btn' onClick={e => addTrack(e, item._id)}>
+        <span className="tracks-item-menu">
+          <button className="btn" onClick={e => addTrack(e, item._id)}>
             <i aria-hidden="true" className="icon icon-plus" />
           </button>
         </span>
@@ -62,24 +83,24 @@ class FolderTrack extends Component {
   }
 }
 
-const Prefix = ({active, isPaused, index}) => {
-
-  if( active ) return (
-    <span className='tracks-item-img'>
-      {isPaused ?
-        <i aria-hidden="true" className='icon icon-pause'/>
-        :
-        <IconPlayAnim/>
-      }
-    </span>
-  );
+const Prefix = ({ active, isPaused, index }) => {
+  if (active)
+    return (
+      <span className="tracks-item-img">
+        {isPaused ? (
+          <i aria-hidden="true" className="icon icon-pause" />
+        ) : (
+          <IconPlayAnim />
+        )}
+      </span>
+    );
 
   return (
-    <span className='tracks-item-img'>
-      <i aria-hidden="true" className='icon icon-play move'/>
-      <span className='number'>{index + 1}.</span>
+    <span className="tracks-item-img">
+      <i aria-hidden="true" className="icon icon-play move" />
+      <span className="number">{index + 1}.</span>
     </span>
   );
 };
 
-export default FolderTrack
+export default FolderTrack;

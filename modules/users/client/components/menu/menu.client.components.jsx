@@ -1,32 +1,45 @@
-import React from 'react'
-import {connect} from 'react-redux'
-import {NavLink} from 'react-router-dom'
+import React from 'react';
+import { connect } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 
-import {logoutUser} from 'users/client/redux/actions'
+import { logoutUser } from 'users/client/redux/actions';
 
 // AddExt.
-import {activatePlaylist} from 'music/client/redux/actions'
+import { activatePlaylist } from 'music/client/redux/actions';
 // End AddExt.
 
-
 // Users menu entry.
-export const UsersItem = () => <NavLink to='/users' activeClassName="nav-selected">Users</NavLink>;
+export const UsersItem = () => (
+  <NavLink to="/users" activeClassName="nav-selected">
+    Users
+  </NavLink>
+);
 
 // Login menu entry.
 export const LoginItem = () => (
-  <NavLink to="/Login" activeClassName="nav-selected">Login</NavLink>
+  <NavLink to="/Login" activeClassName="nav-selected">
+    Login
+  </NavLink>
 );
 
 // Login myAccountItem
-export const MyAccountItem = () => <NavLink to='/account' activeClassName="nav-selected">See my account</NavLink>;
+export const MyAccountItem = () => (
+  <NavLink to="/account" activeClassName="nav-selected">
+    See my account
+  </NavLink>
+);
 
 /////////////////////////
 // LogoutItem
-const LogoutItemContainer = ({logoutHandler}) => {
-  return (<a href='#' onClick={logoutHandler}>Logout</a>)
+const LogoutItemContainer = ({ logoutHandler }) => {
+  return (
+    <a href="#" onClick={logoutHandler}>
+      Logout
+    </a>
+  );
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     logoutHandler: e => {
       e.preventDefault();
@@ -36,13 +49,10 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(activatePlaylist(null));
       // End AddExt.
     }
-  }
+  };
 };
 
-export const LogoutItem = connect(
-  null,
-  mapDispatchToProps,
-  null,
-  {pure: false}
-)(LogoutItemContainer);
+export const LogoutItem = connect(null, mapDispatchToProps, null, { pure: false })(
+  LogoutItemContainer
+);
 /////////////////////////

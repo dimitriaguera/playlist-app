@@ -5,8 +5,8 @@
 
 const _ = require('lodash');
 
-module.exports = function (...authorizedRoles) {
-  return function (req, res, next) {
+module.exports = function(...authorizedRoles) {
+  return function(req, res, next) {
     const userRoles = req.user.roles;
     const ids = [];
 
@@ -18,5 +18,5 @@ module.exports = function (...authorizedRoles) {
       return;
     }
     next();
-  }
+  };
 };

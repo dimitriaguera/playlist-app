@@ -16,7 +16,7 @@ $color-nav-btn-active: $white;
   position: relative;
   height: 100%;
   overflow-y: auto;
-  
+
   .select-playlist {
     min-height: auto;
   }
@@ -74,7 +74,7 @@ $color-nav-btn-active: $white;
         color: $color-font-side-bar-nav-selected-phone;
       }
 
-      @include respond-to("medium-up") {
+      @include respond-to('medium-up') {
         color: $color-font-side-bar;
 
         &.nav-selected {

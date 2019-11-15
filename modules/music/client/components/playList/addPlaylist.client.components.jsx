@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { post } from 'core/client/services/core.api.services'
-import { Message } from 'semantic-ui-react'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { post } from 'core/client/services/core.api.services';
+import { Message } from 'semantic-ui-react';
 
 class AddPlaylist extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.submitForm = this.submitForm.bind(this);
@@ -12,10 +12,10 @@ class AddPlaylist extends Component {
       error: false,
       message: '',
       title: ''
-    }
+    };
   }
 
-  handleInputChange (e) {
+  handleInputChange(e) {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
@@ -25,7 +25,7 @@ class AddPlaylist extends Component {
     });
   }
 
-  submitForm (e) {
+  submitForm(e) {
     e.preventDefault();
 
     const _self = this;
@@ -39,8 +39,7 @@ class AddPlaylist extends Component {
           error: true,
           message: 'You must login to create playlist.'
         });
-      }
-      else {
+      } else {
         return history.push('/login');
       }
     }
@@ -54,37 +53,41 @@ class AddPlaylist extends Component {
     }
 
     // User authenticated on any role can create playlist.
-    createPlaylist({ title: title, user: user, tracks: tracksId })
-      .then((data) => {
-        if (!data.success) {
-          _self.setState({message: data.msg, error: true });
-        } else {
-          _self.setState({error: false, message: '', title: ''});
-          if (typeof onSave === 'function') {
-            onSave(data);
-          }
-          if (redirect) {
-            return history.push(`/playlist/${title}`);
-          }
+    createPlaylist({ title: title, user: user, tracks: tracksId }).then(data => {
+      if (!data.success) {
+        _self.setState({ message: data.msg, error: true });
+      } else {
+        _self.setState({ error: false, message: '', title: '' });
+        if (typeof onSave === 'function') {
+          onSave(data);
         }
-      });
+        if (redirect) {
+          return history.push(`/playlist/${title}`);
+        }
+      }
+    });
   }
 
-  render () {
+  render() {
     const { error, message, title } = this.state;
 
     return (
-      <form className='allpl-form add-pl-form' onSubmit={this.submitForm}>
-        <input className='allpl-create' type="submit" value="Create" className='btn'/>
+      <form className="allpl-form add-pl-form" onSubmit={this.submitForm}>
         <input
-          placeholder='Create new playlist'
-          name='title'
+          className="allpl-create"
+          type="submit"
+          value="Create"
+          className="btn"
+        />
+        <input
+          placeholder="Create new playlist"
+          name="title"
           value={title}
           onChange={this.handleInputChange}
           aria-describedby="Playlist name to create"
-          className='allpl-title'
+          className="allpl-title"
         />
-        <Message className='allpl-message' error content={message} />
+        <Message className="allpl-message" error content={message} />
       </form>
     );
   }
@@ -93,15 +96,13 @@ class AddPlaylist extends Component {
 const mapStateToProps = state => {
   return {
     user: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    createPlaylist: (item) => dispatch(
-      post('playlist', {data: item})
-    )
-  }
+    createPlaylist: item => dispatch(post('playlist', { data: item }))
+  };
 };
 
 const AddPlaylistContainer = connect(
@@ -109,4 +110,4 @@ const AddPlaylistContainer = connect(
   mapDispatchToProps
 )(AddPlaylist);
 
-export default AddPlaylistContainer
+export default AddPlaylistContainer;

@@ -16,12 +16,14 @@ let bcrypt;
 try {
   bcrypt = require('bcrypt');
   console.log(chalk.blue('bcrypt'));
-}
-catch (e) {
+} catch (e) {
   bcrypt = require('bcryptjs');
-  console.log(chalk.red('bcryptjs : If authentification is slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs'));
+  console.log(
+    chalk.red(
+      'bcryptjs : If authentification is slow (e.g. on Raspberry) install Bcrypt instead of Bcryptjs'
+    )
+  );
 }
-
 
 /**
  * From MEAN JS.
@@ -34,12 +36,16 @@ catch (e) {
  * - not begin or end with "."
  */
 
-const validateUsername = function (username) {
+const validateUsername = function(username) {
   const usernameRegex = /^(?=[\w.-]+$)(?!.*[._-]{2})(?!\.)(?!.*\.$).{3,34}$/;
-  return (username && usernameRegex.test(username) && config.security.illegalUsernames.indexOf(username) < 0);
+  return (
+    username &&
+    usernameRegex.test(username) &&
+    config.security.illegalUsernames.indexOf(username) < 0
+  );
 };
 
-const validatePassword = function (password) {
+const validatePassword = function(password) {
   // Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
   // no space
   // WARNING YOU HAVE TO OPPOSITE TEST !passwordRegex.test(password)
@@ -47,30 +53,34 @@ const validatePassword = function (password) {
 
   // no characters repeated more than 3 times consecutively (like aaaaa)
   const testIfRepeatCarRegex = /^(?!.*(\w)\1{3,}).+$/;
-  return (password && !passwordRegex.test(password) && testIfRepeatCarRegex.test(password));
+  return (
+    password && !passwordRegex.test(password) && testIfRepeatCarRegex.test(password)
+  );
 };
-
 
 /**
  * User model.
  *
  */
 const UserSchema = new Schema({
-
   username: {
     type: String,
     unique: true,
     required: true,
-    validate: [validateUsername, 'Please enter a valid username: 3+ characters long, non restricted word, characters "_-.", no consecutive dots, does not begin or end with dots, letters a-z and numbers 0-9.']
+    validate: [
+      validateUsername,
+      'Please enter a valid username: 3+ characters long, non restricted word, characters "_-.", no consecutive dots, does not begin or end with dots, letters a-z and numbers 0-9.'
+    ]
   },
 
   password: {
     type: String,
     required: true,
-    validate: [validatePassword,
+    validate: [
+      validatePassword,
       'Please enter a valid password : Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character ' +
-      'no space and no characters repeated more than 3 times consecutively (like aaaaa).'
-      ]
+        'no space and no characters repeated more than 3 times consecutively (like aaaaa).'
+    ]
   },
 
   roles: ['string'],
@@ -85,12 +95,11 @@ const UserSchema = new Schema({
   }
 });
 
-
 /**
  * Handle before saving to threat password.
  *
  */
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function(next) {
   const user = this;
   if (this.isModified('password') || this.isNew) {
     bcrypt.hash(user.password, config.security.bcryptSaltRounds, (err, hash) => {
@@ -107,13 +116,13 @@ UserSchema.pre('save', function (next) {
  * Handle for sockets.
  *
  */
-UserSchema.post('save', function (doc) {
+UserSchema.post('save', function(doc) {
   console.log('save post middleware called on User Model');
   socketsEvents.emit('save:user', doc);
 });
 
-UserSchema.method('hashPassword', function (password) {
-  return new Promise(function (resolve, reject) {
+UserSchema.method('hashPassword', function(password) {
+  return new Promise(function(resolve, reject) {
     bcrypt.hash(password, config.security.bcryptSaltRounds, (err, hash) => {
       if (err) return reject(err);
       resolve(hash);
@@ -121,19 +130,18 @@ UserSchema.method('hashPassword', function (password) {
   });
 });
 
-UserSchema.method('comparePassword', function (password) {
+UserSchema.method('comparePassword', function(password) {
   const self = this;
 
-  return new Promise(function (resolve, reject) {
-    bcrypt.compare(password, self.password,
-      (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
+  return new Promise(function(resolve, reject) {
+    bcrypt.compare(password, self.password, (err, res) => {
+      if (err) return reject(err);
+      resolve(res);
+    });
   });
 });
 
-UserSchema.method('secure', function () {
+UserSchema.method('secure', function() {
   const other = this.toObject();
   delete other.password;
   return other;

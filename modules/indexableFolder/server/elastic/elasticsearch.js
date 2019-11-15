@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 /**
  * Created by Dimitri on 16/11/2017.
  */
@@ -9,8 +9,7 @@ const path = require('path');
 
 const { es: esConfig } = require(path.resolve('./config/env/config.server'));
 
-
-console.log()
+console.log();
 // Instantiate ES client.
 let client = new elasticsearch.Client(esConfig);
 
@@ -26,7 +25,6 @@ let client = new elasticsearch.Client(esConfig);
 //     console.log(chalk.green('elasticsearch ok'));
 //   }
 // });
-
 
 exports.indexBulk = index.indexBulk(client);
 exports.indexDelete = index.indexDelete(client);

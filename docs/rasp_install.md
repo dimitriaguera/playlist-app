@@ -1,9 +1,9 @@
 # Install instruction for Raspberry on Raspian
 
-* Download Raspbian lite (https://www.raspberrypi.org/downloads/raspbian/)
-* Flash it on a sdcard
-* Plug it in raspberry and start it
-* Login with pi / raspberry (the keyboard is in english)
+- Download Raspbian lite (https://www.raspberrypi.org/downloads/raspbian/)
+- Flash it on a sdcard
+- Plug it in raspberry and start it
+- Login with pi / raspberry (the keyboard is in english)
 
 ## Config raspian
 
@@ -12,8 +12,8 @@ sudo raspi-config
 ```
 
 Change **password** (this is realy important),
-keyboard layout, 
-overclock, 
+keyboard layout,
+overclock,
 gpu memory to 16mb,
 active ssh connection,
 Expand Filesystem
@@ -55,14 +55,14 @@ ssh -p PORT pi@IPRASPBERRY
 #### Make authentication by SSH key :
 
 On your computer :
+
 ```
 ssh-keygen -t rsa -f ~/.ssh/rasp
 ssh-copy-id -p PORT -i ~/.ssh/rasp.pub pi@IPRASPBERRY
 ssh-add -K rasp
 ```
-﻿
-Now try to connect to your raspberry I must don't ask to password.
 
+Now try to connect to your raspberry I must don't ask to password.
 
 ### Install Fail2ban
 
@@ -91,7 +91,6 @@ You can see the new rules with
 iptables -L
 ```
 
-  
 ## Clone the project :
 
 ```
@@ -110,19 +109,18 @@ chmod u+x installDebian
 ./installDebian
 ```
 
-
-## Install manually 
+## Install manually
 
 Note Raspberry Pi version 2 or 3 is ARMv7
 Note Raspberry Pi version 1 is ﻿ARMv6
 
 To find your cpu version
+
 ```
 cat /proc/cpuinfo
 ```
 
 To see note about armhf and armel : https://wiki.debian.org/RaspberryPi
-
 
 ### Update
 
@@ -171,14 +169,15 @@ sudo apt-get install mongodb
 ```
 
 Once MongoDB is installed, you will need to start and stop MongoDB, verifying that it functions correctly:
+
 ```
 sudo systemctl start mongodb
 sudo systemctl status mongodb
 sudo systemctl stop mongodb
 ```
 
-
 To configure mongodb to start automatically when the system boots up, run the following commands:
+
 ```
 sudo systemctl daemon-reload
 sudo systemctl enable mongodb
@@ -241,14 +240,15 @@ net:
 ```
 
 The important part is
+
 ```
   wiredTiger:
     engineConfig:
       configString : cache_size=345M
 ```
 
-
 The other way is to start mongo in command line with
+
 ```
 mongod --dbpath mydbpath --storageEngine wiredTiger --wiredTigerEngineConfigString="cache_size=200M"
 ```
@@ -274,7 +274,7 @@ sudo systemctl enable elasticsearch
 ```
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.2.deb
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.2.deb.sha512
-shasum -a 512 -c elasticsearch-6.2.2.deb.sha512 
+shasum -a 512 -c elasticsearch-6.2.2.deb.sha512
 sudo dpkg -i elasticsearch-6.2.2.deb
 ```
 
@@ -285,13 +285,15 @@ sudo -s
 nano /etc/elasticsearch/jvm.options
 ```
 
-For raspberry 1  if you have this line comment it :
+For raspberry 1 if you have this line comment it :
+
 ```
 # force the server VM
-# -server 
+# -server
 ```
 
 And for all raspberry allow less memory
+
 ```
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
@@ -300,12 +302,14 @@ And for all raspberry allow less memory
 -Xmx128m
 ```
 
-After the edition of the file 
+After the edition of the file
+
 ```
 exit # to quit root
 ```
 
 Try if elastic start :
+
 ```
 sudo systemctl daemon-reload
 sudo systemctl start elasticsearch.service
@@ -313,21 +317,23 @@ sudo systemctl status elasticsearch.service
 ```
 
 Start elastic with the system :
+
 ```
 sudo systemctl enable elasticsearch.service
 ```
 
 If you want to change the port edit the http.port in :
+
 ```
 sudo -s
 /etc/elasticsearch/elasticsearch.yml
 ```
 
 You can test the serveur with :
+
 ```
 curl -XGET 'localhost:9200/?pretty'
 ```
-
 
 ### Installing playlistApp
 
@@ -349,7 +355,7 @@ To install them :
 
 ```
 npm install bcrypt sharp taglib2
-```  
+```
 
 Bcrypt is really need on Raspberry if logging take long time.
 
@@ -367,13 +373,13 @@ Now check the config.private.js and see comments for changing it.
 
 #### Build the app
 
-Make sure you have installed the devDependencies. If not run 
+Make sure you have installed the devDependencies. If not run
 
 ```
-npm install 
+npm install
 ```
 
-Then 
+Then
 
 ```
 npm run build-prod
@@ -381,7 +387,7 @@ npm run build-prod
 
 After that you must have a `public/dist` directory.
 
-When you look at webpack build message if you have 
+When you look at webpack build message if you have
 
 ```
 ERROR in ./theme/assets/images/default_pl_1.jpg
@@ -415,7 +421,7 @@ npm run start-prod
 
 #### Build the music database
 
-For Mongodb  :
+For Mongodb :
 
 ```
 curl -X POST http://localhost:8080/api/nodes/build
@@ -435,7 +441,7 @@ curl -X POST http://localhost:8080/api/files/cover/all
 
 #### Trying the app
 
-Now open a browser and go to 
+Now open a browser and go to
 
 ```
 npm run start-prod

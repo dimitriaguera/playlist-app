@@ -45,19 +45,19 @@ h1 {
 
 //////////// KNACSS GRID LAYOUT EXTENSION
 @media (min-width: $medium) and (max-width: ($extra-large - 1)) {
-  @for $i from 1 through 4{
-    [class*="grid-"][class*="-medium-#{$i}"] {
+  @for $i from 1 through 4 {
+    [class*='grid-'][class*='-medium-#{$i}'] {
       grid-template-columns: repeat(#{$i}, 1fr);
     }
 
-    [class*="col-"][class*="-medium-#{$i}"] {
+    [class*='col-'][class*='-medium-#{$i}'] {
       grid-column: auto / span #{$i};
     }
   }
 }
 
 .pal {
-  @include respond-to("medium") {
+  @include respond-to('medium') {
     padding: 1rem;
   }
 }
@@ -85,7 +85,7 @@ h1 {
   width: $side-larger;
   z-index: $zindex-navigation-small;
 
-  @include respond-to("medium-up") {
+  @include respond-to('medium-up') {
     left: 0;
     background: $color-bg-side-bar;
   }
@@ -104,7 +104,7 @@ h1 {
   height: 100%;
   transition: padding 1s;
 
-  @include respond-to("medium-up") {
+  @include respond-to('medium-up') {
     transition: none;
     padding-left: #{$side-larger};
   }

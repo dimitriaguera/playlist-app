@@ -2,8 +2,7 @@
  * Created by Marc Foletto on 23/11/2017.
  */
 
-
-exports.metaSchema = function () {
+exports.metaSchema = function() {
   return {
     title: '',
     artist: '',
@@ -17,7 +16,7 @@ exports.metaSchema = function () {
     trackof: '',
     diskno: '',
     diskof: ''
-  }
+  };
 };
 
 try {

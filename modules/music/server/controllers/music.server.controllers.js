@@ -7,12 +7,18 @@ const config = require(path.resolve('./config/env/config.server'));
 const readChunk = require('read-chunk');
 const fileType = require('file-type');
 const Playlist = require('../models/music.server.models');
-const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-const usersServices = require(path.resolve('./modules/users/server/services/users.server.services'));
-const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
+const errorHandler = require(path.resolve(
+  './modules/core/server/services/error.server.services'
+));
+const usersServices = require(path.resolve(
+  './modules/users/server/services/users.server.services'
+));
+const ps = require(path.resolve(
+  './modules/core/client/services/core.path.services'
+));
 const socketsEvents = require(path.resolve('./config/sockets/sockets.conf'));
 
-exports.read = function (req, res, next) {
+exports.read = function(req, res, next) {
   // Build absolute path.
   const DRIVE = config.musicFolder;
   const NOT_SECURE_STRING = req.query.path;
@@ -33,7 +39,13 @@ exports.read = function (req, res, next) {
   fs.stat(filePath, (err, stat) => {
     if (err) {
       res.status(404);
-      return errorHandler.errorMessageHandler(err, req, res, next, `Can't find file.`);
+      return errorHandler.errorMessageHandler(
+        err,
+        req,
+        res,
+        next,
+        `Can't find file.`
+      );
     }
 
     let audio;
@@ -51,15 +63,13 @@ exports.read = function (req, res, next) {
         // Get range start / end.
         const parts = range.replace(/bytes=/, '').split('-');
         const start = parseInt(parts[0], 10);
-        const end = parts[1]
-          ? parseInt(parts[1], 10)
-          : fileSize - 1;
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
         // Get size of chunk.
-        const chunksize = (end - start) + 1;
+        const chunksize = end - start + 1;
 
         // Create stream chunk.
-        audio = fs.createReadStream(filePath, {start, end});
+        audio = fs.createReadStream(filePath, { start, end });
 
         // Make specific header.
         const head = {
@@ -88,19 +98,17 @@ exports.read = function (req, res, next) {
         // Pipe data in server response.
         audio.pipe(res, { end: false });
       }
-    }
-    catch (err) {
+    } catch (err) {
       // res.status(500);
       return next(err);
     }
-
 
     res.on('close', () => {
       console.log('CLOSE RESP');
     });
 
     // Handle error event during stream.
-    audio.on('error', (err) => {
+    audio.on('error', err => {
       console.log(err.message);
       res.end('Goodbye');
     });
@@ -119,7 +127,7 @@ exports.read = function (req, res, next) {
   });
 };
 
-exports.create = function (req, res, next) {
+exports.create = function(req, res, next) {
   const { title, user, tracks = [] } = req.body;
 
   // Create playlist.
@@ -129,12 +137,18 @@ exports.create = function (req, res, next) {
     tracks: tracks
   });
 
-    // Save it.
-  newPl.save((err) => {
+  // Save it.
+  newPl.save(err => {
     if (err) {
       if (err.name === 'MongoError' && err.code === 11000) {
         res.status(202);
-        return errorHandler.errorMessageHandler(err, req, res, next, `${title} already exist. Please choose an other playlist title.`);
+        return errorHandler.errorMessageHandler(
+          err,
+          req,
+          res,
+          next,
+          `${title} already exist. Please choose an other playlist title.`
+        );
       }
       return errorHandler.errorMessageHandler(err, req, res, next);
     }
@@ -145,8 +159,7 @@ exports.create = function (req, res, next) {
   });
 };
 
-
-exports.playlist = function (req, res) {
+exports.playlist = function(req, res) {
   // Get playlist.
   const pl = req.model;
 
@@ -154,7 +167,8 @@ exports.playlist = function (req, res) {
   if (!pl) {
     return res.status(401).json({
       success: false,
-      msg: 'Playlist no found'});
+      msg: 'Playlist no found'
+    });
   }
   res.json({
     success: true,
@@ -162,26 +176,38 @@ exports.playlist = function (req, res) {
   });
 };
 
-exports.allPlaylist = function (req, res, next) {
+exports.allPlaylist = function(req, res, next) {
   // Search all playlist, without defaults playlists.
-  Playlist.find({defaultPlaylist: false})
+  Playlist.find({ defaultPlaylist: false })
     .populate('author', 'username -_id')
     .select('-tracks -_id')
-    .exec(function (err, pls) {
+    .exec(function(err, pls) {
       if (err) {
         res.status(422);
-        return errorHandler.errorMessageHandler(err, req, res, next, `Can't find playlists.`);
+        return errorHandler.errorMessageHandler(
+          err,
+          req,
+          res,
+          next,
+          `Can't find playlists.`
+        );
       }
 
       // If user authenticated, search and add default playlist.
-      usersServices.getUserFromToken(req, (user) => {
+      usersServices.getUserFromToken(req, user => {
         // If authenticated.
         if (user) {
           // Get the default playlist of this user.
           return getDefaultPlaylist(user, (err, _defPl) => {
             if (err) {
               res.status(422);
-              return errorHandler.errorMessageHandler(err, req, res, next, `Can't find default playlist for user ${user.username}`);
+              return errorHandler.errorMessageHandler(
+                err,
+                req,
+                res,
+                next,
+                `Can't find default playlist for user ${user.username}`
+              );
             }
 
             // User has default playlist, add it to all playlist.
@@ -206,7 +232,7 @@ exports.allPlaylist = function (req, res, next) {
     });
 };
 
-exports.ownedPlaylist = function (req, res, next) {
+exports.ownedPlaylist = function(req, res, next) {
   // Passport middleware authenticated road, so req.user must exist.
   const user = req.user;
 
@@ -215,17 +241,29 @@ exports.ownedPlaylist = function (req, res, next) {
     return Playlist.find({ defaultPlaylist: false, author: user._id })
       .populate('author', 'username -_id')
       .select('-tracks -_id')
-      .exec(function (err, pls) {
+      .exec(function(err, pls) {
         if (err) {
           res.status(422);
-          return errorHandler.errorMessageHandler(err, req, res, next, `Can't find owned playlists.`);
+          return errorHandler.errorMessageHandler(
+            err,
+            req,
+            res,
+            next,
+            `Can't find owned playlists.`
+          );
         }
 
         // Get the default playlist of this user.
         getDefaultPlaylist(user, (err, _defPl) => {
           if (err) {
             res.status(422);
-            return errorHandler.errorMessageHandler(err, req, res, next, `Can't find default playlist for user ${user.username}`);
+            return errorHandler.errorMessageHandler(
+              err,
+              req,
+              res,
+              next,
+              `Can't find default playlist for user ${user.username}`
+            );
           }
 
           // User has default playlist, add it to all playlist.
@@ -250,7 +288,7 @@ exports.ownedPlaylist = function (req, res, next) {
   });
 };
 
-exports.addTracks = function (req, res, next) {
+exports.addTracks = function(req, res, next) {
   // Get concerned playlist.
   const pl = req.model;
 
@@ -272,7 +310,7 @@ exports.addTracks = function (req, res, next) {
   pl.tracks = pl.tracks.concat(req.body.tracks);
 
   // Save on db.
-  pl.save(function (err) {
+  pl.save(function(err) {
     if (err) {
       res.status(422);
       return errorHandler.errorMessageHandler(err, req, res, next);
@@ -284,7 +322,7 @@ exports.addTracks = function (req, res, next) {
   });
 };
 
-exports.update = function (req, res, next) {
+exports.update = function(req, res, next) {
   // Get concerned playlist.
   const pl = req.model;
 
@@ -304,7 +342,7 @@ exports.update = function (req, res, next) {
   if (req.body.tracks) pl.tracks = req.body.tracks;
 
   // Save on db.
-  pl.save(function (err) {
+  pl.save(function(err) {
     if (err) {
       res.status(422);
       return errorHandler.errorMessageHandler(err, req, res, next);
@@ -316,7 +354,7 @@ exports.update = function (req, res, next) {
   });
 };
 
-exports.delete = function (req, res, next) {
+exports.delete = function(req, res, next) {
   // Get playlist.
   const pl = req.model;
 
@@ -328,7 +366,7 @@ exports.delete = function (req, res, next) {
   if (pl.defaultPlaylist) {
     return res.json({
       success: false,
-      msg: 'Can\'t remove default playlist'
+      msg: "Can't remove default playlist"
     });
   }
 
@@ -343,7 +381,7 @@ exports.delete = function (req, res, next) {
 
   // Remove playlist.
   // Then, send deleted playlist ( useful to update states on client side )
-  pl.remove(function (err) {
+  pl.remove(function(err) {
     if (err) {
       res.status(422);
       return errorHandler.errorMessageHandler(err, req, res, next);
@@ -358,12 +396,12 @@ exports.delete = function (req, res, next) {
   });
 };
 
-exports.playlistByTitle = function (req, res, next, title) {
+exports.playlistByTitle = function(req, res, next, title) {
   // Find an store a playlist.
-  Playlist.findOne({title: title})
+  Playlist.findOne({ title: title })
     .populate('tracks')
     .populate('author', 'username -_id')
-    .exec(function (err, playlist) {
+    .exec(function(err, playlist) {
       if (err) {
         return next(err);
       }
@@ -372,18 +410,17 @@ exports.playlistByTitle = function (req, res, next, title) {
     });
 };
 
-
 // HELPER
-function getDefaultPlaylist (user, done) {
+function getDefaultPlaylist(user, done) {
   // Build default playlist name according to user's username.
   const __def = `__def${user.username}`;
 
   // Get default playlist for user.
   Playlist.findOne({ title: __def })
-  // .populate('tracks')
+    // .populate('tracks')
     .populate('author', 'username -_id')
     .select('-tracks -_id')
-    .exec(function (err, pls) {
+    .exec(function(err, pls) {
       if (err) {
         return done(err);
       }

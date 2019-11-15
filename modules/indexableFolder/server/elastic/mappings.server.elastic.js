@@ -6,55 +6,55 @@ exports.album_body = {
   // "settings": {
   //     "index.mapping.ignore_malformed": true,
   // },
-  'mappings': {
-    'album': {
-      'properties': {
-        'suggest': {
-          'type': 'completion',
-          'contexts': [
+  mappings: {
+    album: {
+      properties: {
+        suggest: {
+          type: 'completion',
+          contexts: [
             {
-              'name': 'genre',
-              'type': 'category',
-              'path': 'genre'
+              name: 'genre',
+              type: 'category',
+              path: 'genre'
             },
             {
-              'name': 'artist',
-              'type': 'category',
-              'path': 'artist'
+              name: 'artist',
+              type: 'category',
+              path: 'artist'
             }
           ]
         },
-        'name': {
-          'type': 'text'
+        name: {
+          type: 'text'
         },
-        'keyName': {
-          'type': 'keyword'
+        keyName: {
+          type: 'keyword'
         },
-        'key': {
-          'type': 'keyword'
+        key: {
+          type: 'keyword'
         },
-        'artist': {
-          'type': 'keyword'
+        artist: {
+          type: 'keyword'
         },
-        'albumartist': {
-          'type': 'keyword'
+        albumartist: {
+          type: 'keyword'
         },
-        'year': {
-          'type': 'date',
-          'format': 'yyyy||yyyy-MM-dd',
-          'ignore_malformed': 'true'
+        year: {
+          type: 'date',
+          format: 'yyyy||yyyy-MM-dd',
+          ignore_malformed: 'true'
         },
-        'diskno': {
-          'type': 'integer'
+        diskno: {
+          type: 'integer'
         },
-        'diskof': {
-          'type': 'integer'
+        diskof: {
+          type: 'integer'
         },
-        'label': {
-          'type': 'keyword'
+        label: {
+          type: 'keyword'
         },
-        'genre': {
-          'type': 'keyword'
+        genre: {
+          type: 'keyword'
         }
       }
     }
@@ -65,83 +65,83 @@ exports.tracks_body = {
   // "settings": {
   //     "index.mapping.ignore_malformed": true,
   // },
-  'mappings': {
-    'tracks': {
-      'properties': {
-        'suggest': {
-          'type': 'completion',
-          'contexts': [
+  mappings: {
+    tracks: {
+      properties: {
+        suggest: {
+          type: 'completion',
+          contexts: [
             {
-              'name': 'genre',
-              'type': 'category',
-              'path': 'meta.genre'
+              name: 'genre',
+              type: 'category',
+              path: 'meta.genre'
             },
             {
-              'name': 'artist',
-              'type': 'category',
-              'path': 'meta.artist'
+              name: 'artist',
+              type: 'category',
+              path: 'meta.artist'
             },
             {
-              'name': 'album',
-              'type': 'category',
-              'path': 'meta.album'
+              name: 'album',
+              type: 'category',
+              path: 'meta.album'
             }
           ]
         },
-        'albumKey': {
-          'type': 'keyword'
+        albumKey: {
+          type: 'keyword'
         },
-        'tracksId': {
-          'type': 'keyword',
-          'index': 'false'
+        tracksId: {
+          type: 'keyword',
+          index: 'false'
         },
-        'path': {
-          'type': 'keyword'
+        path: {
+          type: 'keyword'
         },
-        'name': {
-          'type': 'keyword',
-          'index': 'false'
+        name: {
+          type: 'keyword',
+          index: 'false'
         },
-        'publicName': {
-          'type': 'keyword',
-          'index': 'false'
+        publicName: {
+          type: 'keyword',
+          index: 'false'
         },
-        'meta': {
-          'properties': {
-            'title': {
-              'type': 'text'
+        meta: {
+          properties: {
+            title: {
+              type: 'text'
             },
-            'album': {
-              'type': 'keyword'
+            album: {
+              type: 'keyword'
             },
-            'artist': {
-              'type': 'keyword'
+            artist: {
+              type: 'keyword'
             },
-            'albumartist': {
-              'type': 'keyword'
+            albumartist: {
+              type: 'keyword'
             },
-            'year': {
-              'type': 'date',
-              'format': 'yyyy||yyyy-MM-dd',
-              'ignore_malformed': 'true'
+            year: {
+              type: 'date',
+              format: 'yyyy||yyyy-MM-dd',
+              ignore_malformed: 'true'
             },
-            'diskno': {
-              'type': 'integer'
+            diskno: {
+              type: 'integer'
             },
-            'diskof': {
-              'type': 'integer'
+            diskof: {
+              type: 'integer'
             },
-            'label': {
-              'type': 'keyword'
+            label: {
+              type: 'keyword'
             },
-            'trackno': {
-              'type': 'integer'
+            trackno: {
+              type: 'integer'
             },
-            'trackof': {
-              'type': 'integer'
+            trackof: {
+              type: 'integer'
             },
-            'genre': {
-              'type': 'keyword'
+            genre: {
+              type: 'keyword'
             }
           }
         }
@@ -154,17 +154,17 @@ exports.artist_body = {
   // "settings": {
   //     "index.mapping.ignore_malformed": true,
   // },
-  'mappings': {
-    'artist': {
-      'properties': {
-        'suggest': {
-          'type': 'completion'
+  mappings: {
+    artist: {
+      properties: {
+        suggest: {
+          type: 'completion'
         },
-        'name': {
-          'type': 'text'
+        name: {
+          type: 'text'
         },
-        'keyName': {
-          'type': 'keyword'
+        keyName: {
+          type: 'keyword'
         }
       }
     }
@@ -175,17 +175,17 @@ exports.genre_body = {
   // "settings": {
   //     "index.mapping.ignore_malformed": true,
   // },
-  'mappings': {
-    'genre': {
-      'properties': {
-        'suggest': {
-          'type': 'completion'
+  mappings: {
+    genre: {
+      properties: {
+        suggest: {
+          type: 'completion'
         },
-        'name': {
-          'type': 'text'
+        name: {
+          type: 'text'
         },
-        'keyName': {
-          'type': 'keyword'
+        keyName: {
+          type: 'keyword'
         }
       }
     }

@@ -4,8 +4,9 @@
 
 const upload = require('../controllers/uploadZone.server.controllers');
 
-module.exports = function (app) {
+module.exports = function(app) {
   // Send File
-  app.route('/api/sendFiles')
+  app
+    .route('/api/sendFiles')
     .post(upload.multerUp.array('files'), upload.afterUpload);
 };

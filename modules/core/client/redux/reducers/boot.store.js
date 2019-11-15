@@ -1,7 +1,7 @@
 /**
  * Created by Dimitri Aguera on 13/09/2017.
  */
-import { BOOT_REQUEST, BOOT_FAILURE, BOOT_SUCCESS } from '../actions/boot.actions'
+import { BOOT_REQUEST, BOOT_FAILURE, BOOT_SUCCESS } from '../actions/boot.actions';
 
 let initialState = {
   isFetching: false,
@@ -34,8 +34,8 @@ const bootStore = (state = initialState, action) => {
       });
 
     default:
-      return state
+      return state;
   }
 };
 
-export default bootStore
+export default bootStore;

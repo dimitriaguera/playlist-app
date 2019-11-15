@@ -1,22 +1,21 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { get, put, del } from 'core/client/services/core.api.services'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { get, put, del } from 'core/client/services/core.api.services';
 import {
   playOnPlaylist,
   updatePlaylistToPlay,
   activatePlaylist,
   pauseState,
   playState
-} from 'music/client/redux/actions'
-import { mustUpdate } from 'music/client/helpers/music.client.helpers'
-import socketServices from 'core/client/services/core.socket.services'
-import PlaylistTrack from './tracks/playlistTrack.client.components'
-import DraggableList from 'draggable/client/components/draggableList'
-import InfoPanelPlaylist from './infoPanel/infoPanelPlaylist.client.components'
-
+} from 'music/client/redux/actions';
+import { mustUpdate } from 'music/client/helpers/music.client.helpers';
+import socketServices from 'core/client/services/core.socket.services';
+import PlaylistTrack from './tracks/playlistTrack.client.components';
+import DraggableList from 'draggable/client/components/draggableList';
+import InfoPanelPlaylist from './infoPanel/infoPanelPlaylist.client.components';
 
 class Playlist extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.handlerClearPlaylist = this.handlerClearPlaylist.bind(this);
@@ -33,31 +32,30 @@ class Playlist extends Component {
         tracks: [],
         author: {}
       }
-    }
+    };
   }
 
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
     const title = _self.props.match.params.title;
     const { history } = _self.props;
 
     // On mounting component, exact playlist title from url.
     // And fetch it to server.
-    this.props.getPlaylist(title)
-      .then((data) => {
-        if (!data.success) {
-          return history.push('/not-found');
-        }
-        _self.setState({
-          playlist: data.msg
-        })
+    this.props.getPlaylist(title).then(data => {
+      if (!data.success) {
+        return history.push('/not-found');
+      }
+      _self.setState({
+        playlist: data.msg
       });
+    });
 
     // Listen save playlist event.
     // If updated playlist match to current displayed playlist, update it.
-    this.socket.on('save:playlist', (data) => {
+    this.socket.on('save:playlist', data => {
       if (mustUpdate(this.state.playlist, data)) {
-        _self.setState({ playlist: data })
+        _self.setState({ playlist: data });
       }
     });
   }
@@ -68,32 +66,30 @@ class Playlist extends Component {
     if (this.props.match.params.title !== nextProps.match.params.title) {
       // On mounting component, exact playlist title from url.
       // And fetch it to server.
-      this.props.getPlaylist(nextProps.match.params.title)
-        .then((data) => {
-          if (!data.success) {
-            return history.push('/not-found');
-          }
-          _self.setState({
-            playlist: data.msg
-          })
+      this.props.getPlaylist(nextProps.match.params.title).then(data => {
+        if (!data.success) {
+          return history.push('/not-found');
+        }
+        _self.setState({
+          playlist: data.msg
         });
+      });
     }
   }
 
   // Unmount and delete socket.
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.socket.disconnect();
     console.log('Disconnecting Socket as component will unmount');
   }
 
   // Play a track in playlist.
-  handlerPlayTrack (key) {
+  handlerPlayTrack(key) {
     const { playlist } = this.state;
 
     const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
 
-    return (e) => {
-
+    return e => {
       if (e) {
         e.stopPropagation();
         e.preventDefault();
@@ -111,15 +107,14 @@ class Playlist extends Component {
         pl: playlist,
         onPlayIndex: key
       });
-    }
+    };
   }
 
   // Delete a track in playlist.
-  handlerDeleteTrack (key) {
+  handlerDeleteTrack(key) {
     const title = this.props.match.params.title;
 
-    return (e) => {
-
+    return e => {
       if (e) {
         e.stopPropagation();
         e.preventDefault();
@@ -133,11 +128,11 @@ class Playlist extends Component {
 
       // Save updated playlist.
       this.props.savePlaylist(title, tracks);
-    }
+    };
   }
 
   // Delete all tracks in playlist.
-  handlerClearPlaylist () {
+  handlerClearPlaylist() {
     const { savePlaylist } = this.props;
     const { playlist } = this.state;
 
@@ -146,35 +141,32 @@ class Playlist extends Component {
   }
 
   // Move a track in playlist.
-  handlerMoveItem (prevItems, nextItems, _drag) {
+  handlerMoveItem(prevItems, nextItems, _drag) {
     const { savePlaylist } = this.props;
     const { playlist } = this.state;
 
     // Saving updated playlist.
-    return savePlaylist(playlist.title, nextItems)
-      .then((data) => {
-        // If playlist not updated server side, return to previous ordered list.
-        if (!data.success) {
-          _drag.setState({
-            items: prevItems
-          });
-        }
-      });
+    return savePlaylist(playlist.title, nextItems).then(data => {
+      // If playlist not updated server side, return to previous ordered list.
+      if (!data.success) {
+        _drag.setState({
+          items: prevItems
+        });
+      }
+    });
   }
 
   // Delete a playlist.
-  handlerDeletePlaylist (e) {
-
+  handlerDeletePlaylist(e) {
     const { playlist } = this.state;
     const { history, deletePlaylist } = this.props;
 
     // Saving updated playlist.
-    return deletePlaylist(playlist.title)
-      .then((data) => {
-        if (data.success) {
-          history.push('/');
-        }
-      });
+    return deletePlaylist(playlist.title).then(data => {
+      if (data.success) {
+        history.push('/');
+      }
+    });
   }
 
   handlerAddTracks() {
@@ -182,48 +174,55 @@ class Playlist extends Component {
     this.props.history.push('/music');
   }
 
-
-  render () {
+  render() {
     const { playlist } = this.state;
     const { playingList, isPaused, user, history } = this.props;
     const { onPlayIndex, pl } = playingList;
     const isActivePlaylist = mustUpdate(pl, playlist);
-    const isAuthor = user && playlist.author && playlist.author.username === user.username;
+    const isAuthor =
+      user && playlist.author && playlist.author.username === user.username;
 
     const headClasses = ['move-playlist-tracks-items-row-header'];
-    if( isAuthor ) headClasses.push('edit', 'drag');
+    if (isAuthor) headClasses.push('edit', 'drag');
 
     return (
-      <section className='pal grid-3 has-gutter'>
-
-        <header className='col-1-medium-3-small-3'>
-          {isAuthor &&
-          <div className='pl-action-cont mbm'>
-            <button className='btn btn-standard' onClick={this.handlerAddTracks}>
-              Add tracks
-            </button>
-            {!!playlist.tracks.length &&
-            <button className='btn btn-standard' onClick={this.handlerClearPlaylist}>
-              Remove all tracks
-            </button>
-            }
-            <button className='btn btn-standard' onClick={this.handlerDeletePlaylist}>
-              Delete Playlist
-            </button>
-          </div>
-          }
-          {playlist && <InfoPanelPlaylist item={playlist}/>}
+      <section className="pal grid-3 has-gutter">
+        <header className="col-1-medium-3-small-3">
+          {isAuthor && (
+            <div className="pl-action-cont mbm">
+              <button className="btn btn-standard" onClick={this.handlerAddTracks}>
+                Add tracks
+              </button>
+              {!!playlist.tracks.length && (
+                <button
+                  className="btn btn-standard"
+                  onClick={this.handlerClearPlaylist}
+                >
+                  Remove all tracks
+                </button>
+              )}
+              <button
+                className="btn btn-standard"
+                onClick={this.handlerDeletePlaylist}
+              >
+                Delete Playlist
+              </button>
+            </div>
+          )}
+          {playlist && <InfoPanelPlaylist item={playlist} />}
         </header>
 
-        <div id='dl-container' className='col-2-medium-3-small-3'>
-          <div className='w-max-xl'>
+        <div id="dl-container" className="col-2-medium-3-small-3">
+          <div className="w-max-xl">
             <div className={headClasses.join(' ')}>
-              <span className='tracks-item-img'></span>
-              <span className='title'>Title</span>
-              <span className='artist'>Artist</span>
-              <span className='album'>Album</span>
-              <span className='time'>Time</span>
-              <span className='tracks-item-menu btn'><i aria-hidden="true" className="icon icon-x" /></span>
+              <span className="tracks-item-img"></span>
+              <span className="title">Title</span>
+              <span className="artist">Artist</span>
+              <span className="album">Album</span>
+              <span className="time">Time</span>
+              <span className="tracks-item-menu btn">
+                <i aria-hidden="true" className="icon icon-x" />
+              </span>
             </div>
             <DraggableList
               items={playlist.tracks}
@@ -237,8 +236,8 @@ class Playlist extends Component {
               callbackMouseUp={this.handlerMoveItem}
               onDelete={this.handlerDeleteTrack}
               onPlay={this.handlerPlayTrack}
-              scrollContainerName='main-content'
-              containerId='dl-container'
+              scrollContainerName="main-content"
+              containerId="dl-container"
             />
           </div>
         </div>
@@ -253,41 +252,23 @@ const mapStateToProps = state => {
     isPaused: state.playlistStore.pause,
     onPlay: state.playlistStore.onPlay,
     user: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    getPlaylist: (title) => dispatch(
-      get(`playlist/${title}`)
-    ),
-    playTrack: (item) => dispatch(
-      playOnPlaylist(item)
-    ),
-    updatePlayingList: (item) => dispatch(
-      updatePlaylistToPlay(item)
-    ),
-    savePlaylist: (title, tracks) => dispatch(
-      put(`playlist/${title}`, {data: {tracks: tracks}})
-    ),
-    deletePlaylist: (title) => dispatch(
-      del(`playlist/${title}`)
-    ),
-    activatePlaylist: (item) => dispatch(
-      activatePlaylist(item)
-    ),
-    onPauseFunc: () => dispatch(
-      pauseState()
-    ),
-    onPlayFunc: () => dispatch(
-      playState()
-    )
-  }
+    getPlaylist: title => dispatch(get(`playlist/${title}`)),
+    playTrack: item => dispatch(playOnPlaylist(item)),
+    updatePlayingList: item => dispatch(updatePlaylistToPlay(item)),
+    savePlaylist: (title, tracks) =>
+      dispatch(put(`playlist/${title}`, { data: { tracks: tracks } })),
+    deletePlaylist: title => dispatch(del(`playlist/${title}`)),
+    activatePlaylist: item => dispatch(activatePlaylist(item)),
+    onPauseFunc: () => dispatch(pauseState()),
+    onPlayFunc: () => dispatch(playState())
+  };
 };
 
-const PlaylistContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Playlist);
+const PlaylistContainer = connect(mapStateToProps, mapDispatchToProps)(Playlist);
 
-export default PlaylistContainer
+export default PlaylistContainer;

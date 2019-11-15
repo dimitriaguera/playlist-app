@@ -1,10 +1,8 @@
-
-
 .search-bar {
   position: relative;
   font-size: 1.7rem;
 
-  input[type=radio] {
+  input[type='radio'] {
     display: none;
   }
 
@@ -55,19 +53,19 @@
         border-width: 0;
       }
 
-      input[name=inputFilter] {
+      input[name='inputFilter'] {
         width: 100%;
         border-radius: 2em 0 0 2em;
         background-color: transparent;
       }
 
-      input[name=inputDateFrom] {
+      input[name='inputDateFrom'] {
         display: none;
         border-radius: 2em 0 0 2em;
         background-color: transparent;
       }
 
-      input[name=inputDateTo] {
+      input[name='inputDateTo'] {
         display: none;
         padding-left: 5em !important;
         background-color: transparent;
@@ -120,7 +118,7 @@
       }
     }
 
-    input[name=inputText] {
+    input[name='inputText'] {
       position: relative;
       border-width: 0;
       width: 20em;
@@ -181,7 +179,7 @@
     }
   }
 
-  input[type=radio]:checked ~ .sb-filter-panel .sb-filter-input {
+  input[type='radio']:checked ~ .sb-filter-panel .sb-filter-input {
     width: 40em;
     max-width: calc(100% - 5em);
 
@@ -190,14 +188,14 @@
     }
   }
 
-  input[id=filter0]:checked ~ .sb-filter-panel label[for=filter0],
-  input[id=filter1]:checked ~ .sb-filter-panel label[for=filter1],
-  input[id=filter2]:checked ~ .sb-filter-panel label[for=filter2],
-  input[id=filter3]:checked ~ .sb-filter-panel label[for=filter3] {
+  input[id='filter0']:checked ~ .sb-filter-panel label[for='filter0'],
+  input[id='filter1']:checked ~ .sb-filter-panel label[for='filter1'],
+  input[id='filter2']:checked ~ .sb-filter-panel label[for='filter2'],
+  input[id='filter3']:checked ~ .sb-filter-panel label[for='filter3'] {
     background-color: $color-primary-hover;
   }
 
-  input[id=filter3]:checked ~ .sb-filter-panel .sb-filter-input {
+  input[id='filter3']:checked ~ .sb-filter-panel .sb-filter-input {
     .input-date-prefix {
       display: inline-block;
       width: 4em;
@@ -209,12 +207,12 @@
       vertical-align: top;
     }
 
-    input[name=inputFilter] {
+    input[name='inputFilter'] {
       display: none;
     }
 
-    input[name=inputDateFrom],
-    input[name=inputDateTo] {
+    input[name='inputDateFrom'],
+    input[name='inputDateTo'] {
       display: inline-block;
       width: calc(50% - 4em) !important;
     }
@@ -266,7 +264,7 @@
     outline: none;
   }
 
-  input[type=number] {
+  input[type='number'] {
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;

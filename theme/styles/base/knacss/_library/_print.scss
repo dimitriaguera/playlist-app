@@ -89,10 +89,10 @@
   }
   */
 
-  a[href^="javascript:"],
-  a[href^="#"] {
+  a[href^='javascript:'],
+  a[href^='#'] {
     &::after {
-      content: "";
+      content: '';
     }
   }
 }

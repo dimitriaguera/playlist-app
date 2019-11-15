@@ -15,10 +15,10 @@ import SocketConnectors from '../../../../**/sockets/*.client.sockets.js';
  * @param store
  */
 
-const initSocketConnectors = function (store) {
+const initSocketConnectors = function(store) {
   SocketConnectors.map(module => {
     module.mountSocket(store);
   });
 };
 
-export default initSocketConnectors
+export default initSocketConnectors;

@@ -1,20 +1,20 @@
-import React, {Component} from 'react'
-import {connect} from 'react-redux'
-import {get, put, post} from 'core/client/services/core.api.services'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { get, put, post } from 'core/client/services/core.api.services';
 import {
   addFolderToPlay,
   playOnFolder,
   updateFolderToPlay,
   pauseState,
   playState
-} from 'music/client/redux/actions'
-import FolderTrack from 'music/client/components/tracks/folderTrack.client.components'
-import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
+} from 'music/client/redux/actions';
+import FolderTrack from 'music/client/components/tracks/folderTrack.client.components';
+import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components';
 import Modal from 'react-modal';
-import ps from 'core/client/services/core.path.services'
-import InfoPanelFolder from 'music/client/components/infoPanel/infoPanelFolder.client.components'
+import ps from 'core/client/services/core.path.services';
+import InfoPanelFolder from 'music/client/components/infoPanel/infoPanelFolder.client.components';
 
-import DraggableList from 'draggable/client/components/draggableList'
+import DraggableList from 'draggable/client/components/draggableList';
 
 class FolderList extends Component {
   constructor(props) {
@@ -38,24 +38,26 @@ class FolderList extends Component {
   }
 
   openModal() {
-    this.setState({modalIsOpen: true});
+    this.setState({ modalIsOpen: true });
   }
 
   closeModal() {
-    this.setState({modalIsOpen: false});
+    this.setState({ modalIsOpen: false });
   }
 
-  componentDidMount () {
+  componentDidMount() {
     // React Modal
-    Modal.setAppElement("#root");
+    Modal.setAppElement('#root');
   }
 
   componentWillMount() {
     const _self = this;
-    const {history, fetchFiles, playingList} = _self.props;
+    const { history, fetchFiles, playingList } = _self.props;
 
     // Build folder path from url path.
-    let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
+    let pathArray = ps.splitPath(
+      ps.removeRoute(_self.props.location.pathname, _self.props.match.path)
+    );
     let path = ps.buildPath(pathArray);
 
     // Test if album is already playing.
@@ -64,12 +66,56 @@ class FolderList extends Component {
       _self.setState({
         isActive: true,
         albumOfUrl: playingList
-      })
+      });
     }
     // Else, query data from DB.
     else {
-      fetchFiles(ps.urlEncode(path))
-        .then((data) => {
+      fetchFiles(ps.urlEncode(path)).then(data => {
+        if (!data.success) {
+          return history.push('/not-found');
+        }
+
+        const album = {
+          title: pathArray[pathArray.length - 1],
+          path: path,
+          tracks: data.msg
+        };
+
+        _self.setState({
+          isActive: false,
+          albumOfUrl: {
+            pl: album,
+            onPlayIndex: 0
+          }
+        });
+      });
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const _self = this;
+    const { playingList, fetchFiles, history } = nextProps;
+    const { albumOfUrl } = this.state;
+
+    // Force re-rendering on props location change.
+    if (_self.props.location.pathname !== nextProps.location.pathname) {
+      // Test if album is already playing.
+      // Get and clean path.
+      let pathArray = ps.splitPath(
+        ps.removeRoute(_self.props.location.pathname, _self.props.match.path)
+      );
+      let path = ps.buildPath(pathArray);
+
+      // If album playing, mount data from store.
+      if (playingList.pl && playingList.pl.path === path) {
+        return _self.setState({
+          isActive: true,
+          albumOfUrl: playingList
+        });
+      }
+      // Else, query data from DB.
+      else {
+        return fetchFiles(ps.urlEncode(path)).then(data => {
           if (!data.success) {
             return history.push('/not-found');
           }
@@ -86,59 +132,15 @@ class FolderList extends Component {
               pl: album,
               onPlayIndex: 0
             }
-          })
-        });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const _self = this;
-    const {playingList, fetchFiles, history} = nextProps;
-    const {albumOfUrl} = this.state;
-
-    // Force re-rendering on props location change.
-    if (_self.props.location.pathname !== nextProps.location.pathname) {
-      // Test if album is already playing.
-      // Get and clean path.
-      let pathArray = ps.splitPath(ps.removeRoute(_self.props.location.pathname, _self.props.match.path));
-      let path = ps.buildPath(pathArray);
-
-      // If album playing, mount data from store.
-      if (playingList.pl && playingList.pl.path === path) {
-        return _self.setState({
-          isActive: true,
-          albumOfUrl: playingList
-        })
-      }
-      // Else, query data from DB.
-      else {
-        return fetchFiles(ps.urlEncode(path))
-          .then((data) => {
-            if (!data.success) {
-              return history.push('/not-found');
-            }
-
-            const album = {
-              title: pathArray[pathArray.length - 1],
-              path: path,
-              tracks: data.msg
-            };
-
-            _self.setState({
-              isActive: false,
-              albumOfUrl: {
-                pl: album,
-                onPlayIndex: 0
-              }
-            })
           });
+        });
       }
     }
 
     // Else. Props albumList comes from store, and isn't empty if album playing.
     if (playingList !== this.props.playingList) {
       // So checking if store's albumList is already current album in component's state.
-      const isActive = (playingList.pl && playingList.pl.path === albumOfUrl.pl.path);
+      const isActive = playingList.pl && playingList.pl.path === albumOfUrl.pl.path;
 
       // If same album, copy changes in local state, and set isActive to true.
       this.setState({
@@ -150,10 +152,9 @@ class FolderList extends Component {
   }
 
   handlerPlayTrack(e, key) {
-
     const { isPaused, onPlay, onPauseFunc, onPlayFunc } = this.props;
-    const {albumOfUrl} = this.state;
-    const {pl} = albumOfUrl;
+    const { albumOfUrl } = this.state;
+    const { pl } = albumOfUrl;
 
     if (e) {
       e.stopPropagation();
@@ -174,7 +175,7 @@ class FolderList extends Component {
     });
   }
 
-  handlerAddTrack (e, tracksId) {
+  handlerAddTrack(e, tracksId) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
@@ -182,15 +183,20 @@ class FolderList extends Component {
     const { addPlaylistItems, activePlaylist, user, history, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
+    if (!user)
+      return history.push({
+        pathname: '/login',
+        state: { from: location.pathname }
+      });
 
     // Add tracks into activated Playlist.
-    if (activePlaylist && tracksId) addPlaylistItems(activePlaylist.title, {tracks: [tracksId]});
+    if (activePlaylist && tracksId)
+      addPlaylistItems(activePlaylist.title, { tracks: [tracksId] });
   }
 
   handlerMoveItem(prevItems, nextItems) {
-    const {albumOfUrl} = this.state;
-    const {playingList} = this.props;
+    const { albumOfUrl } = this.state;
+    const { playingList } = this.props;
 
     const oldTracks = prevItems;
     const newTracks = nextItems;
@@ -204,7 +210,7 @@ class FolderList extends Component {
 
     // Build album object.
     const data = {
-      pl: Object.assign({}, albumOfUrl.pl, {tracks: nextItems}),
+      pl: Object.assign({}, albumOfUrl.pl, { tracks: nextItems }),
       onPlayIndex: newIndex
     };
 
@@ -223,72 +229,75 @@ class FolderList extends Component {
   }
 
   render() {
-    const {albumOfUrl, isActive} = this.state;
-    const {isPaused, user, history, location} = this.props;
-    const {onPlayIndex, pl} = albumOfUrl;
+    const { albumOfUrl, isActive } = this.state;
+    const { isPaused, user, history, location } = this.props;
+    const { onPlayIndex, pl } = albumOfUrl;
 
     if (!pl) return null;
 
     const headClasses = ['move-folder-tracks-items-row-header drag'];
-    if( !!user ) headClasses.push('edit');
+    if (!!user) headClasses.push('edit');
 
     return (
       <section className="pal grid-3 has-gutter">
-        <header className='col-1-medium-3-small-3'>
-          {!!user &&
+        <header className="col-1-medium-3-small-3">
+          {!!user && (
             <div className="pl-action-cont mbm">
-              <button className='btn btn-standard' onClick={this.openModal}>Save As Playlist</button>
-              <Modal isOpen={this.state.modalIsOpen}
-                     onRequestClose={this.closeModal}
-                     className="modal"
-                     overlayClassName="modal-overlay"
+              <button className="btn btn-standard" onClick={this.openModal}>
+                Save As Playlist
+              </button>
+              <Modal
+                isOpen={this.state.modalIsOpen}
+                onRequestClose={this.closeModal}
+                className="modal"
+                overlayClassName="modal-overlay"
               >
-              <h2 className="modal-title">
-                <i aria-hidden="true" className="icon icon-music icon-xl"/>
-                {`Save ${pl.title} as playlist ?`}
-              </h2>
-              <div className="modal-content">
-                <p>Type the playlist's title you want to create.</p>
-              </div>
-              <AddPlaylist
-                history={history}
-                placeholder={`${pl.title}'s playlist`}
-                tracksId={pl.tracks}
-                validation='Save'
-                redirect
-              />
-            </Modal>
+                <h2 className="modal-title">
+                  <i aria-hidden="true" className="icon icon-music icon-xl" />
+                  {`Save ${pl.title} as playlist ?`}
+                </h2>
+                <div className="modal-content">
+                  <p>Type the playlist's title you want to create.</p>
+                </div>
+                <AddPlaylist
+                  history={history}
+                  placeholder={`${pl.title}'s playlist`}
+                  tracksId={pl.tracks}
+                  validation="Save"
+                  redirect
+                />
+              </Modal>
+            </div>
+          )}
+          <InfoPanelFolder item={pl} history={history} location={location} />
+        </header>
+        <div id="dl-container" className="col-2-medium-3-small-3">
+          <div className="w-max-xl">
+            <div className={headClasses.join(' ')}>
+              <span className="tracks-item-img"></span>
+              <span className="title">Title</span>
+              <span className="artist">Artist</span>
+              <span className="album">Album</span>
+              <span className="time">Time</span>
+              <span className="tracks-item-menu">Add</span>
+            </div>
+            <DraggableList
+              items={pl.tracks}
+              callbackMouseUp={this.handlerMoveItem}
+              component={FolderTrack}
+              scrollContainerName="main-content"
+              containerId="dl-container"
+              isActivePlaylist={isActive}
+              user={user}
+              history={history}
+              isPaused={isPaused}
+              onPlayIndex={onPlayIndex}
+              onPlay={this.handlerPlayTrack}
+              addTrack={this.handlerAddTrack}
+            />
           </div>
-          }
-        <InfoPanelFolder item={pl} history={history} location={location} />
-      </header>
-      <div id='dl-container' className='col-2-medium-3-small-3'>
-        <div className='w-max-xl'>
-          <div className={headClasses.join(' ')}>
-            <span className='tracks-item-img'></span>
-            <span className='title'>Title</span>
-            <span className='artist'>Artist</span>
-            <span className='album'>Album</span>
-            <span className='time'>Time</span>
-            <span className='tracks-item-menu'>Add</span>
-          </div>
-          <DraggableList
-            items={pl.tracks}
-            callbackMouseUp={this.handlerMoveItem}
-            component={FolderTrack}
-            scrollContainerName='main-content'
-            containerId='dl-container'
-            isActivePlaylist={isActive}
-            user={user}
-            history={history}
-            isPaused={isPaused}
-            onPlayIndex={onPlayIndex}
-            onPlay={this.handlerPlayTrack}
-            addTrack={this.handlerAddTrack}
-          />
         </div>
-      </div>
-    </section>
+      </section>
     );
   }
 }
@@ -301,39 +310,26 @@ const mapStateToProps = state => {
     isAuthenticated: state.authenticationStore.isAuthenticated,
     activePlaylist: state.playlistStore.activePlaylist,
     user: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchFiles: (query) => dispatch(
-      get(`nodes/q/files?path=${query || ''}`)
-    ),
-    updateAlbumList: (item) => dispatch(
-      updateFolderToPlay(item)
-    ),
-    playTrack: (item) => dispatch(
-      playOnFolder(item)
-    ),
-    addPlaylistItems: (title, items) => dispatch(
-      post(`playlist/${title}`, {
-        data: items
-      })
-    ),
-    onPauseFunc: () => dispatch(
-      pauseState()
-    ),
-    onPlayFunc: () => dispatch(
-      playState()
-    )
-  }
+    fetchFiles: query => dispatch(get(`nodes/q/files?path=${query || ''}`)),
+    updateAlbumList: item => dispatch(updateFolderToPlay(item)),
+    playTrack: item => dispatch(playOnFolder(item)),
+    addPlaylistItems: (title, items) =>
+      dispatch(
+        post(`playlist/${title}`, {
+          data: items
+        })
+      ),
+    onPauseFunc: () => dispatch(pauseState()),
+    onPlayFunc: () => dispatch(playState())
+  };
 };
 
-const FolderListContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FolderList);
-
+const FolderListContainer = connect(mapStateToProps, mapDispatchToProps)(FolderList);
 
 // HELPER
 function getTrackIndexBySrc(path, array) {
@@ -344,4 +340,4 @@ function getTrackIndexBySrc(path, array) {
   return null;
 }
 
-export default FolderListContainer
+export default FolderListContainer;

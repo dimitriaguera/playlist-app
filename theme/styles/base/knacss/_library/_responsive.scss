@@ -6,7 +6,6 @@
 /* ------------- */
 
 @media (min-width: $large) {
-
   /* layouts for large screens */
   .large-hidden {
     display: none !important;
@@ -69,7 +68,6 @@
 /* -------------- */
 
 @media (min-width: $medium) and (max-width: ($large - 1)) {
-
   /* layouts for medium screens */
   .medium-hidden {
     display: none !important;
@@ -132,7 +130,6 @@
 /* ------------- */
 
 @media (min-width: $small) and (max-width: ($medium - 1)) {
-
   /* layouts for small screens */
   .small-hidden {
     display: none !important;
@@ -194,14 +191,12 @@
   .small-pa0 {
     padding: 0 !important;
   }
-
 }
 
 /* tiny screens */
 /* ------------ */
 
 @media (max-width: $small - 1) {
-
   /* quick small resolution reset */
   .mod,
   .col,
@@ -280,5 +275,4 @@
   .tiny-pa0 {
     padding: 0 !important;
   }
-
 }

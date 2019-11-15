@@ -44,7 +44,6 @@ $center-btn-size: 4rem;
   }
 }
 
-
 @include respond-to('large-up') {
   .audioBar-range {
     width: 50%;

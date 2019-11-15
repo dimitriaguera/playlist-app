@@ -5,10 +5,14 @@ const fs = require('fs');
 const async = require('async');
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
-const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-const ps = require(path.resolve('./modules/core/client/services/core.path.services'));
+const errorHandler = require(path.resolve(
+  './modules/core/server/services/error.server.services'
+));
+const ps = require(path.resolve(
+  './modules/core/client/services/core.path.services'
+));
 
-exports.open = function (req, res) {
+exports.open = function(req, res) {
   const DRIVE = config.musicFolder;
   const NOT_SECURE_STRING = req.query.path;
 
@@ -27,56 +31,56 @@ exports.open = function (req, res) {
       });
     }
 
-    async.map(dir, function iterator (item, callback) {
-      fs.lstat(`${path}/${item}`, (err, stats) => {
-        let result = {};
+    async.map(
+      dir,
+      function iterator(item, callback) {
+        fs.lstat(`${path}/${item}`, (err, stats) => {
+          let result = {};
 
-        if (!err) {
-          if (stats.isFile()) {
-            if (!(regexSecure.test(item) && regexFile.test(item))) {
-              result = null;
-            }
-
-            else {
+          if (!err) {
+            if (stats.isFile()) {
+              if (!(regexSecure.test(item) && regexFile.test(item))) {
+                result = null;
+              } else {
+                result = {
+                  authorized: true,
+                  isFile: true,
+                  name: item,
+                  publicName: item.replace(regexFile, ''),
+                  path: `${query}/${item}`,
+                  uri: `${path}/${item}`,
+                  meta: {}
+                };
+              }
+            } else {
               result = {
                 authorized: true,
-                isFile: true,
+                isFile: false,
                 name: item,
-                publicName: item.replace(regexFile, ''),
                 path: `${query}/${item}`,
-                uri: `${path}/${item}`,
-                meta: {}
+                uri: `${path}/${item}`
               };
             }
           }
 
-          else {
-            result = {
-              authorized: true,
-              isFile: false,
-              name: item,
-              path: `${query}/${item}`,
-              uri: `${path}/${item}`
-            };
-          }
+          return callback(err, result);
+        });
+      },
+      function(err, results) {
+        if (err) {
+          console.log(err.message);
+          return res.json({
+            success: false,
+            msg: err.message
+          });
         }
 
-        return callback(err, result);
-      });
-    }, function (err, results) {
-      if (err) {
-        console.log(err.message);
         return res.json({
-          success: false,
-          msg: err.message
+          success: true,
+          msg: results
         });
       }
-
-      return res.json({
-        success: true,
-        msg: results
-      });
-    });
+    );
   });
 };
 
@@ -88,7 +92,7 @@ exports.open = function (req, res) {
  * @param res
  * @param next
  */
-exports.searchSyncFiles = function (req, res, next) {
+exports.searchSyncFiles = function(req, res, next) {
   const DRIVE = config.musicFolder;
   const NOT_SECURE_STRING = req.query.path;
 
@@ -96,20 +100,29 @@ exports.searchSyncFiles = function (req, res, next) {
   const path = `${DRIVE}/${query}`;
 
   // Call recursive search.
-  walk(path, (err, results) => {
-    if (err) {
-      res.status(401);
-      return errorHandler.errorMessageHandler(err, req, res, next, `Can't read file.`);
-    }
+  walk(
+    path,
+    (err, results) => {
+      if (err) {
+        res.status(401);
+        return errorHandler.errorMessageHandler(
+          err,
+          req,
+          res,
+          next,
+          `Can't read file.`
+        );
+      }
 
-    return res.json({
-      success: true,
-      count: results.length,
-      msg: results
-    });
-  }, query);
+      return res.json({
+        success: true,
+        count: results.length,
+        msg: results
+      });
+    },
+    query
+  );
 };
-
 
 /**
  * Recursive search of all files inside a root folder.
@@ -121,18 +134,18 @@ exports.searchSyncFiles = function (req, res, next) {
  * @param done
  * @param p
  */
-const walk = function (dir, done, p) {
+const walk = function(dir, done, p) {
   const regexFile = config.fileSystem.fileAudioTypes;
   const regexSecure = config.security.secureFile;
 
   let results = [];
 
-  fs.readdir(dir, function (err, list) {
+  fs.readdir(dir, function(err, list) {
     if (err) return done(err);
 
     let i = 0;
 
-    (function next () {
+    (function next() {
       let name = list[i++];
 
       if (!name) return done(null, results);
@@ -140,25 +153,27 @@ const walk = function (dir, done, p) {
       let relPath = p + '/' + name;
       let file = dir + '/' + name;
 
-      fs.stat(file, function (err, stat) {
+      fs.stat(file, function(err, stat) {
         if (stat && stat.isDirectory()) {
-          walk(file, function (err, res) {
-            results = results.concat(res);
-            next();
-          }, relPath);
+          walk(
+            file,
+            function(err, res) {
+              results = results.concat(res);
+              next();
+            },
+            relPath
+          );
         } else {
           if (regexSecure.test(name) && regexFile.test(name)) {
-            results.push(
-              {
-                authorized: true,
-                isFile: true,
-                name: name,
-                publicName: name.replace(regexFile, ''),
-                path: relPath,
-                uri: file,
-                meta: {}
-              }
-            );
+            results.push({
+              authorized: true,
+              isFile: true,
+              name: name,
+              publicName: name.replace(regexFile, ''),
+              path: relPath,
+              uri: file,
+              meta: {}
+            });
           }
           next();
         }
@@ -166,6 +181,3 @@ const walk = function (dir, done, p) {
     })();
   });
 };
-
-
-

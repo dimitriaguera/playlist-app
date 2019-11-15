@@ -14,7 +14,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
 const common = require('./webpack.default.js');
 
-
 module.exports = merge(common, {
   output: {
     path: path.resolve('public/dist'),
@@ -69,7 +68,8 @@ module.exports = merge(common, {
   },
   plugins: [
     new StyleLintPlugin({}),
-    new ExtractTextPlugin({ // define where to save the file
+    new ExtractTextPlugin({
+      // define where to save the file
       filename: '[name].bundle.css',
       allChunks: true
     })

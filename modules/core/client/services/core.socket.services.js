@@ -1,22 +1,21 @@
 /**
  * Created by Dimitri Aguera on 21/09/2017.
  */
-import io from 'socket.io-client'
-import { getLocalToken } from 'users/client/services/users.storage.services'
+import io from 'socket.io-client';
+import { getLocalToken } from 'users/client/services/users.storage.services';
 
 // @todo change how this url is generated
 const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/`;
 
 const socketService = {
-
-  getPrivateSocket: function (namespace, path) {
+  getPrivateSocket: function(namespace, path) {
     const nsp = namespace || 'private';
     const options = {
       path: path || '',
       transportOptions: {
         polling: {
           extraHeaders: {
-            'Authorization': getLocalToken()
+            Authorization: getLocalToken()
           }
         }
       }
@@ -31,7 +30,7 @@ const socketService = {
     return socket;
   },
 
-  getPublicSocket: function (namespace, path) {
+  getPublicSocket: function(namespace, path) {
     const nsp = namespace || 'public';
     const options = {
       path: path || ''
@@ -47,16 +46,15 @@ const socketService = {
   }
 };
 
-
 // HELPER.
-function errorSocketEvents (socket) {
+function errorSocketEvents(socket) {
   // Catch error send by server.
-  socket.on('error', function (err) {
+  socket.on('error', function(err) {
     console.log('Server socket sent an error', err);
   });
 
   // Catch error on client side connexion request.
-  socket.on('connect_error', function (err) {
+  socket.on('connect_error', function(err) {
     console.log('Connexion error', err);
     socket.close();
   });
@@ -67,6 +65,5 @@ function errorSocketEvents (socket) {
     socket.close();
   });
 }
-
 
 export default socketService;

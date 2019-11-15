@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
 class RangeSlider extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.progressHandler = this.progressHandler.bind(this);
@@ -23,12 +23,12 @@ class RangeSlider extends Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const { audioEl } = this.props;
 
     // Initialise duration track, and launch setInterval timer.
     if (audioEl.duration) {
-      this.setState({duration: audioEl.duration});
+      this.setState({ duration: audioEl.duration });
     }
     this.setProgressInterval();
 
@@ -60,7 +60,7 @@ class RangeSlider extends Component {
     window.addEventListener('mouseup', this.handleMouseUp);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     // Clear interval.
     this.clearProgressInterval();
 
@@ -72,21 +72,19 @@ class RangeSlider extends Component {
     window.removeEventListener('mouseup', this.handleMouseUp, false);
   }
 
-
   // Touch start handler.
-  handleTouchStart (e) {
+  handleTouchStart(e) {
     this.handleMouseDown(e.touches[0]);
   }
 
-
   // Touch move handler.
-  handleTouchMove (e) {
+  handleTouchMove(e) {
     e.preventDefault();
     this.handleMouseMove(e.touches[0]);
   }
 
   // Set an interval to call progressHandler.
-  setProgressInterval () {
+  setProgressInterval() {
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => {
         this.progressHandler();
@@ -96,7 +94,7 @@ class RangeSlider extends Component {
   }
 
   // Clear the progress interval.
-  clearProgressInterval () {
+  clearProgressInterval() {
     if (this.progressInterval) {
       clearInterval(this.progressInterval);
       this.progressInterval = null;
@@ -104,14 +102,17 @@ class RangeSlider extends Component {
   }
 
   // Check and set buffer position.
-  bufferHandler () {
+  bufferHandler() {
     const audio = this.props.audioEl;
     const duration = audio.duration;
 
     if (duration > 0) {
       for (let i = 0; i < audio.buffered.length; i++) {
-        if (audio.buffered.start(audio.buffered.length - 1 - i) < audio.currentTime) {
-          const time = (audio.buffered.end(audio.buffered.length - 1 - i) / duration) * 100;
+        if (
+          audio.buffered.start(audio.buffered.length - 1 - i) < audio.currentTime
+        ) {
+          const time =
+            (audio.buffered.end(audio.buffered.length - 1 - i) / duration) * 100;
           this.setState({
             buffer: time
           });
@@ -122,7 +123,7 @@ class RangeSlider extends Component {
   }
 
   // Check and set playing progress position.
-  progressHandler () {
+  progressHandler() {
     if (!this.state.isPressed) {
       const audio = this.props.audioEl;
       const time = (audio.currentTime / audio.duration) * 100;
@@ -135,7 +136,7 @@ class RangeSlider extends Component {
   }
 
   // Handler mouse down.
-  handleMouseDown ({ pageX }) {
+  handleMouseDown({ pageX }) {
     const box = this.bar.getBoundingClientRect();
     const elementX = box.left;
     const elementW = box.width;
@@ -151,7 +152,7 @@ class RangeSlider extends Component {
   }
 
   // Handler mouse move.
-  handleMouseMove ({ pageX }) {
+  handleMouseMove({ pageX }) {
     if (this.state.isPressed) {
       const { elementX, elementW, duration } = this.state;
       const posX = clamp(pageX, elementX, elementX + elementW);
@@ -165,7 +166,7 @@ class RangeSlider extends Component {
   }
 
   // Handler mouse up.
-  handleMouseUp () {
+  handleMouseUp() {
     const { position, isPressed } = this.state;
     const audio = this.props.audioEl;
 
@@ -178,7 +179,7 @@ class RangeSlider extends Component {
     });
   }
 
-  render () {
+  render() {
     // console.log('RENDER RANGE');
 
     const { position, buffer, currentTime, duration, isPressed } = this.state;
@@ -189,15 +190,18 @@ class RangeSlider extends Component {
     return (
       <div className={classes.join(' ')}>
         <MetaTimeTracksCurrent currentTime={currentTime} />
-        <div className='pr-control-bar'
+        <div
+          className="pr-control-bar"
           onMouseDown={this.handleMouseDown}
           onTouchStart={this.handleTouchStart}
-          ref={(bar) => { this.bar = bar; }}
+          ref={bar => {
+            this.bar = bar;
+          }}
         >
-          <div className='pr-bar pr-bar-line' />
-          <div className='pr-bar pr-bar-buffed' style={{width: `${buffer}%`}} />
-          <div className='pr-bar pr-bar-played' style={{width: `${position}%`}} />
-          <div className='pr-bar-handler' style={{left: `${position}%`}} />
+          <div className="pr-bar pr-bar-line" />
+          <div className="pr-bar pr-bar-buffed" style={{ width: `${buffer}%` }} />
+          <div className="pr-bar pr-bar-played" style={{ width: `${position}%` }} />
+          <div className="pr-bar-handler" style={{ left: `${position}%` }} />
         </div>
         <MetaTimeTracksEnd duration={duration} />
       </div>
@@ -206,53 +210,45 @@ class RangeSlider extends Component {
 }
 
 class MetaTimeTracksCurrent extends Component {
-  shouldComponentUpdate (nextProps) {
+  shouldComponentUpdate(nextProps) {
     const { currentTime } = nextProps;
-    return (currentTime !== this.props.currentTime);
+    return currentTime !== this.props.currentTime;
   }
 
-  render () {
+  render() {
     const { currentTime } = this.props;
     const cst = getFormatedTime(currentTime);
 
-    return (
-      <span className='mtn-elmt mtn-elmt-current'>
-        {`${cst}`}
-      </span>
-    );
-  };
+    return <span className="mtn-elmt mtn-elmt-current">{`${cst}`}</span>;
+  }
 }
 
 class MetaTimeTracksEnd extends Component {
-  shouldComponentUpdate (nextProps) {
+  shouldComponentUpdate(nextProps) {
     const { duration } = nextProps;
-    return (duration !== this.props.duration);
+    return duration !== this.props.duration;
   }
 
-  render () {
+  render() {
     const { duration } = this.props;
     const dur = getFormatedTime(duration);
 
-    return (
-      <span className='mtn-elmt mtn-elmt-end'>
-        {`${dur}`}
-      </span>
-    );
-  };
+    return <span className="mtn-elmt mtn-elmt-end">{`${dur}`}</span>;
+  }
 }
 
-function getFormatedTime (time) {
+function getFormatedTime(time) {
   let s = parseInt(time % 60);
   let m = parseInt((time / 60) % 60);
 
-  s = (s >= 10) ? s : '0' + s;
-  m = (m >= 10) ? m : '0' + m;
+  s = s >= 10 ? s : '0' + s;
+  m = m >= 10 ? m : '0' + m;
 
   return m + ':' + s;
 }
 
-function clamp (n, min, max) {
+function clamp(n, min, max) {
   return Math.max(Math.min(n, max), min);
 }
 
-export default RangeSlider
+export default RangeSlider;

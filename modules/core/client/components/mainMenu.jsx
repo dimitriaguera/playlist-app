@@ -1,10 +1,9 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { allowDisplayItem } from 'users/client/services/users.auth.services'
-import { getMenuLink } from 'core/client/services/core.menu.services'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { allowDisplayItem } from 'users/client/services/users.auth.services';
+import { getMenuLink } from 'core/client/services/core.menu.services';
 
-import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components'
-
+import SelectPlaylist from 'music/client/components/playList/selectPlaylist.client.components';
 
 class MainMenu extends Component {
   constructor() {
@@ -14,7 +13,7 @@ class MainMenu extends Component {
 
     this.state = {
       menuItems: getMenuLink()
-    }
+    };
   }
 
   componentDidMount() {
@@ -31,50 +30,53 @@ class MainMenu extends Component {
     const { menuItems } = this.state;
 
     return (
-      <aside id='main-side' ref={domElmt => this.mainSide = domElmt}>
-        <div className='aside-menu-wrapper'>
+      <aside id="main-side" ref={domElmt => (this.mainSide = domElmt)}>
+        <div className="aside-menu-wrapper">
           {user && <SelectPlaylist />}
-          <nav className='main-nav'>
-            <ul className='unstyled global-nav-ul main-nav-ul' onClick={this.clickMenu}>
-              {buildMenuItems(menuItems.main, user, { li: 'global-nav-li main-nav-li', cpt: 'global-nav-cpt main-nav-cpt' })}
+          <nav className="main-nav">
+            <ul
+              className="unstyled global-nav-ul main-nav-ul"
+              onClick={this.clickMenu}
+            >
+              {buildMenuItems(menuItems.main, user, {
+                li: 'global-nav-li main-nav-li',
+                cpt: 'global-nav-cpt main-nav-cpt'
+              })}
             </ul>
           </nav>
 
-          <div className='user-menu-wrapper'>
-            {user && <span className='global-nav-logged-user'>{user.username}</span>}
+          <div className="user-menu-wrapper">
+            {user && <span className="global-nav-logged-user">{user.username}</span>}
             <nav>
-              <ul className='unstyled global-nav-ul user-nav-ul' onClick={this.clickMenu}>
-                {buildMenuItems(menuItems.user, user, { li: 'global-nav-li user-nav-li', cpt: 'global-nav-cpt user-nav-cpt' })}
+              <ul
+                className="unstyled global-nav-ul user-nav-ul"
+                onClick={this.clickMenu}
+              >
+                {buildMenuItems(menuItems.user, user, {
+                  li: 'global-nav-li user-nav-li',
+                  cpt: 'global-nav-cpt user-nav-cpt'
+                })}
               </ul>
             </nav>
           </div>
-
-
         </div>
       </aside>
-    )
+    );
   }
 }
 
 const mapStateToProps = state => {
   return {
     user: state.authenticationStore._user
-  }
+  };
 };
 
-const MainMenuContainer = connect(
-  mapStateToProps,
-  null,
-  null,
-  {
-    pure: false
-  }
-)(MainMenu);
-
+const MainMenuContainer = connect(mapStateToProps, null, null, {
+  pure: false
+})(MainMenu);
 
 // HELPER
 function buildMenuItems(items, user, classes) {
-
   return items.map((item, i) => {
     const { component: Component, isPrivate, hiddenOnAuth, roles } = item;
 
@@ -88,9 +90,13 @@ function buildMenuItems(items, user, classes) {
     }
     // Else, render menu entry element.
     else {
-      return <li className={classes.li} key={i}><Component className={classes.cpt} /></li>;
+      return (
+        <li className={classes.li} key={i}>
+          <Component className={classes.cpt} />
+        </li>
+      );
     }
   });
 }
 
-export default MainMenuContainer
+export default MainMenuContainer;

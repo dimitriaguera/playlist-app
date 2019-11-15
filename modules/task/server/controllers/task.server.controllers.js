@@ -4,33 +4,35 @@
 const taskCore = require('../core/task.server.core');
 const TaskDb = require('../models/task.server.models');
 const path = require('path');
-const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
+const errorHandler = require(path.resolve(
+  './modules/core/server/services/error.server.services'
+));
 
-exports.getAllTask = function (req, res, next) {
+exports.getAllTask = function(req, res, next) {
   TaskDb.find({})
-        .lean()
-        .exec((err, tasks) => {
+    .lean()
+    .exec((err, tasks) => {
+      if (err) return errorHandler.errorMessageHandler(err, req, res, next);
 
-        if ( err ) return errorHandler.errorMessageHandler( err, req, res, next );
-
-        res.json({
-            success: true,
-            msg: {
-                inMemoryTasks: taskCore.get(),
-                inDataBaseTasks: tasks
-            }
-        });
+      res.json({
+        success: true,
+        msg: {
+          inMemoryTasks: taskCore.get(),
+          inDataBaseTasks: tasks
+        }
+      });
     });
 };
 
 exports.getTask = function(req, res) {
-    const task = req.model;
+  const task = req.model;
 
-    if ( !task.inMemoryTasks.length && !task.inDataBaseTasks.length ) {
-        return res.status(404).json({
-        success: false,
-        msg: 'Task not found'});
-    }
+  if (!task.inMemoryTasks.length && !task.inDataBaseTasks.length) {
+    return res.status(404).json({
+      success: false,
+      msg: 'Task not found'
+    });
+  }
 
   res.json({
     success: true,
@@ -74,34 +76,29 @@ exports.getTask = function(req, res) {
 // };
 
 exports.taskByKey = function(req, res, next, key) {
+  TaskDb.find({ key: key }).exec(function(err, task) {
+    if (err) {
+      return next(err);
+    }
 
-  TaskDb.find({key:key}).exec(function(err, task){
-
-        if ( err ) {
-            return next( err );
-        }
-
-        req.model = {
-          inMemoryTasks: [taskCore.getByKey(key)] || [],
-          inDataBaseTasks: task
-        };
-        next();
-    });
+    req.model = {
+      inMemoryTasks: [taskCore.getByKey(key)] || [],
+      inDataBaseTasks: task
+    };
+    next();
+  });
 };
 
 exports.taskById = function(req, res, next, memId) {
+  TaskDb.find({ memId: memId }).exec(function(err, task) {
+    if (err) {
+      return next(err);
+    }
 
-  TaskDb.find({memId: memId}).exec(function(err, task){
-
-        if ( err ) {
-            return next( err );
-        }
-
-        req.model = {
-          inMemoryTasks: [taskCore.getById(memId)] || [],
-          inDataBaseTasks: task
-        };
-        next();
-    });
+    req.model = {
+      inMemoryTasks: [taskCore.getById(memId)] || [],
+      inDataBaseTasks: task
+    };
+    next();
+  });
 };
-

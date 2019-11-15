@@ -1,15 +1,19 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { get, post } from 'core/client/services/core.api.services'
-import socketServices from 'core/client/services/core.socket.services'
-import MenuPlay from 'music/client/components/playList/menuPlay.client.components'
-import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components'
-import { activatePlaylist, playOnPlaylist, pauseState, playState } from 'music/client/redux/actions'
-
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { get, post } from 'core/client/services/core.api.services';
+import socketServices from 'core/client/services/core.socket.services';
+import MenuPlay from 'music/client/components/playList/menuPlay.client.components';
+import AddPlaylist from 'music/client/components/playList/addPlaylist.client.components';
+import {
+  activatePlaylist,
+  playOnPlaylist,
+  pauseState,
+  playState
+} from 'music/client/redux/actions';
 
 class AllPlaylist extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.socket = socketServices.getPublicSocket();
 
@@ -18,42 +22,40 @@ class AllPlaylist extends Component {
 
     this.state = {
       allPlaylist: []
-    }
+    };
   }
 
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
     const { user } = this.props;
     const username = user ? user.username : '';
 
     // Get all playlist.
-    this.props.getAllPlaylist()
-      .then((data) => {
-        if (data.success) {
-          _self.setState({ allPlaylist: data.msg });
-        }
-      });
+    this.props.getAllPlaylist().then(data => {
+      if (data.success) {
+        _self.setState({ allPlaylist: data.msg });
+      }
+    });
 
     // Socket connexion.
-    this.socket.on('save:playlist', (data) => {
+    this.socket.on('save:playlist', data => {
       const apl = updateAllPlaylist(_self.state.allPlaylist, data);
-      _self.setState({ allPlaylist: apl })
+      _self.setState({ allPlaylist: apl });
     });
   }
 
   // Update Playlists list if user connexion move.
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (this.props.user !== nextProps.user) {
       const _self = this;
 
       // If user connected, get all with default playlist.
       if (nextProps.user) {
-        this.props.getAllPlaylist()
-          .then((data) => {
-            if (data.success) {
-              _self.setState({ allPlaylist: data.msg });
-            }
-          });
+        this.props.getAllPlaylist().then(data => {
+          if (data.success) {
+            _self.setState({ allPlaylist: data.msg });
+          }
+        });
       }
 
       // No user, delete default playlist.
@@ -64,7 +66,7 @@ class AllPlaylist extends Component {
     }
   }
 
-  handlerOnPlay (e, item) {
+  handlerOnPlay(e, item) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -72,7 +74,7 @@ class AllPlaylist extends Component {
     const playlist = item;
 
     const { playingList, onPauseFunc, onPlayFunc, isPaused } = this.props;
-    const isPlaying = playingList.pl && (playingList.pl.title === playlist.title);
+    const isPlaying = playingList.pl && playingList.pl.title === playlist.title;
     //@todo do something for pl have always an id
     // and remove comparison with title
     // this after that
@@ -80,47 +82,47 @@ class AllPlaylist extends Component {
       if (isPaused) return onPlayFunc();
       return onPauseFunc();
     } else {
-      this.props.getPlaylist(playlist.title)
-        .then((data) => {
-          if (data.success) {
-            _self.props.onPlay({
-              pl: data.msg,
-              onPlayIndex: 0
-            });
-          }
-        });
+      this.props.getPlaylist(playlist.title).then(data => {
+        if (data.success) {
+          _self.props.onPlay({
+            pl: data.msg,
+            onPlayIndex: 0
+          });
+        }
+      });
     }
   }
 
-  handlerAddTracks(e, item){
+  handlerAddTracks(e, item) {
     e.preventDefault();
 
     const { user, history, location } = this.props;
 
-
     // User must be connected to add tracks.
-    if (!user) return history.push({pathname: '/login', state: {from: location.pathname }});
-
+    if (!user)
+      return history.push({
+        pathname: '/login',
+        state: { from: location.pathname }
+      });
 
     this.props.activatePlaylist(item);
     this.props.history.push('/music');
   }
 
   // On unmount component, disconnect Socket.io.
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.socket.disconnect();
     console.log('Disconnecting Socket as component will unmount');
   }
 
-  render () {
+  render() {
     const { allPlaylist } = this.state;
     const { history, user, playingList } = this.props;
 
-    const getAuthor = function (item) {
+    const getAuthor = function(item) {
       if (!item.author) {
         return 'Created by anonyme';
-      }
-      else {
+      } else {
         return `Created by ${item.author.username}`;
       }
     };
@@ -135,7 +137,7 @@ class AllPlaylist extends Component {
         title = item.title;
         path = `/playlist/${item.title}`;
         author = getAuthor(item);
-        isAuthor = (user && item.author && item.author.username === user.username);
+        isAuthor = user && item.author && item.author.username === user.username;
       } else {
         title = 'Queue';
         path = '/queue';
@@ -143,74 +145,97 @@ class AllPlaylist extends Component {
         isAuthor = true;
       }
 
-      const isPlaying = playingList.pl && (playingList.pl.title === item.title);
+      const isPlaying = playingList.pl && playingList.pl.title === item.title;
       const classes = ['allpl-li'];
-      if( isPlaying ) classes.push('is-playing');
+      if (isPlaying) classes.push('is-playing');
 
       return (
         <li className={classes.join(' ')} key={i}>
-        {(item.length !== 0) &&
-            <div className='allpl-a' onClick={e => this.handlerOnPlay(e, item)} aria-label={`Play playlist ${title}`}>
-              <div className='allpl-img-wrapper'>
-                <span className='allpl-img-inner'/>
-                <span className='allpl-img-overlay'/>
-                <MenuPlay playlist={item}/>
+          {item.length !== 0 && (
+            <div
+              className="allpl-a"
+              onClick={e => this.handlerOnPlay(e, item)}
+              aria-label={`Play playlist ${title}`}
+            >
+              <div className="allpl-img-wrapper">
+                <span className="allpl-img-inner" />
+                <span className="allpl-img-overlay" />
+                <MenuPlay playlist={item} />
               </div>
-              <div className='allpl-title'>{title}</div>
-              <div className='allpl-author'>{author}</div>
-              <div className='allpl-tracks'>{item.length} tracks</div>
-              {isAuthor &&
-              <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)} className='btn btn-icon medium'>
-                <i aria-hidden='true' className='icon icon-plus'/>
-              </button>
-              }
-              <Link to={path} onClick={(e) => e.stopPropagation()} title='to playlist page' className='btn btn-icon medium'>
-                <i aria-hidden='true' className='icon icon-eye'/>
+              <div className="allpl-title">{title}</div>
+              <div className="allpl-author">{author}</div>
+              <div className="allpl-tracks">{item.length} tracks</div>
+              {isAuthor && (
+                <button
+                  title="Add tracks"
+                  onClick={e => this.handlerAddTracks(e, item)}
+                  className="btn btn-icon medium"
+                >
+                  <i aria-hidden="true" className="icon icon-plus" />
+                </button>
+              )}
+              <Link
+                to={path}
+                onClick={e => e.stopPropagation()}
+                title="to playlist page"
+                className="btn btn-icon medium"
+              >
+                <i aria-hidden="true" className="icon icon-eye" />
               </Link>
             </div>
-        }{(item.length === 0) &&
-          <div className='allpl-noa'>
-            <div className='allpl-img-wrapper'>
-              <span className='allpl-img-inner'/>
-              <span className='allpl-img-overlay'/>
-              {isAuthor &&
-                <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)}
-                        className='menu-add btn btn-icon big'>
-                  <i aria-hidden='true' className='icon icon-plus big'/>
+          )}
+          {item.length === 0 && (
+            <div className="allpl-noa">
+              <div className="allpl-img-wrapper">
+                <span className="allpl-img-inner" />
+                <span className="allpl-img-overlay" />
+                {isAuthor && (
+                  <button
+                    title="Add tracks"
+                    onClick={e => this.handlerAddTracks(e, item)}
+                    className="menu-add btn btn-icon big"
+                  >
+                    <i aria-hidden="true" className="icon icon-plus big" />
+                  </button>
+                )}
+              </div>
+              <div className="allpl-title">{title}</div>
+              <div className="allpl-author">{author}</div>
+              <div className="allpl-tracks">{item.length} tracks</div>
+              {isAuthor && (
+                <button
+                  title="Add tracks"
+                  onClick={e => this.handlerAddTracks(e, item)}
+                  className="btn btn-icon medium"
+                >
+                  <i aria-hidden="true" className="icon icon-plus" />
                 </button>
-              }
+              )}
+              <Link
+                to={path}
+                title="to playlist page"
+                className="btn btn-icon medium"
+              >
+                <i aria-hidden="true" className="icon icon-eye" />
+              </Link>
             </div>
-            <div className='allpl-title'>{title}</div>
-            <div className='allpl-author'>{author}</div>
-            <div className='allpl-tracks'>{item.length} tracks</div>
-            {isAuthor &&
-            <button title='Add tracks' onClick={e => this.handlerAddTracks(e, item)} className='btn btn-icon medium'>
-              <i aria-hidden='true' className='icon icon-plus'/>
-            </button>
-            }
-            <Link to={path} title='to playlist page' className='btn btn-icon medium'>
-              <i aria-hidden='true' className='icon icon-eye'/>
-            </Link>
-          </div>
-        }
+          )}
         </li>
       );
     });
 
     return (
-      <section className='pal allpl'>
+      <section className="pal allpl">
         <header>
           <h1>Playlists</h1>
-          <div className='w-max-xl center ptl pbl'>
-            <div className='mw960p pbl'>
-            <AddPlaylist history={history} />
+          <div className="w-max-xl center ptl pbl">
+            <div className="mw960p pbl">
+              <AddPlaylist history={history} />
             </div>
           </div>
         </header>
-        <div className='content-wrapper w-max-xl center'>
-          <ul className='grid-target unstyled grid-3 has-gutter-l'>
-            {playLists}
-          </ul>
+        <div className="content-wrapper w-max-xl center">
+          <ul className="grid-target unstyled grid-3 has-gutter-l">{playLists}</ul>
         </div>
       </section>
     );
@@ -222,33 +247,19 @@ const mapStateToProps = state => {
     user: state.authenticationStore._user,
     playingList: state.playlistStore.playingList,
     isPaused: state.playlistStore.pause
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    createPlaylist: (item) => dispatch(
-      post('playlist', {data: item})
-    ),
-    getAllPlaylist: () => dispatch(
-      get(`playlist`)
-    ),
-    getPlaylist: (title) => dispatch(
-      get(`playlist/${title}`)
-    ),
-    activatePlaylist: (item) => dispatch(
-      activatePlaylist(item)
-    ),
-    onPlay: (item) => dispatch(
-      playOnPlaylist(item)
-    ),
-    onPauseFunc: () => dispatch(
-      pauseState()
-    ),
-    onPlayFunc: () => dispatch(
-      playState()
-    )
-  }
+    createPlaylist: item => dispatch(post('playlist', { data: item })),
+    getAllPlaylist: () => dispatch(get(`playlist`)),
+    getPlaylist: title => dispatch(get(`playlist/${title}`)),
+    activatePlaylist: item => dispatch(activatePlaylist(item)),
+    onPlay: item => dispatch(playOnPlaylist(item)),
+    onPauseFunc: () => dispatch(pauseState()),
+    onPlayFunc: () => dispatch(playState())
+  };
 };
 
 const AllPlaylistContainer = connect(
@@ -256,12 +267,11 @@ const AllPlaylistContainer = connect(
   mapDispatchToProps
 )(AllPlaylist);
 
-
 // HELPER
-function updateAllPlaylist (arr, item) {
+function updateAllPlaylist(arr, item) {
   const array = arr.slice(0);
 
-  for (let i = 0, l = array.length ; i < l ; i++) {
+  for (let i = 0, l = array.length; i < l; i++) {
     if (item.title === array[i].title) {
       array[i] = item;
       return array;
@@ -284,10 +294,10 @@ function updateAllPlaylist (arr, item) {
 //   return array;
 // }
 
-function deleteDefaultPlaylist (arr) {
+function deleteDefaultPlaylist(arr) {
   const array = arr.slice(0);
 
-  for (let i = 0, l = array.length ; i < l ; i++) {
+  for (let i = 0, l = array.length; i < l; i++) {
     if (array[i].defaultPlaylist) {
       array.splice(i, 1);
       return array;
@@ -296,4 +306,4 @@ function deleteDefaultPlaylist (arr) {
   return array;
 }
 
-export default AllPlaylistContainer
+export default AllPlaylistContainer;

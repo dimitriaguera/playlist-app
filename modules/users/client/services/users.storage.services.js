@@ -8,7 +8,7 @@ const TOKEN_KEY = 'token';
  *
  * @param token
  */
-export function setLocalToken (token) {
+export function setLocalToken(token) {
   sessionStorage.setItem(TOKEN_KEY, token);
 }
 
@@ -16,7 +16,7 @@ export function setLocalToken (token) {
  * Return token from sessionStorage.
  *
  */
-export function getLocalToken () {
+export function getLocalToken() {
   return sessionStorage.getItem(TOKEN_KEY);
 }
 
@@ -24,6 +24,6 @@ export function getLocalToken () {
  * Remove token from sessionStorage.
  *
  */
-export function clearLocalStorage () {
+export function clearLocalStorage() {
   sessionStorage.removeItem(TOKEN_KEY);
 }

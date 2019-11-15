@@ -1,15 +1,14 @@
-import React, { Component } from 'react'
-
+import React, { Component } from 'react';
 
 class ErrorCatcher extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = { error: false };
   }
-  componentDidCatch (error, info) {
+  componentDidCatch(error, info) {
     this.setState({ error, info });
   }
-  render () {
+  render() {
     if (this.state.error) {
       return <h1>Error: {this.state.error.toString()}</h1>;
     }
@@ -17,4 +16,4 @@ class ErrorCatcher extends React.Component {
   }
 }
 
-export default ErrorCatcher
+export default ErrorCatcher;

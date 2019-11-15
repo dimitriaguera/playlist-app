@@ -4,11 +4,11 @@
 'use strict';
 
 module.exports = {
-
   app: {
     name: 'PlaylistApp',
     title: 'PlaylistApp',
-    description: 'This streaming application allowing you to manage, playing your music from anywhere.',
+    description:
+      'This streaming application allowing you to manage, playing your music from anywhere.',
     keywords: 'music, streaming, manage, playing',
     logo: '/static/assets/img/logo.png',
     favicon: '/static/assets/img/ico.png'

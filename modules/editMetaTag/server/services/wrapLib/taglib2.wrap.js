@@ -10,7 +10,7 @@ const trimObj = require('../../../../core/server/services/obj.server.services');
  * @param filePath
  * @param cb
  */
-exports.read = function (filePath, cb) {
+exports.read = function(filePath, cb) {
   try {
     const metadata = taglib2.readTagsSync(filePath);
 
@@ -21,14 +21,13 @@ exports.read = function (filePath, cb) {
     cleanMeta.album = metadata.album || '';
 
     // Change date to string
-    cleanMeta.year = metadata.year ? (metadata.year + '') : '';
+    cleanMeta.year = metadata.year ? metadata.year + '' : '';
 
     cleanMeta.time = metadata.time || '';
 
     // Convert Genre in tab and split it
     // [ 'pop', 'rock', 'jazz']
     cleanMeta.genre = metadata.genre ? metadata.genre.split(/\s*[,;\/]\s*/) : [];
-
 
     cleanMeta.albumartist = metadata.albumartist || '';
     cleanMeta.composer = metadata.composer || '';
@@ -41,26 +40,24 @@ exports.read = function (filePath, cb) {
     let trackNb = metadata.tracknumber || metadata.track;
     if (trackNb) {
       trackNb = (trackNb + '').split('/');
-      cleanMeta.trackno = (trackNb[0]) ? trackNb[0].replace(/^0+(?=\d)/, '') : '0';
-      cleanMeta.trackof = (trackNb[1]) ? trackNb[1].replace(/^0+(?=\d)/, '') : '0';
+      cleanMeta.trackno = trackNb[0] ? trackNb[0].replace(/^0+(?=\d)/, '') : '0';
+      cleanMeta.trackof = trackNb[1] ? trackNb[1].replace(/^0+(?=\d)/, '') : '0';
     } else {
       cleanMeta.trackno = '0';
       cleanMeta.trackof = '0';
     }
-
 
     // Convert disk number to string and split in no and of and
     // remove leading 0
     let diskNb = metadata.discnumber || metadata.discnumber;
     if (diskNb) {
       diskNb = (diskNb + '').split('/');
-      cleanMeta.diskno = (diskNb[0]) ? diskNb[0].replace(/^0+(?=\d)/, '') : '0';
-      cleanMeta.diskof = (diskNb[1]) ? diskNb[1].replace(/^0+(?=\d)/, '') : '0';
+      cleanMeta.diskno = diskNb[0] ? diskNb[0].replace(/^0+(?=\d)/, '') : '0';
+      cleanMeta.diskof = diskNb[1] ? diskNb[1].replace(/^0+(?=\d)/, '') : '0';
     } else {
       cleanMeta.diskno = '0';
       cleanMeta.diskof = '0';
     }
-
 
     // Trim Obj key and value
     cleanMeta = trimObj.trimObj(cleanMeta);
@@ -79,17 +76,14 @@ exports.read = function (filePath, cb) {
  *
  * @param input String path to a audio file
  */
-function readPict (filePath, cb) {
+function readPict(filePath, cb) {
   try {
     const metadata = taglib2.readTagsSync(filePath);
     if (metadata && metadata.pictures && metadata.pictures[0]) {
-      return cb(
-        null,
-        {
-          pict: metadata.pictures[0].picture,
-          ext: metadata.pictures[0].mimetype.split('/')[1]
-        }
-      )
+      return cb(null, {
+        pict: metadata.pictures[0].picture,
+        ext: metadata.pictures[0].mimetype.split('/')[1]
+      });
     }
     cb(null, null);
   } catch (e) {
@@ -105,14 +99,13 @@ exports.readPict = readPict;
  * @param output String path to extracted cover to a jpg file
  * @param cb
  */
-exports.readPictAndSave = function (input, output, cb) {
+exports.readPictAndSave = function(input, output, cb) {
   const saveToJpeg = require('../picture.server.services');
 
   readPict(input, (err, data) => {
     if (err) return cb(err);
-    saveToJpeg.saveToJpeg(data.pict, output, cb)
-  }
-  );
+    saveToJpeg.saveToJpeg(data.pict, output, cb);
+  });
 };
 
 /**
@@ -145,8 +138,8 @@ exports.readPictAndSave = function (input, output, cb) {
  * @param meta Object
  * @param cb
  */
-exports.saveMeta = function (audioFile, meta, cb) {
-  function standardizeMeta (meta) {
+exports.saveMeta = function(audioFile, meta, cb) {
+  function standardizeMeta(meta) {
     let newMeta = Object.assign({}, meta);
 
     newMeta.tracknumber = meta.trackno || '0';

@@ -7,6 +7,7 @@ This permit to start the playlistApp app with the computer
 ```
 
 You can start/stop/restart playlistApp with :
+
 ```
 sudo systemctl status playlistapp
 sudo systemctl start playlistapp
@@ -15,6 +16,7 @@ sudo systemctl restart playlistapp
 ```
 
 Check journal
+
 ```
 journalctl -f
 sudo systemctl status playlistapp

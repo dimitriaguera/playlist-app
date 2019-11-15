@@ -1,11 +1,10 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Divider, Icon, Step } from 'semantic-ui-react'
-import { get } from 'core/client/services/core.api.services'
-import { playItem, addFolderToPlay } from 'music/client/redux/actions'
-import FolderItem from './folderItem.client.components'
-import ps from 'core/client/services/core.path.services'
-
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Divider, Icon, Step } from 'semantic-ui-react';
+import { get } from 'core/client/services/core.api.services';
+import { playItem, addFolderToPlay } from 'music/client/redux/actions';
+import FolderItem from './folderItem.client.components';
+import ps from 'core/client/services/core.path.services';
 
 /**
  * Folder is the file explorator component.
@@ -19,10 +18,8 @@ import ps from 'core/client/services/core.path.services'
  *
  */
 
-
-
 class Folder extends Component {
-  constructor () {
+  constructor() {
     super();
 
     // this.handleModalOpen = this.handleModalOpen.bind(this);
@@ -49,7 +46,7 @@ class Folder extends Component {
     };
   }
 
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
     const { fetchFolder, location, match } = this.props;
 
@@ -60,11 +57,10 @@ class Folder extends Component {
     const path = ps.cleanPath(ps.removeRoute(location.pathname, match.path));
 
     // Get folder's content.
-    return fetchFolder(ps.urlEncode(path)).then((data) => {
+    return fetchFolder(ps.urlEncode(path)).then(data => {
       if (!data.success) {
         _self.setState({ error: true, params: params });
-      }
-      else {
+      } else {
         _self.setState({
           error: false,
           folder: data.msg,
@@ -77,13 +73,13 @@ class Folder extends Component {
   }
 
   // Re-render only if path array or modal state are modified.
-  shouldComponentUpdate (nextState) {
+  shouldComponentUpdate(nextState) {
     const { path, modal } = nextState;
-    return (path !== this.state.path || modal !== this.state.modal);
+    return path !== this.state.path || modal !== this.state.modal;
   }
 
   // Force re-rendering on props location change.
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const _self = this;
     const { location, match } = nextProps;
 
@@ -92,11 +88,10 @@ class Folder extends Component {
 
     // Query folder content, and set new state.
     // This start re-render component with folder content.
-    this.props.fetchFolder(ps.urlEncode(path)).then((data) => {
+    this.props.fetchFolder(ps.urlEncode(path)).then(data => {
       if (!data.success) {
         _self.setState({ error: true });
-      }
-      else {
+      } else {
         _self.setState({
           error: false,
           folder: data.msg,
@@ -151,7 +146,7 @@ class Folder extends Component {
 
   // Handler onClick on a folder link.
   // Return list a folder content.
-  handlerOpenFolder (e, path) {
+  handlerOpenFolder(e, path) {
     const { history } = this.props;
 
     // Build path from array.
@@ -162,7 +157,7 @@ class Folder extends Component {
   }
 
   // Handler that return root folder content.
-  handlerRootFolder (e) {
+  handlerRootFolder(e) {
     const { history } = this.props;
 
     // Update component via url update.
@@ -171,7 +166,7 @@ class Folder extends Component {
   }
 
   // Handler to looks at files as tracks list.
-  onListTracks (e, item) {
+  onListTracks(e, item) {
     const { history } = this.props;
 
     // Go to album display mode.
@@ -180,7 +175,7 @@ class Folder extends Component {
   }
 
   // Handler to play music file.
-  handlerReadFile (e, item) {
+  handlerReadFile(e, item) {
     // Build track item.
     const play = item;
 
@@ -219,15 +214,14 @@ class Folder extends Component {
   // }
 
   // Handler to add recursively all tracks on playlist.
-  handlerPlayFolder (e, item) {
+  handlerPlayFolder(e, item) {
     const _self = this;
-    const {fetchFiles, addFolderToPlay} = this.props;
+    const { fetchFiles, addFolderToPlay } = this.props;
 
-    fetchFiles(ps.urlEncode(item.path)).then((data) => {
+    fetchFiles(ps.urlEncode(item.path)).then(data => {
       if (!data.success) {
         _self.setState({ error: true });
-      }
-      else {
+      } else {
         // Don't push album if is empty
         // @todo move it to audiobar control beacause here the user
         // don't know what's happen
@@ -246,7 +240,7 @@ class Folder extends Component {
   }
 
   // Click on folder or file element.
-  handlerClickOnFile (e, item) {
+  handlerClickOnFile(e, item) {
     if (item.isFile) {
       return this.handlerReadFile(e, item);
     }
@@ -254,10 +248,11 @@ class Folder extends Component {
     this.handlerOpenFolder(e, item.path);
   }
 
-  render () {
+  render() {
     const {
       folder,
-      path, error
+      path,
+      error
       // params,
       // modal
     } = this.state;
@@ -295,27 +290,29 @@ class Folder extends Component {
         {/* </Segment> */}
         {/* )} */}
 
-        <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
+        <Bread
+          path={path}
+          handlerOpenFolder={this.handlerOpenFolder}
+          handlerRootFolder={this.handlerRootFolder}
+        />
 
-        {(!error) &&
-                  folder.map((item, i) => {
-                    if (item === null) return null;
+        {!error &&
+          folder.map((item, i) => {
+            if (item === null) return null;
 
-                    return (
-                      <FolderItem
-                        key={i}
-                        item={item}
-                        user={user}
-                        onClick={this.handlerClickOnFile}
-                        // onGetFiles={this.handlerGetAllFiles}
-                        // onAddItem={this.handlerAddItem}
-                        onPlayFolder={this.handlerPlayFolder}
-                        onListTracks={this.onListTracks}
-                      />
-                    )
-                  })
-        }
-
+            return (
+              <FolderItem
+                key={i}
+                item={item}
+                user={user}
+                onClick={this.handlerClickOnFile}
+                // onGetFiles={this.handlerGetAllFiles}
+                // onAddItem={this.handlerAddItem}
+                onPlayFolder={this.handlerPlayFolder}
+                onListTracks={this.onListTracks}
+              />
+            );
+          })}
 
         {/* <Modal */}
         {/* open={ modal.open } */}
@@ -346,18 +343,14 @@ const mapStateToProps = state => {
     // activePlaylist: state.playlistStore.activePlaylist,
     // playingList: state.playlistStore.playingList,
     user: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchFolder: (query) => dispatch(
-      get(`folder?path=${query || ''}`)
-    ),
+    fetchFolder: query => dispatch(get(`folder?path=${query || ''}`)),
 
-    fetchFiles: (query) => dispatch(
-      get(`files?path=${query || ''}`)
-    ),
+    fetchFiles: query => dispatch(get(`files?path=${query || ''}`)),
 
     // @todo to remove
     // addPlaylistItems: ( title, items ) => dispatch(
@@ -366,8 +359,7 @@ const mapDispatchToProps = dispatch => {
     //     } )
     // ),
 
-
-    addFolderToPlay: (item) => {
+    addFolderToPlay: item => {
       // Search first track on list.
       const track = item.pl.tracks[0];
       // Add album to store.
@@ -376,32 +368,33 @@ const mapDispatchToProps = dispatch => {
       if (track) dispatch(playItem(track));
     },
 
-    readFile: (item) => dispatch(
-      playItem(item)
-    )
-  }
+    readFile: item => dispatch(playItem(item))
+  };
 };
 
-const FolderContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Folder);
+const FolderContainer = connect(mapStateToProps, mapDispatchToProps)(Folder);
 
-
-
-function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
-  const stepWidth = `calc(${100 / path.length}% - ${(70 / path.length)}px)`;
+function Bread({ path, handlerOpenFolder, handlerRootFolder }) {
+  const stepWidth = `calc(${100 / path.length}% - ${70 / path.length}px)`;
 
   return (
-    <Step.Group size='mini' unstackable>
-      <Step link onClick={handlerRootFolder} style={{maxWidth: '70px'}}>
+    <Step.Group size="mini" unstackable>
+      <Step link onClick={handlerRootFolder} style={{ maxWidth: '70px' }}>
         <Step.Content>
-          <Step.Title><Icon name='home' size='large' /></Step.Title>
+          <Step.Title>
+            <Icon name="home" size="large" />
+          </Step.Title>
         </Step.Content>
       </Step>
       {path.map((item, i) => {
         return (
-          <Step link key={i} active={i === path.length - 1} onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))} style={{maxWidth: stepWidth}}>
+          <Step
+            link
+            key={i}
+            active={i === path.length - 1}
+            onClick={e => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))}
+            style={{ maxWidth: stepWidth }}
+          >
             <Step.Content>
               <Step.Title>{item}</Step.Title>
             </Step.Content>
@@ -409,12 +402,12 @@ function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
         );
       })}
     </Step.Group>
-  )
+  );
 }
 
 // HELPER
 // Return Array to feed Breadcrumb Semantic UI React Component.
-function buildBread (array, handler) {
+function buildBread(array, handler) {
   const l = array.length - 1;
 
   return array.map((item, i) => {
@@ -427,4 +420,4 @@ function buildBread (array, handler) {
   });
 }
 
-export default FolderContainer
+export default FolderContainer;

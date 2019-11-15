@@ -9,9 +9,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "activity"
-        ],
+        "tags": ["activity"],
         "grid": 24
       },
       "attrs": [],
@@ -35,9 +33,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "airplay"
-        ],
+        "tags": ["airplay"],
         "grid": 24
       },
       "attrs": [],
@@ -62,9 +58,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "alert-circle"
-        ],
+        "tags": ["alert-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -89,9 +83,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "alert-octagon"
-        ],
+        "tags": ["alert-octagon"],
         "grid": 24
       },
       "attrs": [],
@@ -116,9 +108,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "alert-triangle"
-        ],
+        "tags": ["alert-triangle"],
         "grid": 24
       },
       "attrs": [],
@@ -144,9 +134,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "align-center"
-        ],
+        "tags": ["align-center"],
         "grid": 24
       },
       "attrs": [],
@@ -172,9 +160,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "align-justify"
-        ],
+        "tags": ["align-justify"],
         "grid": 24
       },
       "attrs": [],
@@ -200,9 +186,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "align-left"
-        ],
+        "tags": ["align-left"],
         "grid": 24
       },
       "attrs": [],
@@ -228,9 +212,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "align-right"
-        ],
+        "tags": ["align-right"],
         "grid": 24
       },
       "attrs": [],
@@ -253,9 +235,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "anchor"
-        ],
+        "tags": ["anchor"],
         "grid": 24
       },
       "attrs": [],
@@ -278,9 +258,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "aperture"
-        ],
+        "tags": ["aperture"],
         "grid": 24
       },
       "attrs": [],
@@ -303,9 +281,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-down"
-        ],
+        "tags": ["arrow-down"],
         "grid": 24
       },
       "attrs": [],
@@ -329,9 +305,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-down-circle"
-        ],
+        "tags": ["arrow-down-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -354,9 +328,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-down-left"
-        ],
+        "tags": ["arrow-down-left"],
         "grid": 24
       },
       "attrs": [],
@@ -379,9 +351,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-down-right"
-        ],
+        "tags": ["arrow-down-right"],
         "grid": 24
       },
       "attrs": [],
@@ -404,9 +374,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-left"
-        ],
+        "tags": ["arrow-left"],
         "grid": 24
       },
       "attrs": [],
@@ -430,9 +398,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-left-circle"
-        ],
+        "tags": ["arrow-left-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -455,9 +421,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-right"
-        ],
+        "tags": ["arrow-right"],
         "grid": 24
       },
       "attrs": [],
@@ -481,9 +445,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-right-circle"
-        ],
+        "tags": ["arrow-right-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -506,9 +468,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-up"
-        ],
+        "tags": ["arrow-up"],
         "grid": 24
       },
       "attrs": [],
@@ -532,9 +492,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-up-circle"
-        ],
+        "tags": ["arrow-up-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -557,9 +515,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-up-left"
-        ],
+        "tags": ["arrow-up-left"],
         "grid": 24
       },
       "attrs": [],
@@ -582,9 +538,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "arrow-up-right"
-        ],
+        "tags": ["arrow-up-right"],
         "grid": 24
       },
       "attrs": [],
@@ -607,9 +561,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "at-sign"
-        ],
+        "tags": ["at-sign"],
         "grid": 24
       },
       "attrs": [],
@@ -632,9 +584,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "award"
-        ],
+        "tags": ["award"],
         "grid": 24
       },
       "attrs": [],
@@ -659,9 +609,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bar-chart"
-        ],
+        "tags": ["bar-chart"],
         "grid": 24
       },
       "attrs": [],
@@ -686,9 +634,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bar-chart-2"
-        ],
+        "tags": ["bar-chart-2"],
         "grid": 24
       },
       "attrs": [],
@@ -712,9 +658,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "battery"
-        ],
+        "tags": ["battery"],
         "grid": 24
       },
       "attrs": [],
@@ -740,9 +684,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "battery-charging"
-        ],
+        "tags": ["battery-charging"],
         "grid": 24
       },
       "attrs": [],
@@ -766,9 +708,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bell"
-        ],
+        "tags": ["bell"],
         "grid": 24
       },
       "attrs": [],
@@ -793,9 +733,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bell-off"
-        ],
+        "tags": ["bell-off"],
         "grid": 24
       },
       "attrs": [],
@@ -818,9 +756,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bluetooth"
-        ],
+        "tags": ["bluetooth"],
         "grid": 24
       },
       "attrs": [],
@@ -843,9 +779,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bold"
-        ],
+        "tags": ["bold"],
         "grid": 24
       },
       "attrs": [],
@@ -868,9 +802,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "book"
-        ],
+        "tags": ["book"],
         "grid": 24
       },
       "attrs": [],
@@ -893,9 +825,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "book-open"
-        ],
+        "tags": ["book-open"],
         "grid": 24
       },
       "attrs": [],
@@ -918,9 +848,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "bookmark"
-        ],
+        "tags": ["bookmark"],
         "grid": 24
       },
       "attrs": [],
@@ -943,9 +871,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "box"
-        ],
+        "tags": ["box"],
         "grid": 24
       },
       "attrs": [],
@@ -968,9 +894,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "briefcase"
-        ],
+        "tags": ["briefcase"],
         "grid": 24
       },
       "attrs": [],
@@ -993,9 +917,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "calendar"
-        ],
+        "tags": ["calendar"],
         "grid": 24
       },
       "attrs": [],
@@ -1019,9 +941,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "camera"
-        ],
+        "tags": ["camera"],
         "grid": 24
       },
       "attrs": [],
@@ -1045,9 +965,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "camera-off"
-        ],
+        "tags": ["camera-off"],
         "grid": 24
       },
       "attrs": [],
@@ -1073,9 +991,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cast"
-        ],
+        "tags": ["cast"],
         "grid": 24
       },
       "attrs": [],
@@ -1098,9 +1014,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "check"
-        ],
+        "tags": ["check"],
         "grid": 24
       },
       "attrs": [],
@@ -1124,9 +1038,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "check-circle"
-        ],
+        "tags": ["check-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -1150,9 +1062,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "check-square"
-        ],
+        "tags": ["check-square"],
         "grid": 24
       },
       "attrs": [],
@@ -1175,9 +1085,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevron-down"
-        ],
+        "tags": ["chevron-down"],
         "grid": 24
       },
       "attrs": [],
@@ -1200,9 +1108,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevron-left"
-        ],
+        "tags": ["chevron-left"],
         "grid": 24
       },
       "attrs": [],
@@ -1225,9 +1131,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevron-right"
-        ],
+        "tags": ["chevron-right"],
         "grid": 24
       },
       "attrs": [],
@@ -1250,9 +1154,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevron-up"
-        ],
+        "tags": ["chevron-up"],
         "grid": 24
       },
       "attrs": [],
@@ -1276,9 +1178,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevrons-down"
-        ],
+        "tags": ["chevrons-down"],
         "grid": 24
       },
       "attrs": [],
@@ -1302,9 +1202,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevrons-left"
-        ],
+        "tags": ["chevrons-left"],
         "grid": 24
       },
       "attrs": [],
@@ -1328,9 +1226,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevrons-right"
-        ],
+        "tags": ["chevrons-right"],
         "grid": 24
       },
       "attrs": [],
@@ -1354,9 +1250,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chevrons-up"
-        ],
+        "tags": ["chevrons-up"],
         "grid": 24
       },
       "attrs": [],
@@ -1379,9 +1273,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "chrome"
-        ],
+        "tags": ["chrome"],
         "grid": 24
       },
       "attrs": [],
@@ -1404,9 +1296,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "circle"
-        ],
+        "tags": ["circle"],
         "grid": 24
       },
       "attrs": [],
@@ -1429,9 +1319,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "clipboard"
-        ],
+        "tags": ["clipboard"],
         "grid": 24
       },
       "attrs": [],
@@ -1455,9 +1343,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "clock"
-        ],
+        "tags": ["clock"],
         "grid": 24
       },
       "attrs": [],
@@ -1480,9 +1366,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cloud"
-        ],
+        "tags": ["cloud"],
         "grid": 24
       },
       "attrs": [],
@@ -1511,9 +1395,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cloud-drizzle"
-        ],
+        "tags": ["cloud-drizzle"],
         "grid": 24
       },
       "attrs": [],
@@ -1537,9 +1419,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cloud-lightning"
-        ],
+        "tags": ["cloud-lightning"],
         "grid": 24
       },
       "attrs": [],
@@ -1563,9 +1443,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cloud-off"
-        ],
+        "tags": ["cloud-off"],
         "grid": 24
       },
       "attrs": [],
@@ -1591,9 +1469,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cloud-rain"
-        ],
+        "tags": ["cloud-rain"],
         "grid": 24
       },
       "attrs": [],
@@ -1622,9 +1498,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cloud-snow"
-        ],
+        "tags": ["cloud-snow"],
         "grid": 24
       },
       "attrs": [],
@@ -1648,9 +1522,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "code"
-        ],
+        "tags": ["code"],
         "grid": 24
       },
       "attrs": [],
@@ -1673,9 +1545,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "codepen"
-        ],
+        "tags": ["codepen"],
         "grid": 24
       },
       "attrs": [],
@@ -1698,9 +1568,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "command"
-        ],
+        "tags": ["command"],
         "grid": 24
       },
       "attrs": [],
@@ -1724,9 +1592,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "compass"
-        ],
+        "tags": ["compass"],
         "grid": 24
       },
       "attrs": [],
@@ -1750,9 +1616,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "copy"
-        ],
+        "tags": ["copy"],
         "grid": 24
       },
       "attrs": [],
@@ -1775,9 +1639,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-down-left"
-        ],
+        "tags": ["corner-down-left"],
         "grid": 24
       },
       "attrs": [],
@@ -1800,9 +1662,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-down-right"
-        ],
+        "tags": ["corner-down-right"],
         "grid": 24
       },
       "attrs": [],
@@ -1825,9 +1685,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-left-down"
-        ],
+        "tags": ["corner-left-down"],
         "grid": 24
       },
       "attrs": [],
@@ -1850,9 +1708,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-left-up"
-        ],
+        "tags": ["corner-left-up"],
         "grid": 24
       },
       "attrs": [],
@@ -1875,9 +1731,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-right-down"
-        ],
+        "tags": ["corner-right-down"],
         "grid": 24
       },
       "attrs": [],
@@ -1900,9 +1754,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-right-up"
-        ],
+        "tags": ["corner-right-up"],
         "grid": 24
       },
       "attrs": [],
@@ -1925,9 +1777,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-up-left"
-        ],
+        "tags": ["corner-up-left"],
         "grid": 24
       },
       "attrs": [],
@@ -1950,9 +1800,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "corner-up-right"
-        ],
+        "tags": ["corner-up-right"],
         "grid": 24
       },
       "attrs": [],
@@ -1976,9 +1824,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "cpu"
-        ],
+        "tags": ["cpu"],
         "grid": 24
       },
       "attrs": [],
@@ -2001,9 +1847,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "credit-card"
-        ],
+        "tags": ["credit-card"],
         "grid": 24
       },
       "attrs": [],
@@ -2026,9 +1870,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "crop"
-        ],
+        "tags": ["crop"],
         "grid": 24
       },
       "attrs": [],
@@ -2051,9 +1893,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "crosshair"
-        ],
+        "tags": ["crosshair"],
         "grid": 24
       },
       "attrs": [],
@@ -2076,9 +1916,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "database"
-        ],
+        "tags": ["database"],
         "grid": 24
       },
       "attrs": [],
@@ -2102,9 +1940,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "delete"
-        ],
+        "tags": ["delete"],
         "grid": 24
       },
       "attrs": [],
@@ -2128,9 +1964,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "disc"
-        ],
+        "tags": ["disc"],
         "grid": 24
       },
       "attrs": [],
@@ -2153,9 +1987,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "dollar-sign"
-        ],
+        "tags": ["dollar-sign"],
         "grid": 24
       },
       "attrs": [],
@@ -2179,9 +2011,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "download"
-        ],
+        "tags": ["download"],
         "grid": 24
       },
       "attrs": [],
@@ -2205,9 +2035,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "download-cloud"
-        ],
+        "tags": ["download-cloud"],
         "grid": 24
       },
       "attrs": [],
@@ -2230,9 +2058,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "droplet"
-        ],
+        "tags": ["droplet"],
         "grid": 24
       },
       "attrs": [],
@@ -2256,9 +2082,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "edit"
-        ],
+        "tags": ["edit"],
         "grid": 24
       },
       "attrs": [],
@@ -2281,9 +2105,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "edit-2"
-        ],
+        "tags": ["edit-2"],
         "grid": 24
       },
       "attrs": [],
@@ -2307,9 +2129,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "edit-3"
-        ],
+        "tags": ["edit-3"],
         "grid": 24
       },
       "attrs": [],
@@ -2333,9 +2153,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "external-link"
-        ],
+        "tags": ["external-link"],
         "grid": 24
       },
       "attrs": [],
@@ -2359,9 +2177,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "eye"
-        ],
+        "tags": ["eye"],
         "grid": 24
       },
       "attrs": [],
@@ -2385,9 +2201,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "eye-off"
-        ],
+        "tags": ["eye-off"],
         "grid": 24
       },
       "attrs": [],
@@ -2410,9 +2224,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "facebook"
-        ],
+        "tags": ["facebook"],
         "grid": 24
       },
       "attrs": [],
@@ -2436,9 +2248,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "fast-forward"
-        ],
+        "tags": ["fast-forward"],
         "grid": 24
       },
       "attrs": [],
@@ -2461,9 +2271,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "feather"
-        ],
+        "tags": ["feather"],
         "grid": 24
       },
       "attrs": [],
@@ -2486,9 +2294,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "file"
-        ],
+        "tags": ["file"],
         "grid": 24
       },
       "attrs": [],
@@ -2512,9 +2318,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "file-minus"
-        ],
+        "tags": ["file-minus"],
         "grid": 24
       },
       "attrs": [],
@@ -2538,9 +2342,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "file-plus"
-        ],
+        "tags": ["file-plus"],
         "grid": 24
       },
       "attrs": [],
@@ -2566,9 +2368,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "file-text"
-        ],
+        "tags": ["file-text"],
         "grid": 24
       },
       "attrs": [],
@@ -2591,9 +2391,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "film"
-        ],
+        "tags": ["film"],
         "grid": 24
       },
       "attrs": [],
@@ -2616,9 +2414,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "filter"
-        ],
+        "tags": ["filter"],
         "grid": 24
       },
       "attrs": [],
@@ -2641,9 +2437,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "flag"
-        ],
+        "tags": ["flag"],
         "grid": 24
       },
       "attrs": [],
@@ -2666,9 +2460,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "folder"
-        ],
+        "tags": ["folder"],
         "grid": 24
       },
       "attrs": [],
@@ -2692,9 +2484,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "folder-minus"
-        ],
+        "tags": ["folder-minus"],
         "grid": 24
       },
       "attrs": [],
@@ -2718,9 +2508,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "folder-plus"
-        ],
+        "tags": ["folder-plus"],
         "grid": 24
       },
       "attrs": [],
@@ -2743,9 +2531,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "git-branch"
-        ],
+        "tags": ["git-branch"],
         "grid": 24
       },
       "attrs": [],
@@ -2768,9 +2554,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "git-commit"
-        ],
+        "tags": ["git-commit"],
         "grid": 24
       },
       "attrs": [],
@@ -2793,9 +2577,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "git-merge"
-        ],
+        "tags": ["git-merge"],
         "grid": 24
       },
       "attrs": [],
@@ -2819,9 +2601,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "git-pull-request"
-        ],
+        "tags": ["git-pull-request"],
         "grid": 24
       },
       "attrs": [],
@@ -2844,9 +2624,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "github"
-        ],
+        "tags": ["github"],
         "grid": 24
       },
       "attrs": [],
@@ -2869,9 +2647,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "gitlab"
-        ],
+        "tags": ["gitlab"],
         "grid": 24
       },
       "attrs": [],
@@ -2894,9 +2670,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "globe"
-        ],
+        "tags": ["globe"],
         "grid": 24
       },
       "attrs": [],
@@ -2922,9 +2696,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "grid"
-        ],
+        "tags": ["grid"],
         "grid": 24
       },
       "attrs": [],
@@ -2949,9 +2721,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "hard-drive"
-        ],
+        "tags": ["hard-drive"],
         "grid": 24
       },
       "attrs": [],
@@ -2974,9 +2744,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "hash"
-        ],
+        "tags": ["hash"],
         "grid": 24
       },
       "attrs": [],
@@ -2999,9 +2767,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "headphones"
-        ],
+        "tags": ["headphones"],
         "grid": 24
       },
       "attrs": [],
@@ -3024,9 +2790,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "heart"
-        ],
+        "tags": ["heart"],
         "grid": 24
       },
       "attrs": [],
@@ -3051,9 +2815,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "help-circle"
-        ],
+        "tags": ["help-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -3076,9 +2838,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "home"
-        ],
+        "tags": ["home"],
         "grid": 24
       },
       "attrs": [],
@@ -3102,9 +2862,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "image"
-        ],
+        "tags": ["image"],
         "grid": 24
       },
       "attrs": [],
@@ -3127,9 +2885,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "inbox"
-        ],
+        "tags": ["inbox"],
         "grid": 24
       },
       "attrs": [],
@@ -3154,9 +2910,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "info"
-        ],
+        "tags": ["info"],
         "grid": 24
       },
       "attrs": [],
@@ -3181,9 +2935,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "instagram"
-        ],
+        "tags": ["instagram"],
         "grid": 24
       },
       "attrs": [],
@@ -3206,9 +2958,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "italic"
-        ],
+        "tags": ["italic"],
         "grid": 24
       },
       "attrs": [],
@@ -3233,9 +2983,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "layers"
-        ],
+        "tags": ["layers"],
         "grid": 24
       },
       "attrs": [],
@@ -3258,9 +3006,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "layout"
-        ],
+        "tags": ["layout"],
         "grid": 24
       },
       "attrs": [],
@@ -3283,9 +3029,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "life-buoy"
-        ],
+        "tags": ["life-buoy"],
         "grid": 24
       },
       "attrs": [],
@@ -3309,9 +3053,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "link"
-        ],
+        "tags": ["link"],
         "grid": 24
       },
       "attrs": [],
@@ -3336,9 +3078,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "link-2"
-        ],
+        "tags": ["link-2"],
         "grid": 24
       },
       "attrs": [],
@@ -3363,9 +3103,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "linkedin"
-        ],
+        "tags": ["linkedin"],
         "grid": 24
       },
       "attrs": [],
@@ -3393,9 +3131,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "list"
-        ],
+        "tags": ["list"],
         "grid": 24
       },
       "attrs": [],
@@ -3425,9 +3161,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "loader"
-        ],
+        "tags": ["loader"],
         "grid": 24
       },
       "attrs": [],
@@ -3450,9 +3184,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "lock"
-        ],
+        "tags": ["lock"],
         "grid": 24
       },
       "attrs": [],
@@ -3476,9 +3208,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "log-in"
-        ],
+        "tags": ["log-in"],
         "grid": 24
       },
       "attrs": [],
@@ -3502,9 +3232,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "log-out"
-        ],
+        "tags": ["log-out"],
         "grid": 24
       },
       "attrs": [],
@@ -3527,9 +3255,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "mail"
-        ],
+        "tags": ["mail"],
         "grid": 24
       },
       "attrs": [],
@@ -3552,9 +3278,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "map"
-        ],
+        "tags": ["map"],
         "grid": 24
       },
       "attrs": [],
@@ -3578,9 +3302,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "map-pin"
-        ],
+        "tags": ["map-pin"],
         "grid": 24
       },
       "attrs": [],
@@ -3606,9 +3328,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "maximize"
-        ],
+        "tags": ["maximize"],
         "grid": 24
       },
       "attrs": [],
@@ -3632,9 +3352,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "maximize-2"
-        ],
+        "tags": ["maximize-2"],
         "grid": 24
       },
       "attrs": [],
@@ -3659,9 +3377,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "menu"
-        ],
+        "tags": ["menu"],
         "grid": 24
       },
       "attrs": [],
@@ -3684,9 +3400,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "message-circle"
-        ],
+        "tags": ["message-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -3709,9 +3423,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "message-square"
-        ],
+        "tags": ["message-square"],
         "grid": 24
       },
       "attrs": [],
@@ -3735,9 +3447,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "mic"
-        ],
+        "tags": ["mic"],
         "grid": 24
       },
       "attrs": [],
@@ -3762,9 +3472,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "mic-off"
-        ],
+        "tags": ["mic-off"],
         "grid": 24
       },
       "attrs": [],
@@ -3790,9 +3498,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "minimize"
-        ],
+        "tags": ["minimize"],
         "grid": 24
       },
       "attrs": [],
@@ -3816,9 +3522,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "minimize-2"
-        ],
+        "tags": ["minimize-2"],
         "grid": 24
       },
       "attrs": [],
@@ -3841,9 +3545,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "minus"
-        ],
+        "tags": ["minus"],
         "grid": 24
       },
       "attrs": [],
@@ -3867,9 +3569,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "minus-circle"
-        ],
+        "tags": ["minus-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -3893,9 +3593,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "minus-square"
-        ],
+        "tags": ["minus-square"],
         "grid": 24
       },
       "attrs": [],
@@ -3918,9 +3616,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "monitor"
-        ],
+        "tags": ["monitor"],
         "grid": 24
       },
       "attrs": [],
@@ -3943,9 +3639,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "moon"
-        ],
+        "tags": ["moon"],
         "grid": 24
       },
       "attrs": [],
@@ -3970,9 +3664,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "more-horizontal"
-        ],
+        "tags": ["more-horizontal"],
         "grid": 24
       },
       "attrs": [],
@@ -3997,9 +3689,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "more-vertical"
-        ],
+        "tags": ["more-vertical"],
         "grid": 24
       },
       "attrs": [],
@@ -4022,9 +3712,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "move"
-        ],
+        "tags": ["move"],
         "grid": 24
       },
       "attrs": [],
@@ -4047,9 +3735,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "music"
-        ],
+        "tags": ["music"],
         "grid": 24
       },
       "attrs": [],
@@ -4072,9 +3758,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "navigation"
-        ],
+        "tags": ["navigation"],
         "grid": 24
       },
       "attrs": [],
@@ -4097,9 +3781,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "navigation-2"
-        ],
+        "tags": ["navigation-2"],
         "grid": 24
       },
       "attrs": [],
@@ -4122,9 +3804,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "octagon"
-        ],
+        "tags": ["octagon"],
         "grid": 24
       },
       "attrs": [],
@@ -4147,9 +3827,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "package"
-        ],
+        "tags": ["package"],
         "grid": 24
       },
       "attrs": [],
@@ -4172,9 +3850,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "paperclip"
-        ],
+        "tags": ["paperclip"],
         "grid": 24
       },
       "attrs": [],
@@ -4198,9 +3874,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "pause"
-        ],
+        "tags": ["pause"],
         "grid": 24
       },
       "attrs": [],
@@ -4225,9 +3899,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "pause-circle"
-        ],
+        "tags": ["pause-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -4252,9 +3924,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "percent"
-        ],
+        "tags": ["percent"],
         "grid": 24
       },
       "attrs": [],
@@ -4277,9 +3947,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone"
-        ],
+        "tags": ["phone"],
         "grid": 24
       },
       "attrs": [],
@@ -4304,9 +3972,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone-call"
-        ],
+        "tags": ["phone-call"],
         "grid": 24
       },
       "attrs": [],
@@ -4330,9 +3996,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone-forwarded"
-        ],
+        "tags": ["phone-forwarded"],
         "grid": 24
       },
       "attrs": [],
@@ -4356,9 +4020,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone-incoming"
-        ],
+        "tags": ["phone-incoming"],
         "grid": 24
       },
       "attrs": [],
@@ -4382,9 +4044,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone-missed"
-        ],
+        "tags": ["phone-missed"],
         "grid": 24
       },
       "attrs": [],
@@ -4408,9 +4068,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone-off"
-        ],
+        "tags": ["phone-off"],
         "grid": 24
       },
       "attrs": [],
@@ -4434,9 +4092,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "phone-outgoing"
-        ],
+        "tags": ["phone-outgoing"],
         "grid": 24
       },
       "attrs": [],
@@ -4460,9 +4116,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "pie-chart"
-        ],
+        "tags": ["pie-chart"],
         "grid": 24
       },
       "attrs": [],
@@ -4485,9 +4139,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "play"
-        ],
+        "tags": ["play"],
         "grid": 24
       },
       "attrs": [],
@@ -4511,9 +4163,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "play-circle"
-        ],
+        "tags": ["play-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -4536,9 +4186,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "plus"
-        ],
+        "tags": ["plus"],
         "grid": 24
       },
       "attrs": [],
@@ -4562,9 +4210,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "plus-circle"
-        ],
+        "tags": ["plus-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -4588,9 +4234,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "plus-square"
-        ],
+        "tags": ["plus-square"],
         "grid": 24
       },
       "attrs": [],
@@ -4614,9 +4258,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "pocket"
-        ],
+        "tags": ["pocket"],
         "grid": 24
       },
       "attrs": [],
@@ -4640,9 +4282,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "power"
-        ],
+        "tags": ["power"],
         "grid": 24
       },
       "attrs": [],
@@ -4665,9 +4305,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "printer"
-        ],
+        "tags": ["printer"],
         "grid": 24
       },
       "attrs": [],
@@ -4694,9 +4332,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "radio"
-        ],
+        "tags": ["radio"],
         "grid": 24
       },
       "attrs": [],
@@ -4720,9 +4356,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "refresh-ccw"
-        ],
+        "tags": ["refresh-ccw"],
         "grid": 24
       },
       "attrs": [],
@@ -4746,9 +4380,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "refresh-cw"
-        ],
+        "tags": ["refresh-cw"],
         "grid": 24
       },
       "attrs": [],
@@ -4772,9 +4404,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "repeat"
-        ],
+        "tags": ["repeat"],
         "grid": 24
       },
       "attrs": [],
@@ -4798,9 +4428,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "rewind"
-        ],
+        "tags": ["rewind"],
         "grid": 24
       },
       "attrs": [],
@@ -4823,9 +4451,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "rotate-ccw"
-        ],
+        "tags": ["rotate-ccw"],
         "grid": 24
       },
       "attrs": [],
@@ -4848,9 +4474,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "rotate-cw"
-        ],
+        "tags": ["rotate-cw"],
         "grid": 24
       },
       "attrs": [],
@@ -4875,9 +4499,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "rss"
-        ],
+        "tags": ["rss"],
         "grid": 24
       },
       "attrs": [],
@@ -4900,9 +4522,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "save"
-        ],
+        "tags": ["save"],
         "grid": 24
       },
       "attrs": [],
@@ -4926,9 +4546,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "scissors"
-        ],
+        "tags": ["scissors"],
         "grid": 24
       },
       "attrs": [],
@@ -4951,9 +4569,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "search"
-        ],
+        "tags": ["search"],
         "grid": 24
       },
       "attrs": [],
@@ -4976,9 +4592,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "send"
-        ],
+        "tags": ["send"],
         "grid": 24
       },
       "attrs": [],
@@ -5004,9 +4618,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "server"
-        ],
+        "tags": ["server"],
         "grid": 24
       },
       "attrs": [],
@@ -5030,9 +4642,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "settings"
-        ],
+        "tags": ["settings"],
         "grid": 24
       },
       "attrs": [],
@@ -5056,9 +4666,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "share"
-        ],
+        "tags": ["share"],
         "grid": 24
       },
       "attrs": [],
@@ -5081,9 +4689,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "share-2"
-        ],
+        "tags": ["share-2"],
         "grid": 24
       },
       "attrs": [],
@@ -5106,9 +4712,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "shield"
-        ],
+        "tags": ["shield"],
         "grid": 24
       },
       "attrs": [],
@@ -5132,9 +4736,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "shield-off"
-        ],
+        "tags": ["shield-off"],
         "grid": 24
       },
       "attrs": [],
@@ -5158,9 +4760,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "shopping-bag"
-        ],
+        "tags": ["shopping-bag"],
         "grid": 24
       },
       "attrs": [],
@@ -5185,9 +4785,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "shopping-cart"
-        ],
+        "tags": ["shopping-cart"],
         "grid": 24
       },
       "attrs": [],
@@ -5212,9 +4810,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "shuffle"
-        ],
+        "tags": ["shuffle"],
         "grid": 24
       },
       "attrs": [],
@@ -5237,9 +4833,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "sidebar"
-        ],
+        "tags": ["sidebar"],
         "grid": 24
       },
       "attrs": [],
@@ -5263,9 +4857,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "skip-back"
-        ],
+        "tags": ["skip-back"],
         "grid": 24
       },
       "attrs": [],
@@ -5289,9 +4881,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "skip-forward"
-        ],
+        "tags": ["skip-forward"],
         "grid": 24
       },
       "attrs": [],
@@ -5315,9 +4905,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "slack"
-        ],
+        "tags": ["slack"],
         "grid": 24
       },
       "attrs": [],
@@ -5340,9 +4928,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "slash"
-        ],
+        "tags": ["slash"],
         "grid": 24
       },
       "attrs": [],
@@ -5370,9 +4956,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "sliders"
-        ],
+        "tags": ["sliders"],
         "grid": 24
       },
       "attrs": [],
@@ -5396,9 +4980,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "smartphone"
-        ],
+        "tags": ["smartphone"],
         "grid": 24
       },
       "attrs": [],
@@ -5423,9 +5005,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "speaker"
-        ],
+        "tags": ["speaker"],
         "grid": 24
       },
       "attrs": [],
@@ -5448,9 +5028,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "square"
-        ],
+        "tags": ["square"],
         "grid": 24
       },
       "attrs": [],
@@ -5473,9 +5051,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "star"
-        ],
+        "tags": ["star"],
         "grid": 24
       },
       "attrs": [],
@@ -5499,9 +5075,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "stop-circle"
-        ],
+        "tags": ["stop-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -5532,9 +5106,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "sun"
-        ],
+        "tags": ["sun"],
         "grid": 24
       },
       "attrs": [],
@@ -5563,9 +5135,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "sunrise"
-        ],
+        "tags": ["sunrise"],
         "grid": 24
       },
       "attrs": [],
@@ -5594,9 +5164,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "sunset"
-        ],
+        "tags": ["sunset"],
         "grid": 24
       },
       "attrs": [],
@@ -5620,9 +5188,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "tablet"
-        ],
+        "tags": ["tablet"],
         "grid": 24
       },
       "attrs": [],
@@ -5646,9 +5212,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "tag"
-        ],
+        "tags": ["tag"],
         "grid": 24
       },
       "attrs": [],
@@ -5673,9 +5237,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "target"
-        ],
+        "tags": ["target"],
         "grid": 24
       },
       "attrs": [],
@@ -5699,9 +5261,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "terminal"
-        ],
+        "tags": ["terminal"],
         "grid": 24
       },
       "attrs": [],
@@ -5724,9 +5284,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "thermometer"
-        ],
+        "tags": ["thermometer"],
         "grid": 24
       },
       "attrs": [],
@@ -5749,9 +5307,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "thumbs-down"
-        ],
+        "tags": ["thumbs-down"],
         "grid": 24
       },
       "attrs": [],
@@ -5774,9 +5330,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "thumbs-up"
-        ],
+        "tags": ["thumbs-up"],
         "grid": 24
       },
       "attrs": [],
@@ -5800,9 +5354,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "toggle-left"
-        ],
+        "tags": ["toggle-left"],
         "grid": 24
       },
       "attrs": [],
@@ -5826,9 +5378,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "toggle-right"
-        ],
+        "tags": ["toggle-right"],
         "grid": 24
       },
       "attrs": [],
@@ -5851,9 +5401,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "trash"
-        ],
+        "tags": ["trash"],
         "grid": 24
       },
       "attrs": [],
@@ -5878,9 +5426,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "trash-2"
-        ],
+        "tags": ["trash-2"],
         "grid": 24
       },
       "attrs": [],
@@ -5903,9 +5449,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "trending-down"
-        ],
+        "tags": ["trending-down"],
         "grid": 24
       },
       "attrs": [],
@@ -5928,9 +5472,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "trending-up"
-        ],
+        "tags": ["trending-up"],
         "grid": 24
       },
       "attrs": [],
@@ -5953,9 +5495,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "triangle"
-        ],
+        "tags": ["triangle"],
         "grid": 24
       },
       "attrs": [],
@@ -5978,9 +5518,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "truck"
-        ],
+        "tags": ["truck"],
         "grid": 24
       },
       "attrs": [],
@@ -6003,9 +5541,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "tv"
-        ],
+        "tags": ["tv"],
         "grid": 24
       },
       "attrs": [],
@@ -6028,9 +5564,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "twitter"
-        ],
+        "tags": ["twitter"],
         "grid": 24
       },
       "attrs": [],
@@ -6053,9 +5587,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "type"
-        ],
+        "tags": ["type"],
         "grid": 24
       },
       "attrs": [],
@@ -6078,9 +5610,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "umbrella"
-        ],
+        "tags": ["umbrella"],
         "grid": 24
       },
       "attrs": [],
@@ -6104,9 +5634,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "underline"
-        ],
+        "tags": ["underline"],
         "grid": 24
       },
       "attrs": [],
@@ -6129,9 +5657,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "unlock"
-        ],
+        "tags": ["unlock"],
         "grid": 24
       },
       "attrs": [],
@@ -6155,9 +5681,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "upload"
-        ],
+        "tags": ["upload"],
         "grid": 24
       },
       "attrs": [],
@@ -6181,9 +5705,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "upload-cloud"
-        ],
+        "tags": ["upload-cloud"],
         "grid": 24
       },
       "attrs": [],
@@ -6207,9 +5729,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "user"
-        ],
+        "tags": ["user"],
         "grid": 24
       },
       "attrs": [],
@@ -6234,9 +5754,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "user-check"
-        ],
+        "tags": ["user-check"],
         "grid": 24
       },
       "attrs": [],
@@ -6261,9 +5779,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "user-minus"
-        ],
+        "tags": ["user-minus"],
         "grid": 24
       },
       "attrs": [],
@@ -6288,9 +5804,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "user-plus"
-        ],
+        "tags": ["user-plus"],
         "grid": 24
       },
       "attrs": [],
@@ -6315,9 +5829,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "user-x"
-        ],
+        "tags": ["user-x"],
         "grid": 24
       },
       "attrs": [],
@@ -6343,9 +5855,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "grid": 24
       },
       "attrs": [],
@@ -6368,9 +5878,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "video"
-        ],
+        "tags": ["video"],
         "grid": 24
       },
       "attrs": [],
@@ -6394,9 +5902,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "video-off"
-        ],
+        "tags": ["video-off"],
         "grid": 24
       },
       "attrs": [],
@@ -6419,9 +5925,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "voicemail"
-        ],
+        "tags": ["voicemail"],
         "grid": 24
       },
       "attrs": [],
@@ -6444,9 +5948,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "volume"
-        ],
+        "tags": ["volume"],
         "grid": 24
       },
       "attrs": [],
@@ -6470,9 +5972,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "volume-1"
-        ],
+        "tags": ["volume-1"],
         "grid": 24
       },
       "attrs": [],
@@ -6497,9 +5997,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "volume-2"
-        ],
+        "tags": ["volume-2"],
         "grid": 24
       },
       "attrs": [],
@@ -6523,9 +6021,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "volume-x"
-        ],
+        "tags": ["volume-x"],
         "grid": 24
       },
       "attrs": [],
@@ -6549,9 +6045,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "watch"
-        ],
+        "tags": ["watch"],
         "grid": 24
       },
       "attrs": [],
@@ -6577,9 +6071,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "wifi"
-        ],
+        "tags": ["wifi"],
         "grid": 24
       },
       "attrs": [],
@@ -6605,9 +6097,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "wifi-off"
-        ],
+        "tags": ["wifi-off"],
         "grid": 24
       },
       "attrs": [],
@@ -6632,9 +6122,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "wind"
-        ],
+        "tags": ["wind"],
         "grid": 24
       },
       "attrs": [],
@@ -6657,9 +6145,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "x"
-        ],
+        "tags": ["x"],
         "grid": 24
       },
       "attrs": [],
@@ -6683,9 +6169,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "x-circle"
-        ],
+        "tags": ["x-circle"],
         "grid": 24
       },
       "attrs": [],
@@ -6709,9 +6193,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "x-square"
-        ],
+        "tags": ["x-square"],
         "grid": 24
       },
       "attrs": [],
@@ -6734,9 +6216,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "zap"
-        ],
+        "tags": ["zap"],
         "grid": 24
       },
       "attrs": [],
@@ -6761,9 +6241,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "zap-off"
-        ],
+        "tags": ["zap-off"],
         "grid": 24
       },
       "attrs": [],
@@ -6787,9 +6265,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "zoom-in"
-        ],
+        "tags": ["zoom-in"],
         "grid": 24
       },
       "attrs": [],
@@ -6813,9 +6289,7 @@
         "attrs": [],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "tags": [
-          "zoom-out"
-        ],
+        "tags": ["zoom-out"],
         "grid": 24
       },
       "attrs": [],

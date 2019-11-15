@@ -1,7 +1,7 @@
 /**
  * Created by Dimitri Aguera on 13/09/2017.
  */
-import { API_REQUEST, API_FAILURE, API_SUCCESS } from '../actions/api.actions'
+import { API_REQUEST, API_FAILURE, API_SUCCESS } from '../actions/api.actions';
 
 let initialState = {
   isFetching: false
@@ -26,8 +26,8 @@ const apiStore = (state = initialState, action) => {
       });
 
     default:
-      return state
+      return state;
   }
 };
 
-export default apiStore
+export default apiStore;

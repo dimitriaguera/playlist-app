@@ -37,7 +37,7 @@ Description: Reset styles for WordPress usage of KNACSS
 
 // class in img elements
 .alignnone {
-  margin: .25em 1.5em 1.5em 0;
+  margin: 0.25em 1.5em 1.5em 0;
 }
 
 .aligncenter {
@@ -48,12 +48,12 @@ Description: Reset styles for WordPress usage of KNACSS
 
 .alignleft {
   float: left;
-  margin: 0 1.5em .25em 0;
+  margin: 0 1.5em 0.25em 0;
 }
 
 .alignright {
   float: right;
-  margin: 0 0 .25em 1.5em;
+  margin: 0 0 0.25em 1.5em;
 }
 
 .entry-content,
@@ -62,7 +62,7 @@ Description: Reset styles for WordPress usage of KNACSS
 
   &::after,
   &::before {
-    content: "";
+    content: '';
     display: table;
   }
 }
@@ -239,8 +239,8 @@ img.wp-smiley {
     .gallery-columns-#{$i} & {
       $w: floor(10000 / $i) / 100;
       max-width: unquote($w + '%');
-		}
-	}
+    }
+  }
 }
 
 .gallery-caption {

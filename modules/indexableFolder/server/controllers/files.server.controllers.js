@@ -1,18 +1,37 @@
 const path = require('path');
 const config = require(path.resolve('./config/env/config.server'));
-const errorHandler = require(path.resolve('./modules/core/server/services/error.server.services'));
-const taskRunner = require(path.resolve('./modules/task/server/services/task.server.services'));
-const es = require(path.resolve('./modules/indexableFolder/server/elastic/elasticsearch'));
-const { readPictAndSave } = require(path.resolve('./modules/editMetaTag/server/services/metaTag.server.services'));
-const { saveToJpeg } = require(path.resolve('./modules/editMetaTag/server/services/picture.server.services'));
-const { splitTab } = require(path.resolve('./modules/core/server/services/obj.server.services'));
+const errorHandler = require(path.resolve(
+  './modules/core/server/services/error.server.services'
+));
+const taskRunner = require(path.resolve(
+  './modules/task/server/services/task.server.services'
+));
+const es = require(path.resolve(
+  './modules/indexableFolder/server/elastic/elasticsearch'
+));
+const { readPictAndSave } = require(path.resolve(
+  './modules/editMetaTag/server/services/metaTag.server.services'
+));
+const { saveToJpeg } = require(path.resolve(
+  './modules/editMetaTag/server/services/picture.server.services'
+));
+const { splitTab } = require(path.resolve(
+  './modules/core/server/services/obj.server.services'
+));
 const async = require('async');
 const fs = require('fs-extra');
 
-const ps = require(path.resolve('./modules/core/client/services/core.path.services.js'));
+const ps = require(path.resolve(
+  './modules/core/client/services/core.path.services.js'
+));
 
 const DRIVE = config.musicFolder;
-const PUBLIC_FILE = path.isAbsolute(config.picturesFolder) ? config.picturesFolder : path.join(path.dirname(require.main.filename || process.mainModule.filename), config.picturesFolder);
+const PUBLIC_FILE = path.isAbsolute(config.picturesFolder)
+  ? config.picturesFolder
+  : path.join(
+      path.dirname(require.main.filename || process.mainModule.filename),
+      config.picturesFolder
+    );
 
 // Cover Files Test Patterns.
 const PATTERN_FILES = config.covers.pattern.files;
@@ -87,15 +106,13 @@ const PATTERN_FOLDERS = config.covers.pattern.folders;
 //     });
 // };
 
-
 /**
  * Add create all cover to task runner
  * @param req
  * @param res
  * @param next
  */
-exports.createAllCovers = function (req, res, next) {
-
+exports.createAllCovers = function(req, res, next) {
   // Create taskRunner instance.
   const runTask = taskRunner.create(req, res, next);
 
@@ -119,7 +136,7 @@ exports.createAllCovers = function (req, res, next) {
  * @param onStep
  * @param onDone
  */
-function runCreateAllCovers (onError, onStep, onDone) {
+function runCreateAllCovers(onError, onStep, onDone) {
   const params = queryFactory('album', null, '');
 
   // Elasticsearch albums.
@@ -127,14 +144,20 @@ function runCreateAllCovers (onError, onStep, onDone) {
     if (err) return onError(err);
 
     // Get tracks path.
-    const albums = data.hits.hits.map((item) => { return {name: item._source.name, key: item._source.key, cover: ps.changeSeparator(item._source.key, '___', '/')} });
+    const albums = data.hits.hits.map(item => {
+      return {
+        name: item._source.name,
+        key: item._source.key,
+        cover: ps.changeSeparator(item._source.key, '___', '/')
+      };
+    });
 
     // Declare chunk outside off closure for memory consideration.
     let chunk = [];
     let info = [];
 
     // Declare function inside controller closure to avoid pass big array args, and save memory.
-    function proceedOnChunk () {
+    function proceedOnChunk() {
       // Get chunk.
       chunk = splitTab(albums, config.index.sizeChunKCover);
 
@@ -151,8 +174,8 @@ function runCreateAllCovers (onError, onStep, onDone) {
         onDone({
           success: true,
           msg: info
-        }) }
-      );
+        });
+      });
     }
     // Start process.
     proceedOnChunk();
@@ -164,8 +187,7 @@ function runCreateAllCovers (onError, onStep, onDone) {
  * @param album
  * @param callback
  */
-function runAlbumCoverCreate (album, callback) {
-
+function runAlbumCoverCreate(album, callback) {
   const params = queryFactory('tracks', ['albumKey'], album.key, true);
 
   // Elasticsearch album tracks.
@@ -181,7 +203,7 @@ function runAlbumCoverCreate (album, callback) {
     }
 
     // Get tracks path.
-    const tracks = data.hits.hits.map((item) => item._source.path);
+    const tracks = data.hits.hits.map(item => item._source.path);
 
     // Run algorithm that search and create cover.jpg
     runTracksAlbumCoverCreate(tracks, callback, album);
@@ -194,13 +216,13 @@ function runAlbumCoverCreate (album, callback) {
  * @param callback
  * @param context
  */
-function runTracksAlbumCoverCreate (tracks, callback, context) {
+function runTracksAlbumCoverCreate(tracks, callback, context) {
   const visitedPath = {};
   const coverPath = context.cover;
 
   // Try to get cover.jpg from each path.
   // First match and create stop loop and send resp server.
-  async.eachSeries(tracks, iterate, (flag) => {
+  async.eachSeries(tracks, iterate, flag => {
     // Flag up, cover generation ok !
     if (flag === true) {
       return callback(null, 'cover.jpg created.');
@@ -210,11 +232,14 @@ function runTracksAlbumCoverCreate (tracks, callback, context) {
     //     return callback(flag);
     // }
     // No flag up because of cover generation failed for all tracks.
-    callback(null, context.name + ' - cannot find, create or extract cover.jpg file.');
+    callback(
+      null,
+      context.name + ' - cannot find, create or extract cover.jpg file.'
+    );
   });
 
   // Wrap iterate arg to stop eachSeries loop at first match.
-  function iterate (path, callback) {
+  function iterate(path, callback) {
     createCoverFile(path, coverPath, visitedPath, (err, done) => {
       // If cover.jpg created or exist, or loop ended, done. Stop loop.
       if (done) return callback(done);
@@ -234,11 +259,11 @@ function runTracksAlbumCoverCreate (tracks, callback, context) {
  * @param files Array
  * @param callback Function
  */
-function testFiles (path, files, callback) {
+function testFiles(path, files, callback) {
   // Function that test if file exist.
-  function iteration (file, callback) {
+  function iteration(file, callback) {
     const fpath = path + file;
-    fs.access(fpath, (err) => {
+    fs.access(fpath, err => {
       // If file exist, call inner callback with first arg.
       // In async.each context, that stop iteration on files and start each callback function with first arg.
       if (!err) return callback(fpath);
@@ -249,7 +274,7 @@ function testFiles (path, files, callback) {
 
   // Start each loop.
   // If file on array files exist on folder path, the file na
-  async.each(files, iteration, (filePath) => callback(filePath));
+  async.each(files, iteration, filePath => callback(filePath));
 }
 
 /**
@@ -259,7 +284,7 @@ function testFiles (path, files, callback) {
  * @param visitedPath
  * @param callback
  */
-function createCoverFile (src, coverPath, visitedPath, callback) {
+function createCoverFile(src, coverPath, visitedPath, callback) {
   // Get album folder path.
   let dirname = path.dirname(src);
   let folder;
@@ -284,7 +309,7 @@ function createCoverFile (src, coverPath, visitedPath, callback) {
   }
 
   // Wrap fs.copy callback to match with pattern callback(err, done);
-  function callbackFs (err) {
+  function callbackFs(err) {
     if (err) {
       // console.error(`TRACK TEST FAIL - error on fs.copy cover.jpg`);
       return callback(null, false);
@@ -294,81 +319,88 @@ function createCoverFile (src, coverPath, visitedPath, callback) {
   }
 
   // Build index creation sequence.
-    let func = !mustTestCoverFiles ? [] : [
+  let func = !mustTestCoverFiles
+    ? []
+    : [
         // Test if cover already exist.
-        function (next) {
-            fs.access(cover, (e) => {
-                let action = () => callback(null, true);
-                if (e) next(null); // Call next step.
-                else next(action); // Stop process and call action.
-            });
+        function(next) {
+          fs.access(cover, e => {
+            let action = () => callback(null, true);
+            if (e) next(null);
+            // Call next step.
+            else next(action); // Stop process and call action.
+          });
         },
         // Test if source folder exist.
-        function (next) {
-            fs.access(folder, (e) => {
-                let action = () => callback(null, false);
-                if (e) next(action); // Stop process and call action.
-                else next(null); // Call next step.
-            });
+        function(next) {
+          fs.access(folder, e => {
+            let action = () => callback(null, false);
+            if (e) next(action);
+            // Stop process and call action.
+            else next(null); // Call next step.
+          });
         },
         // Create destination folder.
-        function (next) {
-            fs.mkdirs(destination, (e) => {
-                let action = () => callback(null, false);
-                if (e) next(action); // Stop process and call action.
-                else next(null); // Call next step.
-            });
+        function(next) {
+          fs.mkdirs(destination, e => {
+            let action = () => callback(null, false);
+            if (e) next(action);
+            // Stop process and call action.
+            else next(null); // Call next step.
+          });
         },
         // Test if covers files pattern match, and copy to destination if true.
-        function (next) {
-            testFiles(folder, PATTERN_FILES, file => {
-                let action = () => fs.copy(file, cover, callbackFs);
-                if (file) next(action); // Stop process and call action.
-                else next(null); // Call next step.
-            });
+        function(next) {
+          testFiles(folder, PATTERN_FILES, file => {
+            let action = () => fs.copy(file, cover, callbackFs);
+            if (file) next(action);
+            // Stop process and call action.
+            else next(null); // Call next step.
+          });
         },
         // Test if covers no jpg files pattern match, convert and and copy to destination if true.
-        function (next) {
-            testFiles(folder, PATTERN_NO_JPG_FILES, file => {
-                let action = () => saveToJpeg(file, cover, callbackFs);
-                if (file) next(action); // Stop process and call action.
-                else next(null); // Call next step.
-            });
+        function(next) {
+          testFiles(folder, PATTERN_NO_JPG_FILES, file => {
+            let action = () => saveToJpeg(file, cover, callbackFs);
+            if (file) next(action);
+            // Stop process and call action.
+            else next(null); // Call next step.
+          });
         },
         // Test if there are sub-folders that can contain covers files.
-        function (next) {
-            testFiles(folder, PATTERN_FOLDERS, subFolder => {
-                let action = () => readPictAndSave(audioFileSrc, cover, callback);
-                if (subFolder) next(null, subFolder); // Call next step with arg.
-                else next(action); // Stop process and call action.
-            });
+        function(next) {
+          testFiles(folder, PATTERN_FOLDERS, subFolder => {
+            let action = () => readPictAndSave(audioFileSrc, cover, callback);
+            if (subFolder) next(null, subFolder);
+            // Call next step with arg.
+            else next(action); // Stop process and call action.
+          });
         },
         // Test if covers files pattern match, and copy to destination if true.
-        function (subFolder, next) {
-            testFiles(subFolder, PATTERN_FILES, file => {
-                let action = () => fs.copy(file, cover, callbackFs);
-                if (file) next(action); // Stop process and call action.
-                else next(null, subFolder); // Call next step with arg.
-            });
+        function(subFolder, next) {
+          testFiles(subFolder, PATTERN_FILES, file => {
+            let action = () => fs.copy(file, cover, callbackFs);
+            if (file) next(action);
+            // Stop process and call action.
+            else next(null, subFolder); // Call next step with arg.
+          });
         },
         // Test if covers no jpg files pattern match, convert and and copy to destination if true.
-        function (subFolder, next) {
-            testFiles(subFolder, PATTERN_NO_JPG_FILES, file => {
-                let action = () => saveToJpeg(file, cover, callbackFs);
-                if (file) next(action); // Stop process and call action.
-                else next(null); // Call next step.
-            });
+        function(subFolder, next) {
+          testFiles(subFolder, PATTERN_NO_JPG_FILES, file => {
+            let action = () => saveToJpeg(file, cover, callbackFs);
+            if (file) next(action);
+            // Stop process and call action.
+            else next(null); // Call next step.
+          });
         }
-    ];
+      ];
 
-    // Start recovery process.
-  async.waterfall(func,
-    action => {
-      if (action) return action();
-      readPictAndSave(audioFileSrc, cover, callback);
-    }
-  );
-
+  // Start recovery process.
+  async.waterfall(func, action => {
+    if (action) return action();
+    readPictAndSave(audioFileSrc, cover, callback);
+  });
 
   // // Test if cover.jps file exist in folder.
   // fs.access(cover, (err) => {
@@ -476,7 +508,7 @@ function createCoverFile (src, coverPath, visitedPath, callback) {
  *    default_operator: string
  *  }
  */
-function queryFactory (index, fields, terms, exact) {
+function queryFactory(index, fields, terms, exact) {
   let base_query = {};
 
   if (terms) {
@@ -486,10 +518,9 @@ function queryFactory (index, fields, terms, exact) {
       fields: fields,
       default_operator: 'AND'
     };
-  }
-  else {
+  } else {
     base_query = {
-      'match_all': {}
+      match_all: {}
     };
   }
 

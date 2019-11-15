@@ -46,7 +46,6 @@ $color-txt-playlist: $white;
     }
 
     &.is-open .Select-arrow-zone {
-
       // Open Not Hover
       .Select-arrow {
         border-color: transparent transparent $color-primary;
@@ -59,8 +58,6 @@ $color-txt-playlist: $white;
     }
   }
   //////////////////////////
-
-
 
   // list OPEN (select zone on the top)
   .Select.is-focused > .Select-control {

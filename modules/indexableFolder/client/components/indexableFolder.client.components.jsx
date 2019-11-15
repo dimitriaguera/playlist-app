@@ -10,23 +10,28 @@
  *
  */
 
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import ps from 'core/client/services/core.path.services'
-import socketServices from 'core/client/services/core.socket.services'
-import { get, post } from 'core/client/services/core.api.services'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import ps from 'core/client/services/core.path.services';
+import socketServices from 'core/client/services/core.socket.services';
+import { get, post } from 'core/client/services/core.api.services';
 
-import { playItem, addFolderToPlay, pauseState, playState} from 'music/client/redux/actions'
+import {
+  playItem,
+  addFolderToPlay,
+  pauseState,
+  playState
+} from 'music/client/redux/actions';
 
 import Modal from 'react-modal';
 
-import EditMetaTag from 'editMetaTag/client/components/editMetaTag.client.components'
-import IndexableFolderItem from './indexableFolderItem.client.components'
+import EditMetaTag from 'editMetaTag/client/components/editMetaTag.client.components';
+import IndexableFolderItem from './indexableFolderItem.client.components';
 
 // import SearchFolderBar from './SearchFolderBar.client.components'
 
 class IndexableFolder extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.handleModalOpen = this.handleModalOpen.bind(this);
@@ -40,7 +45,6 @@ class IndexableFolder extends Component {
     this.handlerPlayFolder = this.handlerPlayFolder.bind(this);
     this.onListTracks = this.onListTracks.bind(this);
     this.handlerClickOnFile = this.handlerClickOnFile.bind(this);
-
 
     this.onEditMetaTag = this.onEditMetaTag.bind(this);
 
@@ -60,17 +64,15 @@ class IndexableFolder extends Component {
       },
       showEditMetaTagModal: false,
       editMetaTagItem: null
-    }
-    ;
+    };
   }
 
-
-  componentWillMount () {
+  componentWillMount() {
     const _self = this;
     const { fetchFolder, searchNodes, location, match } = _self.props;
 
     // React Modal
-    Modal.setAppElement("#root");
+    Modal.setAppElement('#root');
 
     // Update node when someone change meta
     // on Socket Event
@@ -82,12 +84,11 @@ class IndexableFolder extends Component {
 
     // If search param, only display result.
     if (term) {
-      return searchNodes(term).then((data) => {
+      return searchNodes(term).then(data => {
         if (!data.success) {
           _self.setState({ error: true, params: params });
-        }
-        else {
-          const nodes = data.msg.hits.hits.map((item) => item._source);
+        } else {
+          const nodes = data.msg.hits.hits.map(item => item._source);
           _self.setState({
             error: false,
             nodes: nodes,
@@ -102,12 +103,11 @@ class IndexableFolder extends Component {
     const path = ps.cleanPath(ps.removeRoute(location.pathname, match.path));
 
     // Get folder's content.
-    function fetch () {
-      fetchFolder(ps.urlEncode(path)).then((data) => {
+    function fetch() {
+      fetchFolder(ps.urlEncode(path)).then(data => {
         if (!data.success) {
           _self.setState({ error: true, params: params });
-        }
-        else {
+        } else {
           _self.setState({
             error: false,
             nodes: data.msg,
@@ -119,12 +119,12 @@ class IndexableFolder extends Component {
       });
     }
 
-    return fetch()
+    return fetch();
   }
 
   // Re-render only if path array or modal state are modified.
-  shouldComponentUpdate (nextProps, nextState) {
-    const { activePlaylist, pause, onPlay} = nextProps;
+  shouldComponentUpdate(nextProps, nextState) {
+    const { activePlaylist, pause, onPlay } = nextProps;
     const { query, modal, nodes } = nextState;
     return (
       query !== this.state.query ||
@@ -138,7 +138,7 @@ class IndexableFolder extends Component {
   }
 
   // Force re-rendering on props location change.
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const _self = this;
     const { location, match } = nextProps;
 
@@ -148,12 +148,11 @@ class IndexableFolder extends Component {
 
     // If search param, only display result.
     if (term && term !== this.state.search) {
-      return this.props.searchNodes(term).then((data) => {
+      return this.props.searchNodes(term).then(data => {
         if (!data.success) {
           _self.setState({ error: true, params: params });
-        }
-        else {
-          const nodes = data.msg.hits.hits.map((item) => item._source);
+        } else {
+          const nodes = data.msg.hits.hits.map(item => item._source);
           _self.setState({
             error: false,
             nodes: nodes,
@@ -171,11 +170,10 @@ class IndexableFolder extends Component {
     if (path !== this.state.query) {
       // Query folder content, and set new state.
       // This start re-render component with folder content.
-      this.props.fetchFolder(ps.urlEncode(path)).then((data) => {
+      this.props.fetchFolder(ps.urlEncode(path)).then(data => {
         if (!data.success) {
-          _self.setState({error: true});
-        }
-        else {
+          _self.setState({ error: true });
+        } else {
           _self.setState({
             error: false,
             nodes: data.msg,
@@ -188,16 +186,19 @@ class IndexableFolder extends Component {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.socket.removeListener('save:meta', this.updateNodeMetaOnSocketEvent);
   }
 
-  updateNodeMetaOnSocketEvent (data) {
+  updateNodeMetaOnSocketEvent(data) {
     let oldNode = Object.assign([], this.state.nodes);
 
     // Find oldNode corresponding of newNode
     // And update the meta
-    let i = 0, li = oldNode.length, j = 0, lj = data.length;
+    let i = 0,
+      li = oldNode.length,
+      j = 0,
+      lj = data.length;
 
     for (; i < li; i++) {
       for (; j < lj; j++) {
@@ -213,50 +214,54 @@ class IndexableFolder extends Component {
   }
 
   // Handle func when open Confirm Box.
-  handleModalOpen (tracks) {
-    this.setState({modal: {
-      open: true,
-      addTracks: tracks
-    }});
+  handleModalOpen(tracks) {
+    this.setState({
+      modal: {
+        open: true,
+        addTracks: tracks
+      }
+    });
   }
 
   // Handle for cancel Confirm Box.
-  handleModalCancel () {
-    this.setState({modal: {
-      open: false,
-      addTracks: []
-    }});
+  handleModalCancel() {
+    this.setState({
+      modal: {
+        open: false,
+        addTracks: []
+      }
+    });
   }
 
   // Handle for confirm Confirm Box.
-  handleModalConfirm () {
-    const tracks = this.state.modal.addTracks.map((file) => {
-      return file._id
+  handleModalConfirm() {
+    const tracks = this.state.modal.addTracks.map(file => {
+      return file._id;
     });
 
     this.handlerAddItem(null, tracks);
-    this.setState({modal: {
-      open: false,
-      addTracks: []
-    }});
+    this.setState({
+      modal: {
+        open: false,
+        addTracks: []
+      }
+    });
   }
 
   // Handler to get all files recursively in a folder.
-  handlerGetAllFiles (e, item) {
-
+  handlerGetAllFiles(e, item) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
     }
 
     const _self = this;
-    const {fetchFiles} = this.props;
+    const { fetchFiles } = this.props;
 
-    fetchFiles(ps.urlEncode(item.path)).then((data) => {
+    fetchFiles(ps.urlEncode(item.path)).then(data => {
       if (!data.success) {
         _self.setState({ error: true });
-      }
-      else {
+      } else {
         this.handleModalOpen(data.msg);
       }
     });
@@ -265,7 +270,7 @@ class IndexableFolder extends Component {
 
   // Handler onClick on a folder link.
   // Return list a folder content.
-  handlerOpenFolder (e, path) {
+  handlerOpenFolder(e, path) {
     const { history } = this.props;
 
     // Update component via url update.
@@ -274,7 +279,7 @@ class IndexableFolder extends Component {
   }
 
   // Handler that return root folder content.
-  handlerRootFolder (e) {
+  handlerRootFolder(e) {
     const { history } = this.props;
 
     // Update component via url update.
@@ -283,8 +288,7 @@ class IndexableFolder extends Component {
   }
 
   // Handler to looks at files as tracks list.
-  onListTracks (e, item) {
-
+  onListTracks(e, item) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
@@ -298,8 +302,7 @@ class IndexableFolder extends Component {
   }
 
   // Handler to play music file.
-  handlerReadFile (e, item) {
-
+  handlerReadFile(e, item) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
@@ -317,19 +320,18 @@ class IndexableFolder extends Component {
 
     // Change global state to start playing track.
     this.props.readFile(item);
-
   }
 
-  onEditMetaTag (e, item) {
+  onEditMetaTag(e, item) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
     }
-    this.setState({editMetaTagItem: item, showEditMetaTagModal: true});
+    this.setState({ editMetaTagItem: item, showEditMetaTagModal: true });
   }
 
   // Handler to add single track on playlist.
-  handlerAddItem (e, item) {
+  handlerAddItem(e, item) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
@@ -337,7 +339,11 @@ class IndexableFolder extends Component {
     const { user, history, activePlaylist, addPlaylistItems, location } = this.props;
 
     // User must be connected to add tracks.
-    if (!user) return history.push({pathname: '/login', state: { from: location.pathname }});
+    if (!user)
+      return history.push({
+        pathname: '/login',
+        state: { from: location.pathname }
+      });
 
     // May be an array of several tracks.
     let tracks = item;
@@ -348,26 +354,23 @@ class IndexableFolder extends Component {
     }
 
     // Add tracks into activated Playlist.
-    if (activePlaylist) addPlaylistItems(activePlaylist.title, {tracks: tracks});
+    if (activePlaylist) addPlaylistItems(activePlaylist.title, { tracks: tracks });
   }
 
   // Handler to add recursively all tracks on playlist.
-  handlerPlayFolder (e, item) {
-
+  handlerPlayFolder(e, item) {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
     }
 
     const _self = this;
-    const {fetchFiles, addFolderToPlay} = this.props;
+    const { fetchFiles, addFolderToPlay } = this.props;
 
-
-    fetchFiles(ps.urlEncode(item.path)).then((data) => {
+    fetchFiles(ps.urlEncode(item.path)).then(data => {
       if (!data.success) {
         _self.setState({ error: true });
-      }
-      else {
+      } else {
         const folder = {
           pl: {
             title: item.name,
@@ -381,7 +384,7 @@ class IndexableFolder extends Component {
   }
 
   // Click on folder or file element.
-  handlerClickOnFile (e, item) {
+  handlerClickOnFile(e, item) {
     if (item.isFile) {
       return this.handlerReadFile(e, item);
     }
@@ -389,8 +392,7 @@ class IndexableFolder extends Component {
     this.handlerOpenFolder(e, item.path);
   }
 
-
-  render () {
+  render() {
     const { nodes, path, error, modal } = this.state;
     const { activePlaylist } = this.props;
 
@@ -401,73 +403,82 @@ class IndexableFolder extends Component {
     }
 
     return (
-        <section className='pal'>
-          <header>
-            <h1>Music Folders</h1>
-            <Bread path={path} handlerOpenFolder={this.handlerOpenFolder} handlerRootFolder={this.handlerRootFolder} />
-          </header>
+      <section className="pal">
+        <header>
+          <h1>Music Folders</h1>
+          <Bread
+            path={path}
+            handlerOpenFolder={this.handlerOpenFolder}
+            handlerRootFolder={this.handlerRootFolder}
+          />
+        </header>
 
-          <div className='content-wrapper center w-max-l'>
-          {(!error) &&
-          <ul className='unstyled'>
-            {nodes.map((item, i) => {
-              return (
-                <IndexableFolderItem
-                  key={i}
-                  item={item}
-                  onClick={this.handlerClickOnFile}
-                  onGetFiles={this.handlerGetAllFiles}
-                  onAddItem={this.handlerAddItem}
-                  onPlayFolder={this.handlerPlayFolder}
-                  onListTracks={this.onListTracks}
-                  onEditMetaTag={this.onEditMetaTag}
-                  onPlayTrackId={this.props.onPlay._id}
-                  pause={this.props.pause}
-                />
-              )
-            })}
-          </ul>
-          }
-          </div>
+        <div className="content-wrapper center w-max-l">
+          {!error && (
+            <ul className="unstyled">
+              {nodes.map((item, i) => {
+                return (
+                  <IndexableFolderItem
+                    key={i}
+                    item={item}
+                    onClick={this.handlerClickOnFile}
+                    onGetFiles={this.handlerGetAllFiles}
+                    onAddItem={this.handlerAddItem}
+                    onPlayFolder={this.handlerPlayFolder}
+                    onListTracks={this.onListTracks}
+                    onEditMetaTag={this.onEditMetaTag}
+                    onPlayTrackId={this.props.onPlay._id}
+                    pause={this.props.pause}
+                  />
+                );
+              })}
+            </ul>
+          )}
+        </div>
 
-          {this.state.showEditMetaTagModal &&
+        {this.state.showEditMetaTagModal && (
           <EditMetaTag
             open={this.state.showEditMetaTagModal}
             item={this.state.editMetaTagItem}
-            onClose={() => this.setState({showEditMetaTagModal: false})}
+            onClose={() => this.setState({ showEditMetaTagModal: false })}
           />
-          }
+        )}
 
-          <Modal
-            isOpen={modal.open}
-            onRequestClose={this.handleModalCancel}
-            className="modal"
-            overlayClassName="modal-overlay"
-          >
+        <Modal
+          isOpen={modal.open}
+          onRequestClose={this.handleModalCancel}
+          className="modal"
+          overlayClassName="modal-overlay"
+        >
+          <h2 className="modal-title">
+            <i aria-hidden="true" className="icon icon-edit icon-xl" />
+            {`Add ${modal.addTracks.length} tracks ?`}
+          </h2>
 
-             <h2 className="modal-title">
-               <i aria-hidden="true" className="icon icon-edit icon-xl"/>
-               {`Add ${modal.addTracks.length} tracks ?`}
-             </h2>
+          <div className="modal-content">
+            <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
+          </div>
 
-              <div className="modal-content">
-                <p>{`Do you want to add all those tracks on ${activePlaylistTitle} playlist ?`}</p>
-              </div>
-
-              <div className="modal-actions">
-                <button onClick={this.handleModalCancel} className="btn btn-no btn-inverted modal-btn">
-                  <i aria-hidden="true" className="icon icon-x modal-btn-icon" />No
-                </button>
-                <button onClick={this.handleModalConfirm} className="btn btn-yes btn-inverted modal-btn">
-                  <i aria-hidden="true" className="icon icon-check modal-btn-icon" />Yes
-                </button>
-              </div>
-
-
-          </Modal>
-        </section>
-      );
-    }
+          <div className="modal-actions">
+            <button
+              onClick={this.handleModalCancel}
+              className="btn btn-no btn-inverted modal-btn"
+            >
+              <i aria-hidden="true" className="icon icon-x modal-btn-icon" />
+              No
+            </button>
+            <button
+              onClick={this.handleModalConfirm}
+              className="btn btn-yes btn-inverted modal-btn"
+            >
+              <i aria-hidden="true" className="icon icon-check modal-btn-icon" />
+              Yes
+            </button>
+          </div>
+        </Modal>
+      </section>
+    );
+  }
 }
 
 const mapStateToProps = state => {
@@ -476,27 +487,22 @@ const mapStateToProps = state => {
     activePlaylist: state.playlistStore.activePlaylist,
     onPlay: state.playlistStore.onPlay,
     pause: state.playlistStore.pause
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchFolder: (query) => dispatch(
-      get(`nodes/q/child?path=${query || ''}`)
-    ),
+    fetchFolder: query => dispatch(get(`nodes/q/child?path=${query || ''}`)),
 
-    searchNodes: (query) => dispatch(
-      get(`search/album?search=${query || ''}`)
-    ),
-    fetchFiles: (query) => dispatch(
-      get(`nodes/q/files?path=${query || ''}`)
-    ),
-    addPlaylistItems: (title, items) => dispatch(
-      post(`playlist/${title}`, {
-        data: items
-      })
-    ),
-    addFolderToPlay: (item) => {
+    searchNodes: query => dispatch(get(`search/album?search=${query || ''}`)),
+    fetchFiles: query => dispatch(get(`nodes/q/files?path=${query || ''}`)),
+    addPlaylistItems: (title, items) =>
+      dispatch(
+        post(`playlist/${title}`, {
+          data: items
+        })
+      ),
+    addFolderToPlay: item => {
       // Search first track on list.
       const track = item.pl.tracks[0];
       // Add album to store.
@@ -504,16 +510,10 @@ const mapDispatchToProps = dispatch => {
       // If track, play it.
       if (track) dispatch(playItem(track));
     },
-    readFile: (item) => dispatch(
-      playItem(item)
-    ),
-    onPauseFunc: () => dispatch(
-      pauseState()
-    ),
-    onPlayFunc: () => dispatch(
-      playState()
-    )
-  }
+    readFile: item => dispatch(playItem(item)),
+    onPauseFunc: () => dispatch(pauseState()),
+    onPlayFunc: () => dispatch(playState())
+  };
 };
 
 const IndexableFolderContainer = connect(
@@ -522,46 +522,60 @@ const IndexableFolderContainer = connect(
 )(IndexableFolder);
 
 //// Helper
-function Bread ({ path, handlerOpenFolder, handlerRootFolder }) {
-
+function Bread({ path, handlerOpenFolder, handlerRootFolder }) {
   const l = path.length;
 
   return (
     <nav>
       <ul className="unstyled breadcrumb-ul flex-container">
-        <li key='0' className="breadcrumb-li" style={{'cursor': 'pointer'}}>
-          <a href="#" onClick={handlerRootFolder} title='Home' className="breadcrumb-a">
-            <i aria-hidden="true" className='icon icon-home icon-m' />
-            { (l>0) && <i aria-hidden="true" className='icon icon-chevron-right icon-m' />}
+        <li key="0" className="breadcrumb-li" style={{ cursor: 'pointer' }}>
+          <a
+            href="#"
+            onClick={handlerRootFolder}
+            title="Home"
+            className="breadcrumb-a"
+          >
+            <i aria-hidden="true" className="icon icon-home icon-m" />
+            {l > 0 && (
+              <i aria-hidden="true" className="icon icon-chevron-right icon-m" />
+            )}
           </a>
         </li>
         {path.map((item, i) => {
-              // Check if not last item
-              if (l !== i + 1) {
-                return (
-                  <li key={i+1} className="breadcrumb-li" style={{'cursor': 'pointer'}}>
-                    <a href="#" title={item} className="breadcrumb-a" onClick={(e) => handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))}>
-                      {item}
-                      <i aria-hidden="true" className='icon icon-chevron-right icon-m' />
-                    </a>
-
-                  </li>
-                );
-              } else {
-                return (
-                  <li key={i+1} className="breadcrumb-li">
-                    <span title={item} className="breadcrumb-a">
-                      {item}
-                    </span>
-                  </li>
-                );
-              }
-
-
-            })}
+          // Check if not last item
+          if (l !== i + 1) {
+            return (
+              <li
+                key={i + 1}
+                className="breadcrumb-li"
+                style={{ cursor: 'pointer' }}
+              >
+                <a
+                  href="#"
+                  title={item}
+                  className="breadcrumb-a"
+                  onClick={e =>
+                    handlerOpenFolder(e, ps.buildPath(path.slice(0, i + 1)))
+                  }
+                >
+                  {item}
+                  <i aria-hidden="true" className="icon icon-chevron-right icon-m" />
+                </a>
+              </li>
+            );
+          } else {
+            return (
+              <li key={i + 1} className="breadcrumb-li">
+                <span title={item} className="breadcrumb-a">
+                  {item}
+                </span>
+              </li>
+            );
+          }
+        })}
       </ul>
     </nav>
-  )
+  );
 }
 
-export default IndexableFolderContainer
+export default IndexableFolderContainer;

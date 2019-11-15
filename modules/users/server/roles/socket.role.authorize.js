@@ -5,7 +5,7 @@
 
 const _ = require('lodash');
 
-module.exports = function (user, authorizedRoles, next) {
+module.exports = function(user, authorizedRoles, next) {
   const userRoles = user.roles;
   const ids = [];
 

@@ -6,16 +6,17 @@
  * @type {{register, emit}}
  *
  */
-module.exports = (function () {
+module.exports = (function() {
   const socketsActions = {};
 
   return {
-
     register: (event, callback) => {
       // If event already registered, return.
       if (socketsActions[event]) {
         //@todo
-        return console.log(`Event ${event} already registered for namespace A VENIR`);
+        return console.log(
+          `Event ${event} already registered for namespace A VENIR`
+        );
       }
 
       // Else, register event.
@@ -29,11 +30,10 @@ module.exports = (function () {
         console.log('emit');
         try {
           socketsActions[event].call(data);
-        }
-        catch (err) {
+        } catch (err) {
           throw new Error(err);
         }
       }
     }
-  }
-}());
+  };
+})();

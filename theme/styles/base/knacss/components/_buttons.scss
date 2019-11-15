@@ -26,7 +26,7 @@
 
 .btn,
 .button,
-[type="button"],
+[type='button'],
 button {
   @extend %btn;
 
@@ -47,7 +47,7 @@ button {
       &:active,
       &:focus,
       &:hover {
-        background-color: darken( $background-color, 10% );
+        background-color: darken($background-color, 10%);
       }
     }
   }
@@ -58,7 +58,7 @@ button {
 .button {
   &--small {
     padding: $spacer-tiny-plus $spacer-small;
-    font-size: .8em;
+    font-size: 0.8em;
   }
 
   &--big {
@@ -115,16 +115,16 @@ button {
     background-repeat: no-repeat;
     background-origin: content-box;
     background-size: 100% $burger-weight;
-    transition: .25s;
+    transition: 0.25s;
     transition-property: transform, background;
     will-change: transform, background;
 
     &::before,
     &::after {
-      content: "";
+      content: '';
       height: $burger-weight;
       background: $burger-color;
-      transition: .25s;
+      transition: 0.25s;
       transition-property: transform, top;
       will-change: transform, top;
     }
@@ -141,16 +141,15 @@ button {
   }
 
   &.is-active {
-
     & > * {
       background-image: none;
       justify-content: center;
 
       &::before {
-        transform: translateY(50%) rotate3d(0,0,1,45deg);
+        transform: translateY(50%) rotate3d(0, 0, 1, 45deg);
       }
       &::after {
-        transform: translateY(-50%) rotate3d(0,0,1,-45deg);
+        transform: translateY(-50%) rotate3d(0, 0, 1, -45deg);
       }
     }
   }

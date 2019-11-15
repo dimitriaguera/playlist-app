@@ -6,8 +6,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-
-
 /**
  * Node model.
  *
@@ -44,13 +42,13 @@ const NodeSchema = new Schema({
  * Cascade effect : all children removed call middleware, and remove his own children.
  *
  */
-NodeSchema.pre('remove', function (next) {
+NodeSchema.pre('remove', function(next) {
   const id = this._id;
 
   // Delete children Nodes.
-  Node.find({parent: id}, (err, nodes) => {
-    nodes.forEach(function (node) {
-      node.remove((err) => {
+  Node.find({ parent: id }, (err, nodes) => {
+    nodes.forEach(function(node) {
+      node.remove(err => {
         if (err) return next(err);
       });
     });
@@ -81,11 +79,9 @@ NodeSchema.pre('remove', function (next) {
 //     }
 // });
 
-
-NodeSchema.post('save', function () {
+NodeSchema.post('save', function() {
   console.log('Save : ' + this.path);
 });
-
 
 const Node = mongoose.model('Node', NodeSchema);
 module.exports = Node;

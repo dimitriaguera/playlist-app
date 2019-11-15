@@ -3,13 +3,12 @@
  */
 const _ = require('lodash');
 
-
 /**
  * Remove duplicate value form an array
  * @param arr
  * @returns {[null]}
  */
-exports.uniq = function (Arr) {
+exports.uniq = function(Arr) {
   return [...new Set(Arr)];
 };
 
@@ -18,23 +17,26 @@ exports.uniq = function (Arr) {
  * @param obj
  * @returns {*}
  */
-exports.trimObj = function (obj) {
+exports.trimObj = function(obj) {
   if (!Array.isArray(obj) || typeof obj !== 'object' || !obj) return obj;
 
-  return Object.keys(obj).reduce(function (acc, key) {
-    acc[key.trim()] = typeof obj[key] === 'string' ? obj[key].trim() : exports.trimObj(obj[key]);
-    return acc;
-  }, Array.isArray(obj) ? [] : {});
+  return Object.keys(obj).reduce(
+    function(acc, key) {
+      acc[key.trim()] =
+        typeof obj[key] === 'string' ? obj[key].trim() : exports.trimObj(obj[key]);
+      return acc;
+    },
+    Array.isArray(obj) ? [] : {}
+  );
 };
-
 
 /**
  * Giving an array split it and return the rest
  */
-exports.splitTab = function (files, nbToSplit) {
+exports.splitTab = function(files, nbToSplit) {
   let tabOnWork;
 
-  nbToSplit = (files.length > nbToSplit) ? nbToSplit : files.length;
+  nbToSplit = files.length > nbToSplit ? nbToSplit : files.length;
 
   tabOnWork = files.slice(0, nbToSplit);
   files.splice(0, nbToSplit);
@@ -56,7 +58,6 @@ exports.splitTab = function (files, nbToSplit) {
 //
 // };
 
-
 /**
  * Push an element on a Array only if
  * doesn't exist
@@ -65,7 +66,7 @@ exports.splitTab = function (files, nbToSplit) {
  * @param array
  * @param callee
  */
-exports.pushUniq = function (data, array, callee) {
+exports.pushUniq = function(data, array, callee) {
   const call = callee || (elmt => elmt === data);
 
   if (array.findIndex(call) === -1) {
@@ -80,7 +81,7 @@ exports.pushUniq = function (data, array, callee) {
  * @param theNews
  * @returns {{deleted: *, added: *}}
  */
-exports.compareArray = function (theOlds, theNews) {
+exports.compareArray = function(theOlds, theNews) {
   const deleted = _.difference(theOlds, theNews);
   const added = _.difference(theNews, theOlds);
 
@@ -96,7 +97,7 @@ exports.compareArray = function (theOlds, theNews) {
  * @param arr2
  * @returns {*}
  */
-exports.testMergeArray = function (arr1, arr2) {
+exports.testMergeArray = function(arr1, arr2) {
   // Concat arr1 and 2, remove clones
   const newArray = _.uniq(arr1.concat(arr2));
   // If more entry, return concat array.
@@ -112,10 +113,9 @@ exports.testMergeArray = function (arr1, arr2) {
  * @param arr2
  * @returns {*}
  */
-exports.mergeUniqArray = function (arr1, arr2) {
+exports.mergeUniqArray = function(arr1, arr2) {
   return _.uniq(arr1.concat(arr2));
 };
-
 
 /**
  * _.difference([2, 1], [2, 3]);
@@ -123,10 +123,9 @@ exports.mergeUniqArray = function (arr1, arr2) {
  * @param arr1
  * @param arr2
  */
-exports.difference = function (arr1, arr2) {
+exports.difference = function(arr1, arr2) {
   return _.difference(arr1, arr2);
 };
-
 
 /**
  * Deep diff between two object, using lodash
@@ -137,18 +136,20 @@ exports.difference = function (arr1, arr2) {
  *
  * https://gist.github.com/Yimiprod/7ee176597fef230d1451
  */
-exports.deepObjDifference = function (object, base) {
-  function changes (object, base) {
-    return _.transform(object, function (result, value, key) {
+exports.deepObjDifference = function(object, base) {
+  function changes(object, base) {
+    return _.transform(object, function(result, value, key) {
       if (!_.isEqual(value, base[key])) {
-        result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+        result[key] =
+          _.isObject(value) && _.isObject(base[key])
+            ? changes(value, base[key])
+            : value;
       }
     });
   }
 
   return changes(object, base);
 };
-
 
 /**
  * Creates a shallow clone in deep of value.
@@ -161,28 +162,26 @@ exports.deepObjDifference = function (object, base) {
  * console.log(shallow[0] === objects[0]);
  * // => false
  */
-exports.cloneDeep = function (obj) {
+exports.cloneDeep = function(obj) {
   return _.cloneDeep(obj);
 };
-
 
 /**
  * This function flatten an array of array deeply
  * @param arr
  */
-exports.flattenDeep = function (arr) {
+exports.flattenDeep = function(arr) {
   return arr.reduce(
-    (flat, toFlatten) => flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten),
+    (flat, toFlatten) =>
+      flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten),
     []
   );
 };
 
-
-exports.isString = function (x) {
-  return Object.prototype.toString.call(x) === "[object String]"
+exports.isString = function(x) {
+  return Object.prototype.toString.call(x) === '[object String]';
 };
 
-
-exports.isArray = function (x) {
-  return Object.prototype.toString.call(x) === "[object Array]"
+exports.isArray = function(x) {
+  return Object.prototype.toString.call(x) === '[object Array]';
 };

@@ -129,12 +129,10 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "./node_modules/.bin/prettier --write",
-      "./node_modules/.bin/eslint",
       "git add"
     ],
     "*.{scss,css}": [
       "./node_modules/.bin/prettier --write",
-      "./node_modules/.bin/stylelint",
       "git add"
     ],
     "*.{json,md,html}": [

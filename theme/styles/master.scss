@@ -1,17 +1,17 @@
-@import "base/knacss/knacss.scss";
-@import "base/color";
-@import "base/fonts";
-@import "base/icon";
-@import "base/layout";
-@import "base/menu";
+@import 'base/knacss/knacss.scss';
+@import 'base/color';
+@import 'base/fonts';
+@import 'base/icon';
+@import 'base/layout';
+@import 'base/menu';
 
 // General Component
-@import "base/misc/button";
-@import "base/misc/breadcrumb";
-@import "base/misc/modal";
+@import 'base/misc/button';
+@import 'base/misc/breadcrumb';
+@import 'base/misc/modal';
 
 // React Component
-@import "reactComponents/allComponents";
+@import 'reactComponents/allComponents';
 
 //*:focus {
 //  box-shadow: 0 0 10px 5px $color-primary !important;

@@ -1,12 +1,11 @@
 $color-brown: #848484;
 $ab-img-size: 10rem;
 
-
 .audioBar-meta {
   display: flex;
   flex-direction: row;
 
-  .icon-eye{
+  .icon-eye {
     color: $color-primary;
   }
 }
@@ -18,7 +17,6 @@ $ab-img-size: 10rem;
 .audioBar-meta-info {
   display: none;
 }
-
 
 @include respond-to('medium-up') {
   .audioBar-meta-info {
@@ -72,4 +70,3 @@ $ab-img-size: 10rem;
     }
   }
 }
-

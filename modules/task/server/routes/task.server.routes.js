@@ -3,13 +3,12 @@
  */
 const task = require('../controllers/task.server.controllers.js');
 
-module.exports = function (app) {
+module.exports = function(app) {
   // Return all task status, ended or not.
   app.route('/api/task').get(task.getAllTask);
 
   // Return a task.
-  app.route('/api/task/id/:memId')
-    .get(task.getTask);
+  app.route('/api/task/id/:memId').get(task.getTask);
   // .delete(task.deleteTask);
 
   // Return tasks.

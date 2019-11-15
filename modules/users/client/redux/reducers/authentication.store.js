@@ -2,10 +2,15 @@
  * Created by Dimitri Aguera on 08/09/2017.
  */
 import {
-  REGISTER_REQUEST, REGISTER_SUCCESS, REGISTER_FAILURE,
-  LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
-  LOGOUT_REQUEST, LOGOUT_SUCCESS
-} from '../actions'
+  REGISTER_REQUEST,
+  REGISTER_SUCCESS,
+  REGISTER_FAILURE,
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE,
+  LOGOUT_REQUEST,
+  LOGOUT_SUCCESS
+} from '../actions';
 
 let initialState = {
   isFetching: false,
@@ -72,6 +77,6 @@ export const authenticationStore = (state = initialState, action) => {
       });
 
     default:
-      return state
+      return state;
   }
 };

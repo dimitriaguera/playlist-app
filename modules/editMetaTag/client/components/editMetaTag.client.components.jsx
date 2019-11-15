@@ -1,13 +1,12 @@
-import React, {Component} from 'react'
-import {connect} from 'react-redux'
-import {put, get} from 'core/client/services/core.api.services'
-import {Form, Message, Input, Dropdown, Label} from 'semantic-ui-react'
-import Select from 'react-select'
-import Modal from 'react-modal'
-import ps from 'core/client/services/core.path.services'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { put, get } from 'core/client/services/core.api.services';
+import { Form, Message, Input, Dropdown, Label } from 'semantic-ui-react';
+import Select from 'react-select';
+import Modal from 'react-modal';
+import ps from 'core/client/services/core.path.services';
 
-import socketServices from 'core/client/services/core.socket.services'
-
+import socketServices from 'core/client/services/core.socket.services';
 
 class EditMetaTag extends Component {
   constructor(props) {
@@ -26,12 +25,11 @@ class EditMetaTag extends Component {
     this.handleChangeCheckBox = this.handleChangeCheckBox.bind(this);
 
     this.selectOpt = [
-      {key: 'donothing', label: 'donothing', value: 'donothing'},
-      {key: 'override', label: 'override', value: 'override'},
-      {key: 'remove', label: 'remove', value: 'remove'},
-      {key: 'add', label: 'add', value: 'add'}
+      { key: 'donothing', label: 'donothing', value: 'donothing' },
+      { key: 'override', label: 'override', value: 'override' },
+      { key: 'remove', label: 'remove', value: 'remove' },
+      { key: 'add', label: 'add', value: 'add' }
     ];
-
 
     this.state = {
       error: false,
@@ -52,7 +50,7 @@ class EditMetaTag extends Component {
     const _self = this;
 
     // React Modal
-    Modal.setAppElement("#root");
+    Modal.setAppElement('#root');
 
     // If other user modify meta on the same file print error.
     _self.socket.on('save:meta', _self.updateNodeMetaOnSocketEvent);
@@ -60,44 +58,49 @@ class EditMetaTag extends Component {
     // Check if isFile and fill meta
     if (_self.props.item.isFile) {
       if (!_self.props.item.meta) {
-        _self.setState(
-          {
-            error: true,
-            loading: false,
-            message: 'No meta found !'
-          });
+        _self.setState({
+          error: true,
+          loading: false,
+          message: 'No meta found !'
+        });
       }
 
       // If is Album dir get all files
     } else {
       // Get all files in the dir
-      _self.props.fetchFiles(ps.urlEncode(_self.props.item.path)).then((nodes) => {
+      _self.props.fetchFiles(ps.urlEncode(_self.props.item.path)).then(nodes => {
         if (!nodes.success) {
-          return _self.setState(
-            {
-              error: true,
-              loading: false,
-              message: 'Issue when loading files !'
-            }
-          );
+          return _self.setState({
+            error: true,
+            loading: false,
+            message: 'Issue when loading files !'
+          });
         }
 
         let bulkMeta = initBulkMeta();
 
-
         // Helper for loop on nodes
-        let iNodes, liNodes = nodes.msg.length;
+        let iNodes,
+          liNodes = nodes.msg.length;
 
         // Helper for loop on bulkMeta Keys
-        let jKeys, keys = Object.keys(bulkMeta), ljKeys = keys.length;
+        let jKeys,
+          keys = Object.keys(bulkMeta),
+          ljKeys = keys.length;
 
         // Fill bulkMeta with meta in all nodes and remove duplicate value
         // for instead of forEach for perf.
         for (jKeys = 0; jKeys < ljKeys; jKeys++) {
           for (iNodes = 0; iNodes < liNodes; iNodes++) {
-            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]]));
+            bulkMeta[keys[jKeys]] = bulkMeta[keys[jKeys]].concat(
+              checkStringReturnArray(nodes.msg[iNodes].meta[keys[jKeys]])
+            );
           }
-          bulkMeta[keys[jKeys]] = changeEmptyValInArray(uniq(bulkMeta[keys[jKeys]]), 'NOT MET', true);
+          bulkMeta[keys[jKeys]] = changeEmptyValInArray(
+            uniq(bulkMeta[keys[jKeys]]),
+            'NOT MET',
+            true
+          );
         }
 
         // Fill state.meta if is unique and
@@ -106,7 +109,11 @@ class EditMetaTag extends Component {
         let newExistingMetaBulk = {};
         for (jKeys = 0; jKeys < ljKeys; jKeys++) {
           if (bulkMeta[keys[jKeys]].length === 1) {
-            if (bulkMeta[keys[jKeys]][0] !== undefined && bulkMeta[keys[jKeys]][0] !== 'NOT MET') newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
+            if (
+              bulkMeta[keys[jKeys]][0] !== undefined &&
+              bulkMeta[keys[jKeys]][0] !== 'NOT MET'
+            )
+              newMeta[keys[jKeys]] = bulkMeta[keys[jKeys]][0];
           } else {
             newExistingMetaBulk[keys[jKeys]] = bulkMeta[keys[jKeys]].join(', ');
           }
@@ -156,7 +163,8 @@ class EditMetaTag extends Component {
   }
 
   handleChange(e) {
-    let name = e.target.name, value = e.target.value;
+    let name = e.target.name,
+      value = e.target.value;
 
     let oldMeta = Object.assign({}, this.state.meta);
 
@@ -164,7 +172,7 @@ class EditMetaTag extends Component {
 
     this.setState({
       meta: oldMeta
-    })
+    });
   }
 
   handleChangeDropDown(selected, name) {
@@ -174,25 +182,23 @@ class EditMetaTag extends Component {
 
     this.setState({
       metaAction: oldMetaAction
-    })
+    });
   }
 
-  handleChangeCheckBox(e){
-
+  handleChangeCheckBox(e) {
     let oldSaveCheckBox = Object.assign({}, this.state.saveCheckBox);
 
     oldSaveCheckBox[e.target.name] = e.target.checked;
 
     this.setState({
       saveCheckBox: oldSaveCheckBox
-    })
-
+    });
   }
 
   submitForm() {
     const _self = this;
 
-    _self.setState({loading: true});
+    _self.setState({ loading: true });
 
     // User need to be authenticated.
     // @todo uncomment this
@@ -216,60 +222,54 @@ class EditMetaTag extends Component {
     newNode.opts = _self.state.saveCheckBox;
 
     // User authenticated on any role can create playlist.
-    _self.props.updateNode(newNode)
-      .then((data) => {
-        if (!data.success) {
-          _self.setState({loading: false, error: true, message: data.msg});
-        }
-        else {
-          // _self.setState({loading: false, error: false, message: data.msg});
-          this.handleClose();
-        }
-      });
+    _self.props.updateNode(newNode).then(data => {
+      if (!data.success) {
+        _self.setState({ loading: false, error: true, message: data.msg });
+      } else {
+        // _self.setState({loading: false, error: false, message: data.msg});
+        this.handleClose();
+      }
+    });
   }
 
+  buildFieldForm(name, label, placeholder, inputType) {
+    inputType = inputType ? inputType : 'text';
 
-  buildFieldForm(name, label, placeholder, inputType){
+    return (
+      <div className="form-row">
+        <label className="meta-label h3-like" htmlFor={name}>
+          {label}
+        </label>
 
-    inputType = (inputType) ? inputType : 'text';
-
-    return(
-
-      <div className='form-row'>
-
-        <label className='meta-label h3-like' htmlFor={name}>{label}</label>
-
-        <div className='meta-action'>
+        <div className="meta-action">
           <input
             id={name}
             type={inputType}
-            className='meta-input'
+            className="meta-input"
             placeholder={placeholder}
             name={name}
             value={this.state.meta[name]}
             onChange={this.handleChange}
             disabled={this.state.inputDisable[name]}
-          >
-          </input>
+          ></input>
 
           <Select
             name={name}
-            className='meta-select'
+            className="meta-select"
             clearable={false}
-            onChange={(selectedOpt) => this.handleChangeDropDown(selectedOpt, name)}
+            onChange={selectedOpt => this.handleChangeDropDown(selectedOpt, name)}
             value={this.state.metaAction[name]}
-            options={this.selectOpt}/>
+            options={this.selectOpt}
+          />
         </div>
 
-        {this.state.existingMetaBulk[name] &&
-          <span className='meta-exists'>
+        {this.state.existingMetaBulk[name] && (
+          <span className="meta-exists">
             Existing values : {this.state.existingMetaBulk[name]}
           </span>
-        }
-
+        )}
       </div>
     );
-
   }
 
   render() {
@@ -280,24 +280,18 @@ class EditMetaTag extends Component {
         className="modal"
         overlayClassName="modal-overlay"
       >
-
         <h2>
-          <i aria-hidden="true" className="icon icon-edit icon-xl"/>
+          <i aria-hidden="true" className="icon icon-edit icon-xl" />
           Edit Metatag
         </h2>
 
-
         <div className="modal-content">
-
           <Form error success loading={this.state.loading}>
-
             {this.state.error ? (
-                <Message error content={this.state.message}/>
-              )
-              : (
-                <Message success content={this.state.message}/>
-              )
-            }
+              <Message error content={this.state.message} />
+            ) : (
+              <Message success content={this.state.message} />
+            )}
 
             {this.buildFieldForm('title', 'Title', 'Title')}
             {this.buildFieldForm('artist', 'Artist', 'Artist')}
@@ -311,27 +305,48 @@ class EditMetaTag extends Component {
             {this.buildFieldForm('diskno', 'Disk n°', 'Disk n°', 'number')}
             {this.buildFieldForm('diskof', 'Disk of', 'Disk of', 'number')}
 
-            <div className='form-row'>
-              <ul className='unstyled'>
+            <div className="form-row">
+              <ul className="unstyled">
                 <li>
-                  <input id='updateDBES' name='updateDBES' className='checkbox' type='checkbox' checked={this.state.saveCheckBox.updateDBES} onChange={this.handleChangeCheckBox}/>
-                  <label htmlFor='updateDBES'>Save meta in DataBase</label>
+                  <input
+                    id="updateDBES"
+                    name="updateDBES"
+                    className="checkbox"
+                    type="checkbox"
+                    checked={this.state.saveCheckBox.updateDBES}
+                    onChange={this.handleChangeCheckBox}
+                  />
+                  <label htmlFor="updateDBES">Save meta in DataBase</label>
                 </li>
                 <li>
-                  <input name='updateFiles' className='checkbox' type='checkbox' checked={this.state.saveCheckBox.updateFiles} onChange={this.handleChangeCheckBox}/>
-                  <label htmlFor='updateFiles'>Save meta in files</label>
+                  <input
+                    name="updateFiles"
+                    className="checkbox"
+                    type="checkbox"
+                    checked={this.state.saveCheckBox.updateFiles}
+                    onChange={this.handleChangeCheckBox}
+                  />
+                  <label htmlFor="updateFiles">Save meta in files</label>
                 </li>
               </ul>
             </div>
-
           </Form>
         </div>
         <div className="modal-actions">
-          <button onClick={this.handleClose} className="btn btn-no btn-inverted modal-btn">
-            <i aria-hidden="true" className="icon icon-x modal-btn-icon"/>No
+          <button
+            onClick={this.handleClose}
+            className="btn btn-no btn-inverted modal-btn"
+          >
+            <i aria-hidden="true" className="icon icon-x modal-btn-icon" />
+            No
           </button>
-          <button type='submit' onClick={this.submitForm} className="btn btn-yes btn-inverted modal-btn">
-            <i aria-hidden="true" className="icon icon-check modal-btn-icon"/>Yes
+          <button
+            type="submit"
+            onClick={this.submitForm}
+            className="btn btn-yes btn-inverted modal-btn"
+          >
+            <i aria-hidden="true" className="icon icon-check modal-btn-icon" />
+            Yes
           </button>
         </div>
       </Modal>
@@ -342,20 +357,15 @@ class EditMetaTag extends Component {
 const mapStateToProps = state => {
   return {
     user: state.authenticationStore._user
-  }
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateNode: (item) => dispatch(
-      put('nodes/' + item._id + '/meta', {data: item})
-    ),
+    updateNode: item => dispatch(put('nodes/' + item._id + '/meta', { data: item })),
 
-    fetchFiles: (query) => dispatch(
-      get(`nodes/q/files?path=${query || ''}`)
-    )
-
-  }
+    fetchFiles: query => dispatch(get(`nodes/q/files?path=${query || ''}`))
+  };
 };
 
 const EditMetaTagContainer = connect(
@@ -363,20 +373,19 @@ const EditMetaTagContainer = connect(
   mapDispatchToProps
 )(EditMetaTag);
 
-export default EditMetaTagContainer
-
+export default EditMetaTagContainer;
 
 // HELPER
-function initMetaWrap(stringType, value){
+function initMetaWrap(stringType, value) {
   let generate;
   if (stringType === 'array') {
     generate = () => [];
   } else if (stringType === 'object') {
     generate = () => {};
   } else if (stringType === 'boolean') {
-    generate = () => (value) ? value : false;
+    generate = () => (value ? value : false);
   } else {
-    generate = () => (value) ? value : '';
+    generate = () => (value ? value : '');
   }
   return {
     title: generate(),
@@ -390,9 +399,8 @@ function initMetaWrap(stringType, value){
     trackof: generate(),
     diskno: generate(),
     diskof: generate()
-  }
+  };
 }
-
 
 function initMeta(meta) {
   if (meta) {
@@ -402,19 +410,19 @@ function initMeta(meta) {
       album: meta.album || '',
       albumartist: meta.albumartist || '',
       year: meta.year || '',
-      genre: (meta.genre) ? meta.genre.join(', ') : '',
+      genre: meta.genre ? meta.genre.join(', ') : '',
       composer: meta.composer || '',
       trackno: meta.trackno || '',
       trackof: meta.trackof || '',
       diskno: meta.diskno || '',
       diskof: meta.diskof || ''
-    }
+    };
   }
 
   return initMetaWrap('string');
 }
 
-function initBulkMeta(){
+function initBulkMeta() {
   return initMetaWrap('array');
 }
 
@@ -422,7 +430,7 @@ function initInput() {
   return initMetaWrap('boolean');
 }
 
-function initMetaAction(){
+function initMetaAction() {
   // donothing, override, remove, add
   return initMetaWrap('string', 'donothing');
 }
@@ -468,7 +476,6 @@ function changeEmptyValInArray(arr, replacer, first) {
 function uniq(arr) {
   return [...new Set(arr)];
 }
-
 
 function cleanMeta(meta) {
   let cleanMeta = Object.assign({}, meta);

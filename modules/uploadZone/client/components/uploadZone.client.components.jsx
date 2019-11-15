@@ -2,12 +2,12 @@
  * Created by Marc Foletto on 23/01/2018.
  */
 
-import React, { Component } from 'react'
-import config from 'env/config.client'
-import {removeLast} from 'core/client/services/core.path.services'
+import React, { Component } from 'react';
+import config from 'env/config.client';
+import { removeLast } from 'core/client/services/core.path.services';
 
 class UploadZone extends Component {
-  constructor () {
+  constructor() {
     super();
 
     this.onDrop = this.onDrop.bind(this);
@@ -17,11 +17,10 @@ class UploadZone extends Component {
     this.state = {
       isHovered: false,
       input: false
-    }
+    };
   }
 
-  componentWillMount () {
-
+  componentWillMount() {
     // We could add this function on window in order to put some visual when
     // a file enter in the window.
     // But to many listener for just that at the moment.
@@ -29,59 +28,54 @@ class UploadZone extends Component {
     // window.addEventListener('drop', (e) => e.preventDefault());
   }
 
-  handleUpload () {
+  handleUpload() {}
 
-
-
-  }
-
-  resetDrag () {
-
-  }
+  resetDrag() {}
 
   // Use File and Directory Entries API if exist (this permit to upload folder)
   // Put every file from a directory and create a fullPath.
-  addFilesFromDirectory (directory, path) {
+  addFilesFromDirectory(directory, path) {
     // This promise is resolved when all items are resolved
     return new Promise((resolveOne, rejectOne) => {
       let reader = directory.createReader();
       let promises = [];
       let _self = this;
 
-      (function readEntries () {
+      (function readEntries() {
         // According to the FileSystem API spec, readEntries() must be called until
         // it calls the callback with an empty array.
-        reader.readEntries((entries) => {
-          if (!entries.length) {
-            // Done iterating this particular directory
-            Promise
-              .all(promises)
-              .then(files => resolveOne(files));
-          } else {
-            for (let entry of entries) {
-              // FILES
-              if (entry.isFile) {
-                promises.push(
-                  new Promise((resolve, reject) => {
-                    entry.file(
-                      file => {
-                        file.fullPath = `${path}/${file.name}`;
-                        resolve(_self.addFile(file));
-                      },
-                      error => reject(error)
-                    );
-                  })
-                );
-                // DIRECTORIES
-              } else if (entry.isDirectory) {
-                promises.push(_self.addFilesFromDirectory(entry, `${path}/${entry.name}`));
+        reader.readEntries(
+          entries => {
+            if (!entries.length) {
+              // Done iterating this particular directory
+              Promise.all(promises).then(files => resolveOne(files));
+            } else {
+              for (let entry of entries) {
+                // FILES
+                if (entry.isFile) {
+                  promises.push(
+                    new Promise((resolve, reject) => {
+                      entry.file(
+                        file => {
+                          file.fullPath = `${path}/${file.name}`;
+                          resolve(_self.addFile(file));
+                        },
+                        error => reject(error)
+                      );
+                    })
+                  );
+                  // DIRECTORIES
+                } else if (entry.isDirectory) {
+                  promises.push(
+                    _self.addFilesFromDirectory(entry, `${path}/${entry.name}`)
+                  );
+                }
               }
+              // calling readEntries() again for the same dir
+              readEntries();
             }
-            // calling readEntries() again for the same dir
-            readEntries();
-          }
-        },
-        error => rejectOne(error)
+          },
+          error => rejectOne(error)
         );
       })();
     });
@@ -90,14 +84,14 @@ class UploadZone extends Component {
   // Use File and Directory Entries API if exist (this permit to upload folder)
   // When a folder is dropped items must be handled
   // Copied from Dropzone.js www.dropzonejs.com/
-  addFilesFromItems (items) {
+  addFilesFromItems(items) {
     // This promise is resolved when all items are resolved
     return new Promise((resolve, reject) => {
       let promises = [];
 
       for (let item of items) {
         let entry;
-        if ((item.webkitGetAsEntry !== null) && (entry = item.webkitGetAsEntry())) {
+        if (item.webkitGetAsEntry !== null && (entry = item.webkitGetAsEntry())) {
           if (entry.isFile) {
             promises.push(this.addFile(item.getAsFile()));
           } else if (entry.isDirectory) {
@@ -105,21 +99,19 @@ class UploadZone extends Component {
             promises.push(this.addFilesFromDirectory(entry, entry.name));
           }
         } else if (item.getAsFile !== null) {
-          if ((item.kind === null) || (item.kind === 'file')) {
+          if (item.kind === null || item.kind === 'file') {
             promises.push(this.addFile(item.getAsFile()));
           }
         }
       }
 
-      Promise
-        .all(promises)
+      Promise.all(promises)
         .then(items => resolve(items))
-        .catch(error => reject(error))
-      ;
-    })
+        .catch(error => reject(error));
+    });
   }
 
-  addFiles (files) {
+  addFiles(files) {
     // This promise is resolve when all items are resolved
     return new Promise((resolve, reject) => {
       // Array of promise for all files
@@ -129,36 +121,35 @@ class UploadZone extends Component {
         promises.push(this.addFile(file));
       }
 
-      Promise
-        .all(promises)
+      Promise.all(promises)
         .then(files => resolve(files))
-        .catch(error => reject(error))
-      ;
+        .catch(error => reject(error));
     });
   }
 
   // At the end this function is call for every files
   // with or without the File Api
   // Check type of file and add accepted prop.
-  addFile (file) {
-    return new Promise((resolve) => {
-      file.accepted = (config.fileSystem.fileAudioTypes.test(file.name) || config.fileSystem.fileImageTypes.test(file.name)) &&
+  addFile(file) {
+    return new Promise(resolve => {
+      file.accepted =
+        (config.fileSystem.fileAudioTypes.test(file.name) ||
+          config.fileSystem.fileImageTypes.test(file.name)) &&
         file.name.substring(0, 1) !== '.';
 
       resolve(file);
     });
   }
 
-
   // Use File and Directory Entries API if exist (this permit to upload folder)
   // Else use just event data.
-  addFilesHandler (e) {
-    let {files} = e.dataTransfer;
+  addFilesHandler(e) {
+    let { files } = e.dataTransfer;
 
     // We want to known if is a file or a folder and if the browser support folder.
     if (files.length) {
-      let {items} = e.dataTransfer;
-      if (items && items.length && (items[0].webkitGetAsEntry !== null)) {
+      let { items } = e.dataTransfer;
+      if (items && items.length && items[0].webkitGetAsEntry !== null) {
         // Browser supports folders
         this.addFilesFromItems(items)
           .then(files => this.sendFiles(files))
@@ -171,12 +162,15 @@ class UploadZone extends Component {
     }
   }
 
-  flatten (arr) {
-    return arr.reduce((flat, toFlatten) => flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten), []);
+  flatten(arr) {
+    return arr.reduce(
+      (flat, toFlatten) =>
+        flat.concat(Array.isArray(toFlatten) ? this.flatten(toFlatten) : toFlatten),
+      []
+    );
   }
 
-
-  sendFiles (files) {
+  sendFiles(files) {
     // Create a new FormData object.
     let formData = new FormData();
 
@@ -191,7 +185,8 @@ class UploadZone extends Component {
     // Loop through each of the selected files.
     for (let i = 0, l = files.length; i < l; i++) {
       // Add the file to the request.
-      if (files[i].accepted) formData.append('files', files[i], files[i].fullPath || files[i].name);
+      if (files[i].accepted)
+        formData.append('files', files[i], files[i].fullPath || files[i].name);
     }
 
     // Set up the request.
@@ -200,9 +195,8 @@ class UploadZone extends Component {
     // Open the connection.
     xhr.open('POST', '/api/sendFiles', true);
 
-
     // Set up a handler for when the request finishes.
-    xhr.onload = function () {
+    xhr.onload = function() {
       if (xhr.status === 200) {
         // File(s) uploaded.
         alert('upload');
@@ -215,8 +209,7 @@ class UploadZone extends Component {
     xhr.send(formData);
   }
 
-
-  onDrop (e) {
+  onDrop(e) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -225,36 +218,43 @@ class UploadZone extends Component {
     }
 
     this.addFilesHandler(e);
-    this.setState({input: true});
+    this.setState({ input: true });
   }
 
-  onDragOver (e) {
+  onDragOver(e) {
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'copy';
-    this.setState({isHovered: true});
+    this.setState({ isHovered: true });
   }
 
-  onDragLeave (e) {
+  onDragLeave(e) {
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'none';
-    this.setState({isHovered: false, input: false});
+    this.setState({ isHovered: false, input: false });
   }
 
-  render () {
-    const classes = this.state.isHovered ? `upload-zone drag-over ${this.props.className}` : `upload-zone ${this.props.className}`;
+  render() {
+    const classes = this.state.isHovered
+      ? `upload-zone drag-over ${this.props.className}`
+      : `upload-zone ${this.props.className}`;
 
     return (
-      <span className={classes} multiple onDrop={this.onDrop} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave}>
+      <span
+        className={classes}
+        multiple
+        onDrop={this.onDrop}
+        onDragOver={this.onDragOver}
+        onDragLeave={this.onDragLeave}
+      >
         {this.props.children}
-        {this.state.input &&
-          <form method='post' encType='multipart/form-data'>
-          </form>
-        }
+        {this.state.input && (
+          <form method="post" encType="multipart/form-data"></form>
+        )}
       </span>
     );
   }
 }
 
-export default UploadZone
+export default UploadZone;
