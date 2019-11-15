@@ -1,0 +1,6 @@
+modules/core/server/views/
+node_modules/
+work/
+public/
+.idea
+.vscode

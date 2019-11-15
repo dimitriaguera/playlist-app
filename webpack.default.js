@@ -23,7 +23,6 @@ module.exports = {
     ]
   },
   module: {
-
     rules: [
       {
         test: /\.html$/,
@@ -32,12 +31,12 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        use: ['babel-loader', 'import-glob'],
+        use: ['babel-loader', 'eslint-loader', 'import-glob'],
         exclude: /node_modules/
       },
       {
         test: /\.jsx$/,
-        use: ['babel-loader', 'import-glob'],
+        use: ['babel-loader', 'eslint-loader', 'import-glob'],
         exclude: /node_modules/
       },
       {
@@ -48,7 +47,7 @@ module.exports = {
             limit: 8192,
             name: 'assets/[name].[hash:8].[ext]'
           }
-        },
+        }
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/,
@@ -61,7 +60,7 @@ module.exports = {
             }
           },
           'img-loader'
-        ],
+        ]
       }
     ]
   },
