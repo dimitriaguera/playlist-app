@@ -95,7 +95,7 @@
     "import-glob": "^1.5.0",
     "lint-staged": "^9.4.3",
     "mocha": "^5.0.1",
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "optimize-css-assets-webpack-plugin": "^3.2.0",
     "postcss": "^6.0.12",
     "postcss-loader": "^2.0.6",
