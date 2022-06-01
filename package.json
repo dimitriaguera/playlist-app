@@ -118,7 +118,7 @@
   },
   "optionalDependencies": {
     "bcrypt": "^1.0.3",
-    "sharp": "^0.19.1",
+    "sharp": "^0.30.5",
     "taglib2": "^2.9.6"
   },
   "husky": {
